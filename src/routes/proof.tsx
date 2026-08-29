@@ -22,6 +22,7 @@ const KINDS: Array<ReceiptKind | "all"> = [
   "intel-tasking",
   "action-effect",
   "adversary-run",
+  "brain-pulse",
 ];
 
 function ProofPage() {

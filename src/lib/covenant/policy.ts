@@ -35,6 +35,7 @@ const READ_PURPOSES: Purpose[] = [
   "adversarial-test",
   "ingest",
   "intel-read",
+  "brain-navigate",
 ];
 
 export function canWriteClass(agentId: string, memoryClass: MemoryClass): boolean {

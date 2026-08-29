@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+  Brain,
   Compass,
   Cpu,
   Database,
@@ -29,6 +30,7 @@ const NAV = [
   { to: "/intel", label: "Intel", icon: Globe },
   { to: "/actions", label: "Actions", icon: Radio },
   { to: "/adversary", label: "Adversary", icon: ShieldAlert },
+  { to: "/brain", label: "Brain", icon: Brain },
   { to: "/frontier", label: "Frontier", icon: Compass },
   { to: "/mesh", label: "Mesh", icon: Network },
   { to: "/proof", label: "Proof", icon: Link2 },
@@ -39,6 +41,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const hydrate = useOrchestrator((s) => s.hydrate);
   const ready = useOrchestrator((s) => s.ready);
+  const brainAlive = useOrchestrator((s) => s.brainAlive);
+  const brainReady = useOrchestrator((s) => s.brainReady);
+  const pulseBrain = useOrchestrator((s) => s.pulseBrain);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -47,6 +52,15 @@ export function AppShell({ children }: { children: ReactNode }) {
       void hydrate();
     });
   }, [hydrate]);
+
+  useEffect(() => {
+    if (!ready || !brainAlive || !brainReady) return;
+    const id = window.setInterval(() => {
+      void pulseBrain();
+    }, 8000);
+    void pulseBrain();
+    return () => window.clearInterval(id);
+  }, [ready, brainAlive, brainReady, pulseBrain]);
 
   useEffect(() => {
     setOpen(false);
@@ -129,15 +143,18 @@ function Nav({ pathname }: { pathname: string }) {
 function PlaneStatus() {
   const memories = useOrchestrator((s) => s.memories.length);
   const receipts = useOrchestrator((s) => s.receipts.length);
+  const brainN = useOrchestrator((s) => s.brainCorpusN);
+  const alive = useOrchestrator((s) => s.brainAlive);
   return (
     <div className="mt-auto border-t border-border px-5 py-5">
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-muted">
-        <span className="size-1.5 rounded-full bg-allow" />
-        Covenant live
+        <span className={`size-1.5 rounded-full ${alive ? "bg-allow" : "bg-subtle"}`} />
+        {alive ? "Yachay live" : "Yachay paused"}
       </div>
       <div className="mt-3 space-y-1 font-mono text-[11px] text-subtle tabular">
         <div>mem {memories}</div>
         <div>rcpt {receipts}</div>
+        <div>brain {brainN || "—"}</div>
         <div>deny-by-default</div>
       </div>
     </div>

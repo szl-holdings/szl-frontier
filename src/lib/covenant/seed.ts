@@ -77,6 +77,16 @@ export const AGENTS: AgentProfile[] = [
     status: "idle",
     lastAction: "connector idle",
   },
+  {
+    id: "yachay-navigator",
+    name: "Yachay Navigator",
+    mandate: "SOFTWARE second brain — handles only, NAVIGATE or ABSTAIN, never invent a nodeId",
+    tenantId: "szl-core",
+    securityDomain: "memory-plane",
+    clearance: "secret",
+    status: "idle",
+    lastAction: "waiting corpus",
+  },
 ];
 
 export const PROJECTS: ProjectProfile[] = [

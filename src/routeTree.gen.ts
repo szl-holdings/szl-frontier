@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActionsRouteImport } from './routes/actions'
 import { Route as AdversaryRouteImport } from './routes/adversary'
+import { Route as BrainRouteImport } from './routes/brain'
 import { Route as FrontierRouteImport } from './routes/frontier'
 import { Route as GatesRouteImport } from './routes/gates'
 import { Route as IngestRouteImport } from './routes/ingest'
@@ -34,6 +35,11 @@ const ActionsRoute = ActionsRouteImport.update({
 const AdversaryRoute = AdversaryRouteImport.update({
   id: '/adversary',
   path: '/adversary',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrainRoute = BrainRouteImport.update({
+  id: '/brain',
+  path: '/brain',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FrontierRoute = FrontierRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/actions': typeof ActionsRoute
   '/adversary': typeof AdversaryRoute
+  '/brain': typeof BrainRoute
   '/frontier': typeof FrontierRoute
   '/gates': typeof GatesRoute
   '/ingest': typeof IngestRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/actions': typeof ActionsRoute
   '/adversary': typeof AdversaryRoute
+  '/brain': typeof BrainRoute
   '/frontier': typeof FrontierRoute
   '/gates': typeof GatesRoute
   '/ingest': typeof IngestRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/actions': typeof ActionsRoute
   '/adversary': typeof AdversaryRoute
+  '/brain': typeof BrainRoute
   '/frontier': typeof FrontierRoute
   '/gates': typeof GatesRoute
   '/ingest': typeof IngestRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/'
     | '/actions'
     | '/adversary'
+    | '/brain'
     | '/frontier'
     | '/gates'
     | '/ingest'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/'
     | '/actions'
     | '/adversary'
+    | '/brain'
     | '/frontier'
     | '/gates'
     | '/ingest'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/'
     | '/actions'
     | '/adversary'
+    | '/brain'
     | '/frontier'
     | '/gates'
     | '/ingest'
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActionsRoute: typeof ActionsRoute
   AdversaryRoute: typeof AdversaryRoute
+  BrainRoute: typeof BrainRoute
   FrontierRoute: typeof FrontierRoute
   GatesRoute: typeof GatesRoute
   IngestRoute: typeof IngestRoute
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/adversary'
       fullPath: '/adversary'
       preLoaderRoute: typeof AdversaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brain': {
+      id: '/brain'
+      path: '/brain'
+      fullPath: '/brain'
+      preLoaderRoute: typeof BrainRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/frontier': {
@@ -259,6 +279,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActionsRoute: ActionsRoute,
   AdversaryRoute: AdversaryRoute,
+  BrainRoute: BrainRoute,
   FrontierRoute: FrontierRoute,
   GatesRoute: GatesRoute,
   IngestRoute: IngestRoute,

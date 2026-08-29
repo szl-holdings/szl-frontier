@@ -13,6 +13,7 @@ const PURPOSES: Purpose[] = [
   "ingest",
   "intel-read",
   "action-execute",
+  "brain-navigate",
 ];
 
 export function IdentityBar() {

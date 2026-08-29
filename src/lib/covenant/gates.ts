@@ -5,6 +5,7 @@ import { evaluateIntelAction } from "@/lib/intel/feed";
 import { routeModel } from "@/lib/models/registry";
 import { evaluateAction } from "@/lib/actions/adapter";
 import { runCampaign } from "@/lib/adversary/campaign";
+import { SecondBrainIndex } from "@/lib/brain";
 import { EMBED_REVISION } from "./index-engine";
 
 function ident(
@@ -28,7 +29,7 @@ const coreRead = ident("alloy-planner", "szl-core", "memory-plane", "governed-re
 const researchRead = ident("lyte-ops", "szl-research", "research", "governed-recall");
 const auditorWrite = ident("covenant-auditor", "szl-core", "memory-plane", "policy-review");
 
-export const GATE_SPECS: { id: string; title: string; round: 1 | 2 | 3 }[] = [
+export const GATE_SPECS: { id: string; title: string; round: 1 | 2 | 3 | 4 }[] = [
   { id: "g1", title: "Cross-tenant query returns zero foreign candidates", round: 1 },
   { id: "g2", title: "Denied write creates a denial receipt and no searchable vector", round: 1 },
   { id: "g3", title: "Tombstoned item is immediately non-returnable", round: 1 },
@@ -49,6 +50,10 @@ export const GATE_SPECS: { id: string; title: string; round: 1 | 2 | 3 }[] = [
   { id: "g18", title: "Approved active-recon remains hard-denied", round: 3 },
   { id: "g19", title: "intel-read cannot execute bounded actions", round: 3 },
   { id: "g20", title: "Adversary campaign cannot change the policy bundle", round: 3 },
+  { id: "g21", title: "Empty brain query abstains with no fabricated handles", round: 4 },
+  { id: "g22", title: "Unsupported private-graph query abstains", round: 4 },
+  { id: "g23", title: "Navigator cites only an offered handle", round: 4 },
+  { id: "g24", title: "Brain learning write is receipt-sealed and purpose-bound", round: 4 },
 ];
 
 export async function runGates(): Promise<GateResult[]> {
@@ -489,6 +494,100 @@ export async function runGates(): Promise<GateResult[]> {
       passed: all,
       evidence: campaign.map((r) => `${r.scenarioId}:${r.passed ? "pass" : "fail"}`).join(" "),
       round: 3,
+    });
+  }
+
+  const yachay = new SecondBrainIndex();
+  yachay.loadText(
+    [
+      JSON.stringify({
+        id: "doc:covenant:0001",
+        title: "Memory Covenant deny by default",
+        source: "doc",
+        sha256: "a".repeat(64),
+        text: "No memory enters or leaves without identity purpose policy provenance lifecycle and a sealed receipt. vxdb is a derived index.",
+      }),
+      JSON.stringify({
+        id: "doc:lambda:0002",
+        title: "Lambda uniqueness is Conjecture 1",
+        source: "doc",
+        sha256: "b".repeat(64),
+        text: "Λ uniqueness remains Conjecture 1 and is never a theorem.",
+      }),
+    ].join("\n"),
+  );
+
+  // g21
+  {
+    const hit = yachay.search("", 6);
+    out.push({
+      id: "g21",
+      title: GATE_SPECS[20].title,
+      passed: !hit.ready && hit.handles.length === 0,
+      evidence: hit.honesty,
+      round: 4,
+    });
+  }
+
+  // g22
+  {
+    const hit = yachay.search("private 9464-node graph unpublished", 6);
+    const plan = yachay.plan("private 9464-node graph unpublished", hit.handles);
+    out.push({
+      id: "g22",
+      title: GATE_SPECS[21].title,
+      passed: plan.decision === "ABSTAIN" && plan.citedNodeIds.length === 0,
+      evidence: plan.abstainReason ?? "unexpected navigate",
+      round: 4,
+    });
+  }
+
+  // g23
+  {
+    const hit = yachay.search("deny by default memory covenant vxdb", 6);
+    const plan = yachay.plan("deny by default memory covenant vxdb", hit.handles);
+    const offered = new Set(hit.handles.map((h) => h.nodeId));
+    const ok =
+      plan.decision === "NAVIGATE" &&
+      plan.citedNodeIds.length === 1 &&
+      offered.has(plan.citedNodeIds[0]);
+    out.push({
+      id: "g23",
+      title: GATE_SPECS[22].title,
+      passed: ok,
+      evidence: `decision=${plan.decision} cited=${plan.citedNodeIds.join(",")}`,
+      round: 4,
+    });
+  }
+
+  // g24
+  {
+    const yachayWrite = ident("yachay-navigator", "szl-core", "memory-plane", "evaluation");
+    const w = await engine.write({
+      identity: yachayWrite,
+      tenantId: "szl-core",
+      securityDomain: "memory-plane",
+      memoryClass: "outcome_memory",
+      sensitivity: "internal",
+      content: "Yachay NAVIGATE sealed learning trace. Index is DATA, never weights.",
+      sourceRefs: ["szl://second-brain/public-projection", "handle://doc:covenant:0001"],
+    });
+    const forged = ident("yachay-navigator", "szl-core", "memory-plane", "brain-navigate");
+    const deny = await engine.write({
+      identity: forged,
+      tenantId: "szl-core",
+      securityDomain: "memory-plane",
+      memoryClass: "outcome_memory",
+      sensitivity: "internal",
+      content: "brain-navigate must not mutate",
+      sourceRefs: ["szl://second-brain/denied"],
+    });
+    out.push({
+      id: "g24",
+      title: GATE_SPECS[23].title,
+      passed: Boolean(w.allowed && w.memory?.envelope.contentSha256 && !deny.allowed),
+      evidence: `seal=${w.reason}; navigate-purpose-write=${deny.reason}`,
+      round: 4,
     });
   }
 

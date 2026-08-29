@@ -19,8 +19,8 @@ function GatesPage() {
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-8">
       <PageHeader
         kicker="Release gates"
-        title="v0.3 is not complete until these pass"
-        description="Round 1 memory. Round 2 ingest, intel, routing. Round 3: actions, hard denials, and an adversary campaign that cannot rewrite policy."
+        title="v0.4 is not complete until these pass"
+        description="Rounds 1–3: memory, ingest, intel, actions. Round 4: Yachay second brain — handles only, ABSTAIN on miss, no invented nodeIds."
         action={
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => void resetPlane()}>
@@ -60,8 +60,10 @@ function GatesPage() {
                 <Badge>r1</Badge>
               ) : i < 15 ? (
                 <Badge>r2</Badge>
-              ) : (
+              ) : i < 20 ? (
                 <Badge>r3</Badge>
+              ) : (
+                <Badge>r4</Badge>
               )}
               <h2 className="text-sm font-medium">{g.title}</h2>
               {lastGates ? (

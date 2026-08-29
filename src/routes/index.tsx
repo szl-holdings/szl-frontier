@@ -18,8 +18,9 @@ const SEQUENCE = [
   { n: "04", label: "Intel connector", to: "/intel" },
   { n: "05", label: "Action adapter", to: "/actions" },
   { n: "06", label: "Adversary", to: "/adversary" },
-  { n: "07", label: "Frontier", to: "/frontier" },
-  { n: "08", label: "Release gates", to: "/gates" },
+  { n: "07", label: "Yachay brain", to: "/brain" },
+  { n: "08", label: "Frontier", to: "/frontier" },
+  { n: "09", label: "Release gates", to: "/gates" },
 ] as const;
 
 const POWERS = [
@@ -57,7 +58,7 @@ function CommandCenter() {
       <PageHeader
         kicker="Command center"
         title="SZL Frontier orchestrator"
-        description="Deny-by-default memory, governed ingest, model routing, a read-only intel connector, and a controlled action adapter. Approval cannot lift a hard deny."
+        description="Deny-by-default memory, Yachay second brain (handles only), governed ingest, and a controlled action adapter. Approval cannot lift a hard deny. Index is DATA, never weights."
         action={
           <Button asChild>
             <Link to="/gates">
@@ -67,7 +68,7 @@ function CommandCenter() {
         }
       />
 
-      <div className="grid gap-2 sm:grid-cols-4 lg:grid-cols-8">
+      <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-3">
         {SEQUENCE.map((s) => (
           <Link
             key={s.n}

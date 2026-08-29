@@ -9,6 +9,7 @@ import type {
   ActionRequest,
   AdversaryRun,
   AgentProfile,
+  BrainTrace,
   FrontierIdea,
   GateResult,
   Identity,
@@ -33,6 +34,7 @@ import { MODELS, routeModel } from "@/lib/models/registry";
 import { EMBED_REVISION } from "@/lib/covenant/index-engine";
 import { ACTIONS, evaluateAction } from "@/lib/actions/adapter";
 import { runScenario as execScenario, SCENARIOS } from "@/lib/adversary/campaign";
+import { CURRICULUM, fetchPublicCorpus, SecondBrainIndex } from "@/lib/brain";
 
 export type Session = Omit<Identity, "runId">;
 
@@ -54,6 +56,13 @@ interface OrchestratorState {
   outcomes: OutcomeNode[];
   actions: ActionRequest[];
   adversaryRuns: AdversaryRun[];
+  brainReady: boolean;
+  brainAlive: boolean;
+  brainError: string | null;
+  brainCorpusN: number;
+  brainTraces: BrainTrace[];
+  brainCitations: Record<string, number>;
+  lastBrainPlan: { query: string; decision: "NAVIGATE" | "ABSTAIN"; reason: string; handles: { nodeId: string; note: string }[] } | null;
   genesisHash: string;
   policyBundleSha256: string;
   hydrate: () => Promise<void>;
@@ -85,10 +94,16 @@ interface OrchestratorState {
   decideAction: (id: string, approved: boolean) => Promise<ActionRequest>;
   fireScenario: (scenarioId: string) => Promise<AdversaryRun>;
   fireCampaign: () => Promise<AdversaryRun[]>;
+  bootBrain: () => Promise<void>;
+  setBrainAlive: (on: boolean) => void;
+  askBrain: (query: string, seal?: boolean) => Promise<BrainTrace>;
+  pulseBrain: () => Promise<BrainTrace | null>;
 }
 
 let engine: CovenantEngine | null = null;
 let hydrating: Promise<void> | null = null;
+let brain: SecondBrainIndex | null = null;
+let pulseCursor = 0;
 
 function identity(session: Session): Identity {
   return { ...session, runId: newRunId() };
@@ -163,12 +178,20 @@ export const useOrchestrator = create<OrchestratorState>()(
       outcomes: [],
       actions: [],
       adversaryRuns: [],
+      brainReady: false,
+      brainAlive: true,
+      brainError: null,
+      brainCorpusN: 0,
+      brainTraces: [],
+      brainCitations: {},
+      lastBrainPlan: null,
       genesisHash: "0".repeat(64),
       policyBundleSha256: "",
 
       hydrate: async () => {
         if (engine) {
           set({ ready: true });
+          void get().bootBrain();
           return;
         }
         if (hydrating) {
@@ -205,6 +228,7 @@ export const useOrchestrator = create<OrchestratorState>()(
         } finally {
           hydrating = null;
         }
+        void get().bootBrain();
       },
 
       setSession: (patch) => {
@@ -372,6 +396,9 @@ export const useOrchestrator = create<OrchestratorState>()(
           outcomes: [],
           actions: [],
           adversaryRuns: [],
+          brainTraces: [],
+          brainCitations: {},
+          lastBrainPlan: null,
           ready: true,
         });
       },
@@ -650,6 +677,100 @@ export const useOrchestrator = create<OrchestratorState>()(
         }
         return out;
       },
+
+      bootBrain: async () => {
+        if (brain?.built) {
+          set({ brainReady: true, brainCorpusN: brain.n, brainError: null });
+          return;
+        }
+        try {
+          const raw = await fetchPublicCorpus();
+          brain = new SecondBrainIndex();
+          brain.loadText(raw);
+          if (!brain.built) throw new Error(brain.loadError ?? "corpus empty");
+          set({ brainReady: true, brainCorpusN: brain.n, brainError: null });
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "corpus UNAVAILABLE";
+          set({ brainReady: false, brainError: msg, brainCorpusN: 0 });
+        }
+      },
+
+      setBrainAlive: (on) => set({ brainAlive: on }),
+
+      askBrain: async (query, seal = true) => {
+        if (!brain?.built) await get().bootBrain();
+        if (!brain?.built) {
+          const t: BrainTrace = {
+            id: rid("brn"),
+            at: new Date().toISOString(),
+            query,
+            decision: "ABSTAIN",
+            citedNodeIds: [],
+            handleCount: 0,
+            reason: get().brainError ?? "index UNAVAILABLE — no LIVE retrieval fabricated",
+            sealed: false,
+          };
+          set({ brainTraces: [t, ...get().brainTraces].slice(0, 80), lastBrainPlan: { query, decision: "ABSTAIN", reason: t.reason, handles: [] } });
+          return t;
+        }
+        const hit = brain.search(query, 6);
+        const plan = brain.plan(query, hit.handles);
+        const citations = { ...get().brainCitations };
+        for (const id of plan.citedNodeIds) citations[id] = (citations[id] ?? 0) + 1;
+        let sealed = false;
+        if (seal && engine) {
+          const ident = identity({
+            tenantId: "szl-core",
+            securityDomain: "memory-plane",
+            subjectId: get().session.subjectId,
+            agentId: "yachay-navigator",
+            purpose: "evaluation",
+          });
+          const res = await engine.write({
+            identity: ident,
+            tenantId: "szl-core",
+            securityDomain: "memory-plane",
+            memoryClass: plan.decision === "NAVIGATE" ? "outcome_memory" : "decision_memory",
+            sensitivity: "internal",
+            content: `Yachay ${plan.decision} «${query}». ${plan.decision === "NAVIGATE" ? `cited ${plan.citedNodeIds.join(",")}` : plan.abstainReason}. SOFTWARE handles-only. Index is DATA, never weights.`,
+            sourceRefs: [
+              "szl://second-brain/public-projection",
+              ...plan.citedNodeIds.map((id) => `handle://${id}`),
+            ],
+          });
+          sealed = res.allowed;
+          pull(set);
+        }
+        const t: BrainTrace = {
+          id: rid("brn"),
+          at: new Date().toISOString(),
+          query,
+          decision: plan.decision,
+          citedNodeIds: plan.citedNodeIds,
+          handleCount: hit.handles.length,
+          reason: plan.abstainReason ?? `NAVIGATE ${plan.citedNodeIds[0] ?? ""}`,
+          sealed,
+        };
+        set({
+          brainTraces: [t, ...get().brainTraces].slice(0, 80),
+          brainCitations: citations,
+          lastBrainPlan: {
+            query,
+            decision: plan.decision,
+            reason: t.reason,
+            handles: hit.handles.map((h) => ({ nodeId: h.nodeId, note: h.note })),
+          },
+        });
+        return t;
+      },
+
+      pulseBrain: async () => {
+        if (!get().brainAlive) return null;
+        if (!brain?.built) await get().bootBrain();
+        const q = CURRICULUM[pulseCursor % CURRICULUM.length];
+        pulseCursor += 1;
+        return get().askBrain(q, pulseCursor % 5 === 0);
+      },
     }),
     {
       name: "szl-frontier-orchestrator",
@@ -668,6 +789,9 @@ export const useOrchestrator = create<OrchestratorState>()(
         outcomes: s.outcomes,
         actions: s.actions,
         adversaryRuns: s.adversaryRuns,
+        brainAlive: s.brainAlive,
+        brainTraces: s.brainTraces,
+        brainCitations: s.brainCitations,
       }),
     },
   ),

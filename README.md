@@ -26,7 +26,23 @@ Governed memory plane and frontier orchestrator. Deny by default. Every write, r
 
 This repository is **source** for the Memory Covenant organ. It is not a second a11oy flagship. Product origin remains [a-11-oy.com](https://a-11-oy.com). Proof registry remains [a11oy.net](https://a11oy.net).
 
-## Green light (v0.3)
+## Yachay · second brain (v0.4)
+
+Fold of [szl-holdings/szl-second-brain](https://github.com/szl-holdings/szl-second-brain) into this organ. **Not a second flagship.**
+
+| Claim | Status |
+|---|---|
+| Public projection | **575 chunks loaded** (SOFTWARE) |
+| Navigator | **NAVIGATE or ABSTAIN** — never invents a nodeId |
+| Pulse | **LIVE** while the plane is open (citation frequency, not weights) |
+| Learning traces | Sealed through the Memory Covenant every fifth pulse |
+| Private 9464-node graph | **Unpublished · 0 admitted to gradients** |
+| Index is model weights | **false** |
+| LIVE retrieval | **Never fabricated** |
+
+Query `private 9464-node graph` and it **ABSTAINS**. That is the brain working.
+
+Round 4 software gates (g21–g24) are part of the 24/24 set.
 
 | Round | What | Result |
 |---|---|---|

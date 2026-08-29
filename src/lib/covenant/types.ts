@@ -39,7 +39,8 @@ export type ReceiptKind =
   | "model-route"
   | "intel-tasking"
   | "action-effect"
-  | "adversary-run";
+  | "adversary-run"
+  | "brain-pulse";
 
 export type Purpose =
   | "governed-recall"
@@ -50,7 +51,8 @@ export type Purpose =
   | "adversarial-test"
   | "ingest"
   | "intel-read"
-  | "action-execute";
+  | "action-execute"
+  | "brain-navigate";
 
 export interface Identity {
   tenantId: string;
@@ -189,7 +191,7 @@ export interface GateResult {
   title: string;
   passed: boolean;
   evidence: string;
-  round?: 1 | 2 | 3;
+  round?: 1 | 2 | 3 | 4;
 }
 
 export interface IngestJob {
@@ -287,6 +289,17 @@ export interface AdversaryRun {
   passed: boolean;
   evidence: string;
   at: string;
+}
+
+export interface BrainTrace {
+  id: string;
+  at: string;
+  query: string;
+  decision: "NAVIGATE" | "ABSTAIN";
+  citedNodeIds: string[];
+  handleCount: number;
+  reason: string;
+  sealed: boolean;
 }
 
 export interface PolicyFormula {
