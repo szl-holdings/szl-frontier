@@ -1,0 +1,20 @@
+{"id":"g1","round":1,"title":"Cross-tenant query returns zero foreign candidates"}
+{"id":"g2","round":1,"title":"Denied write creates a denial receipt and no searchable vector"}
+{"id":"g3","round":1,"title":"Tombstoned item is immediately non-returnable"}
+{"id":"g4","round":1,"title":"Returned memory carries provenance, policy, embedding, receipt"}
+{"id":"g5","round":1,"title":"Write state machine converges to a sealed receipt"}
+{"id":"g6","round":1,"title":"Duplicate writes are deterministic and idempotent"}
+{"id":"g7","round":1,"title":"Prompt-injection text cannot change gateway policy"}
+{"id":"g8","round":1,"title":"Embedding revision is isolated on the envelope"}
+{"id":"g9","round":1,"title":"Reindex rebuilds searchable state from authority"}
+{"id":"g10","round":1,"title":"Direct index is derived — authority check still binds"}
+{"id":"g11","round":2,"title":"Ingest of injection text quarantines with no searchable vector"}
+{"id":"g12","round":2,"title":"Unapproved intel tasking cannot write evidence"}
+{"id":"g13","round":2,"title":"Model route refuses mixed embedding generations"}
+{"id":"g14","round":2,"title":"Approved intel ingest is provenance-bearing evidence"}
+{"id":"g15","round":2,"title":"intel-read purpose cannot mutate memory"}
+{"id":"g16","round":3,"title":"Unapproved action cannot execute"}
+{"id":"g17","round":3,"title":"Approved collect writes provenance-bearing evidence"}
+{"id":"g18","round":3,"title":"Approved active-recon remains hard-denied"}
+{"id":"g19","round":3,"title":"intel-read cannot execute bounded actions"}
+{"id":"g20","round":3,"title":"Adversary campaign cannot change the policy bundle"}

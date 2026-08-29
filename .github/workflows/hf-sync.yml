@@ -1,0 +1,57 @@
+# Copyright 2026 SZL Holdings — SPDX-License-Identifier: Apache-2.0
+name: Sync Hugging Face Space
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hf-sync-szl-frontier
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HF_TOKEN: ${{ secrets.HF_ORG_TOKEN || secrets.HF_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install Hugging Face client
+        run: >-
+          python -m pip install --disable-pip-version-check
+          "huggingface_hub==1.23.0"
+
+      - name: Require write-scoped token
+        run: |
+          set -euo pipefail
+          test -n "${HF_TOKEN:-}" || {
+            echo "::error::HF_TOKEN/HF_ORG_TOKEN is not set"
+            exit 1
+          }
+          python3 - <<'PYEOF'
+          import os
+          from huggingface_hub import HfApi
+          who = HfApi(token=os.environ["HF_TOKEN"]).whoami()
+          role = ((who.get("auth") or {}).get("accessToken") or {}).get("role")
+          if role == "read":
+              raise SystemExit("HF_TOKEN is read-only")
+          print("Authenticated Hugging Face publisher:", who.get("name", "<unknown>"))
+          PYEOF
+
+      - name: Publish Space and covenant dataset
+        run: python3 .github/scripts/publish_frontier.py

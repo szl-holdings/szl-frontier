@@ -1,0 +1,22 @@
+{
+  "organ": "szl-frontier",
+  "version": "0.3.0",
+  "doctrine": "v11",
+  "lambda": "Conjecture 1",
+  "kernel": "c7c0ba17",
+  "license": "Apache-2.0",
+  "not_a_second_flagship": true,
+  "product_origin": "https://a-11-oy.com",
+  "proof_registry": "https://a11oy.net",
+  "claims": {
+    "deny_by_default_memory_gateway": "LIVE",
+    "sha256_receipt_chain": "LIVE",
+    "cross_tenant_isolation": "LIVE",
+    "human_approval_bounded_action": "LIVE",
+    "hard_deny_recon_foreign_write_weaponize": "LIVE",
+    "shadowbroker": "SIMULATED_READ_ONLY",
+    "vxdb_embedded": "ROLE_REFERENCE",
+    "lean_locked_8": "DOES_NOT_APPLY",
+    "fedramp_ato": "NOT_CLAIMED"
+  }
+}
