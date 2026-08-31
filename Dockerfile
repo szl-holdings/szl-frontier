@@ -9,6 +9,10 @@ RUN npm ci --ignore-scripts
 COPY . .
 RUN npm run typecheck && npm run build
 
+# Vite compiles its config into node_modules/.vite-temp when preview starts.
+# The dependency tree was installed as root, so hand it to the runtime user.
+RUN chown -R node:node /app/node_modules
+
 ENV PORT=7860
 ENV HOST=0.0.0.0
 EXPOSE 7860

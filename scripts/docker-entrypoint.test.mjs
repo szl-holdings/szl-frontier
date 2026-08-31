@@ -17,3 +17,26 @@ test("Docker starts Vite through npm on the Hugging Face port", () => {
     "the direct wrapper cannot resolve the local Vite binary outside npm",
   );
 });
+
+test("Docker makes Vite's runtime config directory writable by the node user", () => {
+  const dockerfile = readFileSync(`${projectRoot()}/Dockerfile`, "utf8");
+  const build = dockerfile.indexOf("RUN npm run typecheck && npm run build");
+  const dependencyOwnership = dockerfile.indexOf(
+    "RUN chown -R node:node /app/node_modules",
+  );
+  const runtimeUser = dockerfile.indexOf("USER node");
+
+  assert.notEqual(
+    dependencyOwnership,
+    -1,
+    "the root-installed dependency tree must be handed to the runtime user",
+  );
+  assert.ok(
+    build < dependencyOwnership,
+    "node_modules ownership must change after the root-run build is complete",
+  );
+  assert.ok(
+    dependencyOwnership < runtimeUser,
+    "node_modules ownership must change before the image switches to USER node",
+  );
+});
