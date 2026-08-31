@@ -14,4 +14,6 @@ ENV HOST=0.0.0.0
 EXPOSE 7860
 
 USER node
-CMD ["node", "scripts/with-app-env.mjs", "vite", "preview", "--host", "0.0.0.0", "--port", "7860"]
+# Run through npm so it supplies node_modules/.bin on PATH. Invoking the
+# wrapper directly leaves the Vite binary undiscoverable in provider runtimes.
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "7860", "--strictPort"]
