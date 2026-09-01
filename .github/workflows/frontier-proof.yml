@@ -1,0 +1,41 @@
+# Copyright 2026 SZL Holdings — SPDX-License-Identifier: Apache-2.0
+name: Frontier proof witness
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  witness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install exact dependency closure
+        run: npm ci
+      - name: Typecheck exact source
+        run: npm run typecheck
+      - name: Build exact source
+        run: npm run build
+      - name: Emit proof-carrying release witness
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/frontier-proof.mjs | tee frontier-proof.json
+          {
+            echo '## Frontier proof witness'
+            echo
+            echo "Source: \`${GITHUB_SHA}\`"
+            echo
+            echo '```json'
+            cat frontier-proof.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
