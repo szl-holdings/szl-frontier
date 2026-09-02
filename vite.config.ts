@@ -155,6 +155,10 @@ export default defineConfig(({ command, isPreview }) => ({
     host: "127.0.0.1",
     port: 8081,
     strictPort: true,
+    // Permit only Hugging Face's provider-owned Space host suffix. Do not use
+    // `true`: Vite documents that an unrestricted host list weakens its DNS-
+    // rebinding protection.
+    allowedHosts: [".hf.space"],
   },
   resolve: { tsconfigPaths: true },
   plugins: [
