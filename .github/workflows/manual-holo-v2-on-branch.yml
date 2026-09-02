@@ -1,0 +1,108 @@
+name: Install SZL Frontier Holo-Constellation v2 on Branch
+
+on:
+  push:
+    branches:
+      - design/holographic-space-v2-manual
+    paths:
+      - ".github/workflows/manual-holo-v2-on-branch.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: szl-frontier-holo-v2-manual
+  cancel-in-progress: false
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact adapter branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: design/holographic-space-v2-manual
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Fetch immutable first-party Holo assets
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const https = require('node:https');
+          const base = 'https://raw.githubusercontent.com/szl-holdings/a11oy/a8494fc4d40d0918d33d72e64739eedbd4c33803/console/assets';
+          fs.mkdirSync('public', { recursive: true });
+          const fetch = (name) => new Promise((resolve, reject) => {
+            const request = https.get(`${base}/${name}`, { headers: { 'user-agent': 'szl-frontier-holo-adapter/2' } }, response => {
+              if (response.statusCode !== 200) return reject(new Error(`${name}: HTTP ${response.statusCode}`));
+              const chunks = [];
+              response.on('data', chunk => chunks.push(chunk));
+              response.on('end', () => {
+                const payload = Buffer.concat(chunks);
+                if (payload.length < 1000) return reject(new Error(`${name}: unexpectedly small`));
+                fs.writeFileSync(`public/${name}`, payload);
+                resolve();
+              });
+            });
+            request.on('error', reject);
+          });
+          Promise.all(['szl-holo-v2.css', 'szl-holo-v2.js'].map(fetch)).catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
+
+      - name: Bind the TanStack root document
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/routes/__root.tsx")
+          text = path.read_text(encoding="utf-8")
+          head_anchor = "        <HeadContent />\n"
+          head_binding = head_anchor + '        <link rel="stylesheet" href="/szl-holo-v2.css" data-szl-holo-asset="style-v2" />\n'
+          if 'data-szl-holo-asset="style-v2"' not in text:
+              if head_anchor not in text:
+                  raise SystemExit("TanStack HeadContent anchor not found")
+              text = text.replace(head_anchor, head_binding, 1)
+
+          scripts_anchor = "        <Scripts />\n"
+          scripts_binding = '        <script src="/szl-holo-v2.js" defer data-szl-holo-asset="script-v2" />\n' + scripts_anchor
+          if 'data-szl-holo-asset="script-v2"' not in text:
+              if scripts_anchor not in text:
+                  raise SystemExit("TanStack Scripts anchor not found")
+              text = text.replace(scripts_anchor, scripts_binding, 1)
+          path.write_text(text, encoding="utf-8", newline="\n")
+          PY
+
+      - name: Prove TypeScript and production build
+        run: |
+          npm ci --ignore-scripts
+          npm run typecheck
+          npm run build
+          node --test 'scripts/**/*.test.mjs'
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("src/routes/__root.tsx").read_text(encoding="utf-8")
+          assert root.count('data-szl-holo-asset="style-v2"') == 1
+          assert root.count('data-szl-holo-asset="script-v2"') == 1
+          assert Path("public/szl-holo-v2.css").stat().st_size > 1000
+          assert Path("public/szl-holo-v2.js").stat().st_size > 1000
+          PY
+          git diff --check
+
+      - name: Commit adapter and remove one-shot controller
+        run: |
+          set -euo pipefail
+          rm .github/workflows/manual-holo-v2-on-branch.yml
+          git config user.name "SZL Frontier Holo Controller"
+          git config user.email "stephenlutar2@gmail.com"
+          git add src/routes/__root.tsx public/szl-holo-v2.css public/szl-holo-v2.js .github/workflows/manual-holo-v2-on-branch.yml
+          git commit -s -m "feat(frontend): install SZL Frontier Holo-Constellation v2"
+          git push origin HEAD:design/holographic-space-v2-manual
