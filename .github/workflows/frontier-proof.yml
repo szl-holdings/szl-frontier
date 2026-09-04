@@ -21,6 +21,8 @@ jobs:
           cache: npm
       - name: Install exact dependency closure
         run: npm ci
+      - name: Generate deterministic release manifest
+        run: node scripts/generate-frontier-release-manifest.mjs
       - name: Verify deterministic release manifest
         run: node scripts/generate-frontier-release-manifest.mjs --check
       - name: Verify release intelligence controls
