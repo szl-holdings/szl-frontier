@@ -1,0 +1,63 @@
+# Copyright 2026 SZL Holdings — SPDX-License-Identifier: Apache-2.0
+name: Hugging Face frontier watch
+
+on:
+  schedule:
+    - cron: "17 12 * * *"
+  workflow_dispatch:
+    inputs:
+      notify:
+        description: "Open deduplicated GitHub issues for material candidates"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: hugging-face-frontier-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    if: github.repository == 'szl-holdings/szl-frontier'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+
+      - name: Verify deterministic admitted-release manifest
+        run: node scripts/generate-frontier-release-manifest.mjs --check
+
+      - name: Verify materiality and deduplication controls
+        run: node --test scripts/frontier-release-watch.test.mjs
+
+      - name: Scan primary Hugging Face sources
+        run: node scripts/frontier-release-watch.mjs --live --output frontier-watch-output.json
+
+      - name: Publish evidence summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo '## Hugging Face frontier watch'
+            echo
+            echo "Evaluated through: \`$(jq -r .evaluatedThrough frontier-watch-output.json)\`"
+            echo
+            echo "Successful primary sources: **$(jq -r .successfulSources frontier-watch-output.json)/$(jq -r .sourceCount frontier-watch-output.json)**"
+            echo
+            echo "Material candidates: **$(jq -r '.materialCandidates | length' frontier-watch-output.json)**"
+            echo
+            echo 'Production promotion: **false**'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Notify only for new material candidates
+        if: github.event_name == 'schedule' || inputs.notify == true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/open-frontier-alerts.mjs frontier-watch-output.json
