@@ -1,11 +1,24 @@
 // Copyright 2026 SZL Holdings — SPDX-License-Identifier: Apache-2.0
 /** Canonical fail-closed intake for material Hugging Face frontier releases. */
 
+/** @typedef {{id:string,title:string,scope:"evaluation"|"production",state:"pass"|"pending"|"hold",evidence:string}} ReleaseGate */
+/** @typedef {{impact:number,estateFit:number,evidenceQuality:number,integrationReadiness:number,riskPenalty:number}} ReleaseSignals */
+/** @typedef {{id:string,title:string,publisher:string,releasedAt:string,category:string,primarySource:string,artifactSource:string,targetOrgans:string[],whyItMatters:string,operationalTarget:string,maturity:string,license:string,licensePosture:string,resourceClass:string,posture:string,signals:ReleaseSignals,sourceClaims:string[],gates:ReleaseGate[],watch:{kind:string,repoId?:string,author?:string,baselineCount?:number}}} FrontierRelease */
+
 export const FRONTIER_CATALOG_EVALUATED_AT = "2026-09-04T13:36:00Z";
 export const FRONTIER_MATERIALITY_THRESHOLD = 70;
 
+/**
+ * @param {string} id
+ * @param {string} title
+ * @param {"evaluation"|"production"} scope
+ * @param {"pass"|"pending"|"hold"} state
+ * @param {string} evidence
+ * @returns {ReleaseGate}
+ */
 const gate = (id, title, scope, state, evidence) => ({ id, title, scope, state, evidence });
 
+/** @type {readonly FrontierRelease[]} */
 export const FRONTIER_RELEASES = Object.freeze([
   {
     id: "hf-webgpu-kernels-2026-09-01",
@@ -226,15 +239,18 @@ export const FRONTIER_RELEASES = Object.freeze([
   }
 ]);
 
+/** @param {FrontierRelease} release */
 export function materialityScore(release) {
   const { impact, estateFit, evidenceQuality, integrationReadiness, riskPenalty } = release.signals;
   return Math.max(0, Math.min(100, impact + estateFit + evidenceQuality + integrationReadiness - riskPenalty));
 }
 
+/** @param {FrontierRelease} release */
 export function isMaterialRelease(release) {
   return materialityScore(release) >= FRONTIER_MATERIALITY_THRESHOLD;
 }
 
+/** @param {FrontierRelease} release */
 export function evaluationDecision(release) {
   if (!isMaterialRelease(release)) return "IGNORE";
   if (release.posture === "EVALUATE_NOW") return "EVALUATE";
@@ -244,6 +260,7 @@ export function evaluationDecision(release) {
   return "IGNORE";
 }
 
+/** @param {FrontierRelease} release */
 export function productionDisposition(release) {
   const productionGates = release.gates.filter((item) => item.scope === "production");
   const allPass = productionGates.length > 0 && productionGates.every((item) => item.state === "pass");
