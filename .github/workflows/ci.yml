@@ -22,4 +22,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
-      - run: node scripts/generate-frontier-release-manifest.mjs --check
+      - name: Generate deterministic frontier manifest
+        run: node scripts/generate-frontier-release-manifest.mjs
+      - name: Verify generated frontier manifest
+        run: node scripts/generate-frontier-release-manifest.mjs --check
