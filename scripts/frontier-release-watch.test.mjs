@@ -4,7 +4,9 @@ import { describe, it } from "node:test";
 import {
   editorialMateriality,
   feedCandidate,
+  hasCompleteSourceCoverage,
   parseHuggingFaceFeed,
+  snapshotHuggingFaceBlog,
   snapshotHubAsset,
   stableStringify,
 } from "./frontier-release-watch.mjs";
@@ -51,5 +53,33 @@ describe("frontier release watch", () => {
     assert.equal(snapshot.revision, "abc123");
     assert.equal(snapshot.license, "apache-2.0");
     assert.match(snapshot.artifactFingerprint, /^[a-f0-9]{64}$/);
+  });
+
+  it("fingerprints a bounded official blog page without executing its content", () => {
+    const snapshot = snapshotHuggingFaceBlog(
+      {
+        releasedAt: "2026-09-03",
+        watch: { kind: "blog", repoId: "funes" },
+      },
+      "<!doctype html><html><head><title>Funes - Hugging Face</title></head><body>portable memory</body></html>",
+    );
+    assert.equal(snapshot.kind, "blog");
+    assert.equal(snapshot.repoId, "funes");
+    assert.equal(snapshot.title, "Funes - Hugging Face");
+    assert.equal(snapshot.catalogReleasedAt, "2026-09-03");
+    assert.match(snapshot.artifactFingerprint, /^[a-f0-9]{64}$/);
+  });
+
+  it("requires every declared source to succeed before the watch is complete", () => {
+    const complete = {
+      live: true,
+      sourceCount: 2,
+      successfulSources: 2,
+      sourceResults: [{ status: "ok" }, { status: "ok" }],
+      errors: [],
+    };
+    assert.equal(hasCompleteSourceCoverage(complete), true);
+    assert.equal(hasCompleteSourceCoverage({ ...complete, errors: [{ error: "upstream failed" }] }), false);
+    assert.equal(hasCompleteSourceCoverage({ ...complete, successfulSources: 1 }), false);
   });
 });

@@ -165,6 +165,25 @@ export function snapshotHubAsset(kind, repoId, payload) {
   };
 }
 
+export function snapshotHuggingFaceBlog(release, html) {
+  if (typeof html !== "string" || !html.trim()) throw new Error("blog response is empty");
+  if (!/<html\b/i.test(html)) throw new Error("blog response is not HTML");
+  const titleMatch = html.match(/<title(?:\s[^>]*)?>([\s\S]*?)<\/title>/i);
+  const artifactFingerprint = sha256(html);
+  return {
+    kind: "blog",
+    repoId: release.watch.repoId ?? null,
+    title: titleMatch ? decodeXml(titleMatch[1]).replace(/\s+/g, " ").trim() : null,
+    catalogReleasedAt: release.releasedAt ?? null,
+    contentBytes: Buffer.byteLength(html),
+    revision: artifactFingerprint,
+    artifactFingerprint,
+    private: false,
+    gated: false,
+    disabled: false,
+  };
+}
+
 function changedAfterCursor(snapshot, cursor) {
   const modified = Date.parse(snapshot.lastModified ?? snapshot.createdAt ?? "");
   const cutoff = Date.parse(cursor);
@@ -216,7 +235,12 @@ async function readBounded(response) {
 
 export async function fetchBounded(
   url,
-  { fetchImpl = fetch, timeoutMs = DEFAULT_TIMEOUT_MS, accept = "application/json" } = {},
+  {
+    fetchImpl = fetch,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    accept = "application/json",
+    allowedOrigin = null,
+  } = {},
 ) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -227,6 +251,10 @@ export async function fetchBounded(
       signal: controller.signal,
     });
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    if (allowedOrigin) {
+      const finalOrigin = new URL(response.url || url).origin;
+      if (finalOrigin !== allowedOrigin) throw new Error(`response left allowed origin: ${finalOrigin}`);
+    }
     return await readBounded(response);
   } finally {
     clearTimeout(timer);
@@ -271,6 +299,18 @@ async function probeRelease(release, fetchImpl) {
       gated: false,
       disabled: false,
     };
+  }
+  if (watch.kind === "blog") {
+    const source = new URL(release.artifactSource);
+    if (source.origin !== HF_ORIGIN || !source.pathname.startsWith("/blog/")) {
+      throw new Error("blog source must be an official Hugging Face blog URL");
+    }
+    const html = await fetchBounded(source, {
+      fetchImpl,
+      accept: "text/html, application/xhtml+xml",
+      allowedOrigin: HF_ORIGIN,
+    });
+    return snapshotHuggingFaceBlog(release, html);
   }
   throw new Error(`unsupported watch kind: ${watch.kind}`);
 }
@@ -380,6 +420,17 @@ export async function runWatch({ fetchImpl = fetch, live = false } = {}) {
   };
 }
 
+export function hasCompleteSourceCoverage(report) {
+  if (!report?.live || !Number.isInteger(report.sourceCount) || report.sourceCount < 1) return false;
+  if (!Array.isArray(report.sourceResults) || !Array.isArray(report.errors)) return false;
+  const successfulSources = report.sourceResults.filter((item) => item.status === "ok").length;
+  return (
+    report.errors.length === 0 &&
+    successfulSources === report.sourceCount &&
+    report.successfulSources === report.sourceCount
+  );
+}
+
 function argumentValue(name, fallback) {
   const index = process.argv.indexOf(name);
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
@@ -398,7 +449,7 @@ async function main() {
       errors: report.errors.length,
     }),
   );
-  if (live && report.successfulSources === 0) process.exitCode = 1;
+  if (live && !hasCompleteSourceCoverage(report)) process.exitCode = 1;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
