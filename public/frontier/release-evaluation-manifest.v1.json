@@ -1,0 +1,569 @@
+{
+  "schema": "szl.frontier.hugging-face-release-intake.v1",
+  "evaluatedAt": "2026-09-04T13:36:00Z",
+  "policy": {
+    "defaultEffect": "hold",
+    "materialityThreshold": 70,
+    "notificationRule": "notify only for a deduplicated candidate at or above the materiality threshold",
+    "promotionRule": "all production gates pass, license is admitted, maturity is released, and a receipt is sealed"
+  },
+  "releaseCount": 7,
+  "materialReleaseCount": 7,
+  "productionPromotionCount": 0,
+  "releases": [
+    {
+      "id": "hf-webgpu-kernels-2026-09-01",
+      "title": "@huggingface/kernels + WebGPU kernel collection",
+      "publisher": "Hugging Face WebAI",
+      "releasedAt": "2026-09-01",
+      "category": "kernels-runtime",
+      "primarySource": "https://huggingface.co/blog/webgpu-kernels",
+      "artifactSource": "https://huggingface.co/webgpu-kernels",
+      "targetOrgans": [
+        "szl-kernels",
+        "szl-serve",
+        "a11oy",
+        "szl-frontier"
+      ],
+      "whyItMatters": "Versioned browser GPU operators with correctness cases, benchmark cases, provenance, and WGSL templates create a credible local inference lane.",
+      "operationalTarget": "Benchmark selected operators against SZL reference paths on real browser/device classes before routing any workload.",
+      "maturity": "released",
+      "license": "Apache-2.0 collection; verify selected artifact metadata",
+      "licensePosture": "clear",
+      "resourceClass": "browser GPU",
+      "posture": "EVALUATE_NOW",
+      "signals": {
+        "impact": 25,
+        "estateFit": 25,
+        "evidenceQuality": 24,
+        "integrationReadiness": 23,
+        "riskPenalty": 4
+      },
+      "sourceClaims": [
+        "Hugging Face announced 207 versioned WebGPU kernels.",
+        "Packages carry interfaces, correctness cases, benchmark cases, provenance, and WGSL templates.",
+        "Published operator speedups remain upstream evidence until reproduced on SZL hardware."
+      ],
+      "gates": [
+        {
+          "id": "webgpu-source",
+          "title": "Primary sources pinned",
+          "scope": "evaluation",
+          "state": "pass",
+          "evidence": "Official Hugging Face release and kernel namespace recorded."
+        },
+        {
+          "id": "webgpu-preflight",
+          "title": "Browser/device preflight",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Run adapter, dtype, shape, and fallback checks across the supported matrix."
+        },
+        {
+          "id": "webgpu-correctness",
+          "title": "Reference-output parity",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Require deterministic parity across supported browsers, devices, dtypes, and edge cases."
+        },
+        {
+          "id": "webgpu-performance",
+          "title": "Measured end-to-end gain",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Require repeated p50/p95 improvement without memory or thermal regression."
+        },
+        {
+          "id": "webgpu-rollback",
+          "title": "Fallback path verified",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Fallback runtime and device-loss recovery must be exercised before promotion."
+        }
+      ],
+      "watch": {
+        "kind": "model-inventory",
+        "author": "webgpu-kernels",
+        "baselineCount": 207
+      },
+      "materialityScore": 93,
+      "material": true,
+      "evaluationDecision": "EVALUATE",
+      "productionDisposition": "HOLD"
+    },
+    {
+      "id": "neomme-2026-09-03",
+      "title": "NeoMME multimodal-native multilingual encoders",
+      "publisher": "Hcompany",
+      "releasedAt": "2026-09-03",
+      "category": "multimodal-retrieval",
+      "primarySource": "https://huggingface.co/blog/Hcompany/neomme",
+      "artifactSource": "https://huggingface.co/Hcompany/NeoMME-260M-Retriever",
+      "targetOrgans": [
+        "szl-second-brain",
+        "szl-lake",
+        "a11oy",
+        "lyte-services",
+        "prism"
+      ],
+      "whyItMatters": "A single bidirectional multimodal encoder can emit dense and late-interaction representations for page-image retrieval, reducing separate vision/text towers and improving visual RAG economics.",
+      "operationalTarget": "Shadow-evaluate 260M Retriever on SZL document/page-image corpora against the current text-only and multimodal baselines.",
+      "maturity": "released",
+      "license": "Apache-2.0",
+      "licensePosture": "clear",
+      "resourceClass": "GPU retrieval encoder",
+      "posture": "EVALUATE_NOW",
+      "signals": {
+        "impact": 25,
+        "estateFit": 25,
+        "evidenceQuality": 23,
+        "integrationReadiness": 22,
+        "riskPenalty": 4
+      },
+      "sourceClaims": [
+        "NeoMME ships 260M and 800M multilingual multimodal encoders.",
+        "Retriever variants emit dense and late-interaction embeddings in one forward pass.",
+        "Upstream throughput and compression claims require SZL reproduction on pinned corpora and hardware."
+      ],
+      "gates": [
+        {
+          "id": "neomme-source",
+          "title": "Model and article pinned",
+          "scope": "evaluation",
+          "state": "pass",
+          "evidence": "Official model and release article recorded."
+        },
+        {
+          "id": "neomme-corpus",
+          "title": "Pinned document benchmark",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Build a checksum-pinned multilingual page-image query set with qrels."
+        },
+        {
+          "id": "neomme-quality",
+          "title": "Retrieval quality improvement",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Require nDCG/Recall gain against current SZL retrieval baselines."
+        },
+        {
+          "id": "neomme-latency",
+          "title": "Latency and index economics",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Measure encode throughput, index bytes, p50/p95 search latency, and cost."
+        },
+        {
+          "id": "neomme-fallback",
+          "title": "Text-only fallback verified",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Failure and unsupported-input paths must degrade safely to the current retriever."
+        }
+      ],
+      "watch": {
+        "kind": "model",
+        "repoId": "Hcompany/NeoMME-260M-Retriever"
+      },
+      "materialityScore": 91,
+      "material": true,
+      "evaluationDecision": "EVALUATE",
+      "productionDisposition": "HOLD"
+    },
+    {
+      "id": "funes-agent-memory-2026-09-03",
+      "title": "Funes user-owned coding-agent memory",
+      "publisher": "Hugging Face community",
+      "releasedAt": "2026-09-03",
+      "category": "agent-memory",
+      "primarySource": "https://huggingface.co/blog/funes",
+      "artifactSource": "https://huggingface.co/blog/funes",
+      "targetOrgans": [
+        "szl-frontier",
+        "szl-second-brain",
+        "a11oy"
+      ],
+      "whyItMatters": "Treating agent memory as a portable dataset aligns with Yachay/Second Brain goals: owned traces, queryable history, agent portability, and no mandatory hosted memory service.",
+      "operationalTarget": "Adopt the dataset-as-memory interchange pattern, not an unreviewed service dependency; export/import bounded sanitized traces behind the Memory Covenant.",
+      "maturity": "released",
+      "license": "Review implementation components before reuse",
+      "licensePosture": "review-required",
+      "resourceClass": "dataset-backed agent memory",
+      "posture": "ARCHITECTURE_WATCH",
+      "signals": {
+        "impact": 21,
+        "estateFit": 25,
+        "evidenceQuality": 18,
+        "integrationReadiness": 22,
+        "riskPenalty": 7
+      },
+      "sourceClaims": [
+        "The design stores coding-agent memory as a dataset rather than a hosted service.",
+        "The pattern targets continuity across machines and coding agents.",
+        "SZL should absorb the interchange idea while preserving Memory Covenant identity, purpose, lifecycle, provenance, and receipts."
+      ],
+      "gates": [
+        {
+          "id": "funes-source",
+          "title": "Primary article pinned",
+          "scope": "evaluation",
+          "state": "pass",
+          "evidence": "Hugging Face article recorded."
+        },
+        {
+          "id": "funes-schema",
+          "title": "Portable trace schema",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Define a bounded SZL trace interchange schema with source handles and tombstones."
+        },
+        {
+          "id": "funes-redaction",
+          "title": "Secret and PII redaction",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "No raw secrets, credentials, or private memory may enter a public dataset."
+        },
+        {
+          "id": "funes-isolation",
+          "title": "Tenant/domain isolation",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Cross-tenant recall and mixed security domains remain fail-closed."
+        },
+        {
+          "id": "funes-delete",
+          "title": "Deletion/tombstone semantics",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Derived indexes must stop returning deleted memory immediately."
+        }
+      ],
+      "watch": {
+        "kind": "blog",
+        "repoId": "funes"
+      },
+      "materialityScore": 79,
+      "material": true,
+      "evaluationDecision": "WATCH",
+      "productionDisposition": "HOLD"
+    },
+    {
+      "id": "vibevoice-streaming-asr-2026-09-03",
+      "title": "Microsoft VibeVoice-ASR-Streaming 1.5B / 7B",
+      "publisher": "Microsoft",
+      "releasedAt": "2026-09-03",
+      "category": "speech-asr",
+      "primarySource": "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B",
+      "artifactSource": "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B",
+      "targetOrgans": [
+        "a11oy",
+        "lyte-services",
+        "szl-command-lab",
+        "szl-serve"
+      ],
+      "whyItMatters": "Streaming speaker-attributed ASR with hotwords creates a practical voice/operator ingestion path for command rooms, meetings, and real-time agent interfaces.",
+      "operationalTarget": "Start with the 1.5B model in a no-action transcription sandbox; seal audio hash, diarization output, timestamps, confidence, model revision, and latency.",
+      "maturity": "released",
+      "license": "MIT",
+      "licensePosture": "clear",
+      "resourceClass": "streaming GPU ASR",
+      "posture": "EVALUATE_NOW",
+      "signals": {
+        "impact": 23,
+        "estateFit": 22,
+        "evidenceQuality": 22,
+        "integrationReadiness": 22,
+        "riskPenalty": 5
+      },
+      "sourceClaims": [
+        "The streaming release transcribes speaker identity and content jointly.",
+        "It supports custom hotwords and ten languages.",
+        "Transcription must remain evidence input, never action authority."
+      ],
+      "gates": [
+        {
+          "id": "vibevoice-source",
+          "title": "Model card pinned",
+          "scope": "evaluation",
+          "state": "pass",
+          "evidence": "Microsoft Hugging Face model source recorded."
+        },
+        {
+          "id": "vibevoice-wer",
+          "title": "Pinned ASR benchmark",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Measure WER/CER, diarization error, hotword recall, and latency on SZL-shaped audio."
+        },
+        {
+          "id": "vibevoice-stream",
+          "title": "Streaming stability",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Test long sessions, speaker churn, dropouts, silence, and backpressure."
+        },
+        {
+          "id": "vibevoice-privacy",
+          "title": "Audio retention policy",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Audio and transcripts require explicit sensitivity, retention, and deletion controls."
+        },
+        {
+          "id": "vibevoice-authority",
+          "title": "No speech-to-action bypass",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Voice output remains proposal/evidence input behind A11oy policy and approval."
+        }
+      ],
+      "watch": {
+        "kind": "model",
+        "repoId": "microsoft/VibeVoice-ASR-Streaming-1.5B"
+      },
+      "materialityScore": 84,
+      "material": true,
+      "evaluationDecision": "EVALUATE",
+      "productionDisposition": "HOLD"
+    },
+    {
+      "id": "qdrant-fineweb-10b-2026-09-01",
+      "title": "Qdrant FineWeb-10B + Supernova retrieval benchmark",
+      "publisher": "Qdrant",
+      "releasedAt": "2026-09-01",
+      "category": "retrieval-benchmark",
+      "primarySource": "https://huggingface.co/blog/Qdrant/fineweb-10b-release",
+      "artifactSource": "https://huggingface.co/datasets/Qdrant/FineWeb-10B",
+      "targetOrgans": [
+        "szl-frontier",
+        "szl-second-brain",
+        "szl-lake",
+        "lyte-services"
+      ],
+      "whyItMatters": "Internet-scale dense/sparse/hybrid retrieval with exact ground truth is a serious benchmark substrate beyond toy RAG tests.",
+      "operationalTarget": "Run bounded checksum-pinned shards first; capture recall, p50/p95/p99, ingestion cost, memory, and failure behavior before scale-up.",
+      "maturity": "released",
+      "license": "ODC-BY-1.0 corpus; query assets require separate review",
+      "licensePosture": "mixed",
+      "resourceClass": "multi-terabyte distributed benchmark",
+      "posture": "BENCHMARK_FIRST",
+      "signals": {
+        "impact": 25,
+        "estateFit": 24,
+        "evidenceQuality": 24,
+        "integrationReadiness": 17,
+        "riskPenalty": 8
+      },
+      "sourceClaims": [
+        "FineWeb-10B provides roughly 10.07B dense and sparse vector records.",
+        "Exact top-1000 ground truth supports reproducible recall/latency evaluation.",
+        "Full-corpus execution is intentionally not an initial CI workload."
+      ],
+      "gates": [
+        {
+          "id": "fineweb-source",
+          "title": "Dataset and article pinned",
+          "scope": "evaluation",
+          "state": "pass",
+          "evidence": "Qdrant/Hugging Face sources recorded."
+        },
+        {
+          "id": "fineweb-shard",
+          "title": "Bounded reproducible shard",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Create checksum-pinned data/query/qrels shards."
+        },
+        {
+          "id": "fineweb-slo",
+          "title": "Hybrid retrieval SLO",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Measure recall@10/@100, tail latency, throughput, filters, and degraded-node behavior."
+        },
+        {
+          "id": "fineweb-cost",
+          "title": "Scale economics",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Storage, network, build-time, and serving cost receipt required."
+        },
+        {
+          "id": "fineweb-rights",
+          "title": "Query rights cleared",
+          "scope": "production",
+          "state": "hold",
+          "evidence": "Do not assume every benchmark query asset is production-cleared."
+        }
+      ],
+      "watch": {
+        "kind": "dataset",
+        "repoId": "Qdrant/FineWeb-10B"
+      },
+      "materialityScore": 82,
+      "material": true,
+      "evaluationDecision": "BENCHMARK",
+      "productionDisposition": "HOLD"
+    },
+    {
+      "id": "puffin-world-2026-09-02",
+      "title": "Puffin-World native 3D multimodal world model",
+      "publisher": "ACE Robotics / NTU S-Lab",
+      "releasedAt": "2026-09-02",
+      "category": "multimodal-world-model",
+      "primarySource": "https://huggingface.co/blog/KangLiao/puffin-world",
+      "artifactSource": "https://huggingface.co/ACERobotics/Puffin-World",
+      "targetOrgans": [
+        "killinchu",
+        "aegis",
+        "szl-khipu",
+        "szl-command-lab"
+      ],
+      "whyItMatters": "Camera-aware understanding, RGB-D generation, multi-view synthesis, and 3D reconstruction can extend SZL spatial/digital-twin research.",
+      "operationalTarget": "Keep isolated; reproduce one static-scene camera/depth task with sealed checkpoint, environment, inputs, outputs, and license evidence.",
+      "maturity": "research",
+      "license": "Custom/research license; review required",
+      "licensePosture": "review-required",
+      "resourceClass": "large CUDA research stack",
+      "posture": "SANDBOX_ONLY",
+      "signals": {
+        "impact": 25,
+        "estateFit": 22,
+        "evidenceQuality": 21,
+        "integrationReadiness": 14,
+        "riskPenalty": 10
+      },
+      "sourceClaims": [
+        "Puffin-World unifies native 3D world states and multimodal generation/understanding.",
+        "The published stack requires substantial GPU research resources.",
+        "No production authority is inferred from research-model outputs."
+      ],
+      "gates": [
+        {
+          "id": "puffin-source",
+          "title": "Canonical sources pinned",
+          "scope": "evaluation",
+          "state": "pass",
+          "evidence": "ACE Robotics model and Hugging Face article recorded."
+        },
+        {
+          "id": "puffin-isolation",
+          "title": "Research-plane isolation",
+          "scope": "evaluation",
+          "state": "pass",
+          "evidence": "No production connector or action authority."
+        },
+        {
+          "id": "puffin-repro",
+          "title": "Published task reproduced",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Seal code, checkpoint, CUDA image, inputs, outputs, and measured result."
+        },
+        {
+          "id": "puffin-license",
+          "title": "License cleared",
+          "scope": "production",
+          "state": "hold",
+          "evidence": "No commercial/production assumption from custom license."
+        },
+        {
+          "id": "puffin-safety",
+          "title": "Physical limitations bounded",
+          "scope": "production",
+          "state": "hold",
+          "evidence": "Dynamic scenes and long-horizon physics remain outside proven envelope."
+        }
+      ],
+      "watch": {
+        "kind": "model",
+        "repoId": "ACERobotics/Puffin-World"
+      },
+      "materialityScore": 72,
+      "material": true,
+      "evaluationDecision": "SANDBOX",
+      "productionDisposition": "HOLD"
+    },
+    {
+      "id": "granite-confluent-2026-09-02",
+      "title": "IBM Granite time-series models in Confluent Cloud",
+      "publisher": "IBM Research / Confluent",
+      "releasedAt": "2026-09-02",
+      "category": "streaming-time-series",
+      "primarySource": "https://huggingface.co/blog/ibm-research/real-time-intelligence",
+      "artifactSource": "https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2",
+      "targetOrgans": [
+        "lyte-services",
+        "lyte-lattice",
+        "szl-telemetry",
+        "a11oy"
+      ],
+      "whyItMatters": "Forecasting/anomaly inference inside the event stream maps directly to Lyte's ingest-to-outcome architecture.",
+      "operationalTarget": "Benchmark TTM locally against naive baselines, then replay prediction events through the A11oy evidence/approval path before managed streaming adoption.",
+      "maturity": "early-access-integration",
+      "license": "Apache-2.0 model; managed service terms separate",
+      "licensePosture": "clear",
+      "resourceClass": "local model plus managed streaming integration",
+      "posture": "EVALUATE_NOW",
+      "signals": {
+        "impact": 24,
+        "estateFit": 25,
+        "evidenceQuality": 22,
+        "integrationReadiness": 20,
+        "riskPenalty": 5
+      },
+      "sourceClaims": [
+        "Granite TTM is a compact Apache-2.0 time-series model family.",
+        "The architecture places inference into stream processing and writes predictions back to event topics.",
+        "Managed early-access deployment is not treated as generally available production infrastructure."
+      ],
+      "gates": [
+        {
+          "id": "granite-source",
+          "title": "Sources pinned",
+          "scope": "evaluation",
+          "state": "pass",
+          "evidence": "IBM/Hugging Face sources recorded."
+        },
+        {
+          "id": "granite-baseline",
+          "title": "Local baseline cleared",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Measure MASE/MAE, latency, memory, missing data, and drift."
+        },
+        {
+          "id": "granite-replay",
+          "title": "Prediction replay linked",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Input offset, model revision, output topic, decision, and outcome must be receipt-linked."
+        },
+        {
+          "id": "granite-drift",
+          "title": "Drift and abstention",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Define backtest windows, thresholds, abstention, rollback, and escalation."
+        },
+        {
+          "id": "granite-managed",
+          "title": "Managed integration verified",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Entitlement, regions, limits, SLA, and failure modes must be witnessed."
+        }
+      ],
+      "watch": {
+        "kind": "model",
+        "repoId": "ibm-granite/granite-timeseries-ttm-r2"
+      },
+      "materialityScore": 86,
+      "material": true,
+      "evaluationDecision": "EVALUATE",
+      "productionDisposition": "HOLD"
+    }
+  ]
+}
