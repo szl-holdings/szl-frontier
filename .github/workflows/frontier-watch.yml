@@ -35,7 +35,10 @@ jobs:
         run: node scripts/generate-frontier-release-manifest.mjs --check
 
       - name: Verify materiality and deduplication controls
-        run: node --test scripts/frontier-release-watch.test.mjs
+        run: >-
+          node --test
+          scripts/frontier-release-watch.test.mjs
+          scripts/open-frontier-alerts.test.mjs
 
       - name: Scan primary Hugging Face sources
         run: node scripts/frontier-release-watch.mjs --live --output frontier-watch-output.json
@@ -55,6 +58,14 @@ jobs:
             echo
             echo 'Production promotion: **false**'
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preserve machine-readable watch evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: frontier-watch-${{ github.run_id }}
+          path: frontier-watch-output.json
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Notify only for new material candidates
         if: github.event_name == 'schedule' || inputs.notify == true
