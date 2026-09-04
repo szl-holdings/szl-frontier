@@ -1,72 +1,11 @@
 // Copyright 2026 SZL Holdings — SPDX-License-Identifier: Apache-2.0
-/**
- * Canonical, deterministic intake record for material Hugging Face releases.
- *
- * This catalog is evidence, not promotion. Every candidate starts fail-closed and
- * remains outside production until every production gate is explicitly passed.
- */
+/** Canonical fail-closed intake for material Hugging Face frontier releases. */
 
-/** @typedef {"kernels-runtime" | "retrieval-benchmark" | "multimodal-world-model" | "streaming-time-series"} FrontierReleaseCategory */
-/** @typedef {"EVALUATE_NOW" | "BENCHMARK_FIRST" | "SANDBOX_ONLY" | "ARCHITECTURE_WATCH"} EvaluationPosture */
-/** @typedef {"preview" | "released" | "research" | "early-access-integration"} ReleaseMaturity */
-/** @typedef {"clear" | "mixed" | "per-artifact-review" | "review-required"} LicensePosture */
-/** @typedef {"pass" | "pending" | "hold"} GateState */
-/** @typedef {"evaluation" | "production"} GateScope */
-/** @typedef {"model" | "dataset" | "model-inventory" | "blog"} WatchKind */
-
-/**
- * @typedef {object} ReleaseSignals
- * @property {number} impact
- * @property {number} estateFit
- * @property {number} evidenceQuality
- * @property {number} integrationReadiness
- * @property {number} riskPenalty
- */
-
-/**
- * @typedef {object} ReleaseGate
- * @property {string} id
- * @property {string} title
- * @property {GateScope} scope
- * @property {GateState} state
- * @property {string} evidence
- */
-
-/**
- * @typedef {object} ReleaseWatch
- * @property {WatchKind} kind
- * @property {string=} repoId
- * @property {string=} author
- * @property {number=} baselineCount
- */
-
-/**
- * @typedef {object} FrontierRelease
- * @property {string} id
- * @property {string} title
- * @property {string} publisher
- * @property {string} releasedAt
- * @property {FrontierReleaseCategory} category
- * @property {string} primarySource
- * @property {string} artifactSource
- * @property {string[]} targetOrgans
- * @property {string} whyItMatters
- * @property {string} operationalTarget
- * @property {ReleaseMaturity} maturity
- * @property {string} license
- * @property {LicensePosture} licensePosture
- * @property {string} resourceClass
- * @property {EvaluationPosture} posture
- * @property {ReleaseSignals} signals
- * @property {string[]} sourceClaims
- * @property {ReleaseGate[]} gates
- * @property {ReleaseWatch} watch
- */
-
-export const FRONTIER_CATALOG_EVALUATED_AT = "2026-09-03T14:12:00Z";
+export const FRONTIER_CATALOG_EVALUATED_AT = "2026-09-04T13:36:00Z";
 export const FRONTIER_MATERIALITY_THRESHOLD = 70;
 
-/** @type {readonly FrontierRelease[]} */
+const gate = (id, title, scope, state, evidence) => ({ id, title, scope, state, evidence });
+
 export const FRONTIER_RELEASES = Object.freeze([
   {
     id: "hf-webgpu-kernels-2026-09-01",
@@ -76,66 +15,121 @@ export const FRONTIER_RELEASES = Object.freeze([
     category: "kernels-runtime",
     primarySource: "https://huggingface.co/blog/webgpu-kernels",
     artifactSource: "https://huggingface.co/webgpu-kernels",
-    targetOrgans: ["szl-kernels", "szl-serve", "a11oy"],
-    whyItMatters:
-      "Creates a versioned Hub contract for browser GPU operators, including correctness cases, benchmark cases, provenance, and reusable WGSL templates.",
-    operationalTarget:
-      "Run a browser hardware preflight, then benchmark selected transformer operators against the current WebGPU baseline before any routing decision.",
-    maturity: "preview",
-    license: "Artifact-specific; capture every kernel license before promotion",
-    licensePosture: "per-artifact-review",
+    targetOrgans: ["szl-kernels", "szl-serve", "a11oy", "szl-frontier"],
+    whyItMatters: "Versioned browser GPU operators with correctness cases, benchmark cases, provenance, and WGSL templates create a credible local inference lane.",
+    operationalTarget: "Benchmark selected operators against SZL reference paths on real browser/device classes before routing any workload.",
+    maturity: "released",
+    license: "Apache-2.0 collection; verify selected artifact metadata",
+    licensePosture: "clear",
     resourceClass: "browser GPU",
     posture: "EVALUATE_NOW",
-    signals: {
-      impact: 25,
-      estateFit: 25,
-      evidenceQuality: 23,
-      integrationReadiness: 21,
-      riskPenalty: 6,
-    },
+    signals: { impact: 25, estateFit: 25, evidenceQuality: 24, integrationReadiness: 23, riskPenalty: 4 },
     sourceClaims: [
-      "Initial collection announced with 207 versioned WebGPU kernels.",
-      "Kernel packages include interface, correctness, benchmark, provenance, and WGSL artifacts.",
-      "Published operator timings are not end-to-end model benchmarks and must be reproduced on SZL hardware.",
+      "Hugging Face announced 207 versioned WebGPU kernels.",
+      "Packages carry interfaces, correctness cases, benchmark cases, provenance, and WGSL templates.",
+      "Published operator speedups remain upstream evidence until reproduced on SZL hardware."
     ],
     gates: [
-      {
-        id: "webgpu-source",
-        title: "Primary source and artifact namespace recorded",
-        scope: "evaluation",
-        state: "pass",
-        evidence: "Official Hugging Face release article and Hub organization are pinned in this catalog.",
-      },
-      {
-        id: "webgpu-preflight",
-        title: "Supported browser obtains a WebGPU adapter",
-        scope: "evaluation",
-        state: "pending",
-        evidence: "Run the built-in Frontier browser probe on the target device matrix.",
-      },
-      {
-        id: "webgpu-correctness",
-        title: "Selected operators match reference outputs",
-        scope: "production",
-        state: "pending",
-        evidence: "Require deterministic parity across supported browsers, devices, dtypes, shapes, and edge cases.",
-      },
-      {
-        id: "webgpu-performance",
-        title: "Measured workload gain clears the SZL threshold",
-        scope: "production",
-        state: "pending",
-        evidence: "Require end-to-end p50/p95 improvement without accuracy, memory, or thermal regression.",
-      },
-      {
-        id: "webgpu-license",
-        title: "Every promoted kernel has an admitted license receipt",
-        scope: "production",
-        state: "hold",
-        evidence: "The collection is heterogeneous; production use remains held until each selected artifact is reviewed.",
-      },
+      gate("webgpu-source", "Primary sources pinned", "evaluation", "pass", "Official Hugging Face release and kernel namespace recorded."),
+      gate("webgpu-preflight", "Browser/device preflight", "evaluation", "pending", "Run adapter, dtype, shape, and fallback checks across the supported matrix."),
+      gate("webgpu-correctness", "Reference-output parity", "production", "pending", "Require deterministic parity across supported browsers, devices, dtypes, and edge cases."),
+      gate("webgpu-performance", "Measured end-to-end gain", "production", "pending", "Require repeated p50/p95 improvement without memory or thermal regression."),
+      gate("webgpu-rollback", "Fallback path verified", "production", "pending", "Fallback runtime and device-loss recovery must be exercised before promotion.")
     ],
-    watch: { kind: "model-inventory", author: "webgpu-kernels", baselineCount: 207 },
+    watch: { kind: "model-inventory", author: "webgpu-kernels", baselineCount: 207 }
+  },
+  {
+    id: "neomme-2026-09-03",
+    title: "NeoMME multimodal-native multilingual encoders",
+    publisher: "Hcompany",
+    releasedAt: "2026-09-03",
+    category: "multimodal-retrieval",
+    primarySource: "https://huggingface.co/blog/Hcompany/neomme",
+    artifactSource: "https://huggingface.co/Hcompany/NeoMME-260M-Retriever",
+    targetOrgans: ["szl-second-brain", "szl-lake", "a11oy", "lyte-services", "prism"],
+    whyItMatters: "A single bidirectional multimodal encoder can emit dense and late-interaction representations for page-image retrieval, reducing separate vision/text towers and improving visual RAG economics.",
+    operationalTarget: "Shadow-evaluate 260M Retriever on SZL document/page-image corpora against the current text-only and multimodal baselines.",
+    maturity: "released",
+    license: "Apache-2.0",
+    licensePosture: "clear",
+    resourceClass: "GPU retrieval encoder",
+    posture: "EVALUATE_NOW",
+    signals: { impact: 25, estateFit: 25, evidenceQuality: 23, integrationReadiness: 22, riskPenalty: 4 },
+    sourceClaims: [
+      "NeoMME ships 260M and 800M multilingual multimodal encoders.",
+      "Retriever variants emit dense and late-interaction embeddings in one forward pass.",
+      "Upstream throughput and compression claims require SZL reproduction on pinned corpora and hardware."
+    ],
+    gates: [
+      gate("neomme-source", "Model and article pinned", "evaluation", "pass", "Official model and release article recorded."),
+      gate("neomme-corpus", "Pinned document benchmark", "evaluation", "pending", "Build a checksum-pinned multilingual page-image query set with qrels."),
+      gate("neomme-quality", "Retrieval quality improvement", "production", "pending", "Require nDCG/Recall gain against current SZL retrieval baselines."),
+      gate("neomme-latency", "Latency and index economics", "production", "pending", "Measure encode throughput, index bytes, p50/p95 search latency, and cost."),
+      gate("neomme-fallback", "Text-only fallback verified", "production", "pending", "Failure and unsupported-input paths must degrade safely to the current retriever.")
+    ],
+    watch: { kind: "model", repoId: "Hcompany/NeoMME-260M-Retriever" }
+  },
+  {
+    id: "funes-agent-memory-2026-09-03",
+    title: "Funes user-owned coding-agent memory",
+    publisher: "Hugging Face community",
+    releasedAt: "2026-09-03",
+    category: "agent-memory",
+    primarySource: "https://huggingface.co/blog/funes",
+    artifactSource: "https://huggingface.co/blog/funes",
+    targetOrgans: ["szl-frontier", "szl-second-brain", "a11oy"],
+    whyItMatters: "Treating agent memory as a portable dataset aligns with Yachay/Second Brain goals: owned traces, queryable history, agent portability, and no mandatory hosted memory service.",
+    operationalTarget: "Adopt the dataset-as-memory interchange pattern, not an unreviewed service dependency; export/import bounded sanitized traces behind the Memory Covenant.",
+    maturity: "released",
+    license: "Review implementation components before reuse",
+    licensePosture: "review-required",
+    resourceClass: "dataset-backed agent memory",
+    posture: "ARCHITECTURE_WATCH",
+    signals: { impact: 21, estateFit: 25, evidenceQuality: 18, integrationReadiness: 22, riskPenalty: 7 },
+    sourceClaims: [
+      "The design stores coding-agent memory as a dataset rather than a hosted service.",
+      "The pattern targets continuity across machines and coding agents.",
+      "SZL should absorb the interchange idea while preserving Memory Covenant identity, purpose, lifecycle, provenance, and receipts."
+    ],
+    gates: [
+      gate("funes-source", "Primary article pinned", "evaluation", "pass", "Hugging Face article recorded."),
+      gate("funes-schema", "Portable trace schema", "evaluation", "pending", "Define a bounded SZL trace interchange schema with source handles and tombstones."),
+      gate("funes-redaction", "Secret and PII redaction", "production", "pending", "No raw secrets, credentials, or private memory may enter a public dataset."),
+      gate("funes-isolation", "Tenant/domain isolation", "production", "pending", "Cross-tenant recall and mixed security domains remain fail-closed."),
+      gate("funes-delete", "Deletion/tombstone semantics", "production", "pending", "Derived indexes must stop returning deleted memory immediately.")
+    ],
+    watch: { kind: "blog", repoId: "funes" }
+  },
+  {
+    id: "vibevoice-streaming-asr-2026-09-03",
+    title: "Microsoft VibeVoice-ASR-Streaming 1.5B / 7B",
+    publisher: "Microsoft",
+    releasedAt: "2026-09-03",
+    category: "speech-asr",
+    primarySource: "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B",
+    artifactSource: "https://huggingface.co/microsoft/VibeVoice-ASR-Streaming-1.5B",
+    targetOrgans: ["a11oy", "lyte-services", "szl-command-lab", "szl-serve"],
+    whyItMatters: "Streaming speaker-attributed ASR with hotwords creates a practical voice/operator ingestion path for command rooms, meetings, and real-time agent interfaces.",
+    operationalTarget: "Start with the 1.5B model in a no-action transcription sandbox; seal audio hash, diarization output, timestamps, confidence, model revision, and latency.",
+    maturity: "released",
+    license: "MIT",
+    licensePosture: "clear",
+    resourceClass: "streaming GPU ASR",
+    posture: "EVALUATE_NOW",
+    signals: { impact: 23, estateFit: 22, evidenceQuality: 22, integrationReadiness: 22, riskPenalty: 5 },
+    sourceClaims: [
+      "The streaming release transcribes speaker identity and content jointly.",
+      "It supports custom hotwords and ten languages.",
+      "Transcription must remain evidence input, never action authority."
+    ],
+    gates: [
+      gate("vibevoice-source", "Model card pinned", "evaluation", "pass", "Microsoft Hugging Face model source recorded."),
+      gate("vibevoice-wer", "Pinned ASR benchmark", "evaluation", "pending", "Measure WER/CER, diarization error, hotword recall, and latency on SZL-shaped audio."),
+      gate("vibevoice-stream", "Streaming stability", "production", "pending", "Test long sessions, speaker churn, dropouts, silence, and backpressure."),
+      gate("vibevoice-privacy", "Audio retention policy", "production", "pending", "Audio and transcripts require explicit sensitivity, retention, and deletion controls."),
+      gate("vibevoice-authority", "No speech-to-action bypass", "production", "pending", "Voice output remains proposal/evidence input behind A11oy policy and approval.")
+    ],
+    watch: { kind: "model", repoId: "microsoft/VibeVoice-ASR-Streaming-1.5B" }
   },
   {
     id: "qdrant-fineweb-10b-2026-09-01",
@@ -146,65 +140,27 @@ export const FRONTIER_RELEASES = Object.freeze([
     primarySource: "https://huggingface.co/blog/Qdrant/fineweb-10b-release",
     artifactSource: "https://huggingface.co/datasets/Qdrant/FineWeb-10B",
     targetOrgans: ["szl-frontier", "szl-second-brain", "szl-lake", "lyte-services"],
-    whyItMatters:
-      "Provides internet-scale dense, sparse, filtered, and hybrid retrieval evidence with exact top-1000 ground truth rather than relying on toy RAG tests.",
-    operationalTarget:
-      "Start with a bounded shard and reproducible query pack; record recall, p50/p95/p99 latency, ingestion cost, memory, and failure behavior before scaling.",
+    whyItMatters: "Internet-scale dense/sparse/hybrid retrieval with exact ground truth is a serious benchmark substrate beyond toy RAG tests.",
+    operationalTarget: "Run bounded checksum-pinned shards first; capture recall, p50/p95/p99, ingestion cost, memory, and failure behavior before scale-up.",
     maturity: "released",
-    license: "ODC-BY-1.0 corpus; MS MARCO query terms require separate review",
+    license: "ODC-BY-1.0 corpus; query assets require separate review",
     licensePosture: "mixed",
     resourceClass: "multi-terabyte distributed benchmark",
     posture: "BENCHMARK_FIRST",
-    signals: {
-      impact: 25,
-      estateFit: 24,
-      evidenceQuality: 24,
-      integrationReadiness: 17,
-      riskPenalty: 8,
-    },
+    signals: { impact: 25, estateFit: 24, evidenceQuality: 24, integrationReadiness: 17, riskPenalty: 8 },
     sourceClaims: [
-      "Corpus contains roughly 10.07 billion dense and sparse vector records.",
-      "Exact top-1000 ground truth is supplied for dense, sparse, and filtered retrieval workloads.",
-      "Full-corpus execution is intentionally not the first SZL step because storage and compute requirements are substantial.",
+      "FineWeb-10B provides roughly 10.07B dense and sparse vector records.",
+      "Exact top-1000 ground truth supports reproducible recall/latency evaluation.",
+      "Full-corpus execution is intentionally not an initial CI workload."
     ],
     gates: [
-      {
-        id: "fineweb-source",
-        title: "Dataset card, article, and licensing notes recorded",
-        scope: "evaluation",
-        state: "pass",
-        evidence: "Primary Qdrant and Hugging Face sources are pinned in this catalog.",
-      },
-      {
-        id: "fineweb-bounded-shard",
-        title: "Bounded smoke shard is reproducible",
-        scope: "evaluation",
-        state: "pending",
-        evidence: "Create a checksum-pinned shard with query, embedding, and ground-truth lineage.",
-      },
-      {
-        id: "fineweb-retrieval-slo",
-        title: "Hybrid recall and latency SLOs are met",
-        scope: "production",
-        state: "pending",
-        evidence: "Measure recall@10/@100, p50/p95/p99, throughput, filtering, and degraded-node behavior.",
-      },
-      {
-        id: "fineweb-cost",
-        title: "Scale economics are approved",
-        scope: "production",
-        state: "pending",
-        evidence: "Require an explicit storage, network, build-time, and serving-cost receipt before larger ingestion.",
-      },
-      {
-        id: "fineweb-query-rights",
-        title: "Query-pack usage is cleared for the intended environment",
-        scope: "production",
-        state: "hold",
-        evidence: "MS MARCO-derived query assets carry separate non-commercial research terms and are not assumed production-cleared.",
-      },
+      gate("fineweb-source", "Dataset and article pinned", "evaluation", "pass", "Qdrant/Hugging Face sources recorded."),
+      gate("fineweb-shard", "Bounded reproducible shard", "evaluation", "pending", "Create checksum-pinned data/query/qrels shards."),
+      gate("fineweb-slo", "Hybrid retrieval SLO", "production", "pending", "Measure recall@10/@100, tail latency, throughput, filters, and degraded-node behavior."),
+      gate("fineweb-cost", "Scale economics", "production", "pending", "Storage, network, build-time, and serving cost receipt required."),
+      gate("fineweb-rights", "Query rights cleared", "production", "hold", "Do not assume every benchmark query asset is production-cleared.")
     ],
-    watch: { kind: "dataset", repoId: "Qdrant/FineWeb-10B" },
+    watch: { kind: "dataset", repoId: "Qdrant/FineWeb-10B" }
   },
   {
     id: "puffin-world-2026-09-02",
@@ -214,66 +170,28 @@ export const FRONTIER_RELEASES = Object.freeze([
     category: "multimodal-world-model",
     primarySource: "https://huggingface.co/blog/KangLiao/puffin-world",
     artifactSource: "https://huggingface.co/ACERobotics/Puffin-World",
-    targetOrgans: ["killinchu", "aegis", "khipu", "szl-command-lab"],
-    whyItMatters:
-      "Unifies camera-aware understanding, controlled generation, multi-view RGB-D synthesis, and 3D reconstruction in one research system.",
-    operationalTarget:
-      "Keep isolated in the research plane; reproduce one static-scene camera and depth task with sealed inputs, outputs, environment, and license evidence.",
+    targetOrgans: ["killinchu", "aegis", "szl-khipu", "szl-command-lab"],
+    whyItMatters: "Camera-aware understanding, RGB-D generation, multi-view synthesis, and 3D reconstruction can extend SZL spatial/digital-twin research.",
+    operationalTarget: "Keep isolated; reproduce one static-scene camera/depth task with sealed checkpoint, environment, inputs, outputs, and license evidence.",
     maturity: "research",
-    license: "NTU S-Lab License 1.0",
+    license: "Custom/research license; review required",
     licensePosture: "review-required",
     resourceClass: "large CUDA research stack",
     posture: "SANDBOX_ONLY",
-    signals: {
-      impact: 25,
-      estateFit: 22,
-      evidenceQuality: 21,
-      integrationReadiness: 14,
-      riskPenalty: 10,
-    },
+    signals: { impact: 25, estateFit: 22, evidenceQuality: 21, integrationReadiness: 14, riskPenalty: 10 },
     sourceClaims: [
-      "The released system combines autoregressive understanding and diffusion-based multi-view RGB-D generation.",
-      "The reference environment calls for a CUDA/PyTorch research stack and downloadable checkpoints.",
-      "The model card describes static-scene and limited-physics constraints, and no Hugging Face Inference Provider deployment is available.",
+      "Puffin-World unifies native 3D world states and multimodal generation/understanding.",
+      "The published stack requires substantial GPU research resources.",
+      "No production authority is inferred from research-model outputs."
     ],
     gates: [
-      {
-        id: "puffin-source",
-        title: "Canonical model card and release article recorded",
-        scope: "evaluation",
-        state: "pass",
-        evidence: "The current ACE Robotics model namespace and official Hugging Face article are pinned.",
-      },
-      {
-        id: "puffin-isolation",
-        title: "No production connector or action surface",
-        scope: "evaluation",
-        state: "pass",
-        evidence: "Catalog posture is sandbox-only and the production disposition is fail-closed.",
-      },
-      {
-        id: "puffin-repro",
-        title: "One published task reproduces with sealed evidence",
-        scope: "evaluation",
-        state: "pending",
-        evidence: "Pin checkpoint digest, code revision, CUDA image, prompt/input asset, output asset, and measured result.",
-      },
-      {
-        id: "puffin-license",
-        title: "License and downstream checkpoint rights are cleared",
-        scope: "production",
-        state: "hold",
-        evidence: "No commercial or production assumption is made from the custom research license.",
-      },
-      {
-        id: "puffin-safety",
-        title: "Domain safety and known physical limitations are bounded",
-        scope: "production",
-        state: "hold",
-        evidence: "Dynamic scenes, long temporal horizons, and richer interactions remain outside the proven envelope.",
-      },
+      gate("puffin-source", "Canonical sources pinned", "evaluation", "pass", "ACE Robotics model and Hugging Face article recorded."),
+      gate("puffin-isolation", "Research-plane isolation", "evaluation", "pass", "No production connector or action authority."),
+      gate("puffin-repro", "Published task reproduced", "evaluation", "pending", "Seal code, checkpoint, CUDA image, inputs, outputs, and measured result."),
+      gate("puffin-license", "License cleared", "production", "hold", "No commercial/production assumption from custom license."),
+      gate("puffin-safety", "Physical limitations bounded", "production", "hold", "Dynamic scenes and long-horizon physics remain outside proven envelope.")
     ],
-    watch: { kind: "model", repoId: "ACERobotics/Puffin-World" },
+    watch: { kind: "model", repoId: "ACERobotics/Puffin-World" }
   },
   {
     id: "granite-confluent-2026-09-02",
@@ -284,110 +202,54 @@ export const FRONTIER_RELEASES = Object.freeze([
     primarySource: "https://huggingface.co/blog/ibm-research/real-time-intelligence",
     artifactSource: "https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2",
     targetOrgans: ["lyte-services", "lyte-lattice", "szl-telemetry", "a11oy"],
-    whyItMatters:
-      "Moves forecasting and anomaly signals into the governed event stream so predictions can be replayed, approved, observed, and linked to downstream outcomes.",
-    operationalTarget:
-      "Benchmark the Apache-2.0 TTM model locally against a naive baseline, then model the Flink-to-Kafka integration as an early-access architecture gate.",
+    whyItMatters: "Forecasting/anomaly inference inside the event stream maps directly to Lyte's ingest-to-outcome architecture.",
+    operationalTarget: "Benchmark TTM locally against naive baselines, then replay prediction events through the A11oy evidence/approval path before managed streaming adoption.",
     maturity: "early-access-integration",
-    license: "Apache-2.0 model; Confluent service terms apply to managed deployment",
+    license: "Apache-2.0 model; managed service terms separate",
     licensePosture: "clear",
-    resourceClass: "local CPU/GPU model plus managed streaming integration",
+    resourceClass: "local model plus managed streaming integration",
     posture: "EVALUATE_NOW",
-    signals: {
-      impact: 24,
-      estateFit: 25,
-      evidenceQuality: 22,
-      integrationReadiness: 20,
-      riskPenalty: 5,
-    },
+    signals: { impact: 24, estateFit: 25, evidenceQuality: 22, integrationReadiness: 20, riskPenalty: 5 },
     sourceClaims: [
-      "The referenced Granite TTM model is Apache-2.0 and designed for compact time-series forecasting.",
-      "The new architecture places model inference in the Flink stream and writes results to Kafka topics.",
-      "The managed Confluent path is early access and is not represented as generally available production infrastructure.",
+      "Granite TTM is a compact Apache-2.0 time-series model family.",
+      "The architecture places inference into stream processing and writes predictions back to event topics.",
+      "Managed early-access deployment is not treated as generally available production infrastructure."
     ],
     gates: [
-      {
-        id: "granite-source",
-        title: "Model and deployment architecture sources recorded",
-        scope: "evaluation",
-        state: "pass",
-        evidence: "Official IBM/Hugging Face model and release article are pinned.",
-      },
-      {
-        id: "granite-local-baseline",
-        title: "Local TTM forecast clears a naive baseline",
-        scope: "evaluation",
-        state: "pending",
-        evidence: "Measure MAE/MSE, inference latency, memory, and missing-data behavior on Lyte-shaped telemetry.",
-      },
-      {
-        id: "granite-stream-replay",
-        title: "Prediction events are replayable and receipt-linked",
-        scope: "production",
-        state: "pending",
-        evidence: "Require immutable input offsets, model revision, output topic, policy decision, and downstream outcome linkage.",
-      },
-      {
-        id: "granite-drift",
-        title: "Forecast and anomaly drift are monitored",
-        scope: "production",
-        state: "pending",
-        evidence: "Define backtest windows, drift thresholds, abstention, rollback, and human escalation.",
-      },
-      {
-        id: "granite-early-access",
-        title: "Managed integration access and service controls are verified",
-        scope: "production",
-        state: "pending",
-        evidence: "Do not claim the Confluent integration live until entitlement, region, limits, and failure modes are witnessed.",
-      },
+      gate("granite-source", "Sources pinned", "evaluation", "pass", "IBM/Hugging Face sources recorded."),
+      gate("granite-baseline", "Local baseline cleared", "evaluation", "pending", "Measure MASE/MAE, latency, memory, missing data, and drift."),
+      gate("granite-replay", "Prediction replay linked", "production", "pending", "Input offset, model revision, output topic, decision, and outcome must be receipt-linked."),
+      gate("granite-drift", "Drift and abstention", "production", "pending", "Define backtest windows, thresholds, abstention, rollback, and escalation."),
+      gate("granite-managed", "Managed integration verified", "production", "pending", "Entitlement, regions, limits, SLA, and failure modes must be witnessed.")
     ],
-    watch: { kind: "model", repoId: "ibm-granite/granite-timeseries-ttm-r2" },
-  },
+    watch: { kind: "model", repoId: "ibm-granite/granite-timeseries-ttm-r2" }
+  }
 ]);
 
-/**
- * Compute a transparent 0–100 materiality score.
- * @param {FrontierRelease} release
- */
 export function materialityScore(release) {
   const { impact, estateFit, evidenceQuality, integrationReadiness, riskPenalty } = release.signals;
-  return Math.max(
-    0,
-    Math.min(100, impact + estateFit + evidenceQuality + integrationReadiness - riskPenalty),
-  );
+  return Math.max(0, Math.min(100, impact + estateFit + evidenceQuality + integrationReadiness - riskPenalty));
 }
 
-/** @param {FrontierRelease} release */
 export function isMaterialRelease(release) {
   return materialityScore(release) >= FRONTIER_MATERIALITY_THRESHOLD;
 }
 
-/** @param {FrontierRelease} release */
 export function evaluationDecision(release) {
   if (!isMaterialRelease(release)) return "IGNORE";
-  switch (release.posture) {
-    case "EVALUATE_NOW":
-      return "EVALUATE";
-    case "BENCHMARK_FIRST":
-      return "BENCHMARK";
-    case "SANDBOX_ONLY":
-      return "SANDBOX";
-    case "ARCHITECTURE_WATCH":
-      return "WATCH";
-    default:
-      return "IGNORE";
-  }
+  if (release.posture === "EVALUATE_NOW") return "EVALUATE";
+  if (release.posture === "BENCHMARK_FIRST") return "BENCHMARK";
+  if (release.posture === "SANDBOX_ONLY") return "SANDBOX";
+  if (release.posture === "ARCHITECTURE_WATCH") return "WATCH";
+  return "IGNORE";
 }
 
-/** @param {FrontierRelease} release */
 export function productionDisposition(release) {
-  const productionGates = release.gates.filter((gate) => gate.scope === "production");
-  const allProductionGatesPass =
-    productionGates.length > 0 && productionGates.every((gate) => gate.state === "pass");
+  const productionGates = release.gates.filter((item) => item.scope === "production");
+  const allPass = productionGates.length > 0 && productionGates.every((item) => item.state === "pass");
   const licenseAdmitted = release.licensePosture === "clear";
   const maturityAdmitted = release.maturity === "released";
-  return allProductionGatesPass && licenseAdmitted && maturityAdmitted ? "PROMOTE" : "HOLD";
+  return allPass && licenseAdmitted && maturityAdmitted ? "PROMOTE" : "HOLD";
 }
 
 export function buildFrontierReleaseManifest() {
@@ -396,7 +258,7 @@ export function buildFrontierReleaseManifest() {
     materialityScore: materialityScore(release),
     material: isMaterialRelease(release),
     evaluationDecision: evaluationDecision(release),
-    productionDisposition: productionDisposition(release),
+    productionDisposition: productionDisposition(release)
   }));
   return {
     schema: "szl.frontier.hugging-face-release-intake.v1",
@@ -405,13 +267,11 @@ export function buildFrontierReleaseManifest() {
       defaultEffect: "hold",
       materialityThreshold: FRONTIER_MATERIALITY_THRESHOLD,
       notificationRule: "notify only for a deduplicated candidate at or above the materiality threshold",
-      promotionRule: "all production gates pass, license is admitted, maturity is released, and a receipt is sealed",
+      promotionRule: "all production gates pass, license is admitted, maturity is released, and a receipt is sealed"
     },
     releaseCount: releases.length,
     materialReleaseCount: releases.filter((release) => release.material).length,
-    productionPromotionCount: releases.filter(
-      (release) => release.productionDisposition === "PROMOTE",
-    ).length,
-    releases,
+    productionPromotionCount: releases.filter((release) => release.productionDisposition === "PROMOTE").length,
+    releases
   };
 }
