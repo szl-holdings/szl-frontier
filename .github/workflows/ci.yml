@@ -21,7 +21,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
-      - run: npm test
+      - name: Verify frontier release intelligence controls
+        run: node --test scripts/frontier-release-watch.test.mjs
       - name: Generate deterministic frontier manifest
         run: node scripts/generate-frontier-release-manifest.mjs
       - name: Verify generated frontier manifest
