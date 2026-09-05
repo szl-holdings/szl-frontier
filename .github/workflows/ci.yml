@@ -21,6 +21,24 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
+
+      - name: Verify Python frontier control plane
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 --version
+          python3 -m compileall -q python/szl_frontier
+          python3 -m unittest discover -s python/tests -v
+
+      - name: Prove JS/Python frontier policy parity
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m szl_frontier list --min-score 70 > /tmp/python-frontier-catalog.json
+          test -s /tmp/python-frontier-catalog.json
+
       - name: Verify frontier release intelligence controls
         run: node --test scripts/frontier-release-watch.test.mjs
       - name: Generate deterministic frontier manifest

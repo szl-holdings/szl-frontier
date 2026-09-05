@@ -40,10 +40,30 @@ jobs:
           scripts/frontier-release-watch.test.mjs
           scripts/open-frontier-alerts.test.mjs
 
+      - name: Verify Python frontier control plane
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m compileall -q python/szl_frontier
+          python3 -m unittest discover -s python/tests -v
+          python3 -m szl_frontier list --min-score 70 > python-frontier-catalog.json
+
       - name: Scan primary Hugging Face sources
         id: scan
         continue-on-error: true
         run: node scripts/frontier-release-watch.mjs --live --output frontier-watch-output.json
+
+      - name: Scan Python-curated Hugging Face admissions
+        id: python_scan
+        continue-on-error: true
+        env:
+          PYTHONPATH: python
+        run: >-
+          python3 -m szl_frontier watch
+          --origin python-admission
+          --output python-frontier-watch-output.json
+          --require-complete
 
       - name: Publish evidence summary
         if: always()
@@ -55,9 +75,15 @@ jobs:
             echo
             echo "Evaluated through: \`$(jq -r .evaluatedThrough frontier-watch-output.json)\`"
             echo
-            echo "Successful primary sources: **$(jq -r .successfulSources frontier-watch-output.json)/$(jq -r .sourceCount frontier-watch-output.json)**"
+            echo "JS primary sources: **$(jq -r .successfulSources frontier-watch-output.json)/$(jq -r .sourceCount frontier-watch-output.json)**"
             echo
-            echo "Material candidates: **$(jq -r '.materialCandidates | length' frontier-watch-output.json)**"
+            echo "JS material candidates: **$(jq -r '.materialCandidates | length' frontier-watch-output.json)**"
+            if [[ -f python-frontier-watch-output.json ]]; then
+              echo
+              echo "Python curated sources: **$(jq -r .successfulSources python-frontier-watch-output.json)/$(jq -r .sourceCount python-frontier-watch-output.json)**"
+              echo
+              echo "Python material observations: **$(jq -r '.materialCandidates | length' python-frontier-watch-output.json)**"
+            fi
             echo
             echo 'Production promotion: **false**'
           } >> "$GITHUB_STEP_SUMMARY"
@@ -67,7 +93,10 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: frontier-watch-${{ github.run_id }}
-          path: frontier-watch-output.json
+          path: |
+            frontier-watch-output.json
+            python-frontier-watch-output.json
+            python-frontier-catalog.json
           if-no-files-found: error
           retention-days: 30
 
@@ -81,10 +110,15 @@ jobs:
         if: always()
         env:
           FRONTIER_SCAN_OUTCOME: ${{ steps.scan.outcome }}
+          PYTHON_FRONTIER_SCAN_OUTCOME: ${{ steps.python_scan.outcome }}
         shell: bash
         run: |
           set -euo pipefail
           if [[ "$FRONTIER_SCAN_OUTCOME" != "success" ]]; then
-            echo '::error::Frontier scan did not achieve complete primary-source coverage.'
+            echo '::error::JavaScript frontier scan did not achieve complete primary-source coverage.'
+            exit 1
+          fi
+          if [[ "$PYTHON_FRONTIER_SCAN_OUTCOME" != "success" ]]; then
+            echo '::error::Python curated frontier scan did not achieve complete primary-source coverage.'
             exit 1
           fi
