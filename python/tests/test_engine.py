@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 from szl_frontier.catalog import CatalogLoader
-from szl_frontier.domain import SourceSnapshot
+from szl_frontier.domain import GateState, SourceSnapshot
 from szl_frontier.engine import FrontierEngine
+from szl_frontier.receipts import ReceiptFactory
 
 from helpers import write_manifest
 
@@ -20,20 +22,34 @@ class FakeHF:
 
 
 class EngineTests(unittest.TestCase):
-    def test_python_admission_is_new_on_first_observation(self) -> None:
+    def test_python_admission_compares_reviewed_source_baseline(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             catalog = CatalogLoader(write_manifest(Path(directory) / "manifest.json", releases=[])).load()
             release = catalog.by_id("open-yap-1k-2026-09-03")
-            snapshot = SourceSnapshot(
+            admitted = SourceSnapshot(
                 kind="dataset",
                 source=release.artifact_source,
-                revision="abc",
+                revision=release.watch.baseline_revision,
+                artifact_fingerprint=release.watch.baseline_fingerprint,
                 last_modified="2026-09-03T12:00:00Z",
             )
-            engine = FrontierEngine(catalog, hf_client=FakeHF({release.id: snapshot}))
-            assessment = engine.assess(release.id, live=True)
-        self.assertTrue(engine.is_new_observation(assessment))
-        self.assertEqual(len(engine.notification_fingerprint(assessment)), 64)
+            changed = replace(admitted, revision="changed")
+            admitted_engine = FrontierEngine(
+                catalog,
+                hf_client=FakeHF({release.id: admitted}),
+            )
+            changed_engine = FrontierEngine(
+                catalog,
+                hf_client=FakeHF({release.id: changed}),
+            )
+            admitted_assessment = admitted_engine.assess(release.id, live=True)
+            changed_assessment = changed_engine.assess(release.id, live=True)
+        self.assertFalse(admitted_engine.is_new_observation(admitted_assessment))
+        self.assertTrue(changed_engine.is_new_observation(changed_assessment))
+        self.assertEqual(
+            len(changed_engine.notification_fingerprint(changed_assessment)),
+            64,
+        )
 
     def test_js_manifest_release_requires_change_after_cursor(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -67,3 +83,38 @@ class EngineTests(unittest.TestCase):
             assessment = engine.assess(release.id, live=True)
         self.assertIn("upstream source is private, gated, or disabled", assessment.production_blockers)
         self.assertFalse(engine.is_new_observation(assessment))
+
+    def test_only_verified_release_bound_receipt_can_authorize_promotion(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            catalog = CatalogLoader(
+                write_manifest(Path(directory) / "manifest.json", releases=[])
+            ).load()
+            source = catalog.by_id("open-yap-1k-2026-09-03")
+            release = replace(
+                source,
+                maturity="released",
+                license_posture="clear",
+                gates=tuple(
+                    replace(gate, state=GateState.PASS)
+                    for gate in source.gates
+                ),
+            )
+            catalog = replace(catalog, releases=(release,))
+            engine = FrontierEngine(catalog)
+            key = b"promotion-test-key"
+            receipt = ReceiptFactory(hmac_key=key, key_id="test").create(
+                release_id=release.id,
+                subject="hugging-face-frontier-production-authorization",
+                payload={
+                    "productionAuthorized": True,
+                    "catalogEvaluatedAt": catalog.evaluated_at,
+                },
+            )
+            held = engine.assess(release.id)
+            promoted = engine.assess(
+                release.id,
+                promotion_receipt=receipt,
+                hmac_key=key,
+            )
+        self.assertEqual(held.production_disposition.value, "HOLD")
+        self.assertEqual(promoted.production_disposition.value, "PROMOTE")

@@ -10,7 +10,7 @@ from .domain import Assessment, ProductionDisposition, SourceSnapshot
 from .evaluation import EvaluationPlanner
 from .huggingface import HuggingFaceClient
 from .policy import MaterialityPolicy
-from .receipts import EvidenceReceipt, ReceiptFactory, sha256_hex
+from .receipts import EvidenceReceipt, ReceiptError, ReceiptFactory, sha256_hex
 
 
 class FrontierEngine:
@@ -33,10 +33,38 @@ class FrontierEngine:
         self.planner = planner or EvaluationPlanner()
         self.hf_client = hf_client or HuggingFaceClient()
 
-    def assess(self, release_id: str, *, live: bool = False) -> Assessment:
+    def assess(
+        self,
+        release_id: str,
+        *,
+        live: bool = False,
+        promotion_receipt: EvidenceReceipt | None = None,
+        hmac_key: bytes | None = None,
+    ) -> Assessment:
         release = self.catalog.by_id(release_id)
         snapshot = self.hf_client.snapshot(release) if live else None
-        blockers = list(self.policy.production_blockers(release))
+        receipt_sealed = False
+        if promotion_receipt is not None:
+            try:
+                promotion_receipt.verify(hmac_key=hmac_key)
+            except ReceiptError:
+                receipt_sealed = False
+            else:
+                receipt_sealed = (
+                    promotion_receipt.sealed
+                    and promotion_receipt.release_id == release.id
+                    and promotion_receipt.subject
+                    == "hugging-face-frontier-production-authorization"
+                    and promotion_receipt.payload.get("productionAuthorized") is True
+                    and promotion_receipt.payload.get("catalogEvaluatedAt")
+                    == self.catalog.evaluated_at
+                )
+        blockers = list(
+            self.policy.production_blockers(
+                release,
+                receipt_sealed=receipt_sealed,
+            )
+        )
         if snapshot is not None and not snapshot.publicly_usable:
             blockers.append("upstream source is private, gated, or disabled")
         disposition = (
@@ -67,9 +95,9 @@ class FrontierEngine:
     def is_new_observation(self, assessment: Assessment) -> bool:
         """Return whether an observation is new relative to the admitted cursor.
 
-        Python-only admissions are new by definition for the first control-plane
-        run.  JS-manifest releases must show an upstream modification after the
-        manifest cursor (or an expanded inventory) before they can alert.
+        Python-only admissions are compared to reviewable immutable baselines.
+        JS-manifest releases must show an upstream modification after the manifest
+        cursor (or an expanded inventory) before they can alert.
         """
 
         snapshot = assessment.snapshot
@@ -77,7 +105,30 @@ class FrontierEngine:
             return False
         release = assessment.release
         if release.origin == "python-admission":
-            return True
+            if release.watch.kind == "dataset":
+                if (
+                    not release.watch.baseline_revision
+                    or not release.watch.baseline_fingerprint
+                    or not snapshot.revision
+                    or not snapshot.artifact_fingerprint
+                ):
+                    return False
+                return (
+                    snapshot.revision != release.watch.baseline_revision
+                    or snapshot.artifact_fingerprint
+                    != release.watch.baseline_fingerprint
+                )
+            if release.watch.kind == "blog":
+                if (
+                    not release.watch.baseline_fingerprint
+                    or not snapshot.artifact_fingerprint
+                ):
+                    return False
+                return (
+                    snapshot.artifact_fingerprint
+                    != release.watch.baseline_fingerprint
+                )
+            return False
         if (
             release.watch.kind == "model-inventory"
             and release.watch.baseline_count is not None
@@ -119,7 +170,11 @@ class FrontierEngine:
         if snapshot is not None:
             observed = {
                 "revision": snapshot.revision,
-                "lastModified": snapshot.last_modified,
+                "lastModified": (
+                    None
+                    if assessment.release.watch.kind == "blog"
+                    else snapshot.last_modified
+                ),
                 "artifactFingerprint": snapshot.artifact_fingerprint,
                 "inventoryCount": snapshot.inventory_count,
                 "private": snapshot.private,

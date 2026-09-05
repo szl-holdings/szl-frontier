@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  catalogCandidate,
   editorialMateriality,
   feedCandidate,
   hasCompleteSourceCoverage,
@@ -10,6 +11,7 @@ import {
   snapshotHubAsset,
   stableStringify,
 } from "./frontier-release-watch.mjs";
+import { productionDisposition } from "../src/lib/frontier/release-catalog.js";
 
 describe("frontier release watch", () => {
   it("canonicalizes object keys deterministically", () => {
@@ -61,13 +63,50 @@ describe("frontier release watch", () => {
         releasedAt: "2026-09-03",
         watch: { kind: "blog", repoId: "funes" },
       },
-      "<!doctype html><html><head><title>Funes - Hugging Face</title></head><body>portable memory</body></html>",
+      "<!doctype html><html><head><title>Funes - Hugging Face</title></head><body><main>portable memory</main></body></html>",
+      {
+        finalUrl: "https://huggingface.co/blog/funes",
+      },
     );
     assert.equal(snapshot.kind, "blog");
     assert.equal(snapshot.repoId, "funes");
     assert.equal(snapshot.title, "Funes - Hugging Face");
     assert.equal(snapshot.catalogReleasedAt, "2026-09-03");
     assert.match(snapshot.artifactFingerprint, /^[a-f0-9]{64}$/);
+    const noisyShell = snapshotHuggingFaceBlog(
+      { releasedAt: "2026-09-03", watch: { kind: "blog", repoId: "funes" } },
+      "<!doctype html><html><head><title>Funes - Hugging Face</title><script>volatile()</script></head><body><main>portable memory</main></body></html>",
+    );
+    assert.equal(noisyShell.artifactFingerprint, snapshot.artifactFingerprint);
+  });
+
+  it("treats changed admitted blog content as a material candidate", () => {
+    const release = {
+      id: "funes",
+      title: "Funes",
+      publisher: "Hugging Face community",
+      category: "agent-memory",
+      primarySource: "https://huggingface.co/blog/funes",
+      artifactSource: "https://huggingface.co/blog/funes",
+      targetOrgans: ["szl-frontier"],
+      whyItMatters: "Portable memory",
+      operationalTarget: "Review only",
+      maturity: "released",
+      license: "review-required",
+      licensePosture: "review-required",
+      posture: "ARCHITECTURE_WATCH",
+      signals: { impact: 25, estateFit: 25, evidenceQuality: 20, integrationReadiness: 15, riskPenalty: 5 },
+      gates: [{ scope: "production", state: "pending" }],
+      watch: { kind: "blog", repoId: "funes", baselineFingerprint: "0".repeat(64) },
+    };
+    const snapshot = snapshotHuggingFaceBlog(
+      release,
+      '<html><head><title>Funes</title><script type="application/ld+json">{"datePublished":"2026-09-03T00:00:00Z"}</script></head><body><main>changed article</main></body></html>',
+      { finalUrl: release.artifactSource },
+    );
+    const candidate = catalogCandidate(release, snapshot, "2026-09-04T00:00:00Z");
+    assert.equal(candidate.material, true);
+    assert.ok(candidate.reasons.includes("blog content fingerprint changed from the admitted baseline"));
   });
 
   it("requires every declared source to succeed before the watch is complete", () => {
@@ -81,5 +120,25 @@ describe("frontier release watch", () => {
     assert.equal(hasCompleteSourceCoverage(complete), true);
     assert.equal(hasCompleteSourceCoverage({ ...complete, errors: [{ error: "upstream failed" }] }), false);
     assert.equal(hasCompleteSourceCoverage({ ...complete, successfulSources: 1 }), false);
+  });
+
+  it("requires a sealed production authorization receipt before promotion", () => {
+    const release = {
+      maturity: "released",
+      licensePosture: "clear",
+      gates: [{ scope: "production", state: "pass" }],
+    };
+    assert.equal(productionDisposition(release), "HOLD");
+    assert.equal(
+      productionDisposition({
+        ...release,
+        productionReceipt: {
+          sealed: true,
+          subject: "hugging-face-frontier-production-authorization",
+          digest: "a".repeat(64),
+        },
+      }),
+      "PROMOTE",
+    );
   });
 });

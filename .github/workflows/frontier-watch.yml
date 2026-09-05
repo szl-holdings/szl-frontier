@@ -65,27 +65,44 @@ jobs:
           --output python-frontier-watch-output.json
           --require-complete
 
-      - name: Publish evidence summary
+      - name: Combine JavaScript and Python witness evidence
+        id: combine
         if: always()
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -s '
+            {
+              schema: "szl.frontier.combined-watch-output.v1",
+              live: (all(.[]; .live == true)),
+              catalogEvaluatedAt: ([.[].catalogEvaluatedAt] | map(select(. != null)) | max),
+              evaluatedThrough: ([.[].evaluatedThrough] | map(select(. != null)) | max),
+              sourceCount: (map(.sourceCount // 0) | add),
+              successfulSources: (map(.successfulSources // 0) | add),
+              sourceResults: (map(.sourceResults // []) | add),
+              errors: (map(.errors // []) | add),
+              materialCandidates: (map(.materialCandidates // []) | add),
+              productionPromotion: (any(.[]; .productionPromotion == true))
+            }
+          ' frontier-watch-output.json python-frontier-watch-output.json \
+            > combined-frontier-watch-output.json
+
+      - name: Publish evidence summary
+        if: steps.combine.outcome == 'success'
         shell: bash
         run: |
           set -euo pipefail
           {
             echo '## Hugging Face frontier watch'
             echo
-            echo "Evaluated through: \`$(jq -r .evaluatedThrough frontier-watch-output.json)\`"
+            echo "Evaluated through: \`$(jq -r .evaluatedThrough combined-frontier-watch-output.json)\`"
             echo
-            echo "JS primary sources: **$(jq -r .successfulSources frontier-watch-output.json)/$(jq -r .sourceCount frontier-watch-output.json)**"
+            echo "Combined primary sources: **$(jq -r .successfulSources combined-frontier-watch-output.json)/$(jq -r .sourceCount combined-frontier-watch-output.json)**"
             echo
-            echo "JS material candidates: **$(jq -r '.materialCandidates | length' frontier-watch-output.json)**"
-            if [[ -f python-frontier-watch-output.json ]]; then
-              echo
-              echo "Python curated sources: **$(jq -r .successfulSources python-frontier-watch-output.json)/$(jq -r .sourceCount python-frontier-watch-output.json)**"
-              echo
-              echo "Python material observations: **$(jq -r '.materialCandidates | length' python-frontier-watch-output.json)**"
-            fi
+            echo "Combined material candidates: **$(jq -r '.materialCandidates | length' combined-frontier-watch-output.json)**"
             echo
-            echo 'Production promotion: **false**'
+            echo "Production promotion: **$(jq -r .productionPromotion combined-frontier-watch-output.json)**"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Preserve machine-readable watch evidence
@@ -96,21 +113,23 @@ jobs:
           path: |
             frontier-watch-output.json
             python-frontier-watch-output.json
+            combined-frontier-watch-output.json
             python-frontier-catalog.json
           if-no-files-found: error
           retention-days: 30
 
       - name: Notify only for new material candidates
-        if: steps.scan.outcome == 'success' && (github.event_name == 'schedule' || inputs.notify == true)
+        if: steps.combine.outcome == 'success' && (github.event_name == 'schedule' || inputs.notify == true)
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/open-frontier-alerts.mjs frontier-watch-output.json
+        run: node scripts/open-frontier-alerts.mjs combined-frontier-watch-output.json
 
       - name: Enforce complete primary-source coverage
         if: always()
         env:
           FRONTIER_SCAN_OUTCOME: ${{ steps.scan.outcome }}
           PYTHON_FRONTIER_SCAN_OUTCOME: ${{ steps.python_scan.outcome }}
+          COMBINED_FRONTIER_OUTCOME: ${{ steps.combine.outcome }}
         shell: bash
         run: |
           set -euo pipefail
@@ -122,3 +141,12 @@ jobs:
             echo '::error::Python curated frontier scan did not achieve complete primary-source coverage.'
             exit 1
           fi
+          if [[ "$COMBINED_FRONTIER_OUTCOME" != "success" ]]; then
+            echo '::error::Combined frontier evidence was not produced.'
+            exit 1
+          fi
+          jq -e '
+            (.successfulSources == .sourceCount)
+            and ((.errors | length) == 0)
+            and (.productionPromotion == false)
+          ' combined-frontier-watch-output.json > /dev/null

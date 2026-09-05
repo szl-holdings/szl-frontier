@@ -148,20 +148,33 @@ def run(argv: Sequence[str] | None = None) -> int:
         ]
         emitted: list[dict[str, Any]] = []
         errors: list[dict[str, str]] = []
+        source_results: list[dict[str, Any]] = []
         successful = 0
         for release in selected:
             try:
                 assessment = engine.assess(release.id, live=True)
                 successful += 1
             except FrontierError as exc:
-                errors.append(
-                    {
-                        "id": release.id,
-                        "source": release.artifact_source,
-                        "error": str(exc),
-                    }
-                )
+                failure = {
+                    "id": release.id,
+                    "source": release.artifact_source,
+                    "error": str(exc),
+                }
+                errors.append(failure)
+                source_results.append({**failure, "status": "error"})
                 continue
+            source_results.append(
+                {
+                    "id": release.id,
+                    "source": release.artifact_source,
+                    "status": "ok",
+                    "snapshot": (
+                        assessment.snapshot.as_mapping()
+                        if assessment.snapshot
+                        else None
+                    ),
+                }
+            )
             if assessment.materiality_score < engine.policy.threshold:
                 continue
             # A private/gated/disabled source is an explicit HOLD, not a candidate.
@@ -204,6 +217,7 @@ def run(argv: Sequence[str] | None = None) -> int:
             "originFilter": args.origin,
             "sourceCount": len(selected),
             "successfulSources": successful,
+            "sourceResults": source_results,
             "errors": errors,
             "materialCandidates": emitted,
             "productionPromotion": False,

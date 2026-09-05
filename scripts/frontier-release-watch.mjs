@@ -165,17 +165,23 @@ export function snapshotHubAsset(kind, repoId, payload) {
   };
 }
 
-export function snapshotHuggingFaceBlog(release, html) {
+export function snapshotHuggingFaceBlog(release, html, metadata = {}) {
   if (typeof html !== "string" || !html.trim()) throw new Error("blog response is empty");
   if (!/<html\b/i.test(html)) throw new Error("blog response is not HTML");
   const titleMatch = html.match(/<title(?:\s[^>]*)?>([\s\S]*?)<\/title>/i);
-  const artifactFingerprint = sha256(html);
+  const publishedMatch = html.match(/"datePublished"\s*:\s*"([^"]+)"/i);
+  const mainMatch = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i);
+  if (!mainMatch) throw new Error("blog response is missing canonical main content");
+  const artifactFingerprint = sha256(mainMatch[0]);
   return {
     kind: "blog",
     repoId: release.watch.repoId ?? null,
     title: titleMatch ? decodeXml(titleMatch[1]).replace(/\s+/g, " ").trim() : null,
     catalogReleasedAt: release.releasedAt ?? null,
-    contentBytes: Buffer.byteLength(html),
+    publishedAt: publishedMatch ? publishedMatch[1] : null,
+    lastModified: metadata.lastModified ?? null,
+    finalUrl: metadata.finalUrl ?? release.artifactSource,
+    contentBytes: Buffer.byteLength(mainMatch[0]),
     revision: artifactFingerprint,
     artifactFingerprint,
     private: false,
@@ -195,7 +201,10 @@ export function catalogCandidate(release, sourceSnapshot, cursor = FRONTIER_CATA
   const inventoryExpanded =
     release.watch.kind === "model-inventory" &&
     Number(sourceSnapshot.inventoryCount) > Number(release.watch.baselineCount ?? 0);
-  const changed = inventoryExpanded || changedAfterCursor(sourceSnapshot, cursor);
+  const blogContentChanged =
+    release.watch.kind === "blog" &&
+    sourceSnapshot.artifactFingerprint !== release.watch.baselineFingerprint;
+  const changed = inventoryExpanded || blogContentChanged || changedAfterCursor(sourceSnapshot, cursor);
   const score = materialityScore(release);
   const candidate = {
     id: release.id,
@@ -218,7 +227,11 @@ export function catalogCandidate(release, sourceSnapshot, cursor = FRONTIER_CATA
     material: isMaterialRelease(release) && publicAndUsable && changed,
     reasons: [
       `catalog score ${score}/100`,
-      changed ? "upstream source changed after the admitted cursor" : "no upstream change after the admitted cursor",
+      blogContentChanged
+        ? "blog content fingerprint changed from the admitted baseline"
+        : changed
+          ? "upstream source changed after the admitted cursor"
+          : "no upstream change after the admitted cursor",
       publicAndUsable ? "source is public and ungated" : "source is private, gated, disabled, or unavailable",
     ],
   };
@@ -233,7 +246,7 @@ async function readBounded(response) {
   return text;
 }
 
-export async function fetchBounded(
+async function fetchBoundedResource(
   url,
   {
     fetchImpl = fetch,
@@ -255,10 +268,19 @@ export async function fetchBounded(
       const finalOrigin = new URL(response.url || url).origin;
       if (finalOrigin !== allowedOrigin) throw new Error(`response left allowed origin: ${finalOrigin}`);
     }
-    return await readBounded(response);
+    return {
+      body: await readBounded(response),
+      etag: response.headers.get("etag"),
+      lastModified: response.headers.get("last-modified"),
+      finalUrl: response.url || String(url),
+    };
   } finally {
     clearTimeout(timer);
   }
+}
+
+export async function fetchBounded(url, options = {}) {
+  return (await fetchBoundedResource(url, options)).body;
 }
 
 async function probeRelease(release, fetchImpl) {
@@ -301,16 +323,19 @@ async function probeRelease(release, fetchImpl) {
     };
   }
   if (watch.kind === "blog") {
+    if (!/^[a-f0-9]{64}$/.test(watch.baselineFingerprint ?? "")) {
+      throw new Error("blog watch is missing an admitted content fingerprint baseline");
+    }
     const source = new URL(release.artifactSource);
     if (source.origin !== HF_ORIGIN || !source.pathname.startsWith("/blog/")) {
       throw new Error("blog source must be an official Hugging Face blog URL");
     }
-    const html = await fetchBounded(source, {
+    const resource = await fetchBoundedResource(source, {
       fetchImpl,
       accept: "text/html, application/xhtml+xml",
       allowedOrigin: HF_ORIGIN,
     });
-    return snapshotHuggingFaceBlog(release, html);
+    return snapshotHuggingFaceBlog(release, resource.body, resource);
   }
   throw new Error(`unsupported watch kind: ${watch.kind}`);
 }
