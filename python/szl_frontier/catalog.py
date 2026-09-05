@@ -124,6 +124,8 @@ PYTHON_ADMISSIONS: tuple[Mapping[str, Any], ...] = (
         "watch": {
             "kind": "dataset",
             "repoId": "TheAgenticDataCompany/open-yap-1k",
+            "baselineRevision": "3eb0aaa5bcfb8a0f92fc383df1cb1d9a40fc6f2f",
+            "baselineFingerprint": "8349606e7a5744f28355005fa2f19c73a7158917feec5be2a22a6888e2ba5991",
         },
     },
     {
@@ -204,7 +206,11 @@ PYTHON_ADMISSIONS: tuple[Mapping[str, Any], ...] = (
                 "Require latency, retry, rate-limit, error-mode, and provenance receipts before dependency promotion.",
             ),
         ],
-        "watch": {"kind": "blog", "repoId": "vlm-run/introducing-gateway"},
+        "watch": {
+            "kind": "blog",
+            "repoId": "vlm-run/introducing-gateway",
+            "baselineFingerprint": "d1aba0bd5a8ba2a352da10e6cdac807b8f37561f8d5a68ebe3145c222f54553c",
+        },
     },
     {
         "id": "trl-grpo-ifstruct-2026-09-03",
@@ -284,7 +290,11 @@ PYTHON_ADMISSIONS: tuple[Mapping[str, Any], ...] = (
                 "Base model, training data, TRL version, and produced checkpoint must each be cleared.",
             ),
         ],
-        "watch": {"kind": "blog", "repoId": "grpo-with-trl-ifstruct"},
+        "watch": {
+            "kind": "blog",
+            "repoId": "grpo-with-trl-ifstruct",
+            "baselineFingerprint": "8705b36045879f9c57fac64f1fd7ef032ff9d861b248b5aab183fd09140d7f93",
+        },
     },
 )
 

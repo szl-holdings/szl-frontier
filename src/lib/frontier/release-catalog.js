@@ -3,7 +3,7 @@
 
 /** @typedef {{id:string,title:string,scope:"evaluation"|"production",state:"pass"|"pending"|"hold",evidence:string}} ReleaseGate */
 /** @typedef {{impact:number,estateFit:number,evidenceQuality:number,integrationReadiness:number,riskPenalty:number}} ReleaseSignals */
-/** @typedef {{id:string,title:string,publisher:string,releasedAt:string,category:string,primarySource:string,artifactSource:string,targetOrgans:string[],whyItMatters:string,operationalTarget:string,maturity:string,license:string,licensePosture:string,resourceClass:string,posture:string,signals:ReleaseSignals,sourceClaims:string[],gates:ReleaseGate[],watch:{kind:string,repoId?:string,author?:string,baselineCount?:number}}} FrontierRelease */
+/** @typedef {{id:string,title:string,publisher:string,releasedAt:string,category:string,primarySource:string,artifactSource:string,targetOrgans:string[],whyItMatters:string,operationalTarget:string,maturity:string,license:string,licensePosture:string,resourceClass:string,posture:string,signals:ReleaseSignals,sourceClaims:string[],gates:ReleaseGate[],watch:{kind:string,repoId?:string,author?:string,baselineCount?:number,baselineFingerprint?:string},productionReceipt?:{sealed?:boolean,subject?:string,digest?:string}}} FrontierRelease */
 
 export const FRONTIER_CATALOG_EVALUATED_AT = "2026-09-04T13:36:00Z";
 export const FRONTIER_MATERIALITY_THRESHOLD = 70;
@@ -111,7 +111,11 @@ export const FRONTIER_RELEASES = Object.freeze([
       gate("funes-isolation", "Tenant/domain isolation", "production", "pending", "Cross-tenant recall and mixed security domains remain fail-closed."),
       gate("funes-delete", "Deletion/tombstone semantics", "production", "pending", "Derived indexes must stop returning deleted memory immediately.")
     ],
-    watch: { kind: "blog", repoId: "funes" }
+    watch: {
+      kind: "blog",
+      repoId: "funes",
+      baselineFingerprint: "d58ba8294c5fa0cca506bfe5804f95007050a0326b1faa008aa8f881c0ba3a2e"
+    }
   },
   {
     id: "vibevoice-streaming-asr-2026-09-03",
@@ -266,7 +270,11 @@ export function productionDisposition(release) {
   const allPass = productionGates.length > 0 && productionGates.every((item) => item.state === "pass");
   const licenseAdmitted = release.licensePosture === "clear";
   const maturityAdmitted = release.maturity === "released";
-  return allPass && licenseAdmitted && maturityAdmitted ? "PROMOTE" : "HOLD";
+  const receiptSealed =
+    release.productionReceipt?.sealed === true &&
+    release.productionReceipt?.subject === "hugging-face-frontier-production-authorization" &&
+    /^[a-f0-9]{64}$/.test(release.productionReceipt?.digest ?? "");
+  return allPass && licenseAdmitted && maturityAdmitted && receiptSealed ? "PROMOTE" : "HOLD";
 }
 
 export function buildFrontierReleaseManifest() {

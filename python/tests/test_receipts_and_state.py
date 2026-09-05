@@ -37,6 +37,19 @@ class ReceiptAndStateTests(unittest.TestCase):
         self.assertEqual(second.previous_receipt_digest, first.digest)
         self.assertNotEqual(first.digest, second.digest)
 
+    def test_unsigned_receipt_identity_and_chain_fields_are_content_addressed(self) -> None:
+        receipt = ReceiptFactory().create(
+            release_id="release-1",
+            subject="assessment",
+            payload={"score": 91},
+            created_at=datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc),
+        )
+        receipt.verify()
+        with self.assertRaises(ReceiptError):
+            replace(receipt, subject="different-subject").verify()
+        with self.assertRaises(ReceiptError):
+            replace(receipt, previous_receipt_digest="not-a-digest").verify()
+
     def test_notification_ledger_round_trips_atomically(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "state" / "ledger.json"

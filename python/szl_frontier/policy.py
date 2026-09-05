@@ -51,7 +51,12 @@ class MaterialityPolicy:
             return EvaluationDecision.WATCH
         return EvaluationDecision.IGNORE
 
-    def production_blockers(self, release: FrontierRelease) -> tuple[str, ...]:
+    def production_blockers(
+        self,
+        release: FrontierRelease,
+        *,
+        receipt_sealed: bool = False,
+    ) -> tuple[str, ...]:
         blockers: list[str] = []
         if self.score(release) < self.threshold:
             blockers.append(f"materiality score below {self.threshold}")
@@ -59,16 +64,29 @@ class MaterialityPolicy:
             blockers.append(f"maturity is {release.maturity!r}")
         if release.license_posture not in {"clear"}:
             blockers.append(f"license posture is {release.license_posture!r}")
-        for gate in release.gates:
-            if gate.scope is GateScope.PRODUCTION and gate.state is not GateState.PASS:
+        production_gates = tuple(
+            gate for gate in release.gates if gate.scope is GateScope.PRODUCTION
+        )
+        if not production_gates:
+            blockers.append("no production gates are declared")
+        for gate in production_gates:
+            if gate.state is not GateState.PASS:
                 blockers.append(f"gate {gate.id} is {gate.state.value}")
+        if not receipt_sealed:
+            blockers.append("sealed production-authorization receipt is required")
         return tuple(blockers)
 
     def production_disposition(
-        self, release: FrontierRelease
+        self,
+        release: FrontierRelease,
+        *,
+        receipt_sealed: bool = False,
     ) -> ProductionDisposition:
         return (
             ProductionDisposition.PROMOTE
-            if not self.production_blockers(release)
+            if not self.production_blockers(
+                release,
+                receipt_sealed=receipt_sealed,
+            )
             else ProductionDisposition.HOLD
         )

@@ -136,6 +136,8 @@ class WatchSpec:
     repo_id: str | None = None
     author: str | None = None
     baseline_count: int | None = None
+    baseline_revision: str | None = None
+    baseline_fingerprint: str | None = None
 
     @classmethod
     def from_mapping(cls, value: Mapping[str, Any]) -> "WatchSpec":
@@ -144,6 +146,8 @@ class WatchSpec:
             repo_id=value.get("repoId"),
             author=value.get("author"),
             baseline_count=value.get("baselineCount"),
+            baseline_revision=value.get("baselineRevision"),
+            baseline_fingerprint=value.get("baselineFingerprint"),
         )
 
     def as_mapping(self) -> dict[str, Any]:
@@ -154,6 +158,10 @@ class WatchSpec:
             result["author"] = self.author
         if self.baseline_count is not None:
             result["baselineCount"] = self.baseline_count
+        if self.baseline_revision is not None:
+            result["baselineRevision"] = self.baseline_revision
+        if self.baseline_fingerprint is not None:
+            result["baselineFingerprint"] = self.baseline_fingerprint
         return result
 
 

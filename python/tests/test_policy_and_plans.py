@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 from szl_frontier.catalog import CatalogLoader
+from szl_frontier.domain import GateState
 from szl_frontier.evaluation import EvaluationPlanner
 from szl_frontier.policy import MaterialityPolicy
 
@@ -35,6 +37,26 @@ class PolicyAndPlanTests(unittest.TestCase):
             with self.subTest(release=release.id):
                 self.assertEqual(self.policy.production_disposition(release).value, "HOLD")
                 self.assertTrue(self.policy.production_blockers(release))
+
+    def test_all_gates_still_require_a_sealed_receipt(self) -> None:
+        source = self.catalog.by_id("open-yap-1k-2026-09-03")
+        release = replace(
+            source,
+            maturity="released",
+            license_posture="clear",
+            gates=tuple(
+                replace(gate, state=GateState.PASS)
+                for gate in source.gates
+            ),
+        )
+        self.assertEqual(self.policy.production_disposition(release).value, "HOLD")
+        self.assertEqual(
+            self.policy.production_disposition(
+                release,
+                receipt_sealed=True,
+            ).value,
+            "PROMOTE",
+        )
 
     def test_post_training_plan_requires_heldout_semantic_checks(self) -> None:
         release = self.catalog.by_id("trl-grpo-ifstruct-2026-09-03")

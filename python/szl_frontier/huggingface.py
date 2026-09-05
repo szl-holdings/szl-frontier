@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from typing import Protocol
 from urllib.parse import quote, urlencode, urlparse
@@ -193,7 +194,21 @@ class HuggingFaceClient:
         lower = response.body[:4096].lower()
         if b"<html" not in lower and b"<!doctype html" not in lower:
             raise TransportError("blog response does not look like HTML")
-        fingerprint = _sha256_bytes(response.body)
+        try:
+            html = response.body.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise TransportError("blog response is not valid UTF-8") from exc
+        main_matches = re.findall(
+            r"<main\b[^>]*>[\s\S]*?</main>",
+            html,
+            flags=re.IGNORECASE,
+        )
+        if len(main_matches) != 1:
+            raise TransportError(
+                "blog response must contain exactly one canonical main element"
+            )
+        canonical_main = main_matches[0].encode("utf-8")
+        fingerprint = _sha256_bytes(canonical_main)
         return SourceSnapshot(
             kind="blog",
             source=response.url,
@@ -203,7 +218,7 @@ class HuggingFaceClient:
             gated=False,
             disabled=False,
             artifact_fingerprint=fingerprint,
-            content_bytes=len(response.body),
+            content_bytes=len(canonical_main),
         )
 
     def _snapshot_model_inventory(self, author: str) -> SourceSnapshot:

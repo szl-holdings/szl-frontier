@@ -62,6 +62,27 @@ class ReceiptSignature:
         }
 
 
+def _receipt_id(
+    *,
+    schema: str,
+    release_id: str,
+    created_at: str,
+    subject: str,
+    payload_digest: str,
+    previous_receipt_digest: str | None,
+) -> str:
+    return "fr_" + sha256_hex(
+        {
+            "schema": schema,
+            "releaseId": release_id,
+            "createdAt": created_at,
+            "subject": subject,
+            "payloadDigest": payload_digest,
+            "previousReceiptDigest": previous_receipt_digest,
+        }
+    )[:24]
+
+
 @dataclass(frozen=True, slots=True)
 class EvidenceReceipt:
     """Content-addressed record of one frontier observation or assessment."""
@@ -104,14 +125,38 @@ class EvidenceReceipt:
         value["signature"] = self.signature.as_mapping() if self.signature else None
         return sha256_hex(value)
 
+    @property
+    def sealed(self) -> bool:
+        """Whether the receipt carries a cryptographic signature."""
+
+        return self.signature is not None
+
     def verify(self, *, hmac_key: bytes | None = None) -> None:
-        """Fail closed on payload drift and, when present, signature mismatch."""
+        """Fail closed on identity, chain, payload, or signature drift."""
 
         if self.schema != RECEIPT_SCHEMA:
             raise ReceiptError(f"unsupported receipt schema: {self.schema}")
+        if self.previous_receipt_digest is not None and (
+            len(self.previous_receipt_digest) != 64
+            or any(
+                character not in "0123456789abcdef"
+                for character in self.previous_receipt_digest
+            )
+        ):
+            raise ReceiptError("previous receipt digest is not canonical SHA-256")
         expected_payload = sha256_hex(self.payload)
         if not hmac.compare_digest(expected_payload, self.payload_digest):
             raise ReceiptError("receipt payload digest mismatch")
+        expected_id = _receipt_id(
+            schema=self.schema,
+            release_id=self.release_id,
+            created_at=self.created_at,
+            subject=self.subject,
+            payload_digest=self.payload_digest,
+            previous_receipt_digest=self.previous_receipt_digest,
+        )
+        if not hmac.compare_digest(expected_id, self.receipt_id):
+            raise ReceiptError("receipt identity or chain fields were modified")
         if self.signature is None:
             return
         if self.signature.algorithm != "HMAC-SHA256":
@@ -155,23 +200,23 @@ class ReceiptFactory:
         if not release_id or not subject:
             raise ReceiptError("release_id and subject are required")
         timestamp = (created_at or datetime.now(timezone.utc)).astimezone(timezone.utc)
+        timestamp_text = timestamp.isoformat().replace("+00:00", "Z")
         normalized_payload = dict(payload)
         payload_digest = sha256_hex(normalized_payload)
 
-        # Receipt IDs are deterministic for a given release, subject, payload, and
-        # predecessor.  The timestamp stays in the signed body for audit chronology.
-        receipt_id = "fr_" + sha256_hex(
-            {
-                "releaseId": release_id,
-                "subject": subject,
-                "payloadDigest": payload_digest,
-                "previousReceiptDigest": previous_receipt_digest,
-            }
-        )[:24]
+        # Every identity and chain field participates in the content address.
+        receipt_id = _receipt_id(
+            schema=RECEIPT_SCHEMA,
+            release_id=release_id,
+            created_at=timestamp_text,
+            subject=subject,
+            payload_digest=payload_digest,
+            previous_receipt_digest=previous_receipt_digest,
+        )
         unsigned = EvidenceReceipt(
             receipt_id=receipt_id,
             release_id=release_id,
-            created_at=timestamp.isoformat().replace("+00:00", "Z"),
+            created_at=timestamp_text,
             subject=subject,
             payload_digest=payload_digest,
             payload=normalized_payload,

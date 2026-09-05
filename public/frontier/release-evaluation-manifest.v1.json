@@ -242,7 +242,8 @@
       ],
       "watch": {
         "kind": "blog",
-        "repoId": "funes"
+        "repoId": "funes",
+        "baselineFingerprint": "d58ba8294c5fa0cca506bfe5804f95007050a0326b1faa008aa8f881c0ba3a2e"
       },
       "materialityScore": 79,
       "material": true,
