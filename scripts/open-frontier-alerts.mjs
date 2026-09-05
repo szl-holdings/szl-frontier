@@ -2,7 +2,10 @@
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
-const REPORT_SCHEMA = "szl.frontier.watch-output.v1";
+const REPORT_SCHEMAS = new Set([
+  "szl.frontier.watch-output.v1",
+  "szl.frontier.combined-watch-output.v1",
+]);
 const RESULT_SCHEMA = "szl.frontier.alert-result.v1";
 const FINGERPRINT_PATTERN = /^[0-9a-f]{64}$/u;
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
@@ -84,10 +87,28 @@ export function validateAlertReport(report) {
   if (!report || typeof report !== "object" || Array.isArray(report)) {
     throw new Error("frontier report must be an object");
   }
-  if (report.schema !== REPORT_SCHEMA) throw new Error(`frontier report schema must be ${REPORT_SCHEMA}`);
+  if (!REPORT_SCHEMAS.has(report.schema)) {
+    throw new Error("frontier report schema is not admitted for alert publication");
+  }
   if (report.live !== true) throw new Error("alerts require a live frontier report");
   if (report.productionPromotion !== false) {
     throw new Error("frontier report must explicitly prohibit production promotion");
+  }
+  if (!Number.isInteger(report.sourceCount) || report.sourceCount < 1) {
+    throw new Error("frontier report sourceCount must be a positive integer");
+  }
+  if (report.successfulSources !== report.sourceCount) {
+    throw new Error("alerts require complete primary-source coverage");
+  }
+  if (
+    !Array.isArray(report.sourceResults) ||
+    report.sourceResults.length !== report.sourceCount ||
+    report.sourceResults.some((result) => result?.status !== "ok")
+  ) {
+    throw new Error("alerts require one successful result for every primary source");
+  }
+  if (!Array.isArray(report.errors) || report.errors.length !== 0) {
+    throw new Error("alerts require an explicit empty collection error set");
   }
   if (!Array.isArray(report.materialCandidates)) {
     throw new Error("frontier report materialCandidates must be an array");

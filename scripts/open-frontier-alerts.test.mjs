@@ -23,6 +23,10 @@ function report(materialCandidates, overrides = {}) {
   return {
     schema: "szl.frontier.watch-output.v1",
     live: true,
+    sourceCount: 1,
+    successfulSources: 1,
+    sourceResults: [{ status: "ok" }],
+    errors: [],
     productionPromotion: false,
     materialCandidates,
     ...overrides,
@@ -88,6 +92,28 @@ test("duplicate candidates inside one report cannot create duplicate issues", ()
   assert.equal(
     validateAlertReport(report([candidate(), candidate()])).length,
     1,
+  );
+});
+
+test("combined reports are admitted only with complete source coverage", () => {
+  const combined = report([candidate()], {
+    schema: "szl.frontier.combined-watch-output.v1",
+    sourceCount: 2,
+    successfulSources: 2,
+    sourceResults: [{ status: "ok" }, { status: "ok" }],
+  });
+  assert.equal(validateAlertReport(combined).length, 1);
+  assert.throws(
+    () => validateAlertReport({ ...combined, successfulSources: 1 }),
+    /complete primary-source coverage/u,
+  );
+  assert.throws(
+    () => validateAlertReport({ ...combined, sourceResults: [{ status: "ok" }] }),
+    /one successful result/u,
+  );
+  assert.throws(
+    () => validateAlertReport({ ...combined, errors: [{ error: "upstream failed" }] }),
+    /empty collection error set/u,
   );
 });
 
