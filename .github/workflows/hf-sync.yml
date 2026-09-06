@@ -16,7 +16,7 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     env:
       HF_TOKEN: ${{ secrets.HF_ORG_TOKEN || secrets.HF_TOKEN }}
     steps:
@@ -55,3 +55,41 @@ jobs:
 
       - name: Publish Space and covenant dataset
         run: python3 .github/scripts/publish_frontier.py
+
+      - name: Verify running exact-source identity
+        run: |
+          set -euo pipefail
+          python3 - <<'PYEOF'
+          import json
+          import os
+          import time
+          import urllib.error
+          import urllib.request
+
+          expected = os.environ["GITHUB_SHA"]
+          url = "https://szlholdings-szl-frontier.hf.space/deployment.json"
+          deadline = time.monotonic() + 900
+          last = "not attempted"
+          while time.monotonic() < deadline:
+              try:
+                  request = urllib.request.Request(
+                      url,
+                      headers={
+                          "Cache-Control": "no-cache",
+                          "User-Agent": "SZL-Frontier-source-proof/1",
+                      },
+                  )
+                  with urllib.request.urlopen(request, timeout=20) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+                  repository = payload.get("source_repository")
+                  revision = payload.get("source_revision")
+                  if repository == "szl-holdings/szl-frontier" and revision == expected:
+                      print(json.dumps(payload, sort_keys=True))
+                      break
+                  last = f"observed repository={repository!r} revision={revision!r}"
+              except (OSError, ValueError, urllib.error.URLError) as exc:
+                  last = f"{type(exc).__name__}: {exc}"
+              time.sleep(15)
+          else:
+              raise SystemExit(f"Frontier exact-source witness did not converge: {last}")
+          PYEOF
