@@ -77,12 +77,20 @@ exact-source runtime witness. Do not publish this draft directly to HF.
 
 | Owner | Required work |
 | --- | --- |
-| `szl-nemo` | Opt-in candidate routing by exact model SHA; existing defaults retained. |
-| `szl-serve` | Pin and qualify an SGLang image and `minicpm5` tool parser; prove abstention and fallback. |
-| `szl-forge` | Held-out quality/tool tests; latency and memory on named hardware; separately reviewed SFT/RL pilots. |
+| `szl-nemo` | Add candidate PRE_GENERATION/POST_GENERATION envelope witnesses with exact identity; Nemo is not the model or routing authority. |
+| `szl-serve` | Own the pinned serving recipe, validator and receipt contract; validate the Forge-owned runtime and fallback, not a second engine. |
+| `szl-forge` | Own opt-in model selection, runtime/image qualification, lifecycle, held-out tests and separately reviewed SFT/RL pilots. |
 | `szl-frontier` | Complete live metadata witness, source review and deduplication evidence. |
 | `a11oy` | Expose only witnessed opt-in capability; model calls remain proposals, not action authority. |
 | `a11oy-net` | Publish actual source/runtime/evaluation receipts and known bounds, not plan-derived live badges. |
+
+Ownership was checked against `szl-nemo/README.md` and `szl-serve/README.md`.
+Nemo is an independent deterministic envelope witness; an ALLOW is not tool
+authority. Forge owns the existing `SZLHOLDINGS/szl-model-inference-lab` serving
+studio. `szl-serve` is its recipe/validator/receipt layer, not a vendor engine.
+Preserve that boundary and the existing admitted baseline. Do not point this
+lane at the read-only `szl-forge-lab` snapshot or create a second public runtime.
+The SGLang route remains unqualified until Forge records real hardware evidence.
 
 OpenBMB documents SGLang >=0.5.16 and the `minicpm5` parser. A minimum version is
 not an admitted image digest; `qualifiedRuntimeImageDigest` remains null. Keep
