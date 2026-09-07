@@ -52,6 +52,9 @@ class CatalogLoader:
         self.manifest_path = manifest_path
 
     def load(self) -> Catalog:
+        # Keep the standalone edge CLI out of package import side effects.
+        from .edge_lane import edge_admissions
+
         manifest = self._read_manifest(self.manifest_path)
         schema = str(manifest.get("schema", ""))
         if schema != SUPPORTED_SCHEMA:
@@ -69,7 +72,7 @@ class CatalogLoader:
         self._validate_js_projection(raw_manifest_releases, manifest_releases)
         python_releases = [
             FrontierRelease.from_mapping(item, origin="python-admission")
-            for item in PYTHON_ADMISSIONS
+            for item in (*PYTHON_ADMISSIONS, *edge_admissions())
         ]
         releases = self._merge(manifest_releases, python_releases)
         threshold = int(manifest.get("policy", {}).get("materialityThreshold", 70))
