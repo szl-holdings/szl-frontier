@@ -21,4 +21,11 @@ class CliTests(unittest.TestCase):
                 code = run(["--manifest", str(manifest), "list", "--min-score", "80"])
         rows = json.loads(output.getvalue())
         self.assertEqual(code, 0)
-        self.assertEqual({row["id"] for row in rows}, {"open-yap-1k-2026-09-03", "trl-grpo-ifstruct-2026-09-03"})
+        self.assertEqual(
+            {row["id"] for row in rows},
+            {
+                "open-yap-1k-2026-09-03",
+                "trl-grpo-ifstruct-2026-09-03",
+                "k2-horizon-mova-36b-a4b-2026-09-03",
+            },
+        )
