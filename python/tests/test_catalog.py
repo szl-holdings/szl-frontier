@@ -12,13 +12,16 @@ from helpers import baseline_release, write_manifest
 
 
 class CatalogTests(unittest.TestCase):
-    def test_merges_js_manifest_and_three_curated_python_admissions(self) -> None:
+    def test_merges_js_manifest_and_five_curated_python_admissions(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = write_manifest(Path(directory) / "manifest.json")
             catalog = CatalogLoader(path).load()
+        self.assertEqual(len(PYTHON_ADMISSIONS), 5)
         self.assertEqual(len(catalog.releases), 1 + len(PYTHON_ADMISSIONS))
         self.assertEqual(catalog.by_id("baseline-model-2026-09-01").origin, "js-manifest")
         self.assertEqual(catalog.by_id("trl-grpo-ifstruct-2026-09-03").origin, "python-admission")
+        self.assertEqual(catalog.by_id("k2-horizon-mova-36b-a4b-2026-09-03").origin, "python-admission")
+        self.assertEqual(catalog.by_id("vaani-noise-event-2026-08-07").origin, "python-admission")
 
     def test_cross_runtime_score_drift_fails_ci(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
