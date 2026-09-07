@@ -15,22 +15,29 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: "22"
           cache: npm
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
       - name: Install exact dependency closure
         run: npm ci
-      - name: Generate deterministic release manifest
-        run: node scripts/generate-frontier-release-manifest.mjs
-      - name: Verify deterministic release manifest
+      - name: Verify committed release manifest before any build
         run: node scripts/generate-frontier-release-manifest.mjs --check
-      - name: Verify release intelligence controls
-        run: node --test scripts/frontier-release-watch.test.mjs
+      - name: Verify every release, wave, pin and projection control
+        run: node --test scripts/frontier-*.test.mjs
       - name: Typecheck exact source
         run: npm run typecheck
       - name: Build exact source
         run: npm run build
+      - name: Require build to preserve the committed release projection
+        run: |
+          node scripts/generate-frontier-release-manifest.mjs --check
+          git diff --exit-code -- public/frontier/release-evaluation-manifest.v1.json
       - name: Emit proof-carrying release witness
         shell: bash
         run: |
