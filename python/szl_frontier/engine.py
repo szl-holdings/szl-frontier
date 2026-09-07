@@ -16,7 +16,7 @@ from .receipts import EvidenceReceipt, ReceiptError, ReceiptFactory, sha256_hex
 class FrontierEngine:
     """Single coordination surface used by humans, CI, and future agents.
 
-    The engine is intentionally policy-first.  A live source can enrich an
+    The engine is intentionally policy-first. A live source can enrich an
     evaluation but can never turn a HOLD into production promotion by itself.
     """
 
@@ -95,9 +95,10 @@ class FrontierEngine:
     def is_new_observation(self, assessment: Assessment) -> bool:
         """Return whether an observation is new relative to the admitted cursor.
 
-        Python-only admissions are compared to reviewable immutable baselines.
-        JS-manifest releases must show an upstream modification after the manifest
-        cursor (or an expanded inventory) before they can alert.
+        Python-only model and dataset admissions are compared against exact Hub
+        revision + normalized artifact-inventory baselines. Blog admissions use
+        canonical-main fingerprints. JS-manifest releases retain cursor-based
+        discovery semantics (or inventory growth for collection watches).
         """
 
         snapshot = assessment.snapshot
@@ -105,7 +106,7 @@ class FrontierEngine:
             return False
         release = assessment.release
         if release.origin == "python-admission":
-            if release.watch.kind == "dataset":
+            if release.watch.kind in {"model", "dataset"}:
                 if (
                     not release.watch.baseline_revision
                     or not release.watch.baseline_fingerprint

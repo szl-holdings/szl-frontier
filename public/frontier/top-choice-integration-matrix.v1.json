@@ -1,0 +1,84 @@
+{
+  "schema": "szl.frontier.top-choice-integration-matrix.v1",
+  "observedAt": "2026-09-07T13:08:16Z",
+  "authority": "evaluation-only",
+  "productionPromotion": false,
+  "designRule": "Absorb useful open primitives; preserve upstream identity, license, and provenance; differentiate through SZL contracts, governance, receipts, routing, evaluation, and UX.",
+  "choices": [
+    {
+      "rank": 1,
+      "id": "k2-horizon-mova-36b-a4b-2026-09-03",
+      "upstream": "IFM/K2-Horizon-MoVA-36B-A4B",
+      "primarySource": "https://huggingface.co/IFM/K2-Horizon-MoVA-36B-A4B",
+      "license": "Apache-2.0",
+      "admission": "python-admission",
+      "evaluationLane": "agent-model-shadow",
+      "szlPrimitive": "Governed Agent Model Contract",
+      "targets": ["szl-nemo", "szl-serve", "szl-router", "a11oy-factory", "a11oy"],
+      "sourceBaseline": {
+        "revision": "05cab0a4d7150c1c460a000b37ff40cc1af2feaa",
+        "artifactFingerprint": "259e31e5a7143d4f6cca70ed238296e9374b0a51aa497563f62e10af990ec9e2",
+        "artifactCount": 63,
+        "gated": false
+      },
+      "production": "HOLD"
+    },
+    {
+      "rank": 2,
+      "id": "neomme-2026-09-03",
+      "upstream": "Hcompany/NeoMME-260M-Retriever",
+      "primarySource": "https://huggingface.co/Hcompany/NeoMME-260M-Retriever",
+      "license": "Apache-2.0",
+      "admission": "js-manifest",
+      "evaluationLane": "retrieval-shadow",
+      "szlPrimitive": "Evidence-Native Multimodal Retriever",
+      "targets": ["szl-second-brain", "szl-lake", "a11oy", "lyte-services", "prism"],
+      "production": "HOLD"
+    },
+    {
+      "rank": 3,
+      "id": "funes-agent-memory-2026-09-03",
+      "upstream": "Hugging Face Funes",
+      "primarySource": "https://huggingface.co/blog/funes",
+      "license": "implementation-components-review-required",
+      "admission": "js-manifest",
+      "evaluationLane": "agent-memory",
+      "szlPrimitive": "Memory Covenant Interchange",
+      "targets": ["szl-frontier", "szl-second-brain", "a11oy"],
+      "production": "HOLD"
+    },
+    {
+      "rank": 4,
+      "id": "hf-webgpu-kernels-2026-09-01",
+      "upstream": "@huggingface/kernels / webgpu-kernels",
+      "primarySource": "https://huggingface.co/blog/webgpu-kernels",
+      "license": "Apache-2.0 collection; selected artifacts rechecked individually",
+      "admission": "js-manifest",
+      "evaluationLane": "runtime-benchmark",
+      "szlPrimitive": "Browser Kernel Plane",
+      "targets": ["szl-kernels", "szl-serve", "a11oy", "szl-frontier"],
+      "sourceBaseline": {
+        "inventoryCount": 207
+      },
+      "production": "HOLD"
+    },
+    {
+      "rank": 5,
+      "id": "vaani-noise-event-2026-08-07",
+      "upstream": "ARTPARK-IISc/Vaani-Noise-Event-Dataset",
+      "primarySource": "https://huggingface.co/datasets/ARTPARK-IISc/Vaani-Noise-Event-Dataset",
+      "license": "CC-BY-4.0 plus gated repository access conditions",
+      "admission": "python-admission",
+      "evaluationLane": "speech-data-sandbox",
+      "szlPrimitive": "Acoustic Robustness Lane",
+      "targets": ["szl-nemo", "szl-serve", "szl-lake", "a11oy"],
+      "sourceBaseline": {
+        "revision": "be488e2ac12fd62bef46b9f83e3a5feded575333",
+        "artifactFingerprint": "eaaee5703e5288affd9447ffb29feca84df66f0b70eef152a1f8913e8db7d4da",
+        "artifactCount": 184,
+        "gated": true
+      },
+      "production": "HOLD"
+    }
+  ]
+}

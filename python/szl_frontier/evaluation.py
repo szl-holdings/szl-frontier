@@ -30,6 +30,10 @@ class EvaluationPlanner:
 
     def plan(self, release: FrontierRelease) -> EvaluationPlan:
         category = release.category
+        if "agent-model" in category:
+            return self._agent_model(release)
+        if "agent-memory" in category:
+            return self._agent_memory(release)
         if "retrieval" in category:
             return self._retrieval(release)
         if "speech-training" in category:
@@ -45,6 +49,76 @@ class EvaluationPlanner:
         if "world-model" in category:
             return self._world_model(release)
         return self._generic(release)
+
+    def _agent_model(self, release: FrontierRelease) -> EvaluationPlan:
+        return EvaluationPlan(
+            release.id,
+            "agent-model-shadow",
+            (
+                _metric("agent_task_success_rate", "higher", "Held-out multi-step task completion without hidden manual repair."),
+                _metric("tool_call_exact_match", "higher", "Exact tool name, arguments, schema, and bounded intent."),
+                _metric("schema_exact_match", "higher", "Governed JSON/receipt contract compliance."),
+                _metric("long_context_grounded_recall", "higher", "Evidence retention as context length and distractors increase."),
+                _metric("unsupported_claim_rate", "lower", "Claims without admitted evidence or provenance."),
+                _metric("p95_time_to_first_token_ms", "lower", "Interactive serving tail latency."),
+                _metric("tokens_per_second", "higher", "Steady-state serving throughput."),
+                _metric("peak_gpu_memory_bytes", "lower", "Capacity planning and concurrency economics."),
+            ),
+            _COMMON_INVARIANTS
+            + (
+                "Inspect and pin any remote/custom model code before execution; trust_remote_code is never an implicit approval.",
+                "Tool calls remain proposals behind A11oy policy and approval; model output cannot directly gain action authority.",
+                "Long-context fixtures contain tenant/domain canaries; any cross-boundary recall is a hard failure.",
+                "Compare at least one current SZL model/runtime baseline on identical prompts, tools, seeds where supported, and serving limits.",
+            ),
+            _COMMON_ARTIFACTS
+            + (
+                "model-card.snapshot.json",
+                "serving-config.json",
+                "tool-traces.jsonl",
+                "long-context-report.json",
+            ),
+            (
+                "Stop on cross-tenant/context-canary leakage or any action-authority bypass.",
+                "Stop if structured/tool accuracy improves while semantic task accuracy or refusal/governance behavior regresses beyond tolerance.",
+                "Stop if the serving stack silently substitutes a different revision, quantization, runtime, or fallback model.",
+            ),
+        )
+
+    def _agent_memory(self, release: FrontierRelease) -> EvaluationPlan:
+        return EvaluationPlan(
+            release.id,
+            "agent-memory-shadow",
+            (
+                _metric("relevant_memory_recall_at_10", "higher", "Useful trace recovery on checksum-pinned tasks."),
+                _metric("provenance_exact_match", "higher", "Every recalled chunk resolves to the exact source trace and span."),
+                _metric("secret_exposure_rate", "zero", "Credentials and prohibited sensitive material must never enter recall output."),
+                _metric("cross_tenant_leakage_rate", "zero", "No recall across tenant or security-domain boundaries."),
+                _metric("deleted_memory_return_rate", "zero", "Tombstoned/deleted memory must disappear from derived indexes immediately."),
+                _metric("sync_divergence_rate", "lower", "Portable copies converge without silently losing or resurrecting traces."),
+                _metric("p95_recall_latency_ms", "lower", "Interactive memory retrieval tail latency."),
+            ),
+            _COMMON_INVARIANTS
+            + (
+                "Raw traces remain system-of-record evidence; indexes and embeddings are disposable derived state.",
+                "Redact and secret-scan before any synchronization boundary; never rely on downstream masking as the primary control.",
+                "Every recall result carries source identity, purpose, tenant/domain, lifecycle state, and provenance into the Memory Covenant.",
+                "Memory retrieval is context evidence only and cannot itself authorize tools, writes, or production actions.",
+            ),
+            _COMMON_ARTIFACTS
+            + (
+                "trace-schema.json",
+                "redaction-report.json",
+                "tombstone-cases.jsonl",
+                "sync-report.json",
+                "recall-provenance.jsonl",
+            ),
+            (
+                "Stop on any secret exposure, cross-tenant recall, or deleted-memory resurrection.",
+                "Stop if a retrieved memory cannot be traced exactly to admitted raw evidence.",
+                "Stop if synchronization changes source identity, tenant/domain scope, or deletion semantics.",
+            ),
+        )
 
     def _retrieval(self, release: FrontierRelease) -> EvaluationPlan:
         return EvaluationPlan(
@@ -78,12 +152,12 @@ class EvaluationPlanner:
             ),
             _COMMON_INVARIANTS
             + (
-                "Use the Hub sample until the full-corpus agreement is explicitly admitted.",
-                "Never enable speaker identification or voice-clone objectives from this corpus.",
+                "Use only data whose access terms have been explicitly admitted; a public card is not permission to ingest gated payloads.",
+                "Never enable speaker identification or voice-clone objectives from an admitted speech corpus unless separately authorized.",
             ),
             _COMMON_ARTIFACTS + ("dataset-card.snapshot.json", "rights-review.json"),
             (
-                "Stop on any license/DUA ambiguity.",
+                "Stop on any license, DUA, or gated-access ambiguity.",
                 "Stop on any attempted identity linkage or prohibited redistribution path.",
             ),
         )
