@@ -65,7 +65,17 @@ jobs:
           --output python-frontier-watch-output.json
           --require-complete
 
-      - name: Combine JavaScript and Python witness evidence
+      - name: Compare substantive edge-model and training-data artifacts
+        id: edge_scan
+        continue-on-error: true
+        env:
+          PYTHONPATH: python
+        run: >-
+          python3 -m szl_frontier.edge_lane watch
+          --output edge-frontier-watch-output.json
+          --require-complete
+
+      - name: Combine JavaScript, Python and content-aware edge evidence
         id: combine
         if: always()
         continue-on-error: true
@@ -86,7 +96,7 @@ jobs:
               productionPromotion: (any(.[]; .productionPromotion == true))
             }
           ' frontier-watch-output.json python-frontier-watch-output.json \
-            > combined-frontier-watch-output.json
+            edge-frontier-watch-output.json > combined-frontier-watch-output.json
 
       - name: Publish evidence summary
         if: steps.combine.outcome == 'success'
@@ -98,7 +108,7 @@ jobs:
             echo
             echo "Evaluated through: \`$(jq -r .evaluatedThrough combined-frontier-watch-output.json)\`"
             echo
-            echo "Combined primary sources: **$(jq -r .successfulSources combined-frontier-watch-output.json)/$(jq -r .sourceCount combined-frontier-watch-output.json)**"
+            echo "Combined source checks: **$(jq -r .successfulSources combined-frontier-watch-output.json)/$(jq -r .sourceCount combined-frontier-watch-output.json)**"
             echo
             echo "Combined material candidates: **$(jq -r '.materialCandidates | length' combined-frontier-watch-output.json)**"
             echo
@@ -113,6 +123,7 @@ jobs:
           path: |
             frontier-watch-output.json
             python-frontier-watch-output.json
+            edge-frontier-watch-output.json
             combined-frontier-watch-output.json
             python-frontier-catalog.json
           if-no-files-found: error
@@ -129,6 +140,7 @@ jobs:
         env:
           FRONTIER_SCAN_OUTCOME: ${{ steps.scan.outcome }}
           PYTHON_FRONTIER_SCAN_OUTCOME: ${{ steps.python_scan.outcome }}
+          EDGE_FRONTIER_SCAN_OUTCOME: ${{ steps.edge_scan.outcome }}
           COMBINED_FRONTIER_OUTCOME: ${{ steps.combine.outcome }}
         shell: bash
         run: |
@@ -139,6 +151,10 @@ jobs:
           fi
           if [[ "$PYTHON_FRONTIER_SCAN_OUTCOME" != "success" ]]; then
             echo '::error::Python curated frontier scan did not achieve complete primary-source coverage.'
+            exit 1
+          fi
+          if [[ "$EDGE_FRONTIER_SCAN_OUTCOME" != "success" ]]; then
+            echo '::error::Edge artifact comparison did not achieve complete primary-source coverage.'
             exit 1
           fi
           if [[ "$COMBINED_FRONTIER_OUTCOME" != "success" ]]; then
