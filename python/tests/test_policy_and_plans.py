@@ -6,11 +6,11 @@ from dataclasses import replace
 from pathlib import Path
 
 from szl_frontier.catalog import CatalogLoader
-from szl_frontier.domain import GateState
+from szl_frontier.domain import FrontierRelease, GateState
 from szl_frontier.evaluation import EvaluationPlanner
 from szl_frontier.policy import MaterialityPolicy
 
-from helpers import write_manifest
+from helpers import baseline_release, write_manifest
 
 
 class PolicyAndPlanTests(unittest.TestCase):
@@ -78,8 +78,11 @@ class PolicyAndPlanTests(unittest.TestCase):
         self.assertIn("long_context_grounded_recall", metric_names)
         self.assertTrue(any("action authority" in invariant for invariant in plan.invariants))
 
-    def test_funes_uses_memory_covenant_shadow_plan(self) -> None:
-        release = self.catalog.by_id("funes-agent-memory-2026-09-03")
+    def test_agent_memory_uses_memory_covenant_shadow_plan(self) -> None:
+        item = baseline_release()
+        item["id"] = "agent-memory-test"
+        item["category"] = "agent-memory"
+        release = FrontierRelease.from_mapping(item)
         plan = EvaluationPlanner().plan(release)
         metric_names = {metric.name for metric in plan.metrics}
         self.assertEqual(plan.lane, "agent-memory-shadow")
