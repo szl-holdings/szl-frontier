@@ -1,0 +1,119 @@
+{
+  "schema": "szl.frontier.upstream-model-pin-set.v1",
+  "capturedAt": "2026-09-07T23:26:13.326Z",
+  "source": "huggingface_hub.HfApi.model_info",
+  "authority": "PUBLIC_METADATA_ONLY",
+  "collector": {
+    "namespace": "SZLHOLDINGS",
+    "client": {
+      "name": "huggingface_hub",
+      "version": "1.30.0"
+    },
+    "jobs": [
+      {
+        "id": "6a9f47dd259f8e97255ed0e8",
+        "url": "https://huggingface.co/jobs/SZLHOLDINGS/6a9f47dd259f8e97255ed0e8",
+        "createdAt": "2026-09-07T23:25:17.662Z",
+        "finishedAt": "2026-09-07T23:25:26.088Z",
+        "dockerImage": "ghcr.io/astral-sh/uv:python3.12-bookworm",
+        "flavor": "cpu-basic",
+        "python": "3.12"
+      },
+      {
+        "id": "6a9f480d259f8e97255ed0f0",
+        "url": "https://huggingface.co/jobs/SZLHOLDINGS/6a9f480d259f8e97255ed0f0",
+        "createdAt": "2026-09-07T23:26:05.642Z",
+        "finishedAt": "2026-09-07T23:26:13.326Z",
+        "dockerImage": "ghcr.io/astral-sh/uv:python3.12-bookworm",
+        "flavor": "cpu-basic",
+        "python": "3.12"
+      }
+    ]
+  },
+  "models": [
+    {
+      "releaseId": "glm-5-3-family-2026-09-07",
+      "role": "reference",
+      "repoId": "zai-org/GLM-5.3",
+      "revision": "aca966e4e02791568aa6a4ced368624b3d897f42",
+      "lastModified": "2026-09-04T06:41:23+00:00",
+      "pipelineTag": "text-generation",
+      "libraryName": "transformers",
+      "license": "other",
+      "baseModel": null,
+      "private": false,
+      "gated": false,
+      "disabled": false
+    },
+    {
+      "releaseId": "glm-5-3-family-2026-09-07",
+      "role": "primary",
+      "repoId": "zai-org/GLM-5.3-Flash",
+      "revision": "eb9eb208eb0d988989d07a6a12d0fdeb5f52574a",
+      "lastModified": "2026-09-07T12:13:47+00:00",
+      "pipelineTag": "image-text-to-text",
+      "libraryName": "transformers",
+      "license": "mit",
+      "baseModel": null,
+      "private": false,
+      "gated": false,
+      "disabled": false
+    },
+    {
+      "releaseId": "deepseek-v4-flash-vision-exp-2026-09-01",
+      "role": "primary",
+      "repoId": "deepseek-ai/DeepSeek-V4-Flash-Vision-Exp",
+      "revision": "6821d6ad3681a4b137b066b76094fa82ebd0a380",
+      "lastModified": "2026-09-01T09:22:10+00:00",
+      "pipelineTag": "image-text-to-text",
+      "libraryName": "transformers",
+      "license": "mit",
+      "baseModel": null,
+      "private": false,
+      "gated": false,
+      "disabled": false
+    },
+    {
+      "releaseId": "nvidia-qwen3-8-flash-next-nvfp4-2026-09-05",
+      "role": "primary-quantized",
+      "repoId": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "revision": "fc694b54fb0174e0913e6adf86691ef85a4ead47",
+      "lastModified": "2026-09-05T23:36:02+00:00",
+      "pipelineTag": "image-text-to-text",
+      "libraryName": "Model Optimizer",
+      "license": "other",
+      "baseModel": [
+        "Qwen/Qwen3.8-Flash-Next"
+      ],
+      "private": false,
+      "gated": false,
+      "disabled": false
+    },
+    {
+      "releaseId": "nvidia-qwen3-8-flash-next-nvfp4-2026-09-05",
+      "role": "base-model",
+      "repoId": "Qwen/Qwen3.8-Flash-Next",
+      "revision": "de4b8e4d43b917e7706784d8bb445c9af86a3540",
+      "lastModified": "2026-08-27T05:03:36+00:00",
+      "pipelineTag": "image-text-to-text",
+      "libraryName": "transformers",
+      "license": "other",
+      "baseModel": null,
+      "private": false,
+      "gated": false,
+      "disabled": false
+    }
+  ],
+  "caveats": [
+    "Metadata snapshot only; it does not prove serving compatibility, model quality, latency, cost, or production readiness.",
+    "No model weights were downloaded or mirrored by this collection step.",
+    "License metadata is recorded as observed and still requires review where the wave marks review-required.",
+    "Production promotion remains HOLD until repository evaluation, fallback, policy, receipt, and authorization gates pass."
+  ],
+  "receipt": {
+    "algorithm": "sha256",
+    "scope": "canonical-json(body-without-receipt)",
+    "canonicalBytes": 3062,
+    "digest": "b8f0eebf5f24089da5c090a1597321939768df4879480785a58e9c38da4430cc"
+  }
+}

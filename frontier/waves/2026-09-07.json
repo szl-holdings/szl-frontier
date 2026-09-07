@@ -1,0 +1,174 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-07-hugging-face-frontier",
+  "evaluatedAt": "2026-09-07T19:47:00Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticDiscovery": true,
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "requiredEvidence": [
+      "primary-source-pin",
+      "license-posture",
+      "reproducible-evaluation",
+      "rollback-or-fallback",
+      "exact-source-revision",
+      "domain-proof-record"
+    ]
+  },
+  "alignment": {
+    "order": [
+      "github-source",
+      "hugging-face-artifact-projection",
+      "a-11-oy.com-product-surface",
+      "a11oy.net-proof-registry"
+    ],
+    "github": {
+      "controlPlane": "szl-holdings/szl-frontier",
+      "consumers": [
+        "szl-holdings/szl-forge",
+        "szl-holdings/szl-nemo",
+        "szl-holdings/szl-serve",
+        "szl-holdings/szl-gpu-bridge",
+        "szl-holdings/szl-kernels",
+        "szl-holdings/szl-khipu",
+        "szl-holdings/szl-second-brain",
+        "szl-holdings/szl-command-lab",
+        "szl-holdings/a11oy",
+        "szl-holdings/a11oy-net"
+      ]
+    },
+    "huggingFace": {
+      "organization": "SZLHOLDINGS",
+      "controlPlaneSpace": "SZLHOLDINGS/szl-frontier",
+      "productSpace": "SZLHOLDINGS/a11oy",
+      "rule": "Project admitted manifests, adapters, benchmark receipts, and source revision. Do not rehost upstream weights by default."
+    },
+    "domains": {
+      "product": "https://a-11-oy.com",
+      "proofRegistry": "https://a11oy.net",
+      "rule": "Product exposes admitted capability and runtime status; proof registry exposes source, receipts, evaluation evidence, and known bounds."
+    }
+  },
+  "alreadyAdmitted": [
+    "hf-webgpu-kernels-2026-09-01",
+    "neomme-2026-09-03",
+    "vibevoice-streaming-asr-2026-09-03"
+  ],
+  "releases": [
+    {
+      "id": "glm-5-3-family-2026-09-07",
+      "priority": "P0",
+      "publisher": "zai-org",
+      "artifacts": [
+        "https://huggingface.co/zai-org/GLM-5.3",
+        "https://huggingface.co/zai-org/GLM-5.3-Flash"
+      ],
+      "primaryArtifact": "https://huggingface.co/zai-org/GLM-5.3-Flash",
+      "capability": [
+        "reasoning",
+        "coding",
+        "agentic-tool-use",
+        "multimodal-image-text"
+      ],
+      "licensePosture": "mixed-review-required",
+      "whySZL": "Evaluate GLM-5.3-Flash as a high-capability multimodal agent route and GLM-5.3 as the larger reasoning/coding reference. Keep provider routing and local serving interchangeable behind A11oy policy.",
+      "targetRepos": [
+        "szl-holdings/szl-frontier",
+        "szl-holdings/szl-nemo",
+        "szl-holdings/szl-forge",
+        "szl-holdings/szl-serve",
+        "szl-holdings/a11oy"
+      ],
+      "acceptance": [
+        "Pin exact upstream model revisions and immutable metadata.",
+        "Add capability metadata without making an operational claim from a model card.",
+        "Add OpenAI-compatible/provider and self-hosted vLLM/SGLang route profiles where supported.",
+        "Run coding, tool-use, long-context, multimodal, refusal, latency, memory, and cost evaluations against current SZL baselines.",
+        "Seal benchmark inputs, model revision, runtime image, outputs, metrics, and fallback result.",
+        "Do not promote to default until all production gates pass."
+      ]
+    },
+    {
+      "id": "deepseek-v4-flash-vision-exp-2026-09-01",
+      "priority": "P0",
+      "publisher": "deepseek-ai",
+      "artifacts": [
+        "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-Vision-Exp"
+      ],
+      "primaryArtifact": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-Vision-Exp",
+      "capability": [
+        "multimodal-image-text",
+        "reasoning",
+        "agentic-tool-use"
+      ],
+      "licensePosture": "clear-mit",
+      "whySZL": "Benchmark as a multimodal perception and tool-use route for document, UI, operator, and visual evidence workflows while keeping every output proposal-only behind A11oy governance.",
+      "targetRepos": [
+        "szl-holdings/szl-frontier",
+        "szl-holdings/szl-nemo",
+        "szl-holdings/szl-forge",
+        "szl-holdings/szl-serve",
+        "szl-holdings/szl-command-lab",
+        "szl-holdings/szl-second-brain",
+        "szl-holdings/a11oy"
+      ],
+      "acceptance": [
+        "Pin the upstream model revision and MIT license evidence.",
+        "Add image/document/UI evaluation fixtures with checksummed inputs.",
+        "Compare multimodal reasoning and tool-use quality with the incumbent routes.",
+        "Record prompt/image provenance, output, confidence/evidence labels, latency, VRAM, and failure behavior.",
+        "Verify text-only and incumbent multimodal fallback paths.",
+        "No visual model output may bypass policy, approval, or receipt generation."
+      ]
+    },
+    {
+      "id": "nvidia-qwen3-8-flash-next-nvfp4-2026-09-05",
+      "priority": "P1",
+      "publisher": "nvidia",
+      "artifacts": [
+        "https://huggingface.co/nvidia/Qwen3.8-Flash-Next-NVFP4"
+      ],
+      "primaryArtifact": "https://huggingface.co/nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "capability": [
+        "multimodal-image-text",
+        "quantized-inference",
+        "nvidia-modelopt",
+        "fp4-deployment"
+      ],
+      "licensePosture": "review-required",
+      "whySZL": "Use as a deployment and own-metal optimization candidate for the NVIDIA/KHIPU lane, focusing on throughput, memory, latency, quality retention, and reproducible runtime receipts rather than copying upstream claims.",
+      "targetRepos": [
+        "szl-holdings/szl-frontier",
+        "szl-holdings/szl-gpu-bridge",
+        "szl-holdings/szl-serve",
+        "szl-holdings/szl-khipu",
+        "szl-holdings/szl-nemo",
+        "szl-holdings/szl-forge",
+        "szl-holdings/a11oy"
+      ],
+      "acceptance": [
+        "Pin the quantized artifact and base-model revisions.",
+        "Review NVIDIA and base-model license terms before redistribution or production use.",
+        "Add hardware preflight so unsupported devices fail closed instead of silently degrading.",
+        "Benchmark quality delta, cold start, TTFT, decode throughput, p50/p95 latency, VRAM, and cost against FP8/current routes.",
+        "Record ModelOpt/runtime versions and container digest in every benchmark receipt.",
+        "Promote only on measured benefit with a verified fallback."
+      ]
+    }
+  ],
+  "codexCompletionContract": {
+    "required": [
+      "merge the three candidates into the canonical frontier release catalog",
+      "regenerate public/frontier/release-evaluation-manifest.v1.json",
+      "add or update consumer adapters and route registries only where the repository owns that responsibility",
+      "add deterministic tests for capability mapping, fail-closed routing, and fallback",
+      "publish Hugging Face projection only from merged GitHub main using exact-source SHA binding",
+      "update a-11-oy.com only with admitted runtime/capability status",
+      "update a11oy.net only with proof, receipts, evaluation evidence, and known bounds",
+      "leave production defaults unchanged until production gates are explicitly satisfied"
+    ],
+    "definitionOfDone": "GitHub source, Hugging Face projection, product surface, and proof registry agree on release identity, source revision, capability status, evidence class, and production disposition."
+  }
+}
