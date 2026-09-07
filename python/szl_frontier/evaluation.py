@@ -30,6 +30,8 @@ class EvaluationPlanner:
 
     def plan(self, release: FrontierRelease) -> EvaluationPlan:
         category = release.category
+        if "agent-model" in category:
+            return self._agent_model(release)
         if "retrieval" in category:
             return self._retrieval(release)
         if "speech-training" in category:
@@ -45,6 +47,41 @@ class EvaluationPlanner:
         if "world-model" in category:
             return self._world_model(release)
         return self._generic(release)
+
+    def _agent_model(self, release: FrontierRelease) -> EvaluationPlan:
+        return EvaluationPlan(
+            release.id,
+            "agent-model-shadow",
+            (
+                _metric("agent_task_success_rate", "higher", "Held-out multi-step task completion without hidden manual repair."),
+                _metric("tool_call_exact_match", "higher", "Exact tool name, arguments, schema, and bounded intent."),
+                _metric("schema_exact_match", "higher", "Governed JSON/receipt contract compliance."),
+                _metric("long_context_grounded_recall", "higher", "Evidence retention as context length and distractors increase."),
+                _metric("unsupported_claim_rate", "lower", "Claims without admitted evidence or provenance."),
+                _metric("p95_time_to_first_token_ms", "lower", "Interactive serving tail latency."),
+                _metric("tokens_per_second", "higher", "Steady-state serving throughput."),
+                _metric("peak_gpu_memory_bytes", "lower", "Capacity planning and concurrency economics."),
+            ),
+            _COMMON_INVARIANTS
+            + (
+                "Inspect and pin any remote/custom model code before execution; trust_remote_code is never an implicit approval.",
+                "Tool calls remain proposals behind A11oy policy and approval; model output cannot directly gain action authority.",
+                "Long-context fixtures contain tenant/domain canaries; any cross-boundary recall is a hard failure.",
+                "Compare at least one current SZL model/runtime baseline on identical prompts, tools, seeds where supported, and serving limits.",
+            ),
+            _COMMON_ARTIFACTS
+            + (
+                "model-card.snapshot.json",
+                "serving-config.json",
+                "tool-traces.jsonl",
+                "long-context-report.json",
+            ),
+            (
+                "Stop on cross-tenant/context-canary leakage or any action-authority bypass.",
+                "Stop if structured/tool accuracy improves while semantic task accuracy or refusal/governance behavior regresses beyond tolerance.",
+                "Stop if the serving stack silently substitutes a different revision, quantization, runtime, or fallback model.",
+            ),
+        )
 
     def _retrieval(self, release: FrontierRelease) -> EvaluationPlan:
         return EvaluationPlan(
@@ -78,12 +115,12 @@ class EvaluationPlanner:
             ),
             _COMMON_INVARIANTS
             + (
-                "Use the Hub sample until the full-corpus agreement is explicitly admitted.",
-                "Never enable speaker identification or voice-clone objectives from this corpus.",
+                "Use only data whose access terms have been explicitly admitted; a public card is not permission to ingest gated payloads.",
+                "Never enable speaker identification or voice-clone objectives from an admitted speech corpus unless separately authorized.",
             ),
             _COMMON_ARTIFACTS + ("dataset-card.snapshot.json", "rights-review.json"),
             (
-                "Stop on any license/DUA ambiguity.",
+                "Stop on any license, DUA, or gated-access ambiguity.",
                 "Stop on any attempted identity linkage or prohibited redistribution path.",
             ),
         )
