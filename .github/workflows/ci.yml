@@ -15,14 +15,24 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: "22"
           cache: npm
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
       - run: npm ci
       - run: npm run typecheck
 
-      - name: Verify Python frontier control plane
+      # Never regenerate first: that hid the seven-record checked-in projection
+      # while the canonical source already contained the ten-record intake.
+      - name: Verify committed frontier manifest without rewriting it
+        run: node scripts/generate-frontier-release-manifest.mjs --check
+
+      - name: Verify Python frontier control plane against committed source
         env:
           PYTHONPATH: python
         run: |
@@ -31,17 +41,8 @@ jobs:
           python3 -m compileall -q python/szl_frontier
           python3 -m unittest discover -s python/tests -v
 
-      - name: Prove JS/Python frontier policy parity
-        env:
-          PYTHONPATH: python
-        run: |
-          set -euo pipefail
-          python3 -m szl_frontier list --min-score 70 > /tmp/python-frontier-catalog.json
-          test -s /tmp/python-frontier-catalog.json
+      - name: Verify all frontier controls, wave pins, and actual JS/Python parity
+        run: node --test scripts/frontier-*.test.mjs
 
-      - name: Verify frontier release intelligence controls
-        run: node --test scripts/frontier-release-watch.test.mjs
-      - name: Generate deterministic frontier manifest
-        run: node scripts/generate-frontier-release-manifest.mjs
-      - name: Verify generated frontier manifest
-        run: node scripts/generate-frontier-release-manifest.mjs --check
+      - name: Require unchanged tracked source after qualification
+        run: git diff --exit-code
