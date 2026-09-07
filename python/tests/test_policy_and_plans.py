@@ -78,6 +78,17 @@ class PolicyAndPlanTests(unittest.TestCase):
         self.assertIn("long_context_grounded_recall", metric_names)
         self.assertTrue(any("action authority" in invariant for invariant in plan.invariants))
 
+    def test_funes_uses_memory_covenant_shadow_plan(self) -> None:
+        release = self.catalog.by_id("funes-agent-memory-2026-09-03")
+        plan = EvaluationPlanner().plan(release)
+        metric_names = {metric.name for metric in plan.metrics}
+        self.assertEqual(plan.lane, "agent-memory-shadow")
+        self.assertIn("provenance_exact_match", metric_names)
+        self.assertIn("secret_exposure_rate", metric_names)
+        self.assertIn("cross_tenant_leakage_rate", metric_names)
+        self.assertIn("deleted_memory_return_rate", metric_names)
+        self.assertTrue(any("system-of-record evidence" in invariant for invariant in plan.invariants))
+
     def test_vaani_stays_held_behind_gated_access(self) -> None:
         release = self.catalog.by_id("vaani-noise-event-2026-08-07")
         states = {gate.id: gate.state.value for gate in release.gates}
