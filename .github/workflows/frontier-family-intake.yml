@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: Apache-2.0
+name: Frontier family intake witness
+on:
+  pull_request:
+    paths:
+      - 'frontier/waves/2026-09-08-kimi-hy4-spark.json'
+      - 'python/szl_frontier/family_intake.py'
+      - 'python/szl_frontier/wave_plan.py'
+      - 'python/tests/test_family*.py'
+      - '.github/workflows/frontier-family-intake.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'frontier/waves/2026-09-08-kimi-hy4-spark.json'
+      - 'python/szl_frontier/family_intake.py'
+      - 'python/szl_frontier/wave_plan.py'
+      - 'python/tests/test_family*.py'
+      - '.github/workflows/frontier-family-intake.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: frontier-family-intake-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  source-witness:
+    if: github.repository == 'szl-holdings/szl-frontier'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      PYTHONPATH: python
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12'
+      - name: Verify offline source and existing compiler integration
+        run: python -m unittest discover -s python/tests -p 'test_family*.py' -v
+      - name: Record exact pinned public metadata and compile pending evaluations
+        run: python -m szl_frontier.family_intake observe --source-revision "$(git rev-parse HEAD)" --output artifacts/family-source-witness.json
+      - name: Preserve complete or incomplete evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: family-source-witness-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/family-source-witness.json
+          if-no-files-found: error
+          retention-days: 30
