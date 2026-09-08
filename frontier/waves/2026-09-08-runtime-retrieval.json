@@ -1,0 +1,206 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-08-runtime-retrieval-frontier",
+  "evaluatedAt": "2026-09-08T07:58:18Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "979a8074772d11ab5c8d34d5c942577e1bee9eb6",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true,
+    "requiredEvidence": [
+      "exact-upstream-revision",
+      "license-posture",
+      "reproducible-evaluation",
+      "runtime-image-or-provider-identity",
+      "rollback-or-fallback",
+      "domain-proof-record"
+    ]
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWavesChecked": [
+      "2026-09-07-hugging-face-frontier",
+      "2026-09-08-frontier-proof-alignment"
+    ],
+    "openIssuesChecked": [25, 30],
+    "excludedAlreadyRepresented": [
+      "GLM-5.3 family",
+      "DeepSeek-V4-Flash-Vision-Exp",
+      "Qwen3.8-Flash-Next-NVFP4",
+      "MiniCPM5-2B",
+      "K2-Horizon-MoVA-36B-A4B",
+      "NeoMME",
+      "VibeVoice Streaming ASR",
+      "Hugging Face WebGPU kernels"
+    ],
+    "result": "three non-duplicate evaluation candidates"
+  },
+  "alignmentObservation": {
+    "github": {
+      "repository": "szl-holdings/szl-frontier",
+      "revision": "979a8074772d11ab5c8d34d5c942577e1bee9eb6",
+      "state": "EXACT_AT_SCAN"
+    },
+    "huggingFace": {
+      "space": "SZLHOLDINGS/szl-frontier",
+      "spaceRepositoryRevision": "48a2b9f45d26b3c2919c81233d7cacb65f5e1fa4",
+      "runtimeDeploymentSourceRevision": "979a8074772d11ab5c8d34d5c942577e1bee9eb6",
+      "runtimeDeploymentSha256": "54be4a3150b6f701a66fc9996cfbf6feb973d25a8d28abf54f1be07e21173a18",
+      "runtimeStage": "RUNNING",
+      "state": "EXACT_SOURCE_WITNESSED"
+    },
+    "product": {
+      "origin": "https://a-11-oy.com",
+      "summaryObservedAt": "2026-09-08T07:58:17.991Z",
+      "operatingMode": "OBSERVE_ONLY",
+      "runtimeReportedSourceRevision": "64501a3367d8b725d808359d1a24f70f6d334fb5",
+      "githubDefaultBranchRevision": null,
+      "huggingFaceRepositoryRevision": null,
+      "equivalenceState": "UNAVAILABLE",
+      "claimGate": "FAILED_CLOSED",
+      "criticalFailures": ["github_inventory_unavailable"],
+      "state": "FAIL_CLOSED_NOT_ALIGNED_TO_FRONTIER_OVERLAY"
+    },
+    "proof": {
+      "origin": "https://a11oy.net",
+      "record": "/estate/szl-frontier/alignment.json",
+      "liveRecordSourceRevision": "1bdad0f8a510afe24db6eb03fb8479e7f8330c6d",
+      "liveRecordSha256": "df112040556088e32127d29e641c9680b29a04749f58de9c3c85a831c91320b7",
+      "currentFrontierRevisionAtScan": "979a8074772d11ab5c8d34d5c942577e1bee9eb6",
+      "state": "STALE_SOURCE_POINTER",
+      "repairOwner": "szl-holdings/a11oy-net"
+    },
+    "productionDisposition": "HOLD"
+  },
+  "candidates": [
+    {
+      "id": "sglang-v0-5-19-2026-09-05",
+      "kind": "inference-engine",
+      "priority": "P0",
+      "publisher": "sgl-project",
+      "primarySource": "https://github.com/sgl-project/sglang/releases/tag/v0.5.19",
+      "tag": "v0.5.19",
+      "revision": "0bcd822377da7b5718e674eaf9c870d349424dd1",
+      "licensePosture": "Apache-2.0",
+      "materialChanges": [
+        "native Rust serving path with OpenAI-compatible ingress/egress and tokenizer management",
+        "continued Rust router and in-memory KV indexer integration",
+        "GLM-5.3 deployment cookbook directly relevant to an already-admitted SZL model lane",
+        "DeepEP v2, long-context DCP, and speculative-decoding changes that can materially alter throughput and latency"
+      ],
+      "whySZL": "The existing MiniCPM5 lane names SGLang as the preferred tool backend but keeps the runtime unqualified. v0.5.19 is therefore a directly actionable runtime candidate rather than a new model inventory item.",
+      "owners": [
+        "szl-holdings/szl-forge",
+        "szl-holdings/szl-serve",
+        "szl-holdings/szl-gpu-bridge"
+      ],
+      "acceptance": [
+        "Pin the exact SGLang commit and an immutable runtime image digest before qualification.",
+        "Run the existing MiniCPM5 parser contract and GLM-5.3 provider/runtime fixtures unchanged against the candidate runtime.",
+        "Measure schema/tool-call correctness, TTFT, inter-token latency, throughput, peak memory, cold start, and failure behavior against the incumbent serving path.",
+        "Exercise Rust and legacy/Python frontends with identical sealed inputs; do not change default routing unless the candidate wins without quality or governance regression.",
+        "Verify rollback to the currently admitted route and retain production HOLD until normal serving gates pass."
+      ],
+      "status": "EVALUATION"
+    },
+    {
+      "id": "alibaba-core-multimodal-retrieval-2026-09-04",
+      "kind": "retrieval-reranking",
+      "priority": "P1",
+      "publisher": "Alibaba-NLP",
+      "artifacts": [
+        {
+          "repoId": "Alibaba-NLP/core-reranker-8b",
+          "revision": "d95d36a34300e34b87cc1793827ac798642c4488",
+          "license": "cc-by-4.0"
+        },
+        {
+          "repoId": "Alibaba-NLP/core-emb-8b",
+          "revision": "123aef9e5e9e76fb686420f077fce3ef3b580c2b",
+          "license": "cc-by-4.0"
+        }
+      ],
+      "primarySources": [
+        "https://huggingface.co/Alibaba-NLP/core-reranker-8b",
+        "https://huggingface.co/Alibaba-NLP/core-emb-8b"
+      ],
+      "capability": [
+        "multimodal-embedding",
+        "multimodal-reranking",
+        "compositional-retrieval",
+        "negation-sensitive-retrieval"
+      ],
+      "whySZL": "This is a non-duplicate retrieval candidate for Second Brain evidence selection, especially queries where image-text composition and negation matter. It must be measured against SZL retrieval baselines before any use in evidence ranking.",
+      "owners": [
+        "szl-holdings/szl-second-brain",
+        "szl-holdings/szl-forge",
+        "szl-holdings/szl-serve"
+      ],
+      "acceptance": [
+        "Keep upstream weights in place; bind exact Hub revisions and CC-BY-4.0 attribution obligations.",
+        "Evaluate text-only and image-text retrieval on frozen SZL public/synthetic fixtures, including negation, conflicting evidence, cross-tenant decoys, and missing-evidence abstention.",
+        "Compare recall/nDCG/MRR, reranker calibration, latency, memory, and cost with incumbent embedding/reranking routes.",
+        "Ensure retrieval output remains handles/evidence candidates only and cannot expand principal/tenant authority.",
+        "Promote only if measured benefit survives governance, provenance, fallback, and attribution gates."
+      ],
+      "status": "EVALUATION"
+    },
+    {
+      "id": "dynamo-deepseek-v4-pro-0813-dev1-2026-09-04",
+      "kind": "distributed-inference-infrastructure",
+      "priority": "P2",
+      "publisher": "ai-dynamo/NVIDIA",
+      "primarySource": "https://github.com/ai-dynamo/dynamo/releases/tag/v1.5.0-deepseek-v4-pro-0813-dev.1",
+      "releaseRevision": "28f9c307dcff4130412ac04e4ea07c96b0cde6f5",
+      "model": {
+        "repoId": "deepseek-ai/DeepSeek-V4-Pro-0813",
+        "revision": "72e1d3230f6c080a530b0a1d46f8eb4602340597",
+        "license": "mit"
+      },
+      "licensePosture": "review-required-for-Dynamo-repository-and-container; model MIT",
+      "upstreamMaturity": "experimental-snapshot-not-QA-gated",
+      "materialChanges": [
+        "early Dynamo/vLLM support for DeepSeek-V4-Pro-0813",
+        "aggregated and disaggregated GB200/H200 recipes",
+        "KV-aware routing and long-context deployment profiles"
+      ],
+      "whySZL": "Useful as a datacenter-scale reference/evaluation lane for future KHIPU infrastructure, but upstream explicitly marks this snapshot non-production and the hardware requirement is substantial.",
+      "owners": [
+        "szl-holdings/szl-gpu-bridge",
+        "szl-holdings/szl-serve",
+        "szl-holdings/szl-forge"
+      ],
+      "acceptance": [
+        "Treat the snapshot as evaluation-only and preserve the upstream non-production warning.",
+        "Resolve Dynamo/container licensing and bind container digests before executing anything beyond source review.",
+        "Do not allocate multi-node accelerator spend unless a bounded evaluation plan, cost ceiling, and matched baseline are recorded first.",
+        "If qualified hardware is unavailable, record UNAVAILABLE rather than simulating a pass.",
+        "No production default change until a stable/QA-gated upstream release and all normal SZL runtime, cost, fallback, and receipt gates pass."
+      ],
+      "status": "WATCH_EVALUATION_ONLY"
+    }
+  ],
+  "routing": {
+    "catalogOwner": "szl-holdings/szl-frontier",
+    "runtimeQualificationOwner": "szl-holdings/szl-forge",
+    "servingOwner": "szl-holdings/szl-serve",
+    "gpuInfrastructureOwner": "szl-holdings/szl-gpu-bridge",
+    "retrievalOwner": "szl-holdings/szl-second-brain",
+    "productOwner": "szl-holdings/a11oy",
+    "proofOwner": "szl-holdings/a11oy-net"
+  },
+  "codexCompletionContract": {
+    "required": [
+      "admit candidate metadata to the canonical catalog only after exact-pin and license validation",
+      "prepare runtime/retrieval evaluation code in each active owning repository without changing production defaults",
+      "add deterministic fail-closed tests and matched-baseline fixtures",
+      "retain negative or unavailable results without retry-to-green",
+      "project only merged GitHub evidence to Hugging Face with exact source binding",
+      "repair the stale a11oy.net Frontier proof pointer without inferring a-11-oy.com runtime health",
+      "leave all candidates HOLD/EVALUATION until their normal production gates pass"
+    ],
+    "definitionOfDone": "Each candidate has exact source identity, license posture, bounded evaluation evidence, fallback/rollback, and an owning repository; the four-surface authority chain reports consistent evidence class and production disposition."
+  }
+}
