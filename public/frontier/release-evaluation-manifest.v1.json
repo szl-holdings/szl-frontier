@@ -1,14 +1,14 @@
 {
   "schema": "szl.frontier.hugging-face-release-intake.v1",
-  "evaluatedAt": "2026-09-04T13:36:00Z",
+  "evaluatedAt": "2026-09-07T23:26:13Z",
   "policy": {
     "defaultEffect": "hold",
     "materialityThreshold": 70,
     "notificationRule": "notify only for a deduplicated candidate at or above the materiality threshold",
     "promotionRule": "all production gates pass, license is admitted, maturity is released, and a receipt is sealed"
   },
-  "releaseCount": 7,
-  "materialReleaseCount": 7,
+  "releaseCount": 10,
+  "materialReleaseCount": 10,
   "productionPromotionCount": 0,
   "releases": [
     {
@@ -564,6 +564,310 @@
       "materialityScore": 86,
       "material": true,
       "evaluationDecision": "EVALUATE",
+      "productionDisposition": "HOLD"
+    },
+    {
+      "id": "glm-5-3-family-2026-09-07",
+      "title": "GLM-5.3 Flash multimodal agent route with GLM-5.3 reference",
+      "publisher": "zai-org",
+      "releasedAt": "2026-09-07",
+      "category": "multimodal-agent-model",
+      "primarySource": "https://huggingface.co/zai-org/GLM-5.3-Flash/tree/eb9eb208eb0d988989d07a6a12d0fdeb5f52574a",
+      "artifactSource": "https://huggingface.co/zai-org/GLM-5.3-Flash",
+      "artifactRevision": "eb9eb208eb0d988989d07a6a12d0fdeb5f52574a",
+      "artifactPins": [
+        {
+          "role": "primary",
+          "repoId": "zai-org/GLM-5.3-Flash",
+          "revision": "eb9eb208eb0d988989d07a6a12d0fdeb5f52574a",
+          "license": "mit"
+        },
+        {
+          "role": "reference",
+          "repoId": "zai-org/GLM-5.3",
+          "revision": "aca966e4e02791568aa6a4ced368624b3d897f42",
+          "license": "other"
+        }
+      ],
+      "targetOrgans": [
+        "szl-frontier",
+        "szl-nemo",
+        "szl-forge",
+        "szl-serve",
+        "a11oy"
+      ],
+      "whyItMatters": "A source-pinned multimodal Flash route and larger reasoning/coding reference create a serious provider and self-hosted evaluation lane without treating upstream benchmark claims as SZL measurements.",
+      "operationalTarget": "Evaluate coding, tool use, long context, multimodal reasoning, refusal behavior, latency, memory, cost, and tested fallback behind existing A11oy policy and routing abstractions.",
+      "maturity": "released",
+      "license": "MIT primary Flash artifact; GLM-5.3 reference metadata reports other",
+      "licensePosture": "mixed",
+      "resourceClass": "large multimodal MoE provider or GPU-serving route",
+      "posture": "EVALUATE_NOW",
+      "signals": {
+        "impact": 25,
+        "estateFit": 25,
+        "evidenceQuality": 24,
+        "integrationReadiness": 21,
+        "riskPenalty": 7
+      },
+      "sourceClaims": [
+        "Hugging Face metadata observed GLM-5.3-Flash at exact revision eb9eb208eb0d988989d07a6a12d0fdeb5f52574a with MIT license metadata and image-text-to-text task metadata.",
+        "The larger GLM-5.3 reference is pinned separately at aca966e4e02791568aa6a4ced368624b3d897f42 and reports license metadata other.",
+        "No serving compatibility, quality, latency, memory, or cost result is claimed until reproduced by SZL evaluation receipts."
+      ],
+      "gates": [
+        {
+          "id": "glm53-source",
+          "title": "Exact upstream revisions pinned",
+          "scope": "evaluation",
+          "state": "pass",
+          "evidence": "frontier/evidence/2026-09-07-upstream-model-pins.json records both exact revisions and collector identity."
+        },
+        {
+          "id": "glm53-license",
+          "title": "Mixed license posture reviewed",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "MIT applies to the primary Flash metadata; the larger reference remains review-required."
+        },
+        {
+          "id": "glm53-evals",
+          "title": "Reproducible capability evaluation",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Seal prompts, fixtures, outputs, runtime identity, metrics, and incumbent comparisons."
+        },
+        {
+          "id": "glm53-serving",
+          "title": "Serving profile exercised",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Provider and self-hosted compatibility may be claimed only for exact exercised revisions and runtimes."
+        },
+        {
+          "id": "glm53-fallback",
+          "title": "Incumbent fallback verified",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Timeout, provider failure, unsupported input, and model error must fail safely to a tested incumbent route."
+        },
+        {
+          "id": "glm53-authority",
+          "title": "No model-to-action bypass",
+          "scope": "production",
+          "state": "hold",
+          "evidence": "Every consequential transition remains behind provenance, policy, approval, execution, verification, and receipt controls."
+        }
+      ],
+      "watch": {
+        "kind": "model",
+        "repoId": "zai-org/GLM-5.3-Flash"
+      },
+      "materialityScore": 88,
+      "material": true,
+      "evaluationDecision": "EVALUATE",
+      "productionDisposition": "HOLD"
+    },
+    {
+      "id": "deepseek-v4-flash-vision-exp-2026-09-01",
+      "title": "DeepSeek V4 Flash Vision experimental multimodal route",
+      "publisher": "deepseek-ai",
+      "releasedAt": "2026-09-01",
+      "category": "multimodal-agent-model",
+      "primarySource": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-Vision-Exp/tree/6821d6ad3681a4b137b066b76094fa82ebd0a380",
+      "artifactSource": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-Vision-Exp",
+      "artifactRevision": "6821d6ad3681a4b137b066b76094fa82ebd0a380",
+      "artifactPins": [
+        {
+          "role": "primary",
+          "repoId": "deepseek-ai/DeepSeek-V4-Flash-Vision-Exp",
+          "revision": "6821d6ad3681a4b137b066b76094fa82ebd0a380",
+          "license": "mit"
+        }
+      ],
+      "targetOrgans": [
+        "szl-frontier",
+        "szl-nemo",
+        "szl-forge",
+        "szl-serve",
+        "szl-command-lab",
+        "szl-second-brain",
+        "a11oy"
+      ],
+      "whyItMatters": "A source-pinned image-text reasoning candidate can improve document, interface, and visual-evidence workflows while remaining proposal-only and evidence-bound.",
+      "operationalTarget": "Run checksum-pinned image, document, and interface fixtures; compare reasoning, tool correctness, refusal, latency, memory, and fallback against incumbent multimodal routes.",
+      "maturity": "released",
+      "license": "MIT",
+      "licensePosture": "clear",
+      "resourceClass": "large experimental multimodal provider or GPU-serving route",
+      "posture": "EVALUATE_NOW",
+      "signals": {
+        "impact": 25,
+        "estateFit": 25,
+        "evidenceQuality": 23,
+        "integrationReadiness": 20,
+        "riskPenalty": 6
+      },
+      "sourceClaims": [
+        "Hugging Face metadata observed exact revision 6821d6ad3681a4b137b066b76094fa82ebd0a380 with MIT license metadata and image-text-to-text task metadata.",
+        "The upstream identifier contains Exp and remains an evaluation candidate rather than an admitted production default.",
+        "No upstream benchmark is relabeled as an SZL measurement."
+      ],
+      "gates": [
+        {
+          "id": "deepseek-v4-source",
+          "title": "Exact upstream revision pinned",
+          "scope": "evaluation",
+          "state": "pass",
+          "evidence": "frontier/evidence/2026-09-07-upstream-model-pins.json records the exact model revision and collector identity."
+        },
+        {
+          "id": "deepseek-v4-fixtures",
+          "title": "Visual fixtures sealed",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Checksum image, document, and interface inputs with expected evidence and refusal behavior."
+        },
+        {
+          "id": "deepseek-v4-quality",
+          "title": "Measured multimodal and tool quality",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Compare tool correctness, hallucination, refusal, and task quality against incumbents."
+        },
+        {
+          "id": "deepseek-v4-serving",
+          "title": "Serving route exercised",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Record exact runtime image, model revision, configuration, latency, memory, and failure behavior."
+        },
+        {
+          "id": "deepseek-v4-fallback",
+          "title": "Text and multimodal fallback verified",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Unsupported inputs and runtime failures must route safely to tested incumbents."
+        },
+        {
+          "id": "deepseek-v4-authority",
+          "title": "Visual output remains proposal-only",
+          "scope": "production",
+          "state": "hold",
+          "evidence": "No visual inference may bypass A11oy provenance, policy, approval, or receipt generation."
+        }
+      ],
+      "watch": {
+        "kind": "model",
+        "repoId": "deepseek-ai/DeepSeek-V4-Flash-Vision-Exp"
+      },
+      "materialityScore": 87,
+      "material": true,
+      "evaluationDecision": "EVALUATE",
+      "productionDisposition": "HOLD"
+    },
+    {
+      "id": "nvidia-qwen3-8-flash-next-nvfp4-2026-09-05",
+      "title": "NVIDIA Qwen3.8 Flash Next NVFP4 deployment candidate",
+      "publisher": "NVIDIA",
+      "releasedAt": "2026-09-05",
+      "category": "quantized-multimodal-inference",
+      "primarySource": "https://huggingface.co/nvidia/Qwen3.8-Flash-Next-NVFP4/tree/fc694b54fb0174e0913e6adf86691ef85a4ead47",
+      "artifactSource": "https://huggingface.co/nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "artifactRevision": "fc694b54fb0174e0913e6adf86691ef85a4ead47",
+      "artifactPins": [
+        {
+          "role": "primary-quantized",
+          "repoId": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "revision": "fc694b54fb0174e0913e6adf86691ef85a4ead47",
+          "license": "other"
+        },
+        {
+          "role": "base-model",
+          "repoId": "Qwen/Qwen3.8-Flash-Next",
+          "revision": "de4b8e4d43b917e7706784d8bb445c9af86a3540",
+          "license": "other"
+        }
+      ],
+      "targetOrgans": [
+        "szl-frontier",
+        "szl-gpu-bridge",
+        "szl-serve",
+        "szl-khipu",
+        "szl-nemo",
+        "szl-forge",
+        "a11oy"
+      ],
+      "whyItMatters": "A source-pinned NVFP4 candidate can test quality retention and own-metal economics on qualified NVIDIA hardware without implying that upstream Qwen weights are SZL-trained KHIPU assets.",
+      "operationalTarget": "Run a fail-closed hardware preflight and benchmark cold start, TTFT, decode throughput, p50/p95 latency, VRAM, cost, quality delta, and tested fallback against FP8 and incumbent routes.",
+      "maturity": "released",
+      "license": "NVIDIA quantized artifact and Qwen base-model metadata both report other; legal and redistribution review required",
+      "licensePosture": "review-required",
+      "resourceClass": "NVIDIA ModelOpt NVFP4 multimodal inference",
+      "posture": "BENCHMARK_FIRST",
+      "signals": {
+        "impact": 23,
+        "estateFit": 23,
+        "evidenceQuality": 21,
+        "integrationReadiness": 18,
+        "riskPenalty": 9
+      },
+      "sourceClaims": [
+        "The NVIDIA quantized artifact is pinned at fc694b54fb0174e0913e6adf86691ef85a4ead47 and declares Qwen/Qwen3.8-Flash-Next as its base model.",
+        "The base model is pinned separately at de4b8e4d43b917e7706784d8bb445c9af86a3540.",
+        "Neither license clearance nor performance benefit is inferred from public metadata."
+      ],
+      "gates": [
+        {
+          "id": "qwen38-nvfp4-source",
+          "title": "Quantized and base revisions pinned",
+          "scope": "evaluation",
+          "state": "pass",
+          "evidence": "frontier/evidence/2026-09-07-upstream-model-pins.json records both exact revisions and their relationship."
+        },
+        {
+          "id": "qwen38-nvfp4-license",
+          "title": "NVIDIA and base terms reviewed",
+          "scope": "evaluation",
+          "state": "hold",
+          "evidence": "Do not redistribute or promote while both observed licenses remain other and intended-use clearance is absent."
+        },
+        {
+          "id": "qwen38-nvfp4-hardware",
+          "title": "Fail-closed device preflight",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Pin hardware capability, driver, CUDA, ModelOpt, serving runtime, and container digest."
+        },
+        {
+          "id": "qwen38-nvfp4-quality",
+          "title": "Quality retention measured",
+          "scope": "evaluation",
+          "state": "pending",
+          "evidence": "Compare exact fixtures and metrics against the pinned base and incumbent FP8 route."
+        },
+        {
+          "id": "qwen38-nvfp4-runtime",
+          "title": "Operational benefit measured",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Require positive, repeated latency, throughput, memory, and cost evidence on supported hardware."
+        },
+        {
+          "id": "qwen38-nvfp4-fallback",
+          "title": "FP8 or incumbent fallback verified",
+          "scope": "production",
+          "state": "pending",
+          "evidence": "Unsupported devices, load failure, and runtime errors must fail safely without silent degradation."
+        }
+      ],
+      "watch": {
+        "kind": "model",
+        "repoId": "nvidia/Qwen3.8-Flash-Next-NVFP4"
+      },
+      "materialityScore": 76,
+      "material": true,
+      "evaluationDecision": "BENCHMARK",
       "productionDisposition": "HOLD"
     }
   ]
