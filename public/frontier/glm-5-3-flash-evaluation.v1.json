@@ -1,0 +1,56 @@
+{
+  "schema": "szl.frontier.evaluation-evidence-projection.v1",
+  "projected_at": "2026-09-08T01:57:29Z",
+  "subject": {
+    "candidate_id": "glm-5-3-flash",
+    "model_id": "zai-org/GLM-5.3-Flash",
+    "source_revision": "eb9eb208eb0d988989d07a6a12d0fdeb5f52574a",
+    "provider_route": "zai-org/GLM-5.3-Flash:baseten"
+  },
+  "github_source_of_truth": {
+    "repository": "szl-holdings/szl-forge",
+    "commit": "225751bcf16372360df9ad04d63cba39fc8bc0ca",
+    "path": "frontier/evidence/glm-5-3-flash-provider-evaluation-2026-09-08.json",
+    "workflow_run_id": 34177931732,
+    "workflow_job_id": 101910979655,
+    "artifact_id": 10037895448,
+    "artifact_sha256": "3966569cc96b5303b58ec81e0837fa87a4c6d4c725f3cb1921c933dad8de7961"
+  },
+  "hugging_face_projection": {
+    "dataset_id": "SZLHOLDINGS/szl-frontier-evaluation-receipts",
+    "commit": "f2b30f160a7884149d3ac474d455ef25a35ac038",
+    "path": "runs/2026/09/08/github-34177931732-1-146ffd9a3415/glm-5-3-flash",
+    "receipt_sha256": "bdf6a0aac1af5b06f10ad0e7a9ee9d29e43d16b92654887f0c0b34f25071db46"
+  },
+  "measured_summary": {
+    "suite": "full",
+    "case_count": 4,
+    "candidate_score_rate": 0.916667,
+    "baseline_score_rate": 0.416667,
+    "score_rate_delta": 0.5,
+    "candidate_schema_valid_rate": 1.0,
+    "baseline_schema_valid_rate": 0.5,
+    "mean_latency_ratio": 0.303195,
+    "truth_label": "MEASURED"
+  },
+  "fallback": {
+    "contract": "szl.frontier.safe-fallback.v1",
+    "provider_failure_measured": true,
+    "baseline_transport_pass": true,
+    "baseline_semantic_pass": false,
+    "selected_source": "DETERMINISTIC_SAFETY_GUARD",
+    "selected_output_sha256": "f7a79014e5317b659f7f5f2680f0bd0c6b12a411f2374593c1e0736d25b318c8",
+    "semantic_safety_pass": true,
+    "production_authority": "NONE"
+  },
+  "decision": "EVIDENCE_COMPLETE_REVIEW_REQUIRED",
+  "production_disposition": "HOLD",
+  "promotion_effect": "NONE",
+  "known_bounds": [
+    "provider_execution_weight_revision_not_attested_by_chat_response",
+    "provider_server_hardware_not_disclosed",
+    "provider_runtime_build_not_disclosed",
+    "integrity_receipt_is_unsigned",
+    "four_case_synthetic_suite_does_not_cover_long_context_or_multimodal_quality"
+  ]
+}
