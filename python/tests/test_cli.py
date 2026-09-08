@@ -27,5 +27,8 @@ class CliTests(unittest.TestCase):
                 "open-yap-1k-2026-09-03",
                 "trl-grpo-ifstruct-2026-09-03",
                 "k2-horizon-mova-36b-a4b-2026-09-03",
+                "openbmb-minicpm5-2b-2026-09-07",
+                "openbmb-ultradata-sft-agent-2609-2026-09-07",
+                "openbmb-ultradata-rl-2609-2026-09-07",
             },
         )

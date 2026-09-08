@@ -1,0 +1,106 @@
+{
+  "artifacts": [
+    {
+      "kind": "model",
+      "owners": [
+        "szl-nemo",
+        "szl-serve",
+        "szl-forge"
+      ],
+      "primarySource": "https://huggingface.co/openbmb/MiniCPM5-2B",
+      "reason": "Qualify a local proposal-only agent against the admitted baseline; do not replace the frontier reasoning tier.",
+      "repoId": "openbmb/MiniCPM5-2B",
+      "revision": "3497c460c89e00520c3cfa2e73f49ab7647f1177"
+    },
+    {
+      "kind": "dataset",
+      "owners": [
+        "szl-forge",
+        "szl-nemo"
+      ],
+      "primarySource": "https://huggingface.co/datasets/openbmb/UltraData-SFT-Agent-2609",
+      "reason": "Evaluate bounded tool-use trajectories for post-training only after rights and contamination review.",
+      "repoId": "openbmb/UltraData-SFT-Agent-2609",
+      "revision": "f684cc1a9f3e19f6f4929102cd9b06cc0b895b8a"
+    },
+    {
+      "kind": "dataset",
+      "owners": [
+        "szl-forge",
+        "szl-nemo"
+      ],
+      "primarySource": "https://huggingface.co/datasets/openbmb/UltraData-RL-2609",
+      "reason": "Audit verifiable reward tasks; code cases remain inert until a separately admitted sandbox executes them.",
+      "repoId": "openbmb/UltraData-RL-2609",
+      "revision": "e6ecfa733708a4c54b5a98c3ca0fd16fc6923790"
+    }
+  ],
+  "authorityChain": [
+    "GitHub",
+    "Hugging Face",
+    "a-11-oy.com",
+    "a11oy.net"
+  ],
+  "benchmarks": null,
+  "data": {
+    "automaticIngestion": false,
+    "decontamination": "pending",
+    "executeEmbeddedCode": false,
+    "maxPilotRowsPerDataset": 256,
+    "privateMemoryInGradients": false,
+    "retainFailureTraceLabels": true,
+    "rightsReview": "pending"
+  },
+  "nextExperiments": [
+    {
+      "name": "GGUF local-device comparison",
+      "reason": "Separate checkpoint pin and device evidence required.",
+      "status": "HOLD"
+    },
+    {
+      "name": "DSpark speculative decoding",
+      "reason": "No remote-code authorization; qualify draft/target pins, implementation, output parity and performance separately.",
+      "status": "HOLD"
+    }
+  ],
+  "priority": "P1",
+  "productionDisposition": "HOLD",
+  "productionPromotion": false,
+  "publication": {
+    "hfDataset": "SZLHOLDINGS/szl-frontier-covenant",
+    "hfSpace": "SZLHOLDINGS/szl-frontier",
+    "productClaim": "not operational",
+    "proofClaim": "evaluation plan, not a sealed performance receipt",
+    "source": "existing protected-main publisher only"
+  },
+  "qualification": [
+    "tool argument schema and duplicate-key rejection",
+    "held-out task success versus baseline",
+    "p50/p95 latency and peak memory on named hardware",
+    "malformed-output abstention",
+    "long-context quality at 4K, then 16K and 32K only when budget-qualified",
+    "fallback and rollback witness",
+    "license and provenance evidence"
+  ],
+  "runtimeVerified": false,
+  "schema": "szl.frontier.edge-lane-plan.v1",
+  "serving": {
+    "claimedNativeContextTokens": 131072,
+    "initialContextTokens": 4096,
+    "launchAuthorized": false,
+    "maxNewTokens": 256,
+    "mode": "proposal-only",
+    "modelId": "openbmb/MiniCPM5-2B",
+    "preferredToolBackend": "sglang",
+    "qualifiedRuntimeImageDigest": null,
+    "reason": "Pin and qualify the runtime image before launching; native context is not a tested memory budget.",
+    "revision": "3497c460c89e00520c3cfa2e73f49ab7647f1177",
+    "toolCallParser": "minicpm5",
+    "trustRemoteCode": false,
+    "upstreamMinimumSglang": "0.5.16"
+  },
+  "sourceRepository": "szl-holdings/szl-frontier",
+  "status": "EVALUATION",
+  "trainingAuthorized": false,
+  "weightsRehosted": false
+}

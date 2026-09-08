@@ -1,0 +1,60 @@
+# Copyright 2026 SZL Holdings — SPDX-License-Identifier: Apache-2.0
+name: Edge source witness
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: edge-source-witness-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-witness:
+    if: github.repository == 'szl-holdings/szl-frontier'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+      - name: Verify all offline Python controls before source observation
+        env:
+          PYTHONPATH: python
+        run: python -m unittest discover -s python/tests -v
+      - name: Observe exact upstream pins and substantive artifact identities
+        env:
+          PYTHONPATH: python
+        run: python -m szl_frontier.edge_witness --output artifacts/edge-source-witness.json
+      - name: Preserve source-bound metadata evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: edge-source-witness-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/edge-source-witness.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Summarize observed qualification boundary
+        if: always()
+        shell: bash
+        run: |
+          if test -f artifacts/edge-source-witness.json; then
+            python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          data = json.loads(Path('artifacts/edge-source-witness.json').read_text())
+          print('## Edge source witness')
+          print('Metadata verification:', data['status'])
+          print('Runtime and model-performance verification: not performed')
+          print('Production disposition: HOLD')
+          print('Source revision:', data.get('source', {}).get('revision', 'unverified'))
+          PY
+          fi
