@@ -10,6 +10,7 @@ const FRONTIER = "0640258ccd63f40605a1811287322e99038836da";
 const HF_REPO = "e71a9b32159e3964b8ed06ddb0603fe90a8d7f23";
 const PRODUCT = "002cd0c2edc8f38b297ae0394ecf8da12c06cc60";
 const PROOF = "97f33143f50d2fb615f83323114a707463fd034b";
+const LYTE = "72560fd5eb68cab08c40565c3c489e42c8442e72";
 
 describe("2026-09-08 authority-chain product parity successor", () => {
   it("records a material alignment advance without inventing another upstream release", () => {
@@ -57,11 +58,30 @@ describe("2026-09-08 authority-chain product parity successor", () => {
     assert.equal(wave.policy.weakenControls, false);
   });
 
-  it("routes all unresolved product binding gaps to the product owner", () => {
-    assert.equal(wave.remainingBlockers.length, 3);
-    for (const blocker of wave.remainingBlockers) {
-      assert.equal(blocker.owner, "szl-holdings/a11oy");
-      assert.match(blocker.effect, /(HOLD|BLOCKED|green)/);
-    }
+  it("preserves the latest estate verifier failures instead of claiming complete alignment", () => {
+    assert.equal(wave.latestEstateVerifier.run, 34263902847);
+    assert.equal(wave.latestEstateVerifier.job, 102188355196);
+    assert.equal(wave.latestEstateVerifier.headRevision, PRODUCT);
+    assert.equal(wave.latestEstateVerifier.conclusion, "failure");
+    assert.equal(wave.latestEstateVerifier.failedStep, "Enforce aligned terminal state");
+    assert.deepEqual(wave.latestEstateVerifier.observedBlockingCodes, [
+      "HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE",
+      "lyte:SOURCE_REVISION_MISMATCH",
+    ]);
+  });
+
+  it("routes unresolved gaps to the repositories that own the work", () => {
+    assert.equal(wave.remainingBlockers.length, 4);
+    const byCode = Object.fromEntries(wave.remainingBlockers.map((blocker) => [blocker.code, blocker]));
+    assert.equal(byCode.PRODUCT_HF_ARTIFACT_BINDING_UNAVAILABLE.owner, "szl-holdings/a11oy");
+    assert.equal(byCode.HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE.owner, "szl-holdings/a11oy");
+    assert.equal(byCode["lyte:SOURCE_REVISION_MISMATCH"].owner, "szl-holdings/lyte-services");
+    assert.equal(byCode["lyte:SOURCE_REVISION_MISMATCH"].publisherOwner, "szl-holdings/a11oy");
+    assert.match(byCode["lyte:SOURCE_REVISION_MISMATCH"].requiredEvidence, new RegExp(LYTE));
+    assert.equal(
+      byCode["lyte:SOURCE_REVISION_MISMATCH"].trackingIssue,
+      "https://github.com/szl-holdings/lyte-services/issues/18",
+    );
+    assert.equal(byCode.VERTICAL_FLAGSHIP_PUBLISH_PARTIAL_FAILURE.owner, "szl-holdings/a11oy");
   });
 });
