@@ -1,0 +1,109 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-08-kimi-hy4-spark",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "observedAt": "2026-09-08T15:26:51.543953+00:00",
+  "sourceObservationJob": "https://huggingface.co/jobs/SZLHOLDINGS/6aa02936900620b5c77e29d4",
+  "observationScope": "Public metadata plus LICENSE/config byte hashes; no model bytes or upstream code execution.",
+  "deduplication": {
+    "kind": "NEWLY_SURFACED_CATALOG_GAPS_NOT_RELEASED_TODAY",
+    "families": 3, "artifacts": 5,
+    "canonicalBaseRevision": "3590daaadce2d2b07950ba844afe8bd6d870fb12",
+    "legacyKimiAndHy4Mentions": "holographic-unify metadata/restriction references are not admitted serving routes; preserve those existing restrictions",
+    "preservePriorMiniCPMFailures": true,
+    "suppress": ["model-card prose", "rendered pages", "demos", "popularity", "unchanged artifact identities"]
+  },
+  "policy": {
+    "defaultEffect": "hold", "automaticProductionPromotion": false,
+    "requiredEvidence": ["primary-source-pin", "license-posture", "reproducible-evaluation", "rollback-or-fallback", "exact-source-revision", "domain-proof-record"]
+  },
+  "alignment": {
+    "order": ["github-source", "hugging-face-artifact-projection", "a-11-oy.com-product-surface", "a11oy.net-proof-registry"],
+    "github": {
+      "controlPlane": "szl-holdings/szl-frontier",
+      "consumers": ["szl-holdings/szl-forge", "szl-holdings/szl-nemo", "szl-holdings/szl-serve", "szl-holdings/a11oy", "szl-holdings/a11oy-net"]
+    }
+  },
+  "releases": [
+    {
+      "id": "kimi-k3", "priority": "P0",
+      "primaryArtifact": "https://huggingface.co/moonshotai/Kimi-K3",
+      "artifacts": ["https://huggingface.co/moonshotai/Kimi-K3"],
+      "targetRepos": ["szl-holdings/szl-forge", "szl-holdings/szl-nemo", "szl-holdings/szl-serve", "szl-holdings/a11oy", "szl-holdings/a11oy-net"],
+      "productionDisposition": "HOLD", "releaseDate": null,
+      "dateStatus": "NOT_ASSERTED_FROM_HUB_CREATED_OR_MODIFIED",
+      "whyItMatters": "Evaluate long-horizon multimodal proposals and tool-protocol reliability; do not allocate trillion-parameter local serving by intake.",
+      "additionalGates": ["custom-license-use-review", "always-thinking-protocol-review", "ephemeral-private-protocol-state", "approved-provider-or-owned-runtime", "input-rights-and-held-out-baseline"],
+      "licenseApproved": false, "executionAuthorized": false
+    },
+    {
+      "id": "hy4-preview", "priority": "P0",
+      "primaryArtifact": "https://huggingface.co/tencent/Hy4-preview",
+      "artifacts": ["https://huggingface.co/tencent/Hy4-preview", "https://huggingface.co/tencent/Hy4-preview-FP8"],
+      "targetRepos": ["szl-holdings/szl-forge", "szl-holdings/szl-nemo", "szl-holdings/szl-serve", "szl-holdings/a11oy", "szl-holdings/a11oy-net"],
+      "productionDisposition": "HOLD", "releaseDate": null,
+      "dateStatus": "NOT_ASSERTED_FROM_HUB_CREATED_OR_MODIFIED",
+      "whyItMatters": "Compare preview reasoning/tool quality and sparse attention/MTP serving against the admitted incumbent; native FP8 is not hardware qualification.",
+      "additionalGates": ["preview-maturity", "over-reasoning-and-over-verification", "MXFP8-backend-compatibility", "MTP-output-quality-parity", "runtime-image-and-parser-pins"],
+      "licenseApproved": false, "executionAuthorized": false
+    },
+    {
+      "id": "spark-x25", "priority": "P1",
+      "primaryArtifact": "https://huggingface.co/XHToken/Spark-X2.5-4B",
+      "artifacts": ["https://huggingface.co/XHToken/Spark-X2.5-4B", "https://huggingface.co/XHToken/Spark-X2.5-1.7B"],
+      "targetRepos": ["szl-holdings/szl-forge", "szl-holdings/szl-nemo", "szl-holdings/szl-serve", "szl-holdings/a11oy", "szl-holdings/a11oy-net"],
+      "productionDisposition": "HOLD", "releaseDate": null,
+      "dateStatus": "NOT_ASSERTED_FROM_HUB_CREATED_OR_MODIFIED",
+      "whyItMatters": "Compact candidate comparison beside MiniCPM5; prioritize tool reliability and bounded local memory before testing advertised long contexts.",
+      "additionalGates": ["custom-code-review", "plugin-and-fork-lineage", "no-automatic-trust-remote-code", "held-out-compact-model-baseline", "actual-tokenizer-template-and-long-context"],
+      "licenseApproved": false, "executionAuthorized": false
+    }
+  ],
+  "observedModels": [
+    {
+      "releaseId": "kimi-k3", "repoId": "moonshotai/Kimi-K3", "revision": "f831ab66814297da540d832a5235f8e904f29d06", "license": "other", "role": "primary",
+      "substantiveInventorySha256": "a8350ddab80060a490972a257627b939d0658aac3b8a20b9c299966f75d11c28",
+      "reviewedFiles": {"LICENSE": "20c797ce19af0c17de52c6afb144644768a591c521655f5ebf5712c9850f2887", "config.json": "9710e121a58d03ac92c8d6da287a19541994319afbbe6d6202af001ffd379213"}
+    },
+    {
+      "releaseId": "hy4-preview", "repoId": "tencent/Hy4-preview", "revision": "705d81ee51566a186d645b74c974d642ef2828fe", "license": "apache-2.0", "role": "primary",
+      "substantiveInventorySha256": "1eb47f4065db637f98b01c2c335e6e07e14d45dcfcf07ea94f9d0908b0d82af2",
+      "reviewedFiles": {"LICENSE": "333da5371c92bcee0043e81cd39f56f14b4b7905a93fe23c53b6f3b13075c5c3", "config.json": "a2c0dc5ec7c5b85b83c5514d1f923dcaeb3510ac0aa0816c3c26a2418ee80f8d"}
+    },
+    {
+      "releaseId": "hy4-preview", "repoId": "tencent/Hy4-preview-FP8", "revision": "4215ec29de873a998e849cee902654490c7ff4d1", "license": "apache-2.0", "role": "reference",
+      "substantiveInventorySha256": "0ce00fc523224c02b2357eb044af93645183969ed29e2b2fe450ce3f4a15c301",
+      "reviewedFiles": {"LICENSE": "333da5371c92bcee0043e81cd39f56f14b4b7905a93fe23c53b6f3b13075c5c3", "config.json": "8f08e75af6c46578a6fc93883b4446189c67cc8b6ff47f20a51c43cd3dd9d6d4"}
+    },
+    {
+      "releaseId": "spark-x25", "repoId": "XHToken/Spark-X2.5-4B", "revision": "5e10fcc0286756aebf7c41dc52c1e42d95c70281", "license": "apache-2.0", "role": "primary",
+      "substantiveInventorySha256": "e25304586a874a0f95d2f126c2c5825ee324c540cabdfc2fe3be3f1f27805fdc",
+      "reviewedFiles": {"LICENSE": "525c465ab952779d2d360a9ff36f7f49ae018a23d80302ff839a850a77784c36", "config.json": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad"}
+    },
+    {
+      "releaseId": "spark-x25", "repoId": "XHToken/Spark-X2.5-1.7B", "revision": "448e61eb392c00f2c403185c5b56d5e0665bfaab", "license": "apache-2.0", "role": "reference",
+      "substantiveInventorySha256": "7af7bab94ff87d0f66ffc7b7ffc3df9432c9a4b85c40facf96233d809f48647f",
+      "reviewedFiles": {"LICENSE": "525c465ab952779d2d360a9ff36f7f49ae018a23d80302ff839a850a77784c36", "config.json": "16aa5d3619d0d893e7157f2499675430844eb7b383c80ecc1b3e8e8928a75d52"}
+    }
+  ],
+  "ownership": {
+    "szl-forge": "Own model lifecycle, opt-in evaluation and exact runtime/provider qualification.",
+    "szl-nemo": "Independent pre/post inference envelope witness; neither LLM nor tool/routing authority.",
+    "szl-serve": "Recipe, parser, receipt and fallback validation for the existing Forge studio.",
+    "a11oy": "Consequential action admission and truthful product exposure only after separate gates.",
+    "a11oy-net": "Project immutable receipts and known limits, not plan-derived LIVE badges."
+  },
+  "licenseNotes": {
+    "kimi-k3": "Custom Kimi K3 license, not Apache and not a blanket noncommercial ban. Conditional commercial use; MaaS, revenue and branding provisions require use-specific owner review of the pinned LICENSE. No existing restriction is lifted.",
+    "hy4-preview": "Apache-2.0 declaration does not establish constituent/input rights or deployment readiness.",
+    "spark-x25": "Apache-2.0 declaration is separate from admitting upstream custom Python, serving plugins or runtime forks."
+  },
+  "runtimeNotes": {
+    "kimi-k3": "Official protocol retains assistant reasoning/tool state in multi-turn conversations. Qualify private ephemeral provider protocol handling separately; do not persist raw reasoning into public evidence or grant tool authority.",
+    "hy4-preview": "Preview and FP8 pair is one model-family evaluation, not two release alerts. FP8 config reports ModelOpt MXFP8.",
+    "spark-x25": "Custom auto_map/plugin routes remain unexecuted. Claimed native 1M context is not an SZL memory budget."
+  },
+  "productionDisposition": "HOLD", "modelOperational": false, "trainingAuthorized": false,
+  "weightsRehosted": false, "runtimeQualified": false, "domainDeploymentPerformed": false,
+  "publication": {"hfSpace": "SZLHOLDINGS/szl-frontier", "hfDataset": "SZLHOLDINGS/szl-frontier-covenant", "source": "existing protected-main publisher only", "claim": "EVALUATION_PREPARATION_ONLY"}
+}
