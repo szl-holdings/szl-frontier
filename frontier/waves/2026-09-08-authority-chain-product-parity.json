@@ -1,13 +1,13 @@
 {
   "schema": "szl.frontier.alignment-repair-wave.v1",
   "wave": "2026-09-08-authority-chain-product-parity",
-  "evaluatedAt": "2026-09-08T20:30:18Z",
+  "evaluatedAt": "2026-09-08T20:37:01Z",
   "sourceOfTruth": "szl-holdings/szl-frontier",
   "sourceRevision": "0640258ccd63f40605a1811287322e99038836da",
   "trigger": {
     "kind": "AUTHORITY_CHAIN_REPAIR_ADVANCED",
     "material": true,
-    "reason": "The proof owner now binds current Frontier GitHub and Hugging Face source exactly and records that A11oy protected main and runtime-reported source have converged. Complete product binding is still unavailable and remains fail-closed."
+    "reason": "The proof owner now binds current Frontier GitHub and Hugging Face source exactly and records that A11oy protected main and runtime-reported source have converged. A later estate verifier still fails closed on Hub inventory and Lyte source projection drift, so complete alignment is not claimed."
   },
   "discovery": {
     "newUpstreamCandidates": [],
@@ -18,7 +18,7 @@
       "2026-09-08 runtime/retrieval wave",
       "2026-09-08 MiniCPM5 waves",
       "2026-09-08 Kimi/Hy4/Spark wave",
-      "open issues 25, 30, 37, 47"
+      "open Frontier issues 25, 30, 37, 47"
     ]
   },
   "authorityChain": {
@@ -77,21 +77,47 @@
       "state": "CURRENT_FRONTIER_SOURCE_HF_EXACT_PRODUCT_SOURCE_MATCH_BINDING_UNAVAILABLE_RECORDED"
     }
   },
+  "latestEstateVerifier": {
+    "repository": "szl-holdings/a11oy",
+    "workflow": "Estate release train",
+    "run": 34263902847,
+    "job": 102188355196,
+    "headRevision": "002cd0c2edc8f38b297ae0394ecf8da12c06cc60",
+    "conclusion": "failure",
+    "failedStep": "Enforce aligned terminal state",
+    "observedBlockingCodes": [
+      "HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE",
+      "lyte:SOURCE_REVISION_MISMATCH"
+    ],
+    "postRunRepair": "The run's stale proof pointer was subsequently advanced by a11oy-net PR 158. The Hub inventory and Lyte source-projection failures remain separately actionable until a later verifier run proves otherwise."
+  },
   "remainingBlockers": [
     {
       "owner": "szl-holdings/a11oy",
+      "code": "PRODUCT_HF_ARTIFACT_BINDING_UNAVAILABLE",
       "blocker": "The product summary does not expose a Hugging Face repository revision or runtime artifact digest, so exact product-to-HF/runtime-artifact equivalence cannot be established.",
       "requiredEvidence": "Source-bound immutable HF repository revision and runtime artifact digest emitted by the canonical product deployment path and verified by readback.",
       "effect": "Keep claim/enforcement gates FAILED_CLOSED and production HOLD."
     },
     {
       "owner": "szl-holdings/a11oy",
-      "blocker": "Estate observation still reports github_inventory_unavailable.",
-      "requiredEvidence": "A bounded successful inventory observation under the existing product controls; do not infer counts from stale proof data.",
-      "effect": "Keep observation BLOCKED and public claims HELD."
+      "code": "HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE",
+      "blocker": "The latest estate verifier still cannot establish aligned Hugging Face inventory counts, while the product summary separately reports github_inventory_unavailable.",
+      "requiredEvidence": "Bounded successful GitHub and Hugging Face inventory observations from the same release vector, with unavailable/private surfaces left explicitly unknown rather than inferred.",
+      "effect": "Keep estate observation BLOCKED and public claims HELD."
+    },
+    {
+      "owner": "szl-holdings/lyte-services",
+      "publisherOwner": "szl-holdings/a11oy",
+      "trackingIssue": "https://github.com/szl-holdings/lyte-services/issues/18",
+      "code": "lyte:SOURCE_REVISION_MISMATCH",
+      "blocker": "The estate verifier observed Lyte source projection drift. Canonical Lyte source is 72560fd5eb68cab08c40565c3c489e42c8442e72, while the Hub surface predates that September 8 source advance.",
+      "requiredEvidence": "Republish through the protected A11oy single-writer path from exact Lyte source 72560fd5eb68cab08c40565c3c489e42c8442e72, then read back Hub repository revision, runtime source identity and immutable artifact/served-byte digest.",
+      "effect": "Keep Lyte alignment unresolved and do not claim the flagship projection current."
     },
     {
       "owner": "szl-holdings/a11oy",
+      "code": "VERTICAL_FLAGSHIP_PUBLISH_PARTIAL_FAILURE",
       "blocker": "Canonical sync run 34243871980 had a separate vertical-flagship publication failure even though deploy/source-bind, readiness and relock passed.",
       "requiredEvidence": "Repair and rerun the failed publisher through normal controls before describing the workflow as fully green.",
       "effect": "Do not represent the product deployment pipeline as fully green."
@@ -112,9 +138,14 @@
       "action": "record this successor alignment state and retain HOLD"
     },
     {
-      "responsibility": "product deployment identity, inventory observation and product-to-HF/runtime-artifact binding",
+      "responsibility": "product deployment identity, estate inventory observation and product-to-HF/runtime-artifact binding",
       "repository": "szl-holdings/a11oy",
-      "action": "close remaining source-bound observation gaps under issue 2010 and normal deployment controls"
+      "action": "close source-bound observation gaps under issue 2010 and normal deployment controls"
+    },
+    {
+      "responsibility": "Lyte canonical source and acceptance evidence",
+      "repository": "szl-holdings/lyte-services",
+      "action": "track exact-source republish/readback in issue 18 while A11oy remains the single publisher"
     },
     {
       "responsibility": "proof/evidence registry",
@@ -126,7 +157,8 @@
     "Frontier protected source and Hugging Face runtime remain exact at the same source revision",
     "A11oy protected main and runtime source remain identical",
     "A11oy exposes source-bound Hugging Face repository revision and runtime artifact digest or explicitly remains UNAVAILABLE",
-    "github_inventory_unavailable is repaired by bounded witnessed observation or remains BLOCKED",
+    "the estate verifier establishes bounded aligned GitHub and Hugging Face inventories or remains BLOCKED",
+    "Lyte is republished from exact canonical source and live readback no longer emits lyte:SOURCE_REVISION_MISMATCH",
     "the separate vertical-flagship publisher is green before the canonical sync is described as fully successful",
     "a11oy.net records the resulting exact bounded state without inferring capability",
     "production disposition remains HOLD unless independent normal promotion gates pass"
