@@ -1,0 +1,86 @@
+# Copyright 2026 SZL Holdings — SPDX-License-Identifier: Apache-2.0
+name: Estate outside-seat verifier
+
+on:
+  schedule:
+    - cron: "37 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: estate-outside-seat-main
+  cancel-in-progress: false
+
+jobs:
+  outside-seat:
+    if: github.repository == 'szl-holdings/szl-frontier' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+      - name: Verify offline receipt, transport and provenance controls first
+        run: |
+          python -m unittest discover -s tools -p 'test_estate_outside_seat.py' -v
+          python -m unittest discover -s tools -p 'test_outside_seat_previous.py' -v
+      - name: Retrieve the preceding completed main workflow receipt
+        id: previous
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python .github/scripts/outside_seat_previous.py
+          --output work/outside-seat-previous/receipt.json
+          --status-output work/outside-seat/chain-status.json
+      - name: Observe public estate and enforce complete verification
+        id: verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          previous_args=()
+          if test -f work/outside-seat-previous/receipt.json; then
+            previous_args=(--prev-receipt work/outside-seat-previous/receipt.json)
+          fi
+          python tools/estate_outside_seat.py \
+            --receipt work/outside-seat/receipt.json \
+            --evidence-dir work/outside-seat/evidence \
+            "${previous_args[@]}"
+      - name: Preserve receipt, raw evidence and chain failure diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: estate-outside-seat-${{ github.run_id }}-${{ github.run_attempt }}
+          path: work/outside-seat/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Publish verification boundary
+        if: always()
+        shell: bash
+        env:
+          PREVIOUS_OUTCOME: ${{ steps.previous.outcome }}
+          VERIFIER_OUTCOME: ${{ steps.verify.outcome }}
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          import os
+          from pathlib import Path
+          print('## Estate outside-seat verification')
+          print('Chain retrieval:', os.environ['PREVIOUS_OUTCOME'])
+          print('Verifier step:', os.environ['VERIFIER_OUTCOME'])
+          receipt_path = Path('work/outside-seat/receipt.json')
+          if receipt_path.is_file():
+              receipt = json.loads(receipt_path.read_text())
+              print('Receipt status:', receipt.get('overallStatus', 'UNAVAILABLE'))
+              print('Verifier exit code:', receipt.get('exitCode', 'UNAVAILABLE'))
+              print('Receipt digest:', receipt.get('receiptDigest', 'UNAVAILABLE'))
+          else:
+              print('Receipt unavailable: preconditions did not permit verification.')
+              print('An existing predecessor without a receipt blocks the next run; it never resets genesis.')
+          print('Production disposition: HOLD. This job does not establish serving, training or independent witness proof.')
+          PY
