@@ -1,0 +1,94 @@
+{
+  "schema": "szl.frontier.alignment-repair-wave.v1",
+  "wave": "2026-09-08-frontier-proof-alignment",
+  "evaluatedAt": "2026-09-08T02:17:20Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevision": "1bdad0f8a510afe24db6eb03fb8479e7f8330c6d",
+  "trigger": {
+    "kind": "AUTHORITY_CHAIN_DRIFT",
+    "material": true,
+    "reason": "a11oy.net SZL Frontier proof page pinned historical source 9a4ed6f while current protected Frontier main and successful HF exact-source sync bind 1bdad0f8a510afe24db6eb03fb8479e7f8330c6d."
+  },
+  "discovery": {
+    "newUpstreamCandidates": [],
+    "note": "No additional primary Hugging Face candidate exceeded the existing catalog/wave materiality bar in this scan; work is limited to evidence/alignment repair."
+  },
+  "authorityChain": {
+    "order": [
+      "github-source",
+      "hugging-face-artifact-projection",
+      "a-11-oy.com-product-surface",
+      "a11oy.net-proof-registry"
+    ],
+    "github": {
+      "repository": "szl-holdings/szl-frontier",
+      "revision": "1bdad0f8a510afe24db6eb03fb8479e7f8330c6d",
+      "state": "EXACT"
+    },
+    "huggingFace": {
+      "space": "SZLHOLDINGS/szl-frontier",
+      "syncWorkflowRun": 34178621960,
+      "syncConclusion": "success",
+      "expectedRevision": "1bdad0f8a510afe24db6eb03fb8479e7f8330c6d",
+      "state": "EXACT_SOURCE_WITNESS_PASS"
+    },
+    "product": {
+      "origin": "https://a-11-oy.com",
+      "state": "NOT_WITNESSED_IN_THIS_REPAIR",
+      "promotionEffect": "NONE"
+    },
+    "proof": {
+      "origin": "https://a11oy.net",
+      "ownerRepository": "szl-holdings/a11oy-net",
+      "observedHistoricalRevision": "9a4ed6f",
+      "repairPullRequest": "https://github.com/szl-holdings/a11oy-net/pull/155",
+      "state": "REPAIR_PREPARED"
+    }
+  },
+  "evidence": {
+    "glm53FlashVsKhipu": {
+      "frontierProjectionRevision": "1bdad0f8a510afe24db6eb03fb8479e7f8330c6d",
+      "forgeSource": "225751bcf16372360df9ad04d63cba39fc8bc0ca",
+      "workflowRun": 34177931732,
+      "workflowJob": 101910979655,
+      "actionsArtifactSha256": "3966569cc96b5303b58ec81e0837fa87a4c6d4c725f3cb1921c933dad8de7961",
+      "huggingFaceReceiptCommit": "f2b30f160a7884149d3ac474d455ef25a35ac038",
+      "receiptSha256": "bdf6a0aac1af5b06f10ad0e7a9ee9d29e43d16b92654887f0c0b34f25071db46",
+      "decision": "EVIDENCE_COMPLETE_REVIEW_REQUIRED",
+      "productionDisposition": "HOLD",
+      "promotionEffect": "NONE"
+    }
+  },
+  "policy": {
+    "defaultEffect": "HOLD",
+    "automaticProductionPromotion": false,
+    "rehostUpstreamWeights": false,
+    "weakenControls": false,
+    "productRuntimeClaimFromProof": false
+  },
+  "ownership": [
+    {
+      "responsibility": "frontier catalog/evaluation evidence",
+      "repository": "szl-holdings/szl-frontier",
+      "action": "record alignment wave only"
+    },
+    {
+      "responsibility": "proof registry",
+      "repository": "szl-holdings/a11oy-net",
+      "action": "repair exact source/evidence pointer in PR #155"
+    },
+    {
+      "responsibility": "product runtime",
+      "repository": "szl-holdings/a11oy",
+      "action": "no mutation; product state not witnessed by this repair"
+    }
+  ],
+  "definitionOfDone": [
+    "Frontier source remains exact and protected",
+    "Hugging Face exact-source projection remains bound to the same Frontier revision",
+    "a11oy.net proof page no longer advertises historical Frontier source 9a4ed6f",
+    "proof record carries bounded measured evidence and limitations",
+    "product runtime state is not inferred from a proof record",
+    "production disposition remains HOLD unless independent normal promotion gates pass"
+  ]
+}
