@@ -44,5 +44,8 @@ jobs:
       - name: Verify all frontier controls, wave pins, and actual JS/Python parity
         run: node --test scripts/frontier-*.test.mjs
 
+      - name: Verify outside-seat evidence and nightly chain controls
+        run: python3 -m unittest discover -s tools -p 'test_*.py' -v
+
       - name: Require unchanged tracked source after qualification
         run: git diff --exit-code
