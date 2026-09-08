@@ -1,0 +1,55 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-08-minicpm5-gguf",
+  "evaluatedAt": "2026-09-08T11:15:56.295Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "3ee8d770f73306307b91359f3bfea39451e2efb2",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "policy": {"defaultEffect": "hold", "automaticProductionPromotion": false, "noWeightRehostingForInventory": true, "changeTransport": "branch-and-pull-request"},
+  "deduplication": {
+    "extendsExistingLane": "MiniCPM5-2B",
+    "newBaseModel": false,
+    "newMaterialCapability": "official exact-byte GGUF CPU evaluation adapter",
+    "excludedSignals": ["README edits", "popularity", "revision-only churn", "community quantization duplicates"],
+    "priorWavesChecked": ["2026-09-07.json", "2026-09-08-proof-alignment.json", "2026-09-08-runtime-retrieval.json"],
+    "implementationPullRequest": "https://github.com/szl-holdings/szl-forge/pull/190"
+  },
+  "candidates": [{
+    "id": "minicpm5-official-gguf-2026-09-08", "priority": "P1", "publisher": "OpenBMB", "kind": "local-inference-artifact",
+    "primarySource": "https://huggingface.co/openbmb/MiniCPM5-2B-GGUF",
+    "revision": "f0c9de8f8e1bbffc5abf14e64ccb61bb99e4219d",
+    "files": {
+      "Q4_K_M": {"filename": "MiniCPM5-2B-Q4_K_M.gguf", "size": 1561318368, "sha256": "ec2d5801640099e97d8d7e8003ad4d81f336e757811f03a26173dddf386602fd"},
+      "Q8_0": {"filename": "MiniCPM5-2B-Q8_0.gguf", "size": 2679710688, "sha256": "c5415f8989bf88a8288f1b55a3cc371af53c07b0faa220a63bd7a990cfaba078"},
+      "F16": {"filename": "MiniCPM5-2B-F16.gguf", "size": 5039006688, "sha256": "0ffba3682a853295566b98bc38c0ab755d6b2d91b994bc031ed727a08cfcdf25"}
+    },
+    "license": "Apache-2.0 declared upstream", "licensePosture": "constituent-obligations-review-required",
+    "whyItMatters": "Official CPU/local-runtime artifacts extend the existing SZL edge model lane without SZL weight mirrors or unofficial conversion.",
+    "evaluationOwner": "szl-holdings/szl-forge",
+    "evaluationSourceRevision": "3b749712244c1d54cf218500d908be53854d912b",
+    "evaluationRunnerSha256": "e94f91230c25e712ae77b076a3bfabe60704ae70b244c8c8b12fb781dfa9a573",
+    "evaluationPlan": "https://github.com/szl-holdings/szl-forge/blob/3b749712244c1d54cf218500d908be53854d912b/frontier/minicpm5/gguf-plan.v1.json",
+    "baseline": {"executionDtype": "float16", "recordSha256": "177c49709d7cc6f981bdda195bcea73febd8062335ecd9d3be4393b8095ed6b7", "suiteSha256": "0d548618deb523d44d56c5c87ab9d9a92eeea8af98bc5af23e00efd7704ae869", "passedCases": 9, "expectedCases": 12, "status": "SMOKE_FAIL", "mustRemainUnchanged": true},
+    "comparisonClass": "HISTORICAL_BEHAVIOR_REFERENCE", "matchedQuantizationExperiment": false,
+    "runtime": {"repository": "ggml-org/llama.cpp", "tag": "b10809", "revision": "5266f24da75dc449bd56cbed7addb9c8e4a6a73e", "filename": "llama-b10809-bin-ubuntu-x64.tar.gz", "size": 16734586, "sha256": "5e34434ddc6d03cd1584f403201aff0d4bd1a5793a72ff7e286532dfd1e4b941", "upstreamPrerelease": true},
+    "sourceWitness": {"workflowRun": "https://github.com/szl-holdings/szl-forge/actions/runs/34219600432", "artifactId": 10053165772, "archiveSha256": "51dd7cf427e81319e650d15080cc4940605bbcce12d555ffe542b540d522dd07", "recordSha256": "cdcde39e8e97e88861ed0948a14d990d9566d4b26512c1fd9b6146c5f67118b6", "evidenceClass": "METADATA_ONLY", "variantsVerified": 3},
+    "productionDisposition": "HOLD", "modelOperational": false,
+    "productionGates": ["matched same-runtime F16/quantized comparison", "held-out quality and long-context", "tokenizer/template and conversion lineage", "controller/Nemo/Serve/fallback witnesses", "license obligations and immutable deployment closure", "product/proof projection verification"],
+    "measuredEvaluation": {
+      "job": "https://huggingface.co/jobs/SZLHOLDINGS/6a9fee228e5f7b7fd14cb9dc", "flavor": "cpu-upgrade", "timeoutSeconds": 900,
+      "finishedAt": "2026-09-08T11:15:56.295Z", "status": "SMOKE_FAIL", "completedCases": 12, "passedCases": 9,
+      "newlyFailedCaseIds": ["probe_06"], "recoveredCaseIds": ["probe_00"],
+      "recordSha256": "d5354fadbfbaab0f865079ce54d866ff5874b2a2530e846f8152536be07cb986",
+      "source": "https://github.com/szl-holdings/szl-forge/blob/62c172b2f6f15c7117248035d9a68609b09f5ab6/frontier/minicpm5/evidence/2026-09-08-gguf-q4-cpu.json",
+      "modelOperational": false, "sealed": false
+    }
+  }],
+  "ownership": {
+    "szl-forge": "model lifecycle, experimental execution and measured evidence",
+    "szl-nemo": "independent inference-envelope witness, no routing/tool authority",
+    "szl-serve": "recipe, validator and receipt around the existing Forge studio",
+    "a11oy": "product exposure only after independent runtime/controller admission",
+    "a11oy-net": "proof and known bounds; metadata is not performance evidence"
+  },
+  "publication": {"hfSpace": "SZLHOLDINGS/szl-frontier", "mode": "existing canonical publisher after normal main admission", "productDomain": "a-11-oy.com", "proofDomain": "a11oy.net", "domainDeploymentPerformed": false, "productionPromotion": false}
+}
