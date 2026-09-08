@@ -116,6 +116,12 @@ Hugging Face Space builds this tree with the root `Dockerfile` on port **7860**.
 
 ## Estate
 
+The [outside-seat verifier](docs/ESTATE_OUTSIDE_SEAT.md) records public estate
+metadata, pinned upstream artifacts, card contradictions and source-age findings.
+Its offline controls run in required CI; its nightly observer preserves receipts
+and raw response evidence even when estate findings fail the run. Observation
+does not change the production HOLD.
+
 [a11oy](https://github.com/szl-holdings/a11oy) · [immune](https://github.com/szl-holdings/immune) · [lutar-lean](https://github.com/szl-holdings/lutar-lean) · [🤗 SZLHOLDINGS](https://huggingface.co/SZLHOLDINGS)
 
 ---
