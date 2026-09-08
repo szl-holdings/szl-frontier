@@ -1,0 +1,81 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-08-watch-signal-hygiene",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "989e4e3dc2da7d763ae742784572cb650fce351b",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "materialNewUpstreamCandidates": [],
+  "controlRepair": {
+    "owner": "szl-holdings/szl-frontier",
+    "reason": "The scheduled primary-source watcher was promoting already-admitted rendered-page and revision-only churn into material candidate issues, contrary to the canonical alert policy.",
+    "watchRun": "https://github.com/szl-holdings/szl-frontier/actions/runs/34227290480",
+    "artifactId": 10056245862,
+    "artifactSha256": "ca310fd9dc7dba7318d86c5f09a1296e4da93badecadce86169031f8052877e3",
+    "sourceChecks": {"successful": 22, "total": 22, "pythonTestsPassed": 142},
+    "falsePositiveEvidence": [
+      {
+        "id": "k2-horizon-mova-36b-a4b-2026-09-03",
+        "observedRevision": "5d624db156710b3dc30fcca0a5cc25cb2898e110",
+        "baselineRevision": "05cab0a4d7150c1c460a000b37ff40cc1af2feaa",
+        "observedFingerprint": "259e31e5a7143d4f6cca70ed238296e9374b0a51aa497563f62e10af990ec9e2",
+        "baselineFingerprint": "259e31e5a7143d4f6cca70ed238296e9374b0a51aa497563f62e10af990ec9e2",
+        "classification": "UNCHANGED_NORMALIZED_ARTIFACT_INVENTORY"
+      },
+      {
+        "id": "open-yap-1k-2026-09-03",
+        "observedRevision": "9f69ffe0d7d7f97543f5b63d67811c1d6686a38d",
+        "baselineRevision": "3eb0aaa5bcfb8a0f92fc383df1cb1d9a40fc6f2f",
+        "observedFingerprint": "8349606e7a5744f28355005fa2f19c73a7158917feec5be2a22a6888e2ba5991",
+        "baselineFingerprint": "8349606e7a5744f28355005fa2f19c73a7158917feec5be2a22a6888e2ba5991",
+        "classification": "UNCHANGED_NORMALIZED_ARTIFACT_INVENTORY"
+      },
+      {"id": "funes-agent-memory-2026-09-03", "classification": "ADMITTED_BLOG_RENDER_CHURN", "detail": "The rendered Hugging Face page includes dynamic Community/UI content after the admitted article."},
+      {"id": "trl-grpo-ifstruct-2026-09-03", "classification": "ADMITTED_BLOG_RENDER_CHURN", "detail": "The article is already admitted; rendered Community/UI churn is not a new release."},
+      {"id": "vlm-run-gateway-2026-09-04", "classification": "ADMITTED_BLOG_RENDER_CHURN", "detail": "The already-admitted community article is not re-alerted for dynamic rendered-page changes."}
+    ],
+    "repair": "Post-combine filtering uses the deterministic admitted-release manifest as notification authority. Model/dataset revision churn is suppressed when normalized artifact inventory is unchanged; already-admitted blog render churn is observation-only; uncataloged release-feed candidates remain eligible.",
+    "evidencePreserved": true,
+    "productionPromotionEffect": "NONE"
+  },
+  "sourceToHuggingFace": {
+    "state": "EXACT_SOURCE_VERIFIED",
+    "githubRevision": "989e4e3dc2da7d763ae742784572cb650fce351b",
+    "spaceRepositoryRevision": "b7b809f641afce3072b5f778fd5855f0c0826659",
+    "spaceLastModified": "2026-09-08T12:26:51Z",
+    "runtimeSourceRevision": "989e4e3dc2da7d763ae742784572cb650fce351b",
+    "runtimePayloadSha256": "a8c2e734a8bfc57c6f9be1fd6c115187449d9efe036f44f94cad1277d8738962",
+    "syncRun": "https://github.com/szl-holdings/szl-frontier/actions/runs/34226102669",
+    "syncJob": 102060499261,
+    "independentWitnessJob": "https://huggingface.co/jobs/SZLHOLDINGS/6aa0118432d5d0c22c5ad755"
+  },
+  "productRuntime": {
+    "owner": "szl-holdings/a11oy",
+    "state": "DRIFT_FAILS_CLOSED",
+    "observedAt": "2026-09-08T13:56:45.818Z",
+    "validUntil": "2026-09-08T14:01:45.818Z",
+    "githubDefaultBranchRevision": "c0373bd53aed420bcd22c57dbb5dff585f200f91",
+    "runtimeReportedSourceRevision": "8d59d6cea71f86605353be91dbda2bfa44fc731d",
+    "equivalenceState": "DRIFT",
+    "equivalenceReason": "GITHUB_DEFAULT_BRANCH_DRIFTS_FROM_RUNTIME_REPORTED_REVISION",
+    "operatingMode": "OBSERVE_ONLY",
+    "claimGateState": "FAILED_CLOSED",
+    "claimGateReason": "EXACT_SOURCE_RUNTIME_BINDING_UNAVAILABLE",
+    "externalWrites": "DISABLED",
+    "automaticRetries": 0,
+    "effectors": [],
+    "productionReady": false,
+    "witnessJob": "https://huggingface.co/jobs/SZLHOLDINGS/6aa0146c32d5d0c22c5ad7af"
+  },
+  "proofEvidence": {
+    "owner": "szl-holdings/a11oy-net",
+    "state": "STALE_PROOF_RECORD",
+    "recordedFrontierRevision": "3ee8d770f73306307b91359f3bfea39451e2efb2",
+    "currentFrontierRevision": "989e4e3dc2da7d763ae742784572cb650fce351b",
+    "repairRequired": true
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}

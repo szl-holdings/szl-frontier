@@ -38,6 +38,7 @@ jobs:
         run: >-
           node --test
           scripts/frontier-release-watch.test.mjs
+          scripts/filter-frontier-candidates.test.mjs
           scripts/open-frontier-alerts.test.mjs
 
       - name: Verify Python frontier control plane
@@ -97,6 +98,9 @@ jobs:
             }
           ' frontier-watch-output.json python-frontier-watch-output.json \
             edge-frontier-watch-output.json > combined-frontier-watch-output.json
+          node scripts/filter-frontier-candidates.mjs \
+            combined-frontier-watch-output.json \
+            public/frontier/release-evaluation-manifest.v1.json
 
       - name: Publish evidence summary
         if: steps.combine.outcome == 'success'
@@ -111,6 +115,8 @@ jobs:
             echo "Combined source checks: **$(jq -r .successfulSources combined-frontier-watch-output.json)/$(jq -r .sourceCount combined-frontier-watch-output.json)**"
             echo
             echo "Combined material candidates: **$(jq -r '.materialCandidates | length' combined-frontier-watch-output.json)**"
+            echo
+            echo "Suppressed admitted low-signal churn: **$(jq -r '.suppressedCount // 0' combined-frontier-watch-output.json)**"
             echo
             echo "Production promotion: **$(jq -r .productionPromotion combined-frontier-watch-output.json)**"
           } >> "$GITHUB_STEP_SUMMARY"
