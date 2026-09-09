@@ -7,7 +7,7 @@
   "trigger": {
     "kind": "AUTHORITY_CHAIN_REPAIR_ADVANCED",
     "material": true,
-    "reason": "A newer exact estate observation shows A11oy protected source, its Hugging Face runtime, and a-11-oy.com all converged at e14af70d with semantic parity, while the a11oy.net Frontier proof record still names the earlier 002cd0c2 product revision. Lyte source projection and Hugging Face inventory cardinality remain divergent, so production remains HOLD."
+    "reason": "A newer exact estate observation shows A11oy protected source, its Hugging Face runtime, and a-11-oy.com all converged at e14af70d with semantic parity, while the a11oy.net Frontier proof record still names the earlier 002cd0c2 product revision. Lyte source projection and Hugging Face inventory contract scope remain divergent, so production remains HOLD."
   },
   "discovery": {
     "newUpstreamCandidates": [],
@@ -68,6 +68,7 @@
       "currentProductRevision": "e14af70d8fd24306e449db56450ad01fb524a857",
       "contentParity": "STALE_PRODUCT_REVISION",
       "previousRepairPullRequest": "https://github.com/szl-holdings/a11oy-net/pull/158",
+      "successorRepairPullRequest": "https://github.com/szl-holdings/a11oy-net/pull/159",
       "state": "DEPLOYMENT_SOURCE_EXACT_FRONTIER_RECORD_LAGS_CURRENT_PRODUCT_SOURCE"
     }
   },
@@ -93,6 +94,7 @@
   "alignmentDrift": [
     {
       "owner": "szl-holdings/.github",
+      "trackingIssue": "https://github.com/szl-holdings/.github/issues/728",
       "code": "HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE",
       "declaredCounts": {
         "models": 45,
@@ -104,13 +106,27 @@
         "datasets": 34,
         "spaces": 17
       },
-      "observedCounts": {
+      "estateObservedCounts": {
         "models": 46,
         "datasets": 35,
         "spaces": 21
       },
+      "officialInventoryV2": {
+        "evidenceIssue": "https://github.com/szl-holdings/.github/issues/263",
+        "workflowRun": 34298055179,
+        "generatedAt": "2026-09-09T01:10:15.259289Z",
+        "profileRevision": "8f0ab3c9b561f7b1845726c7a21b491fa8e60f56",
+        "counts": {
+          "models": 46,
+          "datasets": 43,
+          "spaces": 26,
+          "kernels": 14,
+          "collections": 21,
+          "buckets": 6
+        }
+      },
       "profileRevision": "8f0ab3c9b561f7b1845726c7a21b491fa8e60f56",
-      "requiredEvidence": "Reconcile the source-bound estate profile/manifest against the actual Hugging Face organization inventory. Do not delete, hide, or rehost artifacts merely to make the counts match."
+      "requiredEvidence": "Reconcile whether the estate verifier intentionally measures a bounded subset or whole-organization inventory. Generate declared and observed counts from the same named deterministic predicate; do not delete, hide, or rehost artifacts merely to make cardinality match."
     },
     {
       "owner": "szl-holdings/lyte-services",
@@ -125,6 +141,7 @@
     },
     {
       "owner": "szl-holdings/a11oy-net",
+      "trackingPullRequest": "https://github.com/szl-holdings/a11oy-net/pull/159",
       "code": "PROOF_FRONTIER_RECORD_STALE_PRODUCT_REVISION",
       "proofRevision": "97f33143f50d2fb615f83323114a707463fd034b",
       "recordedProductRevision": "002cd0c2edc8f38b297ae0394ecf8da12c06cc60",
@@ -160,9 +177,9 @@
       "action": "use only the existing exact-head repair workflow and normal deployment controls"
     },
     {
-      "responsibility": "Hugging Face inventory source declaration",
+      "responsibility": "Hugging Face inventory source declaration and predicate",
       "repository": "szl-holdings/.github",
-      "action": "reconcile declared/manifest cardinality with observed organization inventory"
+      "action": "reconcile declared/manifest cardinality with the same bounded observation predicate under issue 728"
     },
     {
       "responsibility": "Lyte canonical source",
@@ -172,13 +189,13 @@
     {
       "responsibility": "proof/evidence registry",
       "repository": "szl-holdings/a11oy-net",
-      "action": "advance the Frontier proof record to the newer immutable estate observation without inventing a new product-summary witness"
+      "action": "advance the Frontier proof record through draft PR 159 to the newer immutable estate observation without inventing a new product-summary witness"
     }
   ],
   "definitionOfDone": [
     "Frontier protected source and Hugging Face runtime remain exact at the same source revision",
     "A11oy protected main, Hugging Face runtime, and a-11-oy.com runtime remain source-identical and semantically matched",
-    "Hugging Face inventory declarations are reconciled to a bounded observed organization inventory",
+    "Hugging Face inventory declarations and observations use the same named deterministic predicate and reconcile under normal controls",
     "Lyte is republished from exact canonical source through the protected single-writer path and live readback no longer emits lyte:SOURCE_REVISION_MISMATCH",
     "a11oy.net records the current A11oy product revision as a new immutable estate observation while preserving prior summary evidence as historical",
     "a dedicated product witness establishes immutable HF repository/artifact binding before any capability or production promotion claim",
