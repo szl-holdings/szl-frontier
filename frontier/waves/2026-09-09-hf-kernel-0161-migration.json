@@ -1,0 +1,150 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-09-hf-kernel-0161-migration",
+  "evaluatedAt": "2026-09-09T14:23:31Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "0640258ccd63f40605a1811287322e99038836da",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true,
+    "requiredEvidence": [
+      "exact-upstream-revision",
+      "package-provenance",
+      "license-posture",
+      "first-class-kernel-repository",
+      "exact-branch-revisions",
+      "runtime-load-exact-revision",
+      "deterministic-tests",
+      "rollback-or-fallback"
+    ]
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWavesChecked": [
+      "2026-09-07-hugging-face-frontier",
+      "2026-09-08-runtime-retrieval-frontier",
+      "2026-09-08 MiniCPM5 evaluation waves",
+      "2026-09-08 Kimi/Hy4/Spark evaluation intake",
+      "2026-09-08 authority-chain parity draft"
+    ],
+    "openEstateWorkChecked": [
+      "szl-holdings/szl-frontier#49",
+      "szl-holdings/szl-frontier#50",
+      "szl-holdings/szl-frontier#51",
+      "szl-holdings/szl-forge#203"
+    ],
+    "excludedAlreadyRepresented": [
+      "TRL GRPO structured-output post-training recipe (already canonical in python/szl_frontier/admissions.py; issue #50 is deduplicated intake)",
+      "VLM Run Gateway unified OCR/VLM evaluation API (already canonical in python/szl_frontier/admissions.py; issue #51 is deduplicated intake)",
+      "existing SZL kernels 0.16.1 consumer/runtime measurements"
+    ],
+    "result": "one material non-duplicate migration contract",
+    "materialGap": "First-class Hugging Face Kernel Hub repository migration is not represented in the canonical Frontier waves even though legacy model-type kernel repositories are scheduled for removal on 2026-09-13."
+  },
+  "candidate": {
+    "id": "huggingface-kernels-v0-16-1-first-class-repo-migration",
+    "kind": "kernel-runtime-infrastructure",
+    "priority": "P0",
+    "publisher": "Hugging Face",
+    "primarySources": [
+      "https://huggingface.co/docs/kernels/migration",
+      "https://huggingface.co/docs/kernels/kernel-requirements",
+      "https://huggingface.co/docs/kernels/v0.16.1/api/kernels",
+      "https://huggingface.co/kernels-community",
+      "https://github.com/huggingface/kernels/tree/v0.16.1"
+    ],
+    "release": {
+      "version": "0.16.1",
+      "tag": "v0.16.1",
+      "revision": "1dc5c9d05683e8a594bb6d7a1ab18318b89e2caa",
+      "releasedAt": "2026-08-24",
+      "license": "Apache-2.0",
+      "packageProvenance": {
+        "sdistSha256": "b4a3fe0980dd1a3089920242e41b1551acabfea50d03bffbe63a5ce34449e6ae",
+        "wheelSha256": "db3a1dc1760e86ef97c04e97a9ed6cf2ad833b244213319f12b93bd4b0d58597"
+      }
+    },
+    "migrationDeadline": "2026-09-13",
+    "requiredRepositoryType": "kernel",
+    "forbiddenLegacyRepositoryType": "model",
+    "runtimeBinding": {
+      "requireVersionOrExactRevision": true,
+      "qualificationRevisionSource": "v1 branch exact 40-character commit",
+      "trustedPublisherDefault": false,
+      "remoteCodeBoundary": "For SZLHOLDINGS kernels, any trust_remote_code opt-in remains an explicit runtime-code trust decision and is not implied by metadata verification or this Frontier admission."
+    },
+    "materialChanges": [
+      "Hugging Face Kernel Hub uses first-class kernel repositories; the loader no longer supports model-type kernel repositories.",
+      "Hugging Face states legacy model-type kernel repositories will be taken down starting 2026-09-13.",
+      "Kernel loads must identify a version or revision; SZL qualification binds the runtime load to the exact v1 commit rather than an unpinned moving branch."
+    ],
+    "upstreamMainWatch": {
+      "revision": "65ad13efcf490d1a3b4f06172a01f9823a013b90",
+      "observedAt": "2026-09-09T08:56:15Z",
+      "change": "Move kernels-data Python binding into kernels (#818), keeping the binding in sync with the kernels tree.",
+      "disposition": "WATCH_UNRELEASED",
+      "qualificationBoundary": "This unreleased main-branch commit is observation-only and does not replace the pinned v0.16.1 release revision."
+    },
+    "estateImplementation": {
+      "owner": "szl-holdings/szl-forge",
+      "pullRequest": "https://github.com/szl-holdings/szl-forge/pull/203",
+      "headRevision": "0707fa9e8767becccfac640432017b56d35e031c",
+      "migrationWorkflowRun": 34355675248,
+      "migrationWorkflowJob": 102479607786,
+      "migrationWorkflowConclusion": "success",
+      "observedChecks": [
+        "CodeQL",
+        "Local compute contract",
+        "HF Kernel 0.16.1 migration",
+        "Inference control-plane contract",
+        "MiniCPM5 qualification contracts",
+        "Frontier model bakeoff contract",
+        "forbidden-domain",
+        "Production governed inference v2",
+        "base-python-ci",
+        "Model and kernel frontier verification"
+      ],
+      "observedChecksConclusion": "PASS",
+      "qualificationBoundary": "Passing exact-head integration checks proves the migration guard and public projection contract at this PR head; it is not production model, route, or kernel-performance qualification."
+    },
+    "acceptance": [
+      "Retain the exact Hugging Face v0.16.1 source revision and package hashes in evaluation evidence.",
+      "Verify production-relevant SZLHOLDINGS kernel projections are first-class kernel repositories before the legacy model-type removal date.",
+      "Require exact 40-character main and v1 Hub branch revisions and load the runtime candidate by the exact v1 commit.",
+      "Reject legacy model-type kernel repositories in the migrated lane rather than silently falling back.",
+      "Run existing deterministic kernel/model contracts unchanged and record unavailable hardware or builds as UNAVAILABLE rather than pass.",
+      "Preserve a bounded rollback/fallback to the last passing immutable kernel closure.",
+      "Do not change production routes, default kernels, model qualification, provider authority, or public capability claims from this admission alone."
+    ],
+    "status": "EVALUATION"
+  },
+  "routing": {
+    "catalogOwner": "szl-holdings/szl-frontier",
+    "migrationAndRuntimeQualificationOwner": "szl-holdings/szl-forge",
+    "kernelSourceOwner": "szl-holdings/szl-kernels",
+    "huggingFaceProjection": "SZLHOLDINGS/szl-kernels",
+    "productOwner": "szl-holdings/a11oy",
+    "proofOwner": "szl-holdings/a11oy-net"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "knownIndependentDrift": [
+      "szl-holdings/.github#728 HF inventory predicate/scope mismatch",
+      "szl-holdings/lyte-services#18 Lyte source projection mismatch"
+    ],
+    "claimBoundary": "This wave addresses Kernel Hub migration readiness only. It does not repair or supersede the independent estate alignment blockers tracked by Frontier PR #49."
+  },
+  "codexCompletionContract": {
+    "required": [
+      "Keep the canonical migration policy in szl-frontier and implementation code in szl-forge.",
+      "Do not duplicate the TRL GRPO or VLM Run admissions already present on protected main.",
+      "If szl-forge#203 changes, rebind this wave to the new exact head and re-run all normal checks.",
+      "Verify the public first-class SZLHOLDINGS/szl-kernels projection and exact main/v1 revisions without mutating Hub resources from the verifier.",
+      "Treat upstream kernels main after v0.16.1 as WATCH until a released revision is deliberately admitted.",
+      "Leave production HOLD until repository controls, runtime compatibility, rollback, provenance, and performance gates independently pass."
+    ],
+    "definitionOfDone": "The estate can survive removal of legacy model-type kernel repositories using an exact-source-bound first-class Kernel Hub projection, with deterministic checks and rollback evidence, without changing production defaults."
+  }
+}
