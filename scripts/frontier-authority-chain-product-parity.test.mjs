@@ -10,7 +10,7 @@ const FRONTIER = "0640258ccd63f40605a1811287322e99038836da";
 const HF_REPO = "e71a9b32159e3964b8ed06ddb0603fe90a8d7f23";
 const PRODUCT = "e14af70d8fd24306e449db56450ad01fb524a857";
 const PRODUCT_HF_REPO = "8eec9a696e838e6889bd968776d8f0279e188400";
-const PROOF = "97f33143f50d2fb615f83323114a707463fd034b";
+const PROOF = "2410220053da4992688a80a7f459c8e4e4ec6f33";
 const LYTE = "72560fd5eb68cab08c40565c3c489e42c8442e72";
 const LYTE_RUNTIME = "a6a653b0d93a0d150b868a044642ce4f5c71d766";
 
@@ -42,14 +42,18 @@ describe("2026-09-08 authority-chain product parity successor", () => {
     assert.equal(product.completeArtifactBinding, "NOT_REOBSERVED_BY_ESTATE_VERIFIER");
   });
 
-  it("fails closed on stale proof content rather than mistaking deployed proof code for current evidence", () => {
+  it("records the proof drift as repaired and deployed while preserving the historical summary boundary", () => {
     const proof = wave.authorityChain.proof;
     assert.equal(proof.repositoryRevision, PROOF);
     assert.equal(proof.deployedRevision, PROOF);
-    assert.equal(proof.frontierRecordProductRevision, "002cd0c2edc8f38b297ae0394ecf8da12c06cc60");
-    assert.equal(proof.currentProductRevision, PRODUCT);
-    assert.equal(proof.contentParity, "STALE_PRODUCT_REVISION");
-    assert.equal(proof.successorRepairPullRequest, "https://github.com/szl-holdings/a11oy-net/pull/159");
+    assert.equal(proof.currentEstateProductRevision, PRODUCT);
+    assert.equal(proof.historicalSummaryProductRevision, "002cd0c2edc8f38b297ae0394ecf8da12c06cc60");
+    assert.equal(proof.contentParity, "REPAIRED");
+    assert.equal(proof.repairPullRequest, "https://github.com/szl-holdings/a11oy-net/pull/159");
+    assert.equal(proof.pagesDeploymentRun, 34300605598);
+    assert.equal(proof.pagesDeploymentConclusion, "success");
+    assert.equal(wave.repairedAlignment[0].code, "PROOF_FRONTIER_RECORD_STALE_PRODUCT_REVISION");
+    assert.equal(wave.repairedAlignment[0].mergedRevision, PROOF);
     assert.equal(wave.policy.defaultEffect, "HOLD");
     assert.equal(wave.policy.automaticProductionPromotion, false);
     assert.equal(wave.policy.productionDefaultsChanged, false);
@@ -73,8 +77,9 @@ describe("2026-09-08 authority-chain product parity successor", () => {
     ]);
   });
 
-  it("routes current drift to the repositories that own the repair", () => {
+  it("routes only current unresolved drift to the repositories that own the repair", () => {
     const byCode = Object.fromEntries(wave.alignmentDrift.map((item) => [item.code, item]));
+    assert.equal(Object.hasOwn(byCode, "PROOF_FRONTIER_RECORD_STALE_PRODUCT_REVISION"), false);
     const inventory = byCode.HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE;
     assert.equal(inventory.trackingIssue, "https://github.com/szl-holdings/.github/issues/728");
     assert.deepEqual(inventory.declaredCounts, {
@@ -89,8 +94,6 @@ describe("2026-09-08 authority-chain product parity successor", () => {
     assert.equal(inventory.officialInventoryV2.workflowRun, 34298055179);
     assert.equal(byCode["lyte:SOURCE_REVISION_MISMATCH"].canonicalSourceRevision, LYTE);
     assert.equal(byCode["lyte:SOURCE_REVISION_MISMATCH"].runtimeSourceRevision, LYTE_RUNTIME);
-    assert.equal(byCode.PROOF_FRONTIER_RECORD_STALE_PRODUCT_REVISION.owner, "szl-holdings/a11oy-net");
-    assert.equal(byCode.PROOF_FRONTIER_RECORD_STALE_PRODUCT_REVISION.trackingPullRequest, "https://github.com/szl-holdings/a11oy-net/pull/159");
     assert.equal(wave.holdConditions[0].code, "PRODUCT_HF_ARTIFACT_BINDING_NOT_REOBSERVED");
   });
 });
