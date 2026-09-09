@@ -23,20 +23,20 @@ The stable candidate is `huggingface/kernels` **v0.16.1**, exact source commit
 `65ad13efcf490d1a3b4f06172a01f9823a013b90` (move `kernels-data` Python binding
 into `kernels`) is WATCH-only until deliberately admitted as part of a release.
 
-## Existing implementation
+## Merged implementation
 
 Runtime/migration implementation belongs in `szl-holdings/szl-forge`, not this
 catalog repository.
 
-Active implementation PR:
+Protected implementation closure:
 
-- `szl-holdings/szl-forge#203`
-- branch `feat/hf-kernel-0161-migration`
-- exact head `0707fa9e8767becccfac640432017b56d35e031c`
+- `szl-holdings/szl-forge#203` — **MERGED**
+- evaluated PR head `0707fa9e8767becccfac640432017b56d35e031c`
+- protected merge revision `aaf61372654b1b53133ea25a05d286e689568665`
 - dedicated workflow run `34355675248`, job `102479607786`: PASS
-- all currently observed exact-head Forge workflows: PASS
+- all observed exact-head Forge workflows: PASS before protected merge
 
-The implementation already:
+The merged implementation:
 
 1. requires `kernels==0.16.1` in the bounded migration lane;
 2. verifies `repo_type="kernel"`;
@@ -46,9 +46,9 @@ The implementation already:
 6. checks the public `SZLHOLDINGS/szl-kernels` first-class projection without
    mutating it.
 
-Passing these checks is integration evidence only. It does not prove kernel
-performance, production model quality, public product readiness, or authorization
-to change default routes.
+This closes the **source-code migration guard** under normal controls. It does not
+prove kernel performance, production model quality, public product readiness, or
+authorization to change default routes.
 
 ## Codex completion contract
 
@@ -56,17 +56,17 @@ Work only in the repository that owns each responsibility.
 
 ### `szl-holdings/szl-frontier`
 
-Keep this wave as the canonical intake/provenance record. If the Forge PR head
-moves, update the exact head here only after re-observing its normal checks.
-Do not duplicate the already-canonical TRL GRPO or VLM Run admissions.
+Keep this wave as the canonical intake/provenance record and bind the protected
+Forge merge above. Do not duplicate the already-canonical TRL GRPO or VLM Run
+admissions.
 
 ### `szl-holdings/szl-forge`
 
-Finish PR #203 under normal repository controls. Preserve all existing tests and
-guards. Add no fallback that silently treats a `model` repository as a kernel.
-Any runtime load from an untrusted publisher must remain an explicit
-`trust_remote_code`/allowlist decision; metadata verification must not imply that
-trust.
+Treat `aaf61372654b1b53133ea25a05d286e689568665` as the current implementation
+source. Preserve all migration tests and guards in successors. Add no fallback
+that silently treats a `model` repository as a kernel. Any runtime load from an
+untrusted publisher must remain an explicit `trust_remote_code`/allowlist
+decision; metadata verification must not imply that trust.
 
 ### `szl-holdings/szl-kernels`
 
@@ -84,8 +84,8 @@ upstream weights for inventory.
 ### Product and proof
 
 Do not change `a-11-oy.com` routing or capability claims from this migration
-alone. `a11oy.net` may record the migration only after merged source plus immutable
-evaluation/runtime evidence exists.
+alone. `a11oy.net` may record the migration only after the relevant immutable
+runtime/evaluation evidence exists.
 
 ## Promotion gates
 
