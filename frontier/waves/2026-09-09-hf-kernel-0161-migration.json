@@ -1,7 +1,7 @@
 {
   "schema": "szl.frontier.integration-wave.v1",
   "wave": "2026-09-09-hf-kernel-0161-migration",
-  "evaluatedAt": "2026-09-09T14:23:31Z",
+  "evaluatedAt": "2026-09-09T14:34:00Z",
   "sourceOfTruth": "szl-holdings/szl-frontier",
   "sourceRevisionObserved": "0640258ccd63f40605a1811287322e99038836da",
   "policy": {
@@ -90,7 +90,10 @@
     "estateImplementation": {
       "owner": "szl-holdings/szl-forge",
       "pullRequest": "https://github.com/szl-holdings/szl-forge/pull/203",
-      "headRevision": "0707fa9e8767becccfac640432017b56d35e031c",
+      "pullRequestHeadRevision": "0707fa9e8767becccfac640432017b56d35e031c",
+      "mergedRevision": "aaf61372654b1b53133ea25a05d286e689568665",
+      "mergedAtObserved": "2026-09-09T14:26:59Z",
+      "mergeState": "MERGED_UNDER_NORMAL_CONTROLS",
       "migrationWorkflowRun": 34355675248,
       "migrationWorkflowJob": 102479607786,
       "migrationWorkflowConclusion": "success",
@@ -107,7 +110,7 @@
         "Model and kernel frontier verification"
       ],
       "observedChecksConclusion": "PASS",
-      "qualificationBoundary": "Passing exact-head integration checks proves the migration guard and public projection contract at this PR head; it is not production model, route, or kernel-performance qualification."
+      "qualificationBoundary": "The protected Forge merge records the migration guard on canonical source after exact-head checks. It still does not qualify kernel performance, a production model route, or a production default."
     },
     "acceptance": [
       "Retain the exact Hugging Face v0.16.1 source revision and package hashes in evaluation evidence.",
@@ -140,7 +143,7 @@
     "required": [
       "Keep the canonical migration policy in szl-frontier and implementation code in szl-forge.",
       "Do not duplicate the TRL GRPO or VLM Run admissions already present on protected main.",
-      "If szl-forge#203 changes, rebind this wave to the new exact head and re-run all normal checks.",
+      "Treat the protected Forge merge aaf61372654b1b53133ea25a05d286e689568665 as implementation source; if it changes, rebind only after normal controls produce a successor merge.",
       "Verify the public first-class SZLHOLDINGS/szl-kernels projection and exact main/v1 revisions without mutating Hub resources from the verifier.",
       "Treat upstream kernels main after v0.16.1 as WATCH until a released revision is deliberately admitted.",
       "Leave production HOLD until repository controls, runtime compatibility, rollback, provenance, and performance gates independently pass."
