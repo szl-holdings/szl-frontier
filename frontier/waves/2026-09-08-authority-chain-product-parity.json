@@ -1,13 +1,13 @@
 {
   "schema": "szl.frontier.alignment-repair-wave.v1",
   "wave": "2026-09-08-authority-chain-product-parity",
-  "evaluatedAt": "2026-09-09T01:23:06.689111Z",
+  "evaluatedAt": "2026-09-09T01:48:00Z",
   "sourceOfTruth": "szl-holdings/szl-frontier",
   "sourceRevision": "0640258ccd63f40605a1811287322e99038836da",
   "trigger": {
     "kind": "AUTHORITY_CHAIN_REPAIR_ADVANCED",
     "material": true,
-    "reason": "A newer exact estate observation shows A11oy protected source, its Hugging Face runtime, and a-11-oy.com all converged at e14af70d with semantic parity, while the a11oy.net Frontier proof record still names the earlier 002cd0c2 product revision. Lyte source projection and Hugging Face inventory contract scope remain divergent, so production remains HOLD."
+    "reason": "A11oy protected source, its Hugging Face runtime, and a-11-oy.com converge at e14af70d with semantic parity. The stale a11oy.net Frontier proof record was repaired and deployed through protected PR 159. Lyte source projection and Hugging Face inventory contract scope remain divergent, so production remains HOLD."
   },
   "discovery": {
     "newUpstreamCandidates": [],
@@ -62,14 +62,15 @@
     "proof": {
       "origin": "https://a11oy.net",
       "ownerRepository": "szl-holdings/a11oy-net",
-      "repositoryRevision": "97f33143f50d2fb615f83323114a707463fd034b",
-      "deployedRevision": "97f33143f50d2fb615f83323114a707463fd034b",
-      "frontierRecordProductRevision": "002cd0c2edc8f38b297ae0394ecf8da12c06cc60",
-      "currentProductRevision": "e14af70d8fd24306e449db56450ad01fb524a857",
-      "contentParity": "STALE_PRODUCT_REVISION",
-      "previousRepairPullRequest": "https://github.com/szl-holdings/a11oy-net/pull/158",
-      "successorRepairPullRequest": "https://github.com/szl-holdings/a11oy-net/pull/159",
-      "state": "DEPLOYMENT_SOURCE_EXACT_FRONTIER_RECORD_LAGS_CURRENT_PRODUCT_SOURCE"
+      "repositoryRevision": "2410220053da4992688a80a7f459c8e4e4ec6f33",
+      "deployedRevision": "2410220053da4992688a80a7f459c8e4e4ec6f33",
+      "currentEstateProductRevision": "e14af70d8fd24306e449db56450ad01fb524a857",
+      "historicalSummaryProductRevision": "002cd0c2edc8f38b297ae0394ecf8da12c06cc60",
+      "contentParity": "REPAIRED",
+      "repairPullRequest": "https://github.com/szl-holdings/a11oy-net/pull/159",
+      "pagesDeploymentRun": 34300605598,
+      "pagesDeploymentConclusion": "success",
+      "state": "CURRENT_ESTATE_OBSERVATION_RECORDED_HISTORICAL_SUMMARY_PRESERVED"
     }
   },
   "latestEstateVerifier": {
@@ -91,6 +92,17 @@
       "lyte:SOURCE_REVISION_MISMATCH"
     ]
   },
+  "repairedAlignment": [
+    {
+      "owner": "szl-holdings/a11oy-net",
+      "code": "PROOF_FRONTIER_RECORD_STALE_PRODUCT_REVISION",
+      "repairPullRequest": "https://github.com/szl-holdings/a11oy-net/pull/159",
+      "mergedRevision": "2410220053da4992688a80a7f459c8e4e4ec6f33",
+      "pagesDeploymentRun": 34300605598,
+      "pagesDeploymentConclusion": "success",
+      "result": "The current e14 estate observation is recorded separately from the historical 002cd0c2 Frontier-now summary witness; unsupported fresh artifact binding remains unavailable."
+    }
+  ],
   "alignmentDrift": [
     {
       "owner": "szl-holdings/.github",
@@ -138,15 +150,6 @@
       "huggingFaceSpaceRepositoryRevision": "1ff1d239257a0166d784fef358b8a784f9309481",
       "runtimeSourceRevision": "a6a653b0d93a0d150b868a044642ce4f5c71d766",
       "requiredEvidence": "Run the established protected A11oy canonical writer path from the exact current source vector, then read back the Hub repository revision and live runtime source identity. Manual Hugging Face patching is not an acceptable repair."
-    },
-    {
-      "owner": "szl-holdings/a11oy-net",
-      "trackingPullRequest": "https://github.com/szl-holdings/a11oy-net/pull/159",
-      "code": "PROOF_FRONTIER_RECORD_STALE_PRODUCT_REVISION",
-      "proofRevision": "97f33143f50d2fb615f83323114a707463fd034b",
-      "recordedProductRevision": "002cd0c2edc8f38b297ae0394ecf8da12c06cc60",
-      "currentProductRevision": "e14af70d8fd24306e449db56450ad01fb524a857",
-      "requiredEvidence": "Record the newer immutable estate observation without inventing a fresh Frontier-now summary digest. Preserve the earlier product-summary witness as historical evidence until a dedicated source-bound summary witness refreshes it."
     }
   ],
   "holdConditions": [
@@ -169,7 +172,7 @@
     {
       "responsibility": "frontier catalog and governed integration-wave record",
       "repository": "szl-holdings/szl-frontier",
-      "action": "record this successor observation and retain HOLD"
+      "action": "record this successor observation, repaired proof leg, remaining drift, and HOLD"
     },
     {
       "responsibility": "canonical product and provider writers",
@@ -189,15 +192,15 @@
     {
       "responsibility": "proof/evidence registry",
       "repository": "szl-holdings/a11oy-net",
-      "action": "advance the Frontier proof record through draft PR 159 to the newer immutable estate observation without inventing a new product-summary witness"
+      "action": "repaired and deployed by PR 159; preserve the historical summary boundary and current estate observation"
     }
   ],
   "definitionOfDone": [
     "Frontier protected source and Hugging Face runtime remain exact at the same source revision",
     "A11oy protected main, Hugging Face runtime, and a-11-oy.com runtime remain source-identical and semantically matched",
+    "a11oy.net records the current A11oy product revision as a new immutable estate observation while preserving prior summary evidence as historical",
     "Hugging Face inventory declarations and observations use the same named deterministic predicate and reconcile under normal controls",
     "Lyte is republished from exact canonical source through the protected single-writer path and live readback no longer emits lyte:SOURCE_REVISION_MISMATCH",
-    "a11oy.net records the current A11oy product revision as a new immutable estate observation while preserving prior summary evidence as historical",
     "a dedicated product witness establishes immutable HF repository/artifact binding before any capability or production promotion claim",
     "production disposition remains HOLD unless independent normal promotion gates pass"
   ]
