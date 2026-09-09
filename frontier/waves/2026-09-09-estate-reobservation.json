@@ -1,0 +1,86 @@
+{
+  "schema": "szl.frontier.alignment-reobservation.v1",
+  "wave": "2026-09-09-estate-reobservation",
+  "evaluatedAt": "2026-09-09T07:05:28Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "frontierSourceRevision": "0640258ccd63f40605a1811287322e99038836da",
+  "parentRecord": {
+    "wave": "2026-09-08-authority-chain-product-parity",
+    "pullRequest": "https://github.com/szl-holdings/szl-frontier/pull/49"
+  },
+  "discovery": {
+    "newUpstreamCandidates": [],
+    "result": "NO_NEW_MATERIAL_CANDIDATE",
+    "note": "The fresh primary-source scan found no model, inference-engine, agent, retrieval/reranking, multimodal, speech, kernel, training/post-training, or deployment release that survived the existing materiality and deduplication gates. Existing high-signal candidates remain represented by the canonical catalog, prior waves, or active evaluation lanes."
+  },
+  "estateVerifier": {
+    "repository": "szl-holdings/a11oy",
+    "workflow": "Estate release train",
+    "event": "schedule",
+    "run": 34320477216,
+    "job": 102365763129,
+    "headRevision": "e14af70d8fd24306e449db56450ad01fb524a857",
+    "runStartedAt": "2026-09-09T06:44:57Z",
+    "observationCompletedAt": "2026-09-09T07:05:18Z",
+    "runCompletedAt": "2026-09-09T07:05:28Z",
+    "conclusion": "failure",
+    "failedStep": "Enforce aligned terminal state",
+    "releaseId": "cd3845060cc9669685d61eee",
+    "sourceVector": {
+      "a11oy": "e14af70d8fd24306e449db56450ad01fb524a857",
+      "counsel": "e14af70d8fd24306e449db56450ad01fb524a857",
+      "david-leads": "8e2158fe2572932040d11e271c11811e6fe5e743",
+      "finance": "e14af70d8fd24306e449db56450ad01fb524a857",
+      "killinchu": "a462ef0313d5cd9bb0ad6e8ef13e7857258ba3c1",
+      "lyte": "72560fd5eb68cab08c40565c3c489e42c8442e72",
+      "profile": "8f0ab3c9b561f7b1845726c7a21b491fa8e60f56",
+      "proof": "2410220053da4992688a80a7f459c8e4e4ec6f33",
+      "sentra": null,
+      "terra": "e14af70d8fd24306e449db56450ad01fb524a857",
+      "vertical-services": "d018c1f2c892bd36f8ba7e9c85ee0430da348a17"
+    },
+    "canonicalWriterDispatchStep": "skipped",
+    "repairDispatched": false,
+    "providerWritesPerformed": false,
+    "artifact": {
+      "id": 10092245027,
+      "name": "estate-release-train-34320477216-1",
+      "sizeBytes": 8392,
+      "sha256": "c9bbc7685c080b31b1a7857686a886e95c14f03b049167191f2c6a11b08ed4ec"
+    },
+    "proofChainSha256": null,
+    "proofChainBoundary": "The current supported GitHub run/artifact metadata exposes the immutable Actions artifact digest but not a separate proof-chain digest. The prior run's proof-chain hash is not carried forward as if it described this run.",
+    "observedBlockingCodes": [
+      "HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE",
+      "lyte:SOURCE_REVISION_MISMATCH"
+    ]
+  },
+  "drift": [
+    {
+      "code": "HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE",
+      "owner": "szl-holdings/.github",
+      "trackingIssue": "https://github.com/szl-holdings/.github/issues/728",
+      "state": "REPRODUCED",
+      "action": "Reconcile the estate inventory declaration and observation under one named deterministic predicate; do not mutate or delete Hub assets to force cardinality."
+    },
+    {
+      "code": "lyte:SOURCE_REVISION_MISMATCH",
+      "owner": "szl-holdings/lyte-services",
+      "publisherOwner": "szl-holdings/a11oy",
+      "trackingIssue": "https://github.com/szl-holdings/lyte-services/issues/18",
+      "canonicalSourceRevision": "72560fd5eb68cab08c40565c3c489e42c8442e72",
+      "state": "REPRODUCED",
+      "action": "Use the existing protected A11oy repair dispatch path and exact-source readback. A scheduled observation is evidence only and did not perform the writer leg."
+    }
+  ],
+  "policy": {
+    "productionDisposition": "HOLD",
+    "automaticProductionPromotion": false,
+    "productionDefaultsChanged": false,
+    "providerRoutingChanged": false,
+    "branchProtectionsChanged": false,
+    "testsOrPolicyWeakened": false,
+    "upstreamWeightsRehosted": false
+  },
+  "decision": "The fresh exact-source scheduled observation reproduces the two known blockers without a repair dispatch. Preserve HOLD, keep existing repair owners, and do not infer a pass from unchanged product/source identities or from the existence of a RUNNING Hub runtime."
+}
