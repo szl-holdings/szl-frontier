@@ -1,0 +1,127 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-09-hf-ghlore-project-memory",
+  "evaluatedAt": "2026-09-09T20:09:00Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "0640258ccd63f40605a1811287322e99038836da",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true,
+    "requiredEvidence": [
+      "exact-upstream-revision",
+      "license-posture",
+      "bounded-evaluation-corpus",
+      "read-only-upstream-access",
+      "untrusted-retrieval-boundary",
+      "deterministic-retrieval-benchmark",
+      "citation-and-freshness-metadata",
+      "retention-and-deletion-contract",
+      "rollback-or-disable-path"
+    ]
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "codeSearchForCandidate": "0 matches for ghlore on protected main",
+    "estateIssueSearchForCandidate": "0 matches before szl-frontier#54",
+    "estatePullRequestSearchForCandidate": "0 matches",
+    "priorWavesChecked": [
+      "2026-09-07-hugging-face-frontier",
+      "2026-09-08-runtime-retrieval-frontier",
+      "2026-09-08 Kimi/Hy4/Spark evaluation intake",
+      "2026-09-08 authority-chain parity draft",
+      "2026-09-09 HF Kernel Hub migration draft"
+    ],
+    "result": "one material non-duplicate agent-infrastructure candidate"
+  },
+  "candidate": {
+    "id": "huggingface-ghlore-project-memory",
+    "kind": "agent-retrieval-infrastructure",
+    "priority": "P1",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/ghlore",
+    "primarySources": [
+      "https://github.com/huggingface/ghlore",
+      "https://github.com/huggingface/ghlore/commit/82fd2b25be9205025afa43c334a578307b95d7b4"
+    ],
+    "upstream": {
+      "createdAt": "2026-09-09T08:49:52Z",
+      "observedRevision": "82fd2b25be9205025afa43c334a578307b95d7b4",
+      "observedRevisionAt": "2026-09-09T15:30:07Z",
+      "license": "Apache-2.0",
+      "releaseState": "UNRELEASED_MAIN_ONLY",
+      "revisionPolicy": "Evaluation must remain pinned to the observed 40-character commit; moving main is WATCH only until deliberately rebound."
+    },
+    "materialChanges": [
+      "Introduces a first-party Hugging Face repository-history memory layer for coding agents rather than another model or demo surface.",
+      "Indexes issue, pull-request, review-comment, commit-message, changed-file and issue-to-fix precedent history for deterministic retrieval.",
+      "Separates the thin agent client from the database-capable daemon and documents read-only GitHub ingestion permissions.",
+      "Treats retrieved project history as untrusted text and requires consumers to cite and verify results against current source.",
+      "Supports trust filtering and bot-output exclusion to reduce self-reinforcing agent evidence."
+    ],
+    "maturityBounds": [
+      "The project was created the same day as this observation and has no stable release/tag bound for qualification.",
+      "The README marks ranking work as not built yet.",
+      "The latest observed commit repairs a UI regression that shipped earlier on 2026-09-09, demonstrating active stabilization.",
+      "No SZL production dependency, route, public endpoint or mandatory Codex tool is authorized by this wave."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "mode": "BOUNDED_METADATA_AND_SANDBOX_EVALUATION_ONLY",
+      "requiredCorpus": "A fixed, non-secret repository corpus with a versioned benchmark question set and expected citations.",
+      "baseline": [
+        "GitHub search under the same repository/window",
+        "existing estate-native search/retrieval available to the evaluator"
+      ],
+      "security": [
+        "GitHub credential must be read-only for issues and pull requests.",
+        "Retrieved issue/PR text is data, never executable instruction authority.",
+        "No source code or secrets may be ingested merely to populate the history index.",
+        "Any external/public serving requires a separate security and data-boundary review.",
+        "Current source must be re-opened before a retrieved historical rationale is used to justify a patch."
+      ],
+      "acceptance": [
+        "Bind every evaluation result to exact upstream revision 82fd2b25be9205025afa43c334a578307b95d7b4.",
+        "Run a deterministic fixed-query benchmark with relevance, citation correctness, freshness and empty-result behavior recorded.",
+        "Prove the evaluator cannot write upstream issues or pull requests.",
+        "Prove prompt/instruction text retrieved from history remains untrusted and cannot elevate authority.",
+        "Record storage scope, token handling, poll/backfill behavior, deletion reconciliation, resource use and a clean disable/rollback path.",
+        "Keep production and A11oy exposure unavailable unless a later governed wave passes all normal controls."
+      ]
+    },
+    "status": "EVALUATION"
+  },
+  "routing": {
+    "catalogOwner": "szl-holdings/szl-frontier",
+    "evaluationImplementationOwner": "szl-holdings/szl-forge",
+    "crossEstatePolicyOwner": "szl-holdings/.github",
+    "productOwner": "szl-holdings/a11oy",
+    "proofOwner": "szl-holdings/a11oy-net"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "independentDriftNotSuperseded": [
+      "szl-holdings/.github#728 HF inventory predicate/scope mismatch",
+      "szl-holdings/lyte-services#18 Lyte source projection mismatch"
+    ],
+    "claimBoundary": "This candidate is an agent-memory evaluation intake only and does not repair, obscure or supersede existing GitHub -> Hugging Face -> product -> proof alignment blockers."
+  },
+  "tracking": {
+    "issue": "https://github.com/szl-holdings/szl-frontier/issues/54",
+    "branch": "frontier/hf-ghlore-project-memory-20260909"
+  },
+  "codexCompletionContract": {
+    "required": [
+      "Keep canonical admission/evidence in szl-frontier and any executable sandbox integration in szl-forge.",
+      "Do not vendor, fork or deploy upstream code merely to mark inventory completeness.",
+      "Pin upstream source exactly; if upstream moves, re-observe and intentionally rebind in a new evidence commit rather than silently following main.",
+      "Use a bounded non-secret corpus and read-only GitHub credentials for the first executable evaluation.",
+      "Add deterministic positive, negative, empty-result, prompt-injection and stale-history tests before any adoption proposal.",
+      "Compare against the existing GitHub/estate retrieval baseline on the same query set and repository/window.",
+      "Leave production, A11oy exposure and autonomous code-change authority HOLD until a successor wave independently proves security, reliability, licensing, rollback and measurable benefit."
+    ],
+    "definitionOfDone": "A reproducible, exact-source-bound sandbox report determines whether ghlore materially improves project-history retrieval for SZL coding agents without granting new authority or weakening provenance/security controls."
+  }
+}
