@@ -40,17 +40,20 @@ test("first-class repository migration deadline and type are explicit", () => {
   assert.ok(candidate.acceptance.some((gate) => gate.includes("Reject legacy model-type")));
 });
 
-test("SZL Forge implementation is exact-head bound but not production-qualified", () => {
+test("SZL Forge implementation is exact-source merged but not production-qualified", () => {
   const implementation = candidate.estateImplementation;
   assert.equal(implementation.owner, "szl-holdings/szl-forge");
   assert.equal(implementation.pullRequest, "https://github.com/szl-holdings/szl-forge/pull/203");
-  assert.equal(implementation.headRevision, "0707fa9e8767becccfac640432017b56d35e031c");
-  assert.match(implementation.headRevision, SHA40);
+  assert.equal(implementation.pullRequestHeadRevision, "0707fa9e8767becccfac640432017b56d35e031c");
+  assert.equal(implementation.mergedRevision, "aaf61372654b1b53133ea25a05d286e689568665");
+  assert.match(implementation.pullRequestHeadRevision, SHA40);
+  assert.match(implementation.mergedRevision, SHA40);
+  assert.equal(implementation.mergeState, "MERGED_UNDER_NORMAL_CONTROLS");
   assert.equal(implementation.migrationWorkflowRun, 34355675248);
   assert.equal(implementation.migrationWorkflowJob, 102479607786);
   assert.equal(implementation.migrationWorkflowConclusion, "success");
   assert.equal(implementation.observedChecksConclusion, "PASS");
-  assert.ok(implementation.qualificationBoundary.includes("not production"));
+  assert.ok(implementation.qualificationBoundary.includes("does not qualify"));
 });
 
 test("unreleased upstream main remains watch-only", () => {
