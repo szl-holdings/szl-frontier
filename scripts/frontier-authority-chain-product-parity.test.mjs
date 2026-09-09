@@ -49,6 +49,7 @@ describe("2026-09-08 authority-chain product parity successor", () => {
     assert.equal(proof.frontierRecordProductRevision, "002cd0c2edc8f38b297ae0394ecf8da12c06cc60");
     assert.equal(proof.currentProductRevision, PRODUCT);
     assert.equal(proof.contentParity, "STALE_PRODUCT_REVISION");
+    assert.equal(proof.successorRepairPullRequest, "https://github.com/szl-holdings/a11oy-net/pull/159");
     assert.equal(wave.policy.defaultEffect, "HOLD");
     assert.equal(wave.policy.automaticProductionPromotion, false);
     assert.equal(wave.policy.productionDefaultsChanged, false);
@@ -74,15 +75,22 @@ describe("2026-09-08 authority-chain product parity successor", () => {
 
   it("routes current drift to the repositories that own the repair", () => {
     const byCode = Object.fromEntries(wave.alignmentDrift.map((item) => [item.code, item]));
-    assert.deepEqual(byCode.HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE.declaredCounts, {
+    const inventory = byCode.HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE;
+    assert.equal(inventory.trackingIssue, "https://github.com/szl-holdings/.github/issues/728");
+    assert.deepEqual(inventory.declaredCounts, {
       models: 45, datasets: 34, spaces: 17,
     });
-    assert.deepEqual(byCode.HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE.observedCounts, {
+    assert.deepEqual(inventory.estateObservedCounts, {
       models: 46, datasets: 35, spaces: 21,
     });
+    assert.deepEqual(inventory.officialInventoryV2.counts, {
+      models: 46, datasets: 43, spaces: 26, kernels: 14, collections: 21, buckets: 6,
+    });
+    assert.equal(inventory.officialInventoryV2.workflowRun, 34298055179);
     assert.equal(byCode["lyte:SOURCE_REVISION_MISMATCH"].canonicalSourceRevision, LYTE);
     assert.equal(byCode["lyte:SOURCE_REVISION_MISMATCH"].runtimeSourceRevision, LYTE_RUNTIME);
     assert.equal(byCode.PROOF_FRONTIER_RECORD_STALE_PRODUCT_REVISION.owner, "szl-holdings/a11oy-net");
+    assert.equal(byCode.PROOF_FRONTIER_RECORD_STALE_PRODUCT_REVISION.trackingPullRequest, "https://github.com/szl-holdings/a11oy-net/pull/159");
     assert.equal(wave.holdConditions[0].code, "PRODUCT_HF_ARTIFACT_BINDING_NOT_REOBSERVED");
   });
 });
