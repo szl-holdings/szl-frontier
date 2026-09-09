@@ -1,24 +1,24 @@
 {
   "schema": "szl.frontier.alignment-repair-wave.v1",
   "wave": "2026-09-08-authority-chain-product-parity",
-  "evaluatedAt": "2026-09-08T20:37:01Z",
+  "evaluatedAt": "2026-09-09T01:23:06.689111Z",
   "sourceOfTruth": "szl-holdings/szl-frontier",
   "sourceRevision": "0640258ccd63f40605a1811287322e99038836da",
   "trigger": {
     "kind": "AUTHORITY_CHAIN_REPAIR_ADVANCED",
     "material": true,
-    "reason": "The proof owner now binds current Frontier GitHub and Hugging Face source exactly and records that A11oy protected main and runtime-reported source have converged. A later estate verifier still fails closed on Hub inventory and Lyte source projection drift, so complete alignment is not claimed."
+    "reason": "A newer exact estate observation shows A11oy protected source, its Hugging Face runtime, and a-11-oy.com all converged at e14af70d with semantic parity, while the a11oy.net Frontier proof record still names the earlier 002cd0c2 product revision. Lyte source projection and Hugging Face inventory cardinality remain divergent, so production remains HOLD."
   },
   "discovery": {
     "newUpstreamCandidates": [],
-    "note": "No additional deduplicated upstream candidate exceeded the current materiality bar in this scan. Transformers v5.16.1 primarily adds the already-admitted GLM-5.3-Flash lane; TRL v1.12.0 is an accidental bit-identical duplicate; SGLang v0.5.19 is already admitted in the runtime/retrieval wave; routine card/render churn and community-only posts were excluded.",
+    "note": "No newly observed primary Hugging Face release survived deduplication and the materiality filter in this scan. Current high-signal model/runtime items are already represented by the canonical catalog, prior model/runtime waves, or existing evaluation lanes; routine card edits, minor churn, demo-only Spaces, and low-signal community posts remain excluded.",
     "deduplicatedAgainst": [
       "canonical release catalog",
       "2026-09-07 model wave",
       "2026-09-08 runtime/retrieval wave",
       "2026-09-08 MiniCPM5 waves",
       "2026-09-08 Kimi/Hy4/Spark wave",
-      "open Frontier issues 25, 30, 37, 47"
+      "open Frontier issues and pull requests"
     ]
   },
   "authorityChain": {
@@ -41,86 +41,103 @@
       "runtimeStage": "RUNNING",
       "syncWorkflowRun": 34247345227,
       "syncWorkflowJob": 102132616561,
-      "independentWitnessJob": "6aa06d28900620b5c77e3a5c",
       "state": "EXACT_SOURCE_WITNESS_PASS",
-      "qualificationBoundary": "RUNNING proves the Frontier Space software/runtime source identity only; it does not qualify any model or production route."
+      "qualificationBoundary": "RUNNING proves Frontier Space software/runtime source identity only; it does not qualify a model, provider route, or production authorization."
     },
     "product": {
       "origin": "https://a-11-oy.com",
       "ownerRepository": "szl-holdings/a11oy",
-      "protectedMainRevision": "002cd0c2edc8f38b297ae0394ecf8da12c06cc60",
-      "runtimeReportedSourceRevision": "002cd0c2edc8f38b297ae0394ecf8da12c06cc60",
+      "protectedMainRevision": "e14af70d8fd24306e449db56450ad01fb524a857",
+      "huggingFaceSpace": "SZLHOLDINGS/a11oy",
+      "huggingFaceSpaceRepositoryRevision": "8eec9a696e838e6889bd968776d8f0279e188400",
+      "huggingFaceRuntimeSourceRevision": "e14af70d8fd24306e449db56450ad01fb524a857",
+      "domainRuntimeSourceRevision": "e14af70d8fd24306e449db56450ad01fb524a857",
       "sourceRuntimeParity": "MATCH",
-      "operatingMode": "OBSERVE_ONLY",
-      "observationState": "BLOCKED",
-      "equivalenceState": "UNAVAILABLE",
-      "equivalenceReason": "GITHUB_MAIN_MATCHES_RUNTIME_HF_OVERLAY_AND_ARTIFACT_DIGEST_UNAVAILABLE",
-      "claimGate": "FAILED_CLOSED",
-      "enforcementState": "FAILED_CLOSED",
-      "publicClaimStatus": "HELD",
-      "criticalFailures": [
-        "github_inventory_unavailable"
-      ],
-      "externalWrites": "DISABLED",
-      "automaticRetries": 0,
-      "effectors": [],
-      "canonicalSyncWorkflowRun": 34243871980,
-      "canonicalSyncConclusion": "PARTIAL_FAILURE_VERTICAL_FLAGSHIP_PUBLISH_ONLY",
-      "state": "SOURCE_PARITY_REPAIRED_BINDING_UNAVAILABLE"
+      "semanticParity": "MATCH",
+      "semanticSha256": "7de4d4911c0fcbb556783523a2267422ae0ec4d23a9fef252f799bc9b95e0296",
+      "completeArtifactBinding": "NOT_REOBSERVED_BY_ESTATE_VERIFIER",
+      "claimBoundary": "Exact source/runtime and semantic parity are observed; this does not establish a fresh Frontier-now immutable HF repository/artifact binding or authorize production promotion.",
+      "state": "SOURCE_RUNTIME_AND_SEMANTIC_PARITY_EXACT_AT_ESTATE_OBSERVATION"
     },
     "proof": {
       "origin": "https://a11oy.net",
       "ownerRepository": "szl-holdings/a11oy-net",
       "repositoryRevision": "97f33143f50d2fb615f83323114a707463fd034b",
-      "repairPullRequest": "https://github.com/szl-holdings/a11oy-net/pull/158",
-      "recordedAt": "2026-09-08T20:16:45.902Z",
-      "state": "CURRENT_FRONTIER_SOURCE_HF_EXACT_PRODUCT_SOURCE_MATCH_BINDING_UNAVAILABLE_RECORDED"
+      "deployedRevision": "97f33143f50d2fb615f83323114a707463fd034b",
+      "frontierRecordProductRevision": "002cd0c2edc8f38b297ae0394ecf8da12c06cc60",
+      "currentProductRevision": "e14af70d8fd24306e449db56450ad01fb524a857",
+      "contentParity": "STALE_PRODUCT_REVISION",
+      "previousRepairPullRequest": "https://github.com/szl-holdings/a11oy-net/pull/158",
+      "state": "DEPLOYMENT_SOURCE_EXACT_FRONTIER_RECORD_LAGS_CURRENT_PRODUCT_SOURCE"
     }
   },
   "latestEstateVerifier": {
     "repository": "szl-holdings/a11oy",
     "workflow": "Estate release train",
-    "run": 34263902847,
-    "job": 102188355196,
-    "headRevision": "002cd0c2edc8f38b297ae0394ecf8da12c06cc60",
+    "run": 34297559945,
+    "job": 102297362728,
+    "headRevision": "e14af70d8fd24306e449db56450ad01fb524a857",
+    "observedAt": "2026-09-09T01:23:06.689111Z",
     "conclusion": "failure",
     "failedStep": "Enforce aligned terminal state",
+    "releaseId": "d1b3d82e190549cefb0d87ce",
+    "actionsArtifactId": 10084191278,
+    "actionsArtifactSha256": "b5eed8c12736c1e28a076f5e73f48f51483703246251205f62b6a2976cc182f6",
+    "proofChainSha256": "b24aeefb2e6f92b93c027b85357f92ced2d3af28049a423ae1dc612f30c86fb5",
+    "providerWritesPerformed": false,
     "observedBlockingCodes": [
       "HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE",
       "lyte:SOURCE_REVISION_MISMATCH"
-    ],
-    "postRunRepair": "The run's stale proof pointer was subsequently advanced by a11oy-net PR 158. The Hub inventory and Lyte source-projection failures remain separately actionable until a later verifier run proves otherwise."
+    ]
   },
-  "remainingBlockers": [
+  "alignmentDrift": [
     {
-      "owner": "szl-holdings/a11oy",
-      "code": "PRODUCT_HF_ARTIFACT_BINDING_UNAVAILABLE",
-      "blocker": "The product summary does not expose a Hugging Face repository revision or runtime artifact digest, so exact product-to-HF/runtime-artifact equivalence cannot be established.",
-      "requiredEvidence": "Source-bound immutable HF repository revision and runtime artifact digest emitted by the canonical product deployment path and verified by readback.",
-      "effect": "Keep claim/enforcement gates FAILED_CLOSED and production HOLD."
-    },
-    {
-      "owner": "szl-holdings/a11oy",
+      "owner": "szl-holdings/.github",
       "code": "HF_INVENTORY_COUNT_MISMATCH_OR_UNAVAILABLE",
-      "blocker": "The latest estate verifier still cannot establish aligned Hugging Face inventory counts, while the product summary separately reports github_inventory_unavailable.",
-      "requiredEvidence": "Bounded successful GitHub and Hugging Face inventory observations from the same release vector, with unavailable/private surfaces left explicitly unknown rather than inferred.",
-      "effect": "Keep estate observation BLOCKED and public claims HELD."
+      "declaredCounts": {
+        "models": 45,
+        "datasets": 34,
+        "spaces": 17
+      },
+      "manifestCounts": {
+        "models": 45,
+        "datasets": 34,
+        "spaces": 17
+      },
+      "observedCounts": {
+        "models": 46,
+        "datasets": 35,
+        "spaces": 21
+      },
+      "profileRevision": "8f0ab3c9b561f7b1845726c7a21b491fa8e60f56",
+      "requiredEvidence": "Reconcile the source-bound estate profile/manifest against the actual Hugging Face organization inventory. Do not delete, hide, or rehost artifacts merely to make the counts match."
     },
     {
       "owner": "szl-holdings/lyte-services",
       "publisherOwner": "szl-holdings/a11oy",
       "trackingIssue": "https://github.com/szl-holdings/lyte-services/issues/18",
       "code": "lyte:SOURCE_REVISION_MISMATCH",
-      "blocker": "The estate verifier observed Lyte source projection drift. Canonical Lyte source is 72560fd5eb68cab08c40565c3c489e42c8442e72, while the Hub surface predates that September 8 source advance.",
-      "requiredEvidence": "Republish through the protected A11oy single-writer path from exact Lyte source 72560fd5eb68cab08c40565c3c489e42c8442e72, then read back Hub repository revision, runtime source identity and immutable artifact/served-byte digest.",
-      "effect": "Keep Lyte alignment unresolved and do not claim the flagship projection current."
+      "canonicalSourceRevision": "72560fd5eb68cab08c40565c3c489e42c8442e72",
+      "huggingFaceSpace": "SZLHOLDINGS/lyte",
+      "huggingFaceSpaceRepositoryRevision": "1ff1d239257a0166d784fef358b8a784f9309481",
+      "runtimeSourceRevision": "a6a653b0d93a0d150b868a044642ce4f5c71d766",
+      "requiredEvidence": "Run the established protected A11oy canonical writer path from the exact current source vector, then read back the Hub repository revision and live runtime source identity. Manual Hugging Face patching is not an acceptable repair."
     },
     {
+      "owner": "szl-holdings/a11oy-net",
+      "code": "PROOF_FRONTIER_RECORD_STALE_PRODUCT_REVISION",
+      "proofRevision": "97f33143f50d2fb615f83323114a707463fd034b",
+      "recordedProductRevision": "002cd0c2edc8f38b297ae0394ecf8da12c06cc60",
+      "currentProductRevision": "e14af70d8fd24306e449db56450ad01fb524a857",
+      "requiredEvidence": "Record the newer immutable estate observation without inventing a fresh Frontier-now summary digest. Preserve the earlier product-summary witness as historical evidence until a dedicated source-bound summary witness refreshes it."
+    }
+  ],
+  "holdConditions": [
+    {
       "owner": "szl-holdings/a11oy",
-      "code": "VERTICAL_FLAGSHIP_PUBLISH_PARTIAL_FAILURE",
-      "blocker": "Canonical sync run 34243871980 had a separate vertical-flagship publication failure even though deploy/source-bind, readiness and relock passed.",
-      "requiredEvidence": "Repair and rerun the failed publisher through normal controls before describing the workflow as fully green.",
-      "effect": "Do not represent the product deployment pipeline as fully green."
+      "code": "PRODUCT_HF_ARTIFACT_BINDING_NOT_REOBSERVED",
+      "reason": "The latest estate verifier proves source/runtime and semantic parity but does not expose a fresh source-bound Frontier-now Hugging Face repository revision plus runtime artifact digest.",
+      "effect": "Retain HOLD and failed-closed claim semantics until the dedicated normal control observes that binding."
     }
   ],
   "policy": {
@@ -135,32 +152,36 @@
     {
       "responsibility": "frontier catalog and governed integration-wave record",
       "repository": "szl-holdings/szl-frontier",
-      "action": "record this successor alignment state and retain HOLD"
+      "action": "record this successor observation and retain HOLD"
     },
     {
-      "responsibility": "product deployment identity, estate inventory observation and product-to-HF/runtime-artifact binding",
+      "responsibility": "canonical product and provider writers",
       "repository": "szl-holdings/a11oy",
-      "action": "close source-bound observation gaps under issue 2010 and normal deployment controls"
+      "action": "use only the existing exact-head repair workflow and normal deployment controls"
     },
     {
-      "responsibility": "Lyte canonical source and acceptance evidence",
+      "responsibility": "Hugging Face inventory source declaration",
+      "repository": "szl-holdings/.github",
+      "action": "reconcile declared/manifest cardinality with observed organization inventory"
+    },
+    {
+      "responsibility": "Lyte canonical source",
       "repository": "szl-holdings/lyte-services",
-      "action": "track exact-source republish/readback in issue 18 while A11oy remains the single publisher"
+      "action": "track exact-source republish/readback in issue 18"
     },
     {
       "responsibility": "proof/evidence registry",
       "repository": "szl-holdings/a11oy-net",
-      "action": "already repaired in PR 158; continue to project only witnessed evidence"
+      "action": "advance the Frontier proof record to the newer immutable estate observation without inventing a new product-summary witness"
     }
   ],
   "definitionOfDone": [
     "Frontier protected source and Hugging Face runtime remain exact at the same source revision",
-    "A11oy protected main and runtime source remain identical",
-    "A11oy exposes source-bound Hugging Face repository revision and runtime artifact digest or explicitly remains UNAVAILABLE",
-    "the estate verifier establishes bounded aligned GitHub and Hugging Face inventories or remains BLOCKED",
-    "Lyte is republished from exact canonical source and live readback no longer emits lyte:SOURCE_REVISION_MISMATCH",
-    "the separate vertical-flagship publisher is green before the canonical sync is described as fully successful",
-    "a11oy.net records the resulting exact bounded state without inferring capability",
+    "A11oy protected main, Hugging Face runtime, and a-11-oy.com runtime remain source-identical and semantically matched",
+    "Hugging Face inventory declarations are reconciled to a bounded observed organization inventory",
+    "Lyte is republished from exact canonical source through the protected single-writer path and live readback no longer emits lyte:SOURCE_REVISION_MISMATCH",
+    "a11oy.net records the current A11oy product revision as a new immutable estate observation while preserving prior summary evidence as historical",
+    "a dedicated product witness establishes immutable HF repository/artifact binding before any capability or production promotion claim",
     "production disposition remains HOLD unless independent normal promotion gates pass"
   ]
 }
