@@ -1,0 +1,124 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-10-hf-hub-130-repo-revision-binding",
+  "evaluatedAt": "2026-09-10T08:50:00Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "addf44cf863a254d38043da2e6fb8c38cab8c53b",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true,
+    "requiredEvidence": [
+      "exact-upstream-release-commit",
+      "annotated-tag-object",
+      "license-posture",
+      "repo-aware-revision-negative-path",
+      "serving-allowlist-non-regression",
+      "runtime-client-compatibility",
+      "rollback-or-fallback"
+    ]
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "catalogCodeSearchFor130": "0 matches before intake",
+    "catalogPullRequestSearchFor130": "0 matches before intake",
+    "estateIssueSearchFor130": "0 open matches before intake",
+    "priorWavesChecked": [
+      "2026-09-09-hf-kernel-0161-migration",
+      "2026-09-09-hf-tau-agent-harness",
+      "2026-09-09-hf-ghlore-project-memory",
+      "2026-09-10-hf-core-stack-5.17-1.15-1.13",
+      "Tau v0.4.2 stable-source successor"
+    ],
+    "existingEstateUse": [
+      "szl-holdings/a11oy#2037 already merged requirements-audit.txt from huggingface_hub 1.29.0 to 1.30.0",
+      "A11oy runtime Dockerfile remains at 1.29.0 at observed source; specialized workflows retain older purpose-specific pins"
+    ],
+    "result": "material missing provenance/runtime contract; not ordinary dependency inventory"
+  },
+  "candidate": {
+    "id": "huggingface-hub-v1-30-0-repo-aware-revision-binding",
+    "kind": "deployment-provenance-infrastructure",
+    "priority": "P0",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/huggingface_hub",
+    "release": {
+      "version": "1.30.0",
+      "tag": "v1.30.0",
+      "publishedAt": "2026-09-03T09:42:41Z",
+      "releaseCommit": "48ef2781c2c4c2247431c97efcd5487e89d42732",
+      "annotatedTagObject": "103720584dcc9865259dc5165f1a42e0bdea15d5",
+      "tagSignatureVerified": false,
+      "license": "Apache-2.0",
+      "primarySources": [
+        "https://github.com/huggingface/huggingface_hub/releases/tag/v1.30.0",
+        "https://github.com/huggingface/huggingface_hub/commit/48ef2781c2c4c2247431c97efcd5487e89d42732"
+      ]
+    },
+    "materialChanges": [
+      "ResolvedRevision now carries repository identity (repo_id and repo_type) so a resolution object cannot silently act as a repository-independent commit authority.",
+      "Passing a ResolvedRevision to a different repository causes the requested revision to be resolved for that repository instead of reusing the old repository's commit oid.",
+      "hf-inference chat-completion eligibility no longer requires the conversational tag and can include text-generation or image-text-to-text pipeline-tagged models; SZL policy must remain stricter and independent.",
+      "Hub-host redirects used during file resolution are followed without forwarding Authorization off-Hub or following CDN redirects."
+    ],
+    "predecessorSecurityBaseline": {
+      "version": "1.29.0",
+      "releaseCommit": "4237d95c603db491cb1070898c74c97e4d7c2582",
+      "requirements": [
+        "Preserve bucket-sync validation that rejects anchored/traversing remote keys escaping the selected destination.",
+        "Preserve safetensors detection that prevents an index-declared safetensors shard named .safetensors from falling through to pickle deserialization."
+      ]
+    },
+    "riskBoundaries": {
+      "resolvedRevision": "A receipt is authoritative only for the named repo_id, repo_type, requested revision, and resolved exact commit together.",
+      "inferenceEligibility": "Upstream provider eligibility is availability metadata only and cannot add a model to an SZL serving allowlist or production route.",
+      "unsignedReleaseTag": "The upstream annotated tag is observed but not cryptographically signature-verified; qualification binds the dereferenced exact release commit and records this limitation.",
+      "specializedPins": "Do not blanket-upgrade workflows with older explicit Hub-client pins; each path requires compatibility evidence and ownership review."
+    },
+    "status": "EVALUATION"
+  },
+  "estateAlignment": {
+    "catalog": "MISSING_BEFORE_THIS_WAVE",
+    "a11oyAuditPin": "1.30.0",
+    "a11oyRuntimeDockerPinObserved": "1.29.0",
+    "classification": "TARGETED_CLIENT_VERSION_AND_PROVENANCE_DRIFT",
+    "repairOwner": "szl-holdings/a11oy",
+    "repairRule": "Align only exact-source-sensitive/runtime paths proven compatible; preserve purpose-specific older pins until separately evaluated."
+  },
+  "acceptance": [
+    "Bind the Frontier record to release commit 48ef2781c2c4c2247431c97efcd5487e89d42732 and tag object 103720584dcc9865259dc5165f1a42e0bdea15d5.",
+    "Deterministically prove repository identity is part of any resolved-revision authority decision.",
+    "Reject or re-resolve any revision object presented for a repository other than the one it was resolved against.",
+    "Prove broadened upstream hf-inference eligibility cannot bypass the estate's own model allowlist, evaluation or production gates.",
+    "Retain v1.29 predecessor security behavior for bucket path traversal and safetensors/pickle separation.",
+    "Record exact installed client version and source evidence for runtime paths promoted to 1.30.0.",
+    "Keep production disposition HOLD until normal A11oy compatibility, source, runtime and rollback evidence passes."
+  ],
+  "routing": {
+    "catalogOwner": "szl-holdings/szl-frontier",
+    "runtimeClientOwner": "szl-holdings/a11oy",
+    "evaluationHarnessOwner": "szl-holdings/szl-forge",
+    "productOwner": "szl-holdings/a11oy",
+    "proofOwner": "szl-holdings/a11oy-net"
+  },
+  "alignment": {
+    "authorityChain": [
+      "GitHub source",
+      "Hugging Face artifact/runtime projection",
+      "a-11-oy.com product/runtime state",
+      "a11oy.net proof/evidence state"
+    ],
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "independentDriftNotSuperseded": [
+      "Any unresolved Lyte exact-source publication/readback blocker",
+      "Any unresolved live Hugging Face inventory declaration/profile convergence blocker"
+    ],
+    "claimBoundary": "This wave governs Hub-client source identity and compatibility only. It does not itself establish product-to-Hub artifact parity or production model qualification."
+  },
+  "tracking": {
+    "issue": "https://github.com/szl-holdings/szl-frontier/issues/63",
+    "branch": "frontier/hf-hub-130-repo-revision-binding-20260910"
+  }
+}
