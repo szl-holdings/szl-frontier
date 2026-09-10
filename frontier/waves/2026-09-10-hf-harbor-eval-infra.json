@@ -16,14 +16,15 @@
     "publisher": "Hugging Face",
     "repository": "huggingface/harbor-hf",
     "upstream": {
-      "observedRevision": "b64bf326dc5193675da84c560a37e04759c8289a",
-      "observedAt": "2026-09-10T11:24:04Z",
+      "observedRevision": "ba67b21d625227abf084eba7b605737e4a057575",
+      "observedAt": "2026-09-10T13:24:56Z",
+      "priorObservedRevision": "b64bf326dc5193675da84c560a37e04759c8289a",
       "releaseState": "MAIN_ONLY_WATCH",
       "revisionPolicy": "Qualification is pinned to this exact observed commit; moving main requires deliberate re-observation."
     },
     "materialChanges": [
       "First-party Hugging Face infrastructure for reproducible Harbor benchmark execution on Hugging Face infrastructure.",
-      "Current exact head adds pinned QEMU-fixed diagnostic presets and held-50 diagnostic preset publication, making environment reproducibility and failure isolation directly relevant to SZL evaluation governance.",
+      "Current exact head adds a six-hour fixed diagnostic suite and held-50 repetitions, extending the prior QEMU-fixed diagnostic preset work and making long-duration repeatability/failure isolation directly relevant to SZL evaluation governance.",
       "Provides an evaluation-infrastructure lane distinct from model, inference, retrieval, agent-memory, and kernel admissions already represented in the Frontier catalog."
     ],
     "evaluation": {
@@ -32,6 +33,7 @@
       "acceptance": [
         "Use only fixed public/non-secret benchmark fixtures for the first evaluation.",
         "Record exact upstream commit, environment image/preset identity, benchmark input digest and output receipt.",
+        "Include short-run and long-duration repeatability checks; do not infer deterministic behavior from one successful run.",
         "Prove rerun determinism or explicitly quantify nondeterminism under the same pinned environment.",
         "Fail closed when required QEMU/runtime/backend capability is unavailable; UNAVAILABLE is valid evidence and must not be converted to PASS.",
         "Do not grant deployment, merge, secret, provider-write or production-route authority to the benchmark runner.",
@@ -42,7 +44,7 @@
   },
   "deduplication": {
     "canonicalCatalogChecked": true,
-    "estateIssueAndPullRequestSearch": "no prior harbor-hf intake found",
+    "estateIssueAndPullRequestSearch": "no prior harbor-hf intake found outside this governed wave",
     "result": "material non-duplicate evaluation infrastructure candidate"
   },
   "alignment": {
