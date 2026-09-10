@@ -1,0 +1,23 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+
+const wave = JSON.parse(fs.readFileSync("frontier/waves/2026-09-10-hf-repo2rlenv-synthesis.json", "utf8"));
+assert.equal(wave.schema, "szl.frontier.integration-wave.v1");
+assert.equal(wave.policy.defaultEffect, "hold");
+assert.equal(wave.policy.automaticProductionPromotion, false);
+assert.equal(wave.candidate.repository, "huggingface/Repo2RLEnv");
+assert.equal(wave.candidate.upstream.functionalRelease, "v0.8.7");
+assert.equal(wave.candidate.upstream.observedRevision, "d1f7677265b10ae5deec1b9cc43425d715564d47");
+assert.match(wave.candidate.upstream.observedRevision, /^[0-9a-f]{40}$/);
+assert.equal(wave.candidate.upstream.latestReleaseClassification, "DOCS_INFRA_ONLY_BYTE_IDENTICAL_TO_V0_8_7");
+assert.equal(wave.candidate.evaluation.owner, "szl-holdings/szl-forge");
+const risks = wave.candidate.riskBoundaries.join("\n");
+assert.match(risks, /No private repositories/i);
+assert.match(risks, /No external LLM\/provider calls/i);
+const acceptance = wave.candidate.evaluation.acceptance.join("\n");
+assert.match(acceptance, /oracle\/gold patch/i);
+assert.match(acceptance, /UNAVAILABLE separately from FAIL/i);
+assert.match(acceptance, /Do not publish generated datasets/i);
+assert.equal(wave.alignment.productionDisposition, "HOLD");
+assert.equal(wave.alignment.automaticPromotion, false);
+console.log("Repo2RLEnv synthesis governed intake: PASS");
