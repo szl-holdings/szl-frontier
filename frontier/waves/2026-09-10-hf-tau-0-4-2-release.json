@@ -1,0 +1,117 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-10-hf-tau-0-4-2-release",
+  "evaluatedAt": "2026-09-10T08:18:22Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "ac02cdfbe6708643d6995b164e649fba4527c243",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true,
+    "requiredEvidence": [
+      "exact-release-tag-revision",
+      "license-posture",
+      "exact-install-or-build-receipt",
+      "deterministic-task-corpus",
+      "session-backward-compatibility",
+      "streaming-and-provider-negative-paths",
+      "bounded-tool-authority",
+      "baseline-comparison",
+      "rollback-or-disable-path"
+    ]
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorCanonicalWave": "2026-09-09-hf-tau-agent-harness",
+    "priorQualificationRevision": "bdbc72baa071d568528bd1b2b07b90dc0e0bf0c4",
+    "estatePullRequestSearchForExactRelease": "0 prior pull requests matched Tau 0.4.2 or 55df51608b8b2d172c4bbac2cd11e8345e307476 before this wave",
+    "result": "material successor release; preserve historical intake and rebind evaluation deliberately"
+  },
+  "candidate": {
+    "id": "huggingface-tau-0-4-2-agent-harness",
+    "kind": "agent-framework",
+    "priority": "P1",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/tau",
+    "release": {
+      "name": "Tau 0.4.2",
+      "tag": "v0.4.2",
+      "revision": "55df51608b8b2d172c4bbac2cd11e8345e307476",
+      "publishedAt": "2026-09-10T06:57:17Z",
+      "prerelease": false,
+      "license": "MIT",
+      "source": "https://github.com/huggingface/tau/releases/tag/v0.4.2",
+      "tagSource": "https://github.com/huggingface/tau/tree/55df51608b8b2d172c4bbac2cd11e8345e307476"
+    },
+    "supersedesForEvaluation": {
+      "wave": "2026-09-09-hf-tau-agent-harness",
+      "revision": "bdbc72baa071d568528bd1b2b07b90dc0e0bf0c4",
+      "historicalReceiptPreserved": true,
+      "reason": "A first stable release observed after the original unreleased exact-source intake provides a stronger reproducibility boundary for the pending Forge evaluation."
+    },
+    "materialChanges": [
+      "Persistent per-entry session-tree labels/bookmarks and first-class custom_message extension entries change the durable agent-memory contract.",
+      "Live OpenAI Codex subscription model-catalog discovery changes provider/model selection behavior and requires bounded drift tests rather than trusting a static catalog.",
+      "Session storage and compaction semantics changed while retaining backward-compatible replay for older session files.",
+      "Usage accounting now includes compaction and branch-summary calls with provider and routed-provider attribution.",
+      "Streaming fixes preserve interleaved reasoning/answer blocks and reject or retry incomplete Anthropic-compatible SSE instead of accepting empty frames.",
+      "Provider/runtime fixes include Z.AI thinking serialization and shell stdin disconnection after command execution."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "mode": "BOUNDED_SANDBOX_ONLY",
+      "baseline": "current Forge/Codex governed agent path",
+      "requiredComparisons": [
+        "task success and patch correctness",
+        "deterministic test pass rate",
+        "tool-call determinism and command boundaries",
+        "session replay, branching, labels, custom messages and compaction behavior",
+        "streaming block ordering and incomplete-stream failure behavior",
+        "provider/model-catalog change handling without authority expansion",
+        "latency and resource use",
+        "rollback and unavailable-provider behavior"
+      ],
+      "security": [
+        "no autonomous merge or deploy authority",
+        "no secret or branch-protection mutation authority",
+        "live model discovery is data only and cannot authorize a new provider, model, route or production default",
+        "project instructions, custom messages, terminal output and model responses remain untrusted inputs unless policy-authenticated",
+        "filesystem and subprocess access remain confined to the explicit evaluation workspace and existing Forge allow/deny policy"
+      ],
+      "acceptance": [
+        "bind all evaluation evidence to exact release revision 55df51608b8b2d172c4bbac2cd11e8345e307476",
+        "record an exact install/build receipt and dependency/license inventory",
+        "replay representative pre-0.4.2 session fixtures and prove backward-compatible behavior or record precise incompatibility",
+        "test session labels and custom_message persistence without permitting those values to become policy authority",
+        "test interleaved reasoning/answer ordering and incomplete Anthropic-compatible SSE failure/retry semantics",
+        "test live Codex catalog additions/removals as untrusted discovery that cannot alter production routing",
+        "test timeout, path escape, denied command, unavailable provider and rollback/disable paths",
+        "compare the same fixed non-secret task corpus against the existing governed baseline"
+      ]
+    },
+    "status": "EVALUATION"
+  },
+  "routing": {
+    "catalogOwner": "szl-holdings/szl-frontier",
+    "evaluationImplementationOwner": "szl-holdings/szl-forge",
+    "sharedPolicyOwner": "szl-holdings/.github",
+    "productOwner": "szl-holdings/a11oy",
+    "proofOwner": "szl-holdings/a11oy-net"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "productProjectionAuthorized": false,
+    "proofProjectionAuthorized": false,
+    "independentDriftNotSuperseded": [
+      "szl-holdings/.github#728 public inventory/profile declaration convergence",
+      "szl-holdings/a11oy#2010 lyte:SOURCE_REVISION_MISMATCH"
+    ],
+    "claimBoundary": "This successor wave only rebinds the pending Tau evaluation to a stable exact release. It does not establish Tau runtime qualification, production benefit, A11oy exposure, or autonomous coding authority."
+  },
+  "tracking": {
+    "frontierIssue": "https://github.com/szl-holdings/szl-frontier/issues/56",
+    "forgeIssue": "https://github.com/szl-holdings/szl-forge/issues/206"
+  }
+}
