@@ -1,0 +1,61 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-10-hf-repo2rlenv-synthesis",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "8675f27c4af4fb57a988cf49e57a3204699794f0",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "huggingface-repo2rlenv",
+    "kind": "verifiable-rl-environment-synthesis",
+    "priority": "P1",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/Repo2RLEnv",
+    "upstream": {
+      "functionalRelease": "v0.8.7",
+      "observedRevision": "d1f7677265b10ae5deec1b9cc43425d715564d47",
+      "license": "Apache-2.0",
+      "latestReleaseObserved": "v0.8.8",
+      "latestReleaseClassification": "DOCS_INFRA_ONLY_BYTE_IDENTICAL_TO_V0_8_7",
+      "revisionPolicy": "Evaluate the exact functional-release commit. Do not infer new capability from the docs-only v0.8.8 tick or moving main."
+    },
+    "materialChanges": [
+      "Synthesizes verifiable coding-agent training/evaluation environments from repository history and tests.",
+      "Stable pr_runtime and commit_runtime pipelines use executable test-based rewards and emit Harbor-compatible content-addressed tasks.",
+      "Complements but does not duplicate Harbor: Repo2RLEnv is the task/environment synthesis plane; Harbor is the execution/benchmark plane."
+    ],
+    "riskBoundaries": [
+      "First evaluation uses only fixed public non-secret repositories at exact source refs.",
+      "No private repositories, production credentials, Hugging Face writes, or training-corpus admission.",
+      "No external LLM/provider calls unless a successor authorization explicitly permits them.",
+      "Repository builds execute only in disposable isolated containers with bounded resources and no production network/secret authority.",
+      "Generated tasks must be tested for gold-patch/oracle leakage, provenance completeness, reward validity, and reproducibility."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "mode": "BOUNDED_SYNTHESIS_EVALUATION_ONLY",
+      "acceptance": [
+        "Pin source repository, base revision, mined PR/commit identity, pipeline and generated task content hash.",
+        "Generate from a small fixed public fixture corpus and compare reruns for stable task identities and reward behavior.",
+        "Reject tasks whose instruction, fixtures, metadata, or verifier leak the oracle/gold patch beyond the declared reward contract.",
+        "Fail closed on bootstrap/build/test failure and preserve UNAVAILABLE separately from FAIL.",
+        "Do not publish generated datasets or admit them to training until rights, contamination, quality and provenance gates separately pass."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "estateIssueAndPullRequestSearch": "no prior Repo2RLEnv intake found",
+    "harborRelationship": "complementary synthesis layer, not duplicate runtime layer"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "Environment synthesis evidence does not authorize training, model qualification, dataset publication, provider routing, or production serving."
+  }
+}
