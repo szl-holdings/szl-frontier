@@ -1,0 +1,64 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-10-hf-harbor-provider-refs",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "2094061aa783c8c7aa89adc7b530a41de3469208",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "huggingface-harbor-hf-provider-refs",
+    "kind": "evaluation-deployment-and-credential-reference-infrastructure",
+    "priority": "P1",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/harbor-hf",
+    "upstream": {
+      "observedRevision": "271303d7a21fa595a5a71e46ce5524b0aff6bb9f",
+      "observedAt": "2026-09-10T18:05:32Z",
+      "priorObservedRevision": "ba67b21d625227abf084eba7b605737e4a057575",
+      "commitsAhead": 3,
+      "releaseState": "MAIN_ONLY_WATCH",
+      "revisionPolicy": "Evaluation is pinned to this exact commit. Moving main cannot inherit qualification."
+    },
+    "materialChanges": [
+      "Adds provider credential-reference registration and Workbench management without accepting or storing provider key values in the application contract.",
+      "Adds inference source and binding registries, explicit review/approval request contracts, provider-secret adapters, and dispatch/restart grant rechecks.",
+      "Registered credential selection denies legacy Hugging Face fallback; recipe/model/connection/registry or presence changes invalidate review.",
+      "Writes use expected-revision conflict control, but upstream explicitly supports one controller write authority and does not provide distributed CAS or locking.",
+      "Declared allowed hosts are review metadata rather than firewall enforcement, so network egress policy must remain independently enforced by SZL controls.",
+      "Disabling a credential reference denies new admission/restart but does not remotely revoke already-running workers."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "mode": "BOUNDED_SECRET_REFERENCE_AND_INFERENCE_BINDING_EVALUATION_ONLY",
+      "acceptance": [
+        "Use synthetic secret names and mock presence only; no real credential value may enter source, fixtures, logs, receipts, prompts or benchmark output.",
+        "Prove reference-only storage and reject any key-value persistence or disclosure path.",
+        "Prove recipe, model, connection, registry and credential-presence changes invalidate prior review and confirmation.",
+        "Prove expected-revision conflicts fail closed and uncertain network-save outcomes require readback rather than blind retry.",
+        "Prove selected registered references never fall back to legacy Hugging Face credentials when missing, disabled or unauthorized.",
+        "Prove dispatch and restart recheck the same exact grant and reviewed binding.",
+        "Treat declared hosts as non-enforcing metadata and require an independent egress allowlist/firewall witness before any provider call is eligible.",
+        "Exercise the single-writer invariant; multiple concurrent controller authorities are unsupported and must fail the SZL qualification gate.",
+        "Keep native key-only/null-URL bindings distinct from chat-completions/responses bindings that require an explicitly reviewed non-null base URL and model_base_url.",
+        "Record already-running-worker revocation as unsupported and require a separate termination/rotation control before production consideration."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWave": "2026-09-10-hf-harbor-eval-infra",
+    "priorRevision": "ba67b21d625227abf084eba7b605737e4a057575",
+    "result": "material successor observation; preserves prior reproducibility evidence while refreshing the exact source for credential-reference evaluation"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "Secret-reference and inference-binding mechanics are evaluation inputs only. No provider credential, provider route, worker launch, deployment, model qualification or production authority is granted."
+  },
+  "trackingIssue": 72
+}
