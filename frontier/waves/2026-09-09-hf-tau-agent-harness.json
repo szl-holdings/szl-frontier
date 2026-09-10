@@ -1,0 +1,110 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-09-hf-tau-agent-harness",
+  "evaluatedAt": "2026-09-09T23:35:00Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "1a79085d0cf7da93dd9cc1fd5a56e14f37209586",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true,
+    "requiredEvidence": [
+      "exact-upstream-revision",
+      "license-posture",
+      "deterministic-task-corpus",
+      "bounded-tool-authority",
+      "subprocess-and-path-isolation",
+      "provider-unavailable-negative-path",
+      "baseline-comparison",
+      "rollback-or-disable-path"
+    ]
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "exactCodeSearch": "0 matches for huggingface/tau on protected main before intake",
+    "estateIssueSearch": "0 prior matching issues before #56",
+    "estatePullRequestSearch": "0 prior matching pull requests",
+    "notDuplicateOf": [
+      "huggingface/ghlore repository-history retrieval memory",
+      "existing szl-forge/Codex execution authority"
+    ],
+    "result": "one material non-duplicate agent-harness evaluation candidate"
+  },
+  "candidate": {
+    "id": "huggingface-tau-agent-harness",
+    "kind": "agent-framework",
+    "priority": "P1",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/tau",
+    "upstream": {
+      "observedRevision": "bdbc72baa071d568528bd1b2b07b90dc0e0bf0c4",
+      "observedRevisionAt": "2026-09-09T12:55:01Z",
+      "license": "MIT",
+      "revisionPolicy": "Qualification is pinned to the observed 40-character commit; moving main is WATCH only until deliberately rebound."
+    },
+    "materialProperties": [
+      "portable event-driven AgentHarness separated from CLI/TUI",
+      "provider-neutral model integration including Hugging Face and OpenAI-compatible endpoints",
+      "typed file/shell tool surface",
+      "durable append-oriented session history with resume and branching",
+      "project instructions and skills support",
+      "small readable implementation suitable for bounded architectural comparison"
+    ],
+    "latestObservedChange": {
+      "revision": "bdbc72baa071d568528bd1b2b07b90dc0e0bf0c4",
+      "summary": "Drop persisted leaf session entries while retaining legacy deserialization compatibility and preventing redundant history recursion.",
+      "disposition": "WATCH_EXACT_SOURCE"
+    },
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "mode": "BOUNDED_SANDBOX_ONLY",
+      "baseline": "current Forge/Codex governed agent path",
+      "requiredComparisons": [
+        "task success and patch correctness",
+        "deterministic test pass rate",
+        "tool-call determinism",
+        "session/context behavior",
+        "latency and resource use",
+        "provider/backend failure behavior"
+      ],
+      "security": [
+        "no autonomous merge or deploy authority",
+        "no secret or branch-protection mutation authority",
+        "commands remain policy-bounded and fail closed",
+        "project instructions, terminal output and model text remain untrusted inputs",
+        "filesystem access is confined to an explicit evaluation workspace"
+      ],
+      "acceptance": [
+        "bind all evidence to exact upstream revision bdbc72baa071d568528bd1b2b07b90dc0e0bf0c4",
+        "run a fixed non-secret repository and versioned task corpus",
+        "record exact install/build receipt and dependency/license inventory",
+        "prove timeout, subprocess isolation and path-boundary behavior",
+        "prove provider-unavailable and forbidden-command paths fail closed",
+        "compare against the same task corpus on the existing governed baseline",
+        "record clean disable/rollback before any successor adoption wave"
+      ]
+    },
+    "status": "EVALUATION"
+  },
+  "routing": {
+    "catalogOwner": "szl-holdings/szl-frontier",
+    "evaluationImplementationOwner": "szl-holdings/szl-forge",
+    "sharedPolicyOwner": "szl-holdings/.github",
+    "productOwner": "szl-holdings/a11oy",
+    "proofOwner": "szl-holdings/a11oy-net"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "independentDriftNotSuperseded": [
+      "szl-holdings/.github#728 HF inventory predicate/scope mismatch",
+      "szl-holdings/lyte-services#18 Lyte source projection mismatch"
+    ],
+    "claimBoundary": "This wave is an agent-harness evaluation intake only. It does not grant execution authority beyond existing Forge controls and does not change A11oy product/runtime claims."
+  },
+  "tracking": {
+    "issue": "https://github.com/szl-holdings/szl-frontier/issues/56",
+    "branch": "frontier/hf-tau-agent-harness-20260909"
+  }
+}
