@@ -1,0 +1,119 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-10-hf-core-stack",
+  "evaluatedAt": "2026-09-10T02:15:00Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "770660996be5a1bd35ddf8f20843b4a08232be9c",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true,
+    "requiredEvidence": [
+      "exact-upstream-release-revision",
+      "dependency-and-license-posture",
+      "deterministic-compatibility-matrix",
+      "negative-path-tests",
+      "measured-performance-only-when-claimed",
+      "rollback-or-fallback"
+    ]
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "issueAndPullRequestSearchChecked": true,
+    "excludedAlreadyRepresented": [
+      "Hy4 model-level qualification",
+      "NeoMME model-level qualification",
+      "TRL structured-output/GRPO recipe intake",
+      "HF Kernel Hub 0.16.1 first-class repository migration"
+    ],
+    "result": "one coordinated non-duplicate HF core-stack compatibility wave"
+  },
+  "releases": [
+    {
+      "repository": "huggingface/transformers",
+      "version": "5.17.0",
+      "tag": "v5.17.0",
+      "tagObject": "595ff117c8412ec01262084058276e6b27a857d9",
+      "revision": "856157a2f3e9594954310df18fdccc31ffddebe9",
+      "publishedAt": "2026-09-09T15:42:45Z",
+      "materialChanges": [
+        "Adds HYV4, VibeVoice, NeoMME/NeoMME-Retriever, Fun-ASR-Nano, KimiLinear and Canary architecture support.",
+        "Generation avoids unnecessary accelerator synchronization on every decode step and no longer unconditionally downloads remote Hub files.",
+        "Paged-attention invocation without a cache now fails explicitly rather than silently continuing.",
+        "Hub-kernel fallback to a slower reference PyTorch implementation is surfaced with a warning and KernelConfig can register standalone functions.",
+        "Vision 2D/3D rotary embedding frequency computation is centralized, creating a compatibility obligation for custom vision code."
+      ],
+      "qualificationBoundary": "Framework compatibility only. Already-admitted Hy4 and NeoMME model work is not duplicated; new speech/model families require separate source/license/model qualification before use."
+    },
+    {
+      "repository": "huggingface/accelerate",
+      "version": "1.15.0",
+      "tag": "v1.15.0",
+      "tagObject": "7e947192e1e7defb63341c98607a3c7e46413949",
+      "revision": "6afc1e5ee217051fde702b23de2813344dc0fd33",
+      "publishedAt": "2026-09-09T13:30:33Z",
+      "materialChanges": [
+        "FSDP2 activation checkpointing wraps the matched transformer layer instead of each child, reducing retained activation state at long sequence lengths.",
+        "Adds FSDP2 activation checkpoint input offload to pinned CPU memory.",
+        "Fixes tied embeddings on torch >=2.13 and FSDP2/PEFT FULL_STATE_DICT adapter shard loss.",
+        "Improves DTensor gradient clipping and leaves already-sharded models in place during prepare_model.",
+        "Adds full-model disk offload including tied weights and explicit refusal of context parallelism for sliding-window/chunked-attention models."
+      ],
+      "qualificationBoundary": "Training/runtime compatibility only; hardware-specific paths may report UNAVAILABLE and must not be simulated."
+    },
+    {
+      "repository": "huggingface/trl",
+      "version": "1.13.0",
+      "tag": "v1.13.0",
+      "tagObject": "88f6b5a0002ff18e0a917149a8f235e4cdc2b72c",
+      "revision": "3d9261f1fec9f9a8140099c78a65c7da73dce79c",
+      "publishedAt": "2026-09-10T00:50:26Z",
+      "materialChanges": [
+        "Adds a documented runnable path for training sequences beyond one million tokens using chunked_nll, checkpoint offload and YaRN where applicable.",
+        "Moves chunked_nll lm_head projection onto bf16 tensor-core execution instead of repeated fp32 materialization.",
+        "Vendors fused linear DPO, KTO, GRPO and JSD losses into trl.losses with parity claims against the prior Liger implementation.",
+        "Adds vLLM 0.28 support and fail-fast behavior for incompatible/default Async GRPO weight transfer.",
+        "Removes PPOTrainer/PPOConfig/value-head legacy APIs and raises dependency floors for PEFT and DeepSpeed."
+      ],
+      "upstreamEvidenceOnly": {
+        "example": "Qwen3-8B at 1,048,576 tokens on one 8xH100 node",
+        "reportedStepSeconds": 380,
+        "reportedGbPerGpu": 56.2,
+        "claimBoundary": "Upstream release evidence only; not an SZL benchmark or production qualification."
+      },
+      "qualificationBoundary": "Post-training compatibility/performance evaluation only. No automatic dependency or training-default promotion."
+    }
+  ],
+  "evaluation": {
+    "owner": "szl-holdings/szl-forge",
+    "mode": "BOUNDED_COMPATIBILITY_AND_PERFORMANCE_EVALUATION",
+    "required": [
+      "Install/build only from the three pinned release revisions or source-bound release artifacts.",
+      "Run deterministic import/API compatibility tests against current Forge training and inference surfaces.",
+      "Test FSDP2 activation checkpointing/offload, checkpoint save-load, DTensor clipping and PEFT state handling where hardware permits; report UNAVAILABLE otherwise.",
+      "Test TRL chunked_nll, fused-loss parity, long-context configuration validation, vLLM fail-fast behavior and explicit migration handling for removed PPO APIs.",
+      "Test Transformers generation no-unconditional-download behavior, cache negative paths, kernel fallback visibility and estate vision-RoPE compatibility.",
+      "Record dependency closure, environment, receipts, deterministic outputs and rollback to the prior known-good stack."
+    ]
+  },
+  "routing": {
+    "catalogOwner": "szl-holdings/szl-frontier",
+    "evaluationOwner": "szl-holdings/szl-forge",
+    "productOwner": "szl-holdings/a11oy",
+    "proofOwner": "szl-holdings/a11oy-net"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "independentDriftNotSuperseded": [
+      "szl-holdings/.github#728 HF inventory predicate/scope mismatch",
+      "szl-holdings/lyte-services#18 Lyte source projection mismatch"
+    ],
+    "claimBoundary": "This wave does not repair or hide existing GitHub -> Hugging Face -> product -> proof drift and does not authorize product/runtime exposure."
+  },
+  "tracking": {
+    "issue": "https://github.com/szl-holdings/szl-frontier/issues/60",
+    "branch": "frontier/hf-core-stack-20260910"
+  }
+}
