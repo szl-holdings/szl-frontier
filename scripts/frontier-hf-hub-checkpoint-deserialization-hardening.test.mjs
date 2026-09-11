@@ -42,6 +42,10 @@ assert.equal(
 );
 assert.equal(wave.deduplication.existingStableEvaluation.pullRequest, 216);
 assert.equal(wave.deduplication.trackingIssue, 87);
+assert.deepEqual(wave.deduplication.implementationOwner, {
+  repository: "szl-holdings/szl-forge",
+  issue: 237,
+});
 assert.equal(wave.deduplication.exactCommitPreviouslyCataloged, false);
 assert.equal(wave.deduplication.classification, "unreleased-security-successor");
 
@@ -82,6 +86,7 @@ assert.match(evidence, /legacy safe=false compatibility/i);
 
 assert.match(wave.authorityChain.productRuntime, /HOLD/);
 assert.match(wave.authorityChain.proofEvidence, /HOLD/);
+assert.ok(wave.remainingGates.some((gate) => /szl-holdings\/szl-forge#237/i.test(gate)));
 assert.ok(wave.remainingGates.some((gate) => /stable Hub 1\.31/i.test(gate)));
 assert.ok(wave.remainingGates.some((gate) => /released successor/i.test(gate)));
 
