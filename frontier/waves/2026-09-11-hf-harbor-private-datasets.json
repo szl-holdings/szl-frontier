@@ -1,0 +1,62 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-11-hf-harbor-private-datasets",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "7c538464e48b81c99371a7d2e47b2b3b4c1b4357",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "huggingface-harbor-hf-private-datasets",
+    "kind": "evaluation-data-source-and-credential-boundary-infrastructure",
+    "priority": "P0",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/harbor-hf",
+    "upstream": {
+      "observedRevision": "8685727908e8d9ee5ccde48586864a851e24ff79",
+      "observedAt": "2026-09-11T13:10:45Z",
+      "priorObservedRevision": "271303d7a21fa595a5a71e46ce5524b0aff6bb9f",
+      "commitsAhead": 7,
+      "releaseState": "MAIN_ONLY_WATCH",
+      "revisionPolicy": "Evaluation is pinned to this exact commit. Moving main cannot inherit qualification."
+    },
+    "materialChanges": [
+      "Adds private Hugging Face Dataset sources through a Git credential helper restricted to huggingface.co instead of embedding credentials in repository URLs.",
+      "Control-side validation may receive HF_TOKEN while catalog discovery remains secret-free and inference/GitHub credentials remain separate.",
+      "Adds Git LFS to control and parent images so admitted private Dataset repositories can materialize LFS objects; missing Git LFS fails before source resolution.",
+      "Private-source admission is required to fail closed before model inference when token, source access or materialization prerequisites are unavailable.",
+      "Adds moving-Jobs pagination and reconciliation hardening so mutable remote job listings do not silently become complete-history evidence.",
+      "The upstream implementation explicitly requires token non-disclosure in source, arguments, responses, browser payloads and logs."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "mode": "BOUNDED_PRIVATE_DATASET_SOURCE_SECURITY_EVALUATION_ONLY",
+      "acceptance": [
+        "Use only a purpose-created non-sensitive private Dataset or a deterministic synthetic equivalent; no production/private business corpus is admitted by this wave.",
+        "Pin the Dataset repository and revision/content inventory exactly and record cryptographic digests for every fixture consumed by the evaluator.",
+        "Prove the Git credential helper answers only for huggingface.co and that credentials are not embedded in clone URLs, argv, persisted config, output, logs, receipts or benchmark artifacts.",
+        "Prove catalog discovery remains secret-free and trial agent/model environments never receive the control HF_TOKEN unless a separately admitted contract requires it.",
+        "Prove missing token, denied repository access, missing Git LFS, LFS materialization failure and revision drift all fail before inference with explicit UNAVAILABLE/HOLD evidence.",
+        "Prove read-only Dataset access; no commit, upload, delete, grant change or visibility mutation is permitted by the evaluation credential.",
+        "Exercise rollback and credential rotation/revocation, including cached checkout cleanup and deterministic denial after access removal.",
+        "Treat moving Jobs pagination/reconciliation as observation only and require bounded scans plus explicit partial-history state rather than inferring completeness."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWave": "2026-09-10-hf-harbor-provider-refs",
+    "priorRevision": "271303d7a21fa595a5a71e46ce5524b0aff6bb9f",
+    "result": "material successor observation because private Dataset retrieval introduces a new credential, data-access and LFS materialization boundary"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "Private Dataset source support is evaluation infrastructure only. It does not authorize production corpus ingestion, token-scope broadening, training, model qualification, provider writes, serving-route changes or publication."
+  },
+  "trackingIssue": 83
+}
