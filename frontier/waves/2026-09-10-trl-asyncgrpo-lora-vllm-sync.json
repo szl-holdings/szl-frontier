@@ -1,0 +1,58 @@
+{
+  "schema": "szl.frontier.wave/v1",
+  "id": "2026-09-10-trl-asyncgrpo-lora-vllm-sync",
+  "observedAt": "2026-09-10T21:49:19-04:00",
+  "disposition": "EVALUATION",
+  "productionAuthorized": false,
+  "automaticPromotionAuthorized": false,
+  "candidate": {
+    "publisher": "Hugging Face",
+    "repository": "huggingface/trl",
+    "revision": "f540773f5250c816e992ae3d35a41142ef3625c0",
+    "committedAt": "2026-09-10T17:37:07Z",
+    "releaseStatus": "post-v1.13.0-main-commit",
+    "feature": "AsyncGRPO PEFT/LoRA with adapter-only vLLM synchronization"
+  },
+  "materialProperties": {
+    "adapterOnlySync": true,
+    "mergedWeightFallback": true,
+    "requiresExplicitVllmLoraEnablement": true,
+    "runtimeAdapterUpdateEndpointRequired": true,
+    "sharedFilesystemAdapterCache": true,
+    "stalenessVersionWindow": true,
+    "checkpointPersistenceRequired": true,
+    "hybridRecurrentLogprobDriftWarning": true,
+    "upstreamIllustrativeAdapterSync": "about 160 MB at LoRA rank 32 in the documented example",
+    "upstreamIllustrativeMergedSync": "about 15 GB for a 7B-class model in the documented example",
+    "upstreamIllustrativeLoraServingSlowdown": "about 1.33x to 1.39x per token in the upstream documented observation"
+  },
+  "deduplication": {
+    "canonicalStableTrlWave": "frontier/waves/2026-09-10-hf-core-stack-5.17-1.15-1.13.json",
+    "existingStableRuntimeEvaluation": "szl-holdings/szl-forge#216",
+    "exactFeatureAlreadyRepresented": false
+  },
+  "evaluationOwner": "szl-holdings/szl-forge",
+  "requiredEvaluation": [
+    "exact-commit install and dependency closure receipt",
+    "fixed non-secret local task and rollout corpus",
+    "adapter-only versus merged synchronization bytes and wall-clock pause",
+    "generation throughput under adapter serving versus merged serving",
+    "policy-version correctness across max_staleness windows",
+    "max_lora_rank and max_loras fail-closed boundary tests",
+    "adapter load-before-evict ordering and rollback",
+    "shared-filesystem path isolation and missing-storage failure",
+    "checkpoint survival after serving-cache eviction",
+    "server-without-LoRA and server-restart failure paths",
+    "hybrid recurrent-state/log-probability mismatch detection"
+  ],
+  "authority": {
+    "productionTrainingAuthorized": false,
+    "productionServingAuthorized": false,
+    "providerCredentialUseAuthorized": false,
+    "externalProviderWriteAuthorized": false,
+    "automaticRoutePromotionAuthorized": false,
+    "branchProtectionMutationAuthorized": false,
+    "weightRehostingAuthorized": false
+  },
+  "promotionRule": "Measured evaluation may advance evidence only; production requires a separate normal-control qualification with exact runtime, model, data, policy, rollback and proof bindings."
+}
