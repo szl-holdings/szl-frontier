@@ -22,9 +22,9 @@
     "stalenessVersionWindow": true,
     "checkpointPersistenceRequired": true,
     "hybridRecurrentLogprobDriftWarning": true,
-    "upstreamIllustrativeAdapterSyncBytes": 167772160,
-    "upstreamIllustrativeMergedSyncBytes": 16106127360,
-    "upstreamIllustrativeLoraServingSlowdownRange": [1.33, 1.39]
+    "upstreamIllustrativeAdapterSync": "about 160 MB at LoRA rank 32 in the documented example",
+    "upstreamIllustrativeMergedSync": "about 15 GB for a 7B-class model in the documented example",
+    "upstreamIllustrativeLoraServingSlowdown": "about 1.33x to 1.39x per token in the upstream documented observation"
   },
   "deduplication": {
     "canonicalStableTrlWave": "frontier/waves/2026-09-10-hf-core-stack-5.17-1.15-1.13.json",
