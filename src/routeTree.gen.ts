@@ -15,6 +15,7 @@ import { Route as AdversaryRouteImport } from './routes/adversary'
 import { Route as BrainRouteImport } from './routes/brain'
 import { Route as FrontierRouteImport } from './routes/frontier'
 import { Route as GatesRouteImport } from './routes/gates'
+import { Route as HarborRouteImport } from './routes/harbor'
 import { Route as IngestRouteImport } from './routes/ingest'
 import { Route as IntelRouteImport } from './routes/intel'
 import { Route as MemoryRouteImport } from './routes/memory'
@@ -50,6 +51,11 @@ const FrontierRoute = FrontierRouteImport.update({
 const GatesRoute = GatesRouteImport.update({
   id: '/gates',
   path: '/gates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HarborRoute = HarborRouteImport.update({
+  id: '/harbor',
+  path: '/harbor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IngestRoute = IngestRouteImport.update({
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/brain': typeof BrainRoute
   '/frontier': typeof FrontierRoute
   '/gates': typeof GatesRoute
+  '/harbor': typeof HarborRoute
   '/ingest': typeof IngestRoute
   '/intel': typeof IntelRoute
   '/memory': typeof MemoryRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/brain': typeof BrainRoute
   '/frontier': typeof FrontierRoute
   '/gates': typeof GatesRoute
+  '/harbor': typeof HarborRoute
   '/ingest': typeof IngestRoute
   '/intel': typeof IntelRoute
   '/memory': typeof MemoryRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/brain': typeof BrainRoute
   '/frontier': typeof FrontierRoute
   '/gates': typeof GatesRoute
+  '/harbor': typeof HarborRoute
   '/ingest': typeof IngestRoute
   '/intel': typeof IntelRoute
   '/memory': typeof MemoryRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/brain'
     | '/frontier'
     | '/gates'
+    | '/harbor'
     | '/ingest'
     | '/intel'
     | '/memory'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/brain'
     | '/frontier'
     | '/gates'
+    | '/harbor'
     | '/ingest'
     | '/intel'
     | '/memory'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/brain'
     | '/frontier'
     | '/gates'
+    | '/harbor'
     | '/ingest'
     | '/intel'
     | '/memory'
@@ -178,6 +190,7 @@ export interface RootRouteChildren {
   BrainRoute: typeof BrainRoute
   FrontierRoute: typeof FrontierRoute
   GatesRoute: typeof GatesRoute
+  HarborRoute: typeof HarborRoute
   IngestRoute: typeof IngestRoute
   IntelRoute: typeof IntelRoute
   MemoryRoute: typeof MemoryRoute
@@ -228,6 +241,13 @@ declare module '@tanstack/react-router' {
       path: '/gates'
       fullPath: '/gates'
       preLoaderRoute: typeof GatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/harbor': {
+      id: '/harbor'
+      path: '/harbor'
+      fullPath: '/harbor'
+      preLoaderRoute: typeof HarborRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ingest': {
@@ -282,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   BrainRoute: BrainRoute,
   FrontierRoute: FrontierRoute,
   GatesRoute: GatesRoute,
+  HarborRoute: HarborRoute,
   IngestRoute: IngestRoute,
   IntelRoute: IntelRoute,
   MemoryRoute: MemoryRoute,
