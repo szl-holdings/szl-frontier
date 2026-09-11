@@ -1,0 +1,61 @@
+{
+  "schema": "szl.frontier.wave.v1",
+  "id": "hf-ghlore-030-project-memory-2026-09-11",
+  "candidate": "huggingface/ghlore",
+  "category": "agent-retrieval-project-memory",
+  "observedAt": "2026-09-11T07:28:47Z",
+  "source": {
+    "repository": "huggingface/ghlore",
+    "revision": "87290a46c79e26ebb0d47575263b7ee34c1c1390",
+    "version": "0.3.0-source",
+    "license": "Apache-2.0",
+    "predecessorRevision": "82fd2b25be9205025afa43c334a578307b95d7b4",
+    "commitsAheadOfPredecessor": 19,
+    "formalGitHubReleaseObserved": false
+  },
+  "materialDelta": [
+    "client-daemon wire-version compatibility now fails closed across version mismatch",
+    "explicit trust-network serving mode makes network-perimeter trust an opt-in deployment assumption instead of implicit unauthenticated exposure",
+    "repository-scoped inflight relationships expose open pull requests that claim to fix or close a thread",
+    "retrieved prose is marked per-line as untrusted while tool-generated assertions remain distinguishable",
+    "focus now orders project-history results instead of filtering away unmatched thread context",
+    "thread results report body and changed-file truncation so absence is not misread as evidence",
+    "code-reference and repository-map retrieval semantics were corrected and expanded",
+    "daemon deployment, CLI transport, schema, migration and deterministic test surfaces materially expanded"
+  ],
+  "riskBoundaries": [
+    "trust-network remains disabled unless an independently enforced private-network perimeter is proven",
+    "retrieved issue pull-request and review text remains untrusted data and never instruction or policy authority",
+    "inflight claims are advisory evidence and never merge skip close or code-change authority",
+    "anonymous or evaluation labeling must not write to production or upstream corpora from the SZL evaluation lane",
+    "private sensitive source history is excluded from the first evaluation corpus",
+    "current source and tests must be re-opened before historical rationale is used to justify a change",
+    "no moving-main dependency is qualified"
+  ],
+  "requiredEvaluation": [
+    "exact-install-build-receipt",
+    "wire-version-mismatch-refusal",
+    "trust-network-default-off-and-perimeter-negative-path",
+    "read-only-ingestion-and-zero-upstream-write-authority",
+    "per-line-untrusted-content-boundary",
+    "repo-scoped-inflight-claim-correctness",
+    "citation-url-freshness-and-truncation-correctness",
+    "fixed-query relevance-comparison-against-github-search-and-estate-native-retrieval",
+    "stale-history-prompt-injection-bot-self-output-and-empty-result-negative-paths",
+    "retention-deletion-unavailable-backend-and-rollback-disable"
+  ],
+  "ownership": {
+    "catalogAndProvenance": "szl-holdings/szl-frontier",
+    "sandboxEvaluation": "szl-holdings/szl-forge",
+    "sharedPolicyIfLaterRequired": "szl-holdings/.github",
+    "productExposureIfSeparatelyQualified": "szl-holdings/a11oy",
+    "proofPublicationIfSeparatelyQualified": "szl-holdings/a11oy-net"
+  },
+  "disposition": "HOLD",
+  "evaluationOnly": true,
+  "productionAuthorized": false,
+  "automaticPromotionAuthorized": false,
+  "a11oyExposureAuthorized": false,
+  "upstreamWriteAuthorized": false,
+  "privateCorpusAuthorized": false
+}
