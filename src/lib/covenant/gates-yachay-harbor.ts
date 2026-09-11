@@ -5,10 +5,10 @@ import { evaluateHarborBatch } from "@/lib/harbor/evaluate";
 import { CURRICULUM, SecondBrainIndex } from "@/lib/brain";
 
 export const YACHAY_HARBOR_GATE_SPECS = [
-  { id: "g25", title: "Every curriculum pulse is seal-eligible", round: 5 as const },
-  { id: "g26", title: "Harbor estate source stays EVALUATION/HOLD", round: 5 as const },
-  { id: "g27", title: "Harbor private Dataset without credentials fail-closes", round: 5 as const },
-  { id: "g28", title: "Harbor foreign Hub object is hard-denied", round: 5 as const },
+  { id: "g25", title: "Every curriculum pulse is seal-eligible", round: 4 as const },
+  { id: "g26", title: "Harbor estate source stays EVALUATION/HOLD", round: 4 as const },
+  { id: "g27", title: "Harbor private Dataset without credentials fail-closes", round: 4 as const },
+  { id: "g28", title: "Harbor foreign Hub object is hard-denied", round: 4 as const },
 ];
 
 function ident(agentId: string, tenantId: string, domain: string, purpose: Purpose): Identity {
@@ -64,7 +64,7 @@ export async function runYachayHarborGates(): Promise<GateResult[]> {
       title: YACHAY_HARBOR_GATE_SPECS[0].title,
       passed: sealed === 6,
       evidence: `sealed ${sealed}/6 curriculum pulses`,
-      round: 5,
+      round: 4,
     });
   }
 
@@ -90,21 +90,21 @@ export async function runYachayHarborGates(): Promise<GateResult[]> {
     title: YACHAY_HARBOR_GATE_SPECS[1].title,
     passed: Boolean(hold && hold.disposition === "EVALUATION" && hold.promotion === "NONE" && hold.allowed),
     evidence: hold ? `${hold.disposition} promotion=${hold.promotion}` : "missing estate verdict",
-    round: 5,
+    round: 4,
   });
   out.push({
     id: "g27",
     title: YACHAY_HARBOR_GATE_SPECS[2].title,
     passed: Boolean(fail && fail.disposition === "FAIL_CLOSED" && !fail.allowed),
     evidence: fail?.reason ?? "missing fail-closed verdict",
-    round: 5,
+    round: 4,
   });
   out.push({
     id: "g28",
     title: YACHAY_HARBOR_GATE_SPECS[3].title,
     passed: Boolean(deny && deny.disposition === "DENIED" && !deny.allowed),
     evidence: deny?.reason ?? "missing deny verdict",
-    round: 5,
+    round: 4,
   });
 
   return out;
