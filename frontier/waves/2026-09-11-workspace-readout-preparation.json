@@ -1,65 +1,72 @@
 {
-  "record_type": "frontier-wave",
-  "wave_id": "2026-09-11-workspace-readout-preparation",
-  "date": "2026-09-11",
-  "lane": "interpretability-observation",
+  "schema": "szl.frontier.integration-wave.v1",
+  "id": "2026-09-11-workspace-readout-preparation",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "718e4ee7196803f665b77c7061bf70907722a537",
   "class": "preparation",
-  "production_disposition": "HOLD",
-  "promotion_effect": false,
-  "anchors": {
-    "upstream_paper": {
-      "title": "Verbalizable Representations Form a Global Workspace in Language Models",
-      "publisher": "Anthropic",
-      "venue": "transformer-circuits.pub",
-      "year": 2026,
-      "credential": "paper-link-only",
-      "note": "Jacobian-lens readout of verbalizable disposition per layer ('J-space'). External source; never an authority inside this estate."
-    },
-    "tracked_issues": [
-      "szl-holdings/a11oy#2020",
-      "szl-holdings/a11oy#1806"
-    ]
+  "lane": "interpretability-observation",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false
   },
-  "measurement_order": [
-    {
-      "step": 1,
-      "name": "governed-inference-binding",
-      "tracks": "szl-holdings/a11oy#1806 P1",
-      "rule": "Do not call an unbound plan inference. Binding requires exact model revision, tokenizer revision, benchmark suite, latency/cost envelope, fallback policy, PII boundary, and fail-closed behavior."
-    },
-    {
-      "step": 2,
-      "name": "residual-stream-capture",
-      "tracks": "szl-holdings/a11oy#2020",
-      "rule": "On a bound route, capture per-layer residual streams or the provider-disclosed equivalent on the governed inference."
-    },
-    {
-      "step": 3,
-      "name": "workspace-readout",
-      "tracks": "szl-holdings/a11oy#2020",
-      "rule": "Apply a workspace-class readout (J-lens or closest implementable analog); carry the disposition as a labeled field on the DSSE receipt alongside the behavioral output."
-    },
-    {
-      "step": 4,
-      "name": "property-labeling",
-      "tracks": "szl-holdings/a11oy#2020",
-      "rule": "Reportability and selectivity may be measured without full internal access once step 1 lands. Directed modulation, internal reasoning, and generalization remain UNAVAILABLE until the provider exposes them."
-    }
+  "deduplication": {
+    "canonicalPredecessor": null,
+    "note": "First wave of the workspace-readout lane. Not a duplicate of any upstream-candidate wave; the lane tracks szl-holdings/a11oy#2020 gated on szl-holdings/a11oy#1806 P1."
+  },
+  "candidate": {
+    "repository": "anthropics/global-workspace-jacobian-lens",
+    "kind": "paper-only",
+    "title": "Verbalizable Representations Form a Global Workspace in Language Models",
+    "venue": "transformer-circuits.pub",
+    "year": 2026,
+    "authority": "external-source-never-estate-authority",
+    "note": "Jacobian-lens readout of per-layer verbalizable disposition. Paper link only; no weights, no deployment, no qualification."
+  },
+  "trackedIssues": [
+    "szl-holdings/a11oy#2020",
+    "szl-holdings/a11oy#1806"
   ],
-  "estate_organ_mapping": {
-    "reportability": {"organ": "szl_a11oy_interpretability.py", "current_state": "MODELED"},
-    "directed_modulation": {"organ": "static/3d/surfaces/steering.js", "current_state": "MODELED"},
-    "internal_reasoning": {"organ": "szl_circuit_graphs.py", "current_state": "MODELED"},
-    "generalization": {"organ": "szl_lgmi.py", "current_state": "MODELED"},
-    "selectivity": {"organ": null, "current_state": "NO_ORGAN"}
+  "preparation": {
+    "measurementOrder": [
+      {
+        "step": 1,
+        "name": "governed-inference-binding",
+        "tracks": "szl-holdings/a11oy#1806",
+        "rule": "Do not call an unbound plan inference. Binding requires exact model revision, tokenizer revision, benchmark suite, latency/cost envelope, fallback policy, PII boundary, and fail-closed behavior."
+      },
+      {
+        "step": 2,
+        "name": "residual-stream-capture",
+        "tracks": "szl-holdings/a11oy#2020",
+        "rule": "On a bound route, capture per-layer residual streams or the provider-disclosed equivalent on the governed inference."
+      },
+      {
+        "step": 3,
+        "name": "workspace-readout",
+        "tracks": "szl-holdings/a11oy#2020",
+        "rule": "Apply a workspace-class readout (J-lens or closest implementable analog); carry the disposition as a labeled field on the DSSE receipt alongside the behavioral output."
+      },
+      {
+        "step": 4,
+        "name": "property-labeling",
+        "tracks": "szl-holdings/a11oy#2020",
+        "rule": "Reportability and selectivity may be measured without full internal access once step 1 lands. Directed modulation, internal reasoning, and generalization remain UNAVAILABLE until the provider exposes them."
+      }
+    ],
+    "estateOrganMapping": {
+      "reportability": {"organ": "szl_a11oy_interpretability.py", "currentState": "MODELED"},
+      "directedModulation": {"organ": "static/3d/surfaces/steering.js", "currentState": "MODELED"},
+      "internalReasoning": {"organ": "szl_circuit_graphs.py", "currentState": "MODELED"},
+      "generalization": {"organ": "szl_lgmi.py", "currentState": "MODELED"},
+      "selectivity": {"organ": null, "currentState": "NO_ORGAN"}
+    }
   },
-  "estate_state": {
-    "hf_sync": "F1 tracked; repair stays with owner",
-    "flagship_runtime": "live; semantic parity with domain held per prior receipts",
-    "canonical_alignment": "#2010 last observed blocking observation: lyte:SOURCE_REVISION_MISMATCH"
+  "estateState": {
+    "hfSync": "F1 tracked; repair stays with owner",
+    "flagshipRuntime": "live; semantic parity with domain held per prior receipts",
+    "canonicalAlignment": "a11oy#2010 last observed blocking observation: lyte:SOURCE_REVISION_MISMATCH"
   },
-  "upstream_channels": "intentionally-not-repeated-in-payload",
-  "claim_surfaces": [
+  "claimSurfaces": [
     "No MEASURED upgrade to any estate organ until a bound-route, real-model receipt exists.",
     "This record is preparation, not measurement, not deployment, not qualification.",
     "Simulator-derived content stays labeled MODELED; honesty labels read verbatim."
