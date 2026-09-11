@@ -1,0 +1,43 @@
+{
+  "schema": "szl.frontier.evidence/v1",
+  "id": "2026-09-11-authority-chain",
+  "observedAt": "2026-09-11T22:42:00Z",
+  "productionAuthorized": false,
+  "signatureVerified": false,
+  "github": {
+    "szl-forge": "66d533cdccfa30726407d833514609ab3b947ec1",
+    "szl-frontier": "718e4ee7196803f665b77c7061bf70907722a537",
+    "a11oy": "66a86d19709921fc480e342c26cf84e4b1ef3797",
+    "a11oy-net": "33b66c43151f50b306f3730af4e35603531c15d6",
+    "lyte-services": "dd17d9f524b76c8f0e260d7ec1e084cc079dfc43",
+    "szl-kernels": "ea507322d8e2ce90ce6e78f6889ab1c8f4874b0b"
+  },
+  "product": {
+    "healthz": "https://a-11-oy.com/api/a11oy/healthz",
+    "buildInfo": "https://a-11-oy.com/api/build-info",
+    "servedRevision": "66a86d19709921fc480e342c26cf84e4b1ef3797",
+    "matchesGithubA11oyMain": true,
+    "imageDigest": null,
+    "status": "ok",
+    "preflight": "DEGRADED",
+    "signer": "DSSE-LIVE",
+    "sovereign": "UNAVAILABLE"
+  },
+  "lyte": {
+    "healthz": "https://szlholdings-lyte.hf.space/healthz",
+    "sourceRevision": "dd17d9f524b76c8f0e260d7ec1e084cc079dfc43",
+    "runtimeSourceRevision": "dd17d9f524b76c8f0e260d7ec1e084cc079dfc43",
+    "bindingsAgree": true,
+    "effectorsEnabled": false,
+    "uiIdentity": "UNAVAILABLE",
+    "issue18": "open"
+  },
+  "hub": {
+    "org": "SZLHOLDINGS",
+    "models": 46,
+    "datasets": 35,
+    "spaces": 22,
+    "writePerformed": false,
+    "huggingfaceHub131ImportProven": false
+  }
+}

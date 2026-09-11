@@ -1,0 +1,68 @@
+{
+  "schema": "szl.frontier.wave/v1",
+  "id": "2026-09-11-command-readout",
+  "observedAt": "2026-09-11T22:42:00Z",
+  "disposition": "PARTIAL",
+  "evaluationOnly": true,
+  "productionAuthorized": false,
+  "automaticPromotionAuthorized": false,
+  "allWorkPackagesComplete": false,
+  "candidate": {
+    "publisher": "SZL Holdings",
+    "repository": "szl-holdings/szl-frontier",
+    "note": "Command readout of the 26-work-package program. Not a new model admission."
+  },
+  "authorityChain": {
+    "githubSource": "szl-forge 66d533cdccfa30726407d833514609ab3b947ec1 after #238; a11oy 66a86d19709921fc480e342c26cf84e4b1ef3797",
+    "huggingFaceProjection": "no Hub write from this wave; 46 models / 35 datasets / 22 spaces observed",
+    "productRuntime": "a-11-oy.com/api/build-info revision 66a86d19709921fc480e342c26cf84e4b1ef3797 MATCHES GitHub a11oy main this observation; image_digest null; huggingface_hub 1.31 import unproven",
+    "proofEvidence": "a11oy-net 33b66c43151f50b306f3730af4e35603531c15d6 four-origin wire; estate.json still Aug-31 capture; ready=false"
+  },
+  "heads": {
+    "szl-forge": "66d533cdccfa30726407d833514609ab3b947ec1",
+    "szl-frontier": "718e4ee7196803f665b77c7061bf70907722a537",
+    "a11oy": "66a86d19709921fc480e342c26cf84e4b1ef3797",
+    "a11oy-net": "33b66c43151f50b306f3730af4e35603531c15d6",
+    "lyte-services": "dd17d9f524b76c8f0e260d7ec1e084cc079dfc43",
+    "szl-kernels": "ea507322d8e2ce90ce6e78f6889ab1c8f4874b0b"
+  },
+  "landedThisWave": [
+    "szl-forge#238 AsyncGRPO builtin bool/int on main. Does not close #224.",
+    "a11oy#2098 huggingface_hub==1.31.0 / openai==2.43.0 Dockerfile pins. Keep #2087 open.",
+    "a11oy#2100 product promote independent of sibling Space execute. continue-on-error only if opted in."
+  ],
+  "liveObservations": {
+    "healthz": "status=ok preflight=DEGRADED signer=DSSE-LIVE sovereign=UNAVAILABLE frontier=8/8",
+    "lyteHealthz": "source_revision=dd17d9f524b76c8f0e260d7ec1e084cc079dfc43 runtime_source_revision=dd17d9f524b76c8f0e260d7ec1e084cc079dfc43 effectors_enabled=false",
+    "servedShaMatchesGithub": true
+  },
+  "remainingHolds": [
+    "WP06 kernel first-class identities before 2026-09-13; Forge #235 draft behind main; missing kernel-type v1 szl-maskmod szl-block-kv szl-receipt-attn YARQA-ATTN",
+    "WP04 Lyte #18 UI identity UNAVAILABLE despite healthz pin match; do not hand-patch SZLHOLDINGS/lyte; a11oy#2113 unmerged (HF immutable-parity FAIL)",
+    "WP03/WP20 installed-image huggingface_hub 1.31 import still unproven",
+    "WP14 GPU/vLLM AsyncGRPO measurements (#224 open)",
+    "WP09 Ghlore named corpus/citation/freshness run",
+    "WP08/WP10-WP13 Tau Harbor Repo2RLEnv measured reruns",
+    "WP23 rendered UX 320/375/768/1440"
+  ],
+  "policy": {
+    "hubPublicationAuthorized": false,
+    "providerWriteAuthorized": false,
+    "productionRouteChangeAuthorized": false,
+    "massPurposePinUpgradeAuthorized": false,
+    "weightRehostingAuthorized": false,
+    "branchProtectionMutationAuthorized": false,
+    "preserveLicensing": true,
+    "preserveProvenance": true,
+    "preserveRollback": true,
+    "preserveReceipts": true
+  },
+  "deduplication": {
+    "canonicalPredecessor": "frontier/waves/2026-09-10-hf-hub-131-stable.json",
+    "doNotRecreate": [
+      "a11oy#2098",
+      "a11oy#2100",
+      "szl-forge#238"
+    ]
+  }
+}
