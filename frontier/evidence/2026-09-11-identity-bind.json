@@ -1,0 +1,63 @@
+{
+  "schema": "szl.frontier.evidence/v1",
+  "id": "2026-09-11-identity-bind",
+  "observedAt": "2026-09-11T23:22:00Z",
+  "lambda": "Conjecture 1",
+  "productionAuthorized": false,
+  "chain": [
+    {
+      "layer": "github-source",
+      "a11oy": "7253ccb1f6ef888f87fcd9299baabde239a0ced0",
+      "forge": "8befca224540cb811586e99bea676d98ca7ac4b0",
+      "frontier": "fde55c77bb78d70cad5d16fb753b2965557f72c6",
+      "lyte": "dd17d9f524b76c8f0e260d7ec1e084cc079dfc43",
+      "a11oyNet": "50829911cc268e822cd4e8419041d88d77319c21",
+      "kernels": "ea507322d8e2ce90ce6e78f6889ab1c8f4874b0b"
+    },
+    {
+      "layer": "served-product",
+      "url": "https://a-11-oy.com/api/build-info",
+      "revision": "7253ccb1f6ef888f87fcd9299baabde239a0ced0",
+      "matchesGithubA11oyMain": true,
+      "imageDigest": null,
+      "receiptMinted": false
+    },
+    {
+      "layer": "product-healthz",
+      "url": "https://a-11-oy.com/api/a11oy/healthz",
+      "status": "ok",
+      "preflight": "DEGRADED",
+      "signer": "DSSE-LIVE",
+      "frontierLive": "8/8",
+      "sovereign": "UNAVAILABLE",
+      "sovereignReason": "NODE_UNREACHABLE_THIS_REQUEST"
+    },
+    {
+      "layer": "lyte-space",
+      "url": "https://szlholdings-lyte.hf.space/healthz",
+      "sourceRevision": "dd17d9f524b76c8f0e260d7ec1e084cc079dfc43",
+      "runtimeSourceRevision": "dd17d9f524b76c8f0e260d7ec1e084cc079dfc43",
+      "bindingsAgree": true,
+      "effectorsEnabled": false,
+      "uiIdentity": "UNAVAILABLE"
+    },
+    {
+      "layer": "proof-origin",
+      "url": "https://a11oy.net/health.json",
+      "artifactKind": "static",
+      "dsseLive": "NOT_CLAIMED",
+      "sha": "82ad0481753ddd0043e3b55352704e187be14a08",
+      "note": "Committed static JSON. Not a runtime health check."
+    }
+  ],
+  "hubImport131Proven": false,
+  "doNot": [
+    "stamp ALL_DONE",
+    "authorize production",
+    "write Hugging Face",
+    "delete Hub kernel mirrors",
+    "hand-patch SZLHOLDINGS/lyte",
+    "treat #235 merge as kernel requalification",
+    "treat missing preflight secrets as an outage"
+  ]
+}
