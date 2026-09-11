@@ -191,7 +191,7 @@ export interface GateResult {
   title: string;
   passed: boolean;
   evidence: string;
-  round?: 1 | 2 | 3 | 4;
+  round?: 1 | 2 | 3 | 4 | 5;
 }
 
 export interface IngestJob {
