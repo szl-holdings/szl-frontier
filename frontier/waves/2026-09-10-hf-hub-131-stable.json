@@ -1,0 +1,64 @@
+{
+  "schema": "szl.frontier.wave/v1",
+  "id": "2026-09-10-hf-hub-131-stable",
+  "observedAt": "2026-09-10T21:46:21-04:00",
+  "disposition": "EVALUATION",
+  "productionAuthorized": false,
+  "automaticPromotionAuthorized": false,
+  "candidate": {
+    "publisher": "Hugging Face",
+    "repository": "huggingface/huggingface_hub",
+    "version": "1.31.0",
+    "releasePublishedAt": "2026-09-10T09:36:59Z",
+    "releaseCommit": "495b17c8529614759ae0f1ccf1ebe9a61c148b7c",
+    "annotatedTagObject": "32ccc9ee57f3b3546165de105b4a0d8eba1b7446",
+    "tagSignatureVerified": false,
+    "tagSignatureReason": "unsigned"
+  },
+  "materialChanges": [
+    "dedicated Sandbox custom Job labels validated before billable Job start",
+    "streamed-download header timeouts participate in retry/resume handling",
+    "HTTP downloads tolerate missing HEAD Content-Length with GET-side validation when available",
+    "snapshot_download writes refs cache atomically for concurrent callers",
+    "local-dir dry-run avoids copying cached payload files into the destination",
+    "huggingface_hub.utils.httpx is the supported integration import surface",
+    "HfFileSystem.get rejects unsafe remote filenames before local writes including Windows traversal forms",
+    "recursive bucket deletion no longer deletes lexical siblings of a prefix"
+  ],
+  "deduplication": {
+    "canonicalPredecessor": "frontier/waves/2026-09-10-hf-hub-130-repo-revision-binding.json",
+    "predecessorVersion": "1.30.0",
+    "existingEvaluation": {
+      "repository": "szl-holdings/szl-forge",
+      "pullRequest": 216,
+      "mergeCommit": "74a8a07ced6c6b8697b31b7d0e482c4241d55880",
+      "evaluatedVersion": "1.31.0",
+      "evaluatedReleaseCommit": "495b17c8529614759ae0f1ccf1ebe9a61c148b7c"
+    }
+  },
+  "authorityChain": {
+    "githubSource": "candidate exact source admitted here",
+    "huggingFaceProjection": "no provider write authorized by this wave",
+    "productRuntime": "HOLD: szl-holdings/a11oy#2087 remains runtime/client alignment owner",
+    "proofEvidence": "HOLD until downstream runtime and publication readback are measured"
+  },
+  "policy": {
+    "billableSandboxJobCreationAuthorized": false,
+    "hubPublicationAuthorized": false,
+    "providerWriteAuthorized": false,
+    "productionRouteChangeAuthorized": false,
+    "massPurposePinUpgradeAuthorized": false,
+    "weightRehostingAuthorized": false,
+    "branchProtectionMutationAuthorized": false,
+    "preserveLicensing": true,
+    "preserveProvenance": true,
+    "preserveRollback": true,
+    "preserveReceipts": true
+  },
+  "remainingGates": [
+    "rebase canonical A11oy runtime/client target from stale 1.30 alignment plan to exact 1.31 release",
+    "pass canonical Docker, dependency audit, security and source-readback controls",
+    "prove any Hugging Face projection and a-11-oy.com runtime identity under normal publisher controls",
+    "publish a11oy.net proof only from immutable measured downstream evidence"
+  ]
+}
