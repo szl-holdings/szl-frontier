@@ -36,6 +36,10 @@
       "mergeCommit": "74a8a07ced6c6b8697b31b7d0e482c4241d55880"
     },
     "trackingIssue": 87,
+    "implementationOwner": {
+      "repository": "szl-holdings/szl-forge",
+      "issue": 237
+    },
     "exactCommitPreviouslyCataloged": false,
     "classification": "unreleased-security-successor"
   },
@@ -71,7 +75,7 @@
     "rollback to the stable 1.31 evaluation baseline"
   ],
   "remainingGates": [
-    "execute the exact-commit security lane in szl-holdings/szl-forge under normal controls",
+    "execute the exact-commit security lane in szl-holdings/szl-forge#237 under normal controls",
     "retain stable Hub 1.31 as the production-alignment target until a separately reviewed release supersedes it",
     "do not advance A11oy dependency pins from this unreleased commit without a released successor and downstream compatibility review",
     "publish a11oy.net proof only from immutable measured evidence and never from this source record alone"
