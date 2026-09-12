@@ -34,10 +34,10 @@ binding -> capture -> readout chain before accepting a workspace disposition.
 | 0 | `captureReceipt` (join key) | Valid capture receipt id per the capture harness wave. Precondition, not readout output. |
 | 1 | `readoutMethod` | Named algorithm (J-lens-class or documented closest analog), pinned implementation version, pinned parameters. Floating methods cannot anchor a disposition. |
 | 2 | `coverageMap` | Layers/hook points actually consumed, checked against the capture config hash. Partial coverage is declared, never silently widened. |
-| 3 | `dispositionField` | Labeled field on the DSSE receipt: `{ property, state, method, captureReceiptId }`. Never replaces the behavioral output; never outruns the coverage map. |
+| 3 | `dispositionField` | Labeled field on the DSSE receipt: `{ property, state, method, captureReceiptId, failureCode }`. `failureCode` is null when no failure occurred; readout failure, ancestry break, or method drift requires a non-empty string code. Never replaces the behavioral output; never outruns the coverage map. |
 | 4 | `unavailableSemantics` | Unexposed properties (directed modulation, internal reasoning, generalization) read UNAVAILABLE on every receipt. An absent field is a contract violation, not an omission. |
 | 5 | `measuredUpgradeRule` | An organ flips MODELED -> MEASURED only with a readout receipt against this contract on a real bound route for that property. The flip is receipt-evidenced and reversible. |
-| 6 | `failureDisposition` | Readout failure, ancestry break, or method drift: the field reads UNAVAILABLE with the failure code. Behavioral output alone is never workspace evidence. |
+| 6 | `failureDisposition` | Readout failure, ancestry break, or method drift: the field reads UNAVAILABLE with the failure code in `failureCode`. Behavioral output alone is never workspace evidence. |
 
 ## Why this wave is the keystone
 
@@ -65,6 +65,11 @@ preparation contract does not supply those receipts or satisfy the execution gat
 Contract waves are validated by their offline regression guard, not compiled by `wave_plan` —
 `wave_plan` serves pinned upstream waves (it requires `--pins` and the integration-wave fields
 `wave`, `alignment`, and `releases`, which contract waves deliberately lack). Validate this wave:
+
+Run from a Git checkout containing the observed source revision
+`62bfc47327d859b5c18bec9bf1c8797db6e7dd4e`. The guard reads its tree to verify that the declared
+capture predecessor exists there and matches the checked-in predecessor contract. A shallow
+checkout must fetch that revision before validation; the guard performs no network calls.
 
 ```sh
 node --test scripts/frontier-workspace-readout-receipt.test.mjs

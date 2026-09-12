@@ -2,7 +2,7 @@
   "schema": "szl.frontier.integration-wave.v1",
   "id": "2026-09-11-workspace-readout-receipt-contract",
   "sourceOfTruth": "szl-holdings/szl-frontier",
-  "sourceRevisionObserved": "443bba7434c94a5719c904ed41b2ef1866024c4c",
+  "sourceRevisionObserved": "62bfc47327d859b5c18bec9bf1c8797db6e7dd4e",
   "class": "preparation",
   "lane": "governed-inference",
   "policy": {
@@ -42,7 +42,7 @@
       },
       {
         "name": "dispositionField",
-        "rule": "The workspace disposition travels as a labeled field on the DSSE receipt alongside the behavioral output, with schema: { property, state, method, captureReceiptId }. It never replaces the behavioral output and never outruns the coverage map."
+        "rule": "The workspace disposition travels as a labeled field on the DSSE receipt alongside the behavioral output, with schema: { property, state, method, captureReceiptId, failureCode }. failureCode is null when no failure occurred; readout failure, ancestry break, or method drift requires a non-empty string code. It never replaces the behavioral output and never outruns the coverage map."
       },
       {
         "name": "unavailableSemantics",
@@ -54,7 +54,7 @@
       },
       {
         "name": "failureDisposition",
-        "rule": "Readout failure, ancestry break, or method drift produces abstention: the disposition field reads UNAVAILABLE with the failure code; behavioral output alone is never presented as workspace evidence."
+        "rule": "Readout failure, ancestry break, or method drift produces abstention: the disposition field reads UNAVAILABLE with the failure code in failureCode; behavioral output alone is never presented as workspace evidence."
       }
     ]
   },

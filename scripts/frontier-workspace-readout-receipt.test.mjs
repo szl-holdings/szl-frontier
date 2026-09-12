@@ -7,6 +7,7 @@
  * provider, or inference calls.
  */
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
@@ -44,6 +45,22 @@ test("join key chains to the capture harness wave and the full receipt chain", (
   assert.match(wave.readoutContract.joinKey.rule, /binding -> capture -> readout/);
 });
 
+test("observed source revision contains the declared capture predecessor", () => {
+  assert.match(wave.sourceRevisionObserved, /^[0-9a-f]{40}$/);
+  const root = join(here, "..");
+  const predecessorPath = wave.deduplication.canonicalPredecessor;
+  const pinned = JSON.parse(
+    execFileSync(
+      "git",
+      ["show", `${wave.sourceRevisionObserved}:${predecessorPath}`],
+      { cwd: root, encoding: "utf8", timeout: 10_000, maxBuffer: 1024 * 1024 },
+    ),
+  );
+  assert.equal(pinned.id, "2026-09-11-residual-capture-harness-contract");
+  assert.equal(pinned.captureContract.joinKey.name, "bindingReceipt");
+  assert.deepEqual(pinned, JSON.parse(readFileSync(join(root, predecessorPath), "utf8")));
+});
+
 test("all six readout fields are present with rules", () => {
   const names = wave.readoutContract.requiredFields.map((f) => f.name);
   assert.deepEqual(names, [
@@ -63,7 +80,9 @@ test("disposition field schema is pinned and never replaces behavioral output", 
   const field = wave.readoutContract.requiredFields.find(
     (f) => f.name === "dispositionField",
   );
-  assert.match(field.rule, /property, state, method, captureReceiptId/);
+  assert.match(field.rule, /\{ property, state, method, captureReceiptId, failureCode \}/);
+  assert.match(field.rule, /failureCode is null when no failure occurred/);
+  assert.match(field.rule, /failure, ancestry break, or method drift requires a non-empty string code/);
   assert.match(field.rule, /never replaces the behavioral output/);
   assert.match(field.rule, /never outruns the coverage map/);
 });
@@ -89,6 +108,7 @@ test("failure means UNAVAILABLE with a code, never silent behavioral fallback", 
     (f) => f.name === "failureDisposition",
   );
   assert.match(field.rule, /UNAVAILABLE with the failure code/);
+  assert.match(field.rule, /in failureCode/);
   assert.match(field.rule, /never presented as workspace evidence/);
 });
 
