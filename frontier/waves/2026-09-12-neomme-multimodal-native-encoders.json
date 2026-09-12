@@ -1,0 +1,62 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-12-neomme-multimodal-native-encoders",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "e378bcc882153590dd3222b81fe82fb70c6e32f9",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "hcompany-neomme-multimodal-encoders",
+    "kind": "model-family-admission",
+    "priority": "P0",
+    "publisher": "H Company",
+    "upstream": {
+      "observedSource": "https://huggingface.co/blog/Hcompany/neomme",
+      "observedAt": "2026-09-12T23:42:00Z",
+      "publishedAt": "2026-09-03",
+      "releaseState": "PUBLIC_APACHE2_CHECKPOINTS_WATCH",
+      "revisionPolicy": "Published Transformers support requires a main-branch install at publication time; evaluation must pin the exact transformers revision and NeoMME checkpoint revisions before any result is comparable."
+    },
+    "materialChanges": [
+      "Single-tower multimodal-native encoder family (260M and 800M): one bidirectional Transformer processes text tokens and raw 32x32 image patches with no separate vision tower and no causal decoder, trained from scratch with a masked discrete-diffusion objective over about 524B packed tokens.",
+      "16,384-token bidirectional context with sliding-window attention plus global attention every sixth layer, and a 131k multilingual BPE vocabulary.",
+      "NeoMME-Retriever dual-head variant returns dense and 128-d late-interaction embeddings for visual document retrieval in one forward pass, aligned with the SZL retrieval-benchmark plane.",
+      "Upstream reports ViDoRe v3 nDCG@10 of 0.523 at 260M parameters (highest below 800M; within 0.002 of ColQwen2.5 at about 14x fewer parameters) and 0.556 at 800M; about 51 pages per second at 2048x2048 on one L40S; and late-interaction storage reduced from about 1.5 MB to 6 kB per page (255x) while retaining more than 95 percent of baseline nDCG@10. All numbers are UPSTREAM_REPORTED_NOT_SZL_MEASURED.",
+      "Checkpoints released under Apache-2.0 with day-zero Transformers support that references transformers main at publication time, so exact-revision pinning is required before evaluation."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "frontierIssue": 80,
+      "mode": "BOUNDED_MULTIMODAL_ENCODER_ADMISSION_EVALUATION_ONLY",
+      "acceptance": [
+        "Pin exact checkpoint revisions for the 260M and 800M encoder and Retriever variants and the exact transformers revision providing the NeoMME classes; never evaluate against moving main.",
+        "Reproduce retrieval quality on fixed non-secret SZL retrieval fixtures through the existing retrieval-bench lanes for both dense and late-interaction heads, or record honest UNAVAILABLE; never transcribe ViDoRe scores as SZL measurements.",
+        "Verify the dual-head output contract and measure the late-interaction compression claims (hierarchical token pooling plus asymmetric quantization) as storage-versus-quality deltas with receipts.",
+        "Keep training, model publication, provider routing and automatic promotion false until separate normal controls pass; no weight rehosting."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "exactFamilyPreviouslyPresent": false,
+    "relatedOwnedHarness": "szl-holdings/retrieval-bench",
+    "trackingIssue": 80,
+    "result": "material single-tower multimodal retrieval family admission; no serving, routing or production authority"
+  },
+  "authorityChain": {
+    "githubSource": "published H Company blog and Apache-2.0 checkpoints admitted for bounded evaluation only",
+    "huggingFaceProjection": "no SZL model rehosting, dataset or Space publication is authorized by this wave",
+    "productRuntime": "no a-11-oy.com model or route/default changes from this wave",
+    "proofEvidence": "HOLD until exact-revision retrieval-compression and multilingual receipts exist; ViDoRe, throughput and compression numbers are UPSTREAM_REPORTED_NOT_SZL_MEASURED"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "The publication claims state-of-the-art retrieval at small scale for its class. Admission records the claims; it does not verify ViDoRe scores, qualify the encoders for governed retrieval or inference, or change any route."
+  }
+}
