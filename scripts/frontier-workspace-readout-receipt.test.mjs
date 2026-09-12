@@ -89,7 +89,7 @@ test("failure means UNAVAILABLE with a code, never silent behavioral fallback", 
     (f) => f.name === "failureDisposition",
   );
   assert.match(field.rule, /UNAVAILABLE with the failure code/);
-  assert.match(field.rule, /never workspace evidence/);
+  assert.match(field.rule, /never presented as workspace evidence/);
 });
 
 test("lane relation and tracked issues are pinned", () => {

@@ -45,11 +45,14 @@ contract merged, every future estate surface — console, proof page, investor r
 workspace disposition is rendering a field with a verifiable receipt chain behind it, or rendering
 UNAVAILABLE. There is no third option, and the guard keeps it that way mechanically.
 
-## Python consumption (existing harness, no new runtime)
+## Validation
+
+Contract waves are validated by their offline regression guard, not compiled by `wave_plan` —
+`wave_plan` serves pinned upstream waves (it requires `--pins` and the integration-wave fields
+`wave`, `alignment`, and `releases`, which contract waves deliberately lack). Validate this wave:
 
 ```sh
-PYTHONPATH=python python -m szl_frontier.wave_plan \
-  --wave frontier/waves/2026-09-11-workspace-readout-receipt-contract.json
+node --test scripts/frontier-workspace-readout-receipt.test.mjs
 ```
 
 ## Bounds
