@@ -1,0 +1,80 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-12-transformers-fsdp2-expert-parallel",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "733f383360b027682ba862dd1ca502fe0130d70d",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "huggingface-transformers-fsdp2-expert-parallel-training-correctness",
+    "kind": "distributed-training-correctness",
+    "priority": "P0",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/transformers",
+    "upstream": {
+      "observedRevision": "415e6d2f596ef2bd44fdee4261799200a7fc02bf",
+      "observedAt": "2026-09-12T18:00:53Z",
+      "releaseState": "MAIN_ONLY_WATCH",
+      "commitSignatureVerified": true,
+      "upstreamPullRequest": 48516,
+      "parentRevision": "5474a55e920f358d8382f3ecd3377edca979baa1",
+      "revisionPolicy": "Evaluation is pinned to this exact commit. The parent PP+TP inference wave and later Transformers main commits do not transfer qualification to this training topology."
+    },
+    "materialChanges": [
+      "Masks sentinel-tail rows after each expert-parallel grouped GEMM to stop uninitialized values from propagating NaN or Inf gradients through MoE training.",
+      "All-reduce-sums router-score gradients before the non-local expert mask so router and upstream non-expert parameters receive remote-expert gradient contributions.",
+      "Routes expert parallelism through Trainer and enables Expert Parallelism with FSDP2 on a named two-dimensional fsdp/tp device mesh.",
+      "Uses mesh-specific gradient norm reduction and optimizer parameter groups because fused or foreach optimizers cannot span parameters living on different device meshes.",
+      "Gathers the sharded model state through save_pretrained collectively, while explicitly refusing optimizer-checkpoint resume for models sharded at load time and rejecting pipeline parallelism combined with tp/fsdp."
+    ],
+    "upstreamReportedEvidence": {
+      "label": "UPSTREAM_REPORTED_NOT_SZL_MEASURED",
+      "gradientReference": "OLMoE-1B-7B fp32 one-batch comparison reported 3/179 matching parameters before the router-gradient fix and 179/179 after it, max relative error 2.7e-5.",
+      "optimizerTiming": "Qwen3-30B-A3B tp=4 x fsdp=2 reported 189 ms/step for per-parameter stepping versus 41 ms fused per mesh group.",
+      "qualificationEffect": "none"
+    },
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "trackingIssue": 255,
+      "frontierIssue": 108,
+      "mode": "BOUNDED_FSDP2_EXPERT_PARALLEL_TRAINING_CORRECTNESS_ONLY",
+      "acceptance": [
+        "Pin exact Transformers source 415e6d2f596ef2bd44fdee4261799200a7fc02bf, torch and accelerate versions, CUDA driver and NCCL stack, model and tokenizer revisions, hardware topology, world size, seeds and exact launch command.",
+        "Use a fixed synthetic MoE fixture and or a fixed public non-secret small MoE checkpoint first; do not download or rehost weights merely for inventory.",
+        "Establish single-device and Expert-Parallel-only reference losses and gradients before FSDP2 plus EP; compare router, non-expert and expert parameter gradients with declared tolerances.",
+        "Prove no NaN or Inf gradient propagation across repeated optimizer steps and directly exercise grouped-GEMM sentinel-tail masking rather than inferring correctness from loss alone.",
+        "Prove the named fsdp/tp mesh shape, rank ownership, expert routing and dispatch, router-score gradient all-reduce semantics and per-mesh total-gradient-norm calculation.",
+        "Verify Trainer integration, mesh-specific optimizer parameter groups and deterministic batch partitioning; reject pipeline-parallel composition with tp/fsdp exactly as the upstream contract requires.",
+        "Exercise collective save_pretrained state-dict gather and exact reload from the admitted topology; keep optimizer checkpoint resume unsupported where upstream refuses it.",
+        "Exercise rank loss, collective timeout, malformed mesh, OOM, cancellation and rollback to the previous admitted training path with failure receipts.",
+        "Correctness precedes performance. Only after loss, gradient and save-reload gates pass may same-hardware step latency, throughput and peak memory be compared with EP-only and the current admitted SZL training baseline.",
+        "Keep model or adapter publication, production training, product routing, model qualification and automatic promotion false unless separate normal controls prove them."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "exactRevisionPreviouslyPresent": false,
+    "fsdp2ExpertParallelLanePreviouslyPresent": false,
+    "predecessorWave": "2026-09-12-transformers-pp-tp-inference",
+    "trackingIssue": 108,
+    "implementationIssue": "szl-holdings/szl-forge#255",
+    "result": "material distributed-training successor: Expert Parallel gradient correctness and FSDP2 composition are distinct from the admitted parent combined PP+TP inference topology"
+  },
+  "authorityChain": {
+    "githubSource": "exact Transformers mainline commit admitted for bounded training evaluation only",
+    "huggingFaceProjection": "no SZL model, adapter, dataset, Space or training artifact publication is authorized by this wave",
+    "productRuntime": "no a-11-oy.com training or inference route, model default or provider default changes from this wave",
+    "proofEvidence": "HOLD until exact-source loss, gradient, mesh, failure and save-reload receipts exist; upstream measurements are not SZL proof"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "FSDP2 plus Expert Parallelism is a distributed training capability under evaluation. It does not by itself prove stable training, equivalent gradients, resumability, model quality, speedup, hardware portability or production readiness."
+  }
+}
