@@ -1,0 +1,72 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-12-transformers-pp-tp-inference",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "62bfc47327d859b5c18bec9bf1c8797db6e7dd4e",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "huggingface-transformers-combined-pipeline-tensor-parallel-inference",
+    "kind": "distributed-inference-topology",
+    "priority": "P1",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/transformers",
+    "upstream": {
+      "observedRevision": "5474a55e920f358d8382f3ecd3377edca979baa1",
+      "observedAt": "2026-09-12T10:41:18Z",
+      "releaseState": "MAIN_ONLY_WATCH",
+      "commitSignatureVerified": false,
+      "upstreamPullRequest": 48155,
+      "revisionPolicy": "Evaluation is pinned to this exact commit. Later Transformers main commits do not inherit qualification automatically."
+    },
+    "materialChanges": [
+      "Unifies distributed initialization into one named device mesh spanning configured parallel dimensions.",
+      "Allows pipeline parallelism and tensor parallelism to be composed for inference while continuing to reject FSDP combined with TP or PP.",
+      "Validates world size against the configured PP/FSDP/TP mesh product before distribution.",
+      "Translates pipeline peer ranks through the pipeline process group to global ranks for point-to-point communication and final-stage broadcast.",
+      "Applies pipeline partitioning before tensor parallelism when both are configured; multimodal/VLM support was explicitly reverted from this upstream change and is not admitted by this wave."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "trackingIssue": 253,
+      "frontierIssue": 106,
+      "mode": "BOUNDED_COMBINED_PP_TP_INFERENCE_EVALUATION_ONLY",
+      "acceptance": [
+        "Pin exact Transformers source 5474a55e920f358d8382f3ecd3377edca979baa1, torch version, model and tokenizer or processor revision, hardware topology and exact launch command.",
+        "Use fixed public non-secret small checkpoints or synthetic fixtures first; do not download or rehost weights merely for inventory.",
+        "Establish accepted single-process, PP-only and TP-only correctness baselines before evaluating combined PP+TP.",
+        "For combined PP+TP prove named pp/tp mesh dimensions, world_size equals pp_size times tp_size with fsdp_size one, deterministic partition ownership and correct process-group to global-rank translation.",
+        "Reject incompatible device_map with tensor parallelism, mismatched world size, unsupported MPS tensor parallelism and any FSDP combination with TP or PP.",
+        "Correctness precedes performance: measure output or logit parity within task-specific tolerance, stage-boundary tensor shapes and dtypes, no missing or duplicated layers, generation termination and cross-stage error propagation.",
+        "Only after correctness passes measure same-hardware latency, throughput and memory against PP-only, TP-only and the currently admitted SZL serving baseline using the same model and workload.",
+        "Exercise process loss, timeout, cancellation, malformed mesh configuration and rollback to the previous admitted Transformers inference path.",
+        "Do not claim multimodal or VLM combined PP+TP support from this commit because that support was explicitly reverted in upstream PR history.",
+        "Keep model qualification, provider routing, product defaults, deployment and automatic promotion false unless separate normal controls prove them."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "exactRevisionPreviouslyPresent": false,
+    "combinedPpTpLanePreviouslyPresent": false,
+    "trackingIssue": 106,
+    "implementationIssue": "szl-holdings/szl-forge#253",
+    "result": "material new inference topology: combined Transformers pipeline and tensor parallelism is distinct from existing vLLM, AsyncGRPO, kernel and model-specific evaluation lanes"
+  },
+  "authorityChain": {
+    "githubSource": "exact Transformers mainline commit admitted for bounded evaluation only",
+    "huggingFaceProjection": "no SZL model, dataset, Space or serving image publication is authorized by this wave",
+    "productRuntime": "no a-11-oy.com inference route, model default or provider default changes until the Forge evaluation and normal product gates pass",
+    "proofEvidence": "HOLD until exact-source distributed correctness and failure receipts exist; topology setup alone is not production evidence"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "Combined PP+TP is a distributed inference capability under evaluation. It does not by itself prove faster inference, output equivalence, multimodal support, hardware portability, model qualification or production readiness."
+  }
+}
