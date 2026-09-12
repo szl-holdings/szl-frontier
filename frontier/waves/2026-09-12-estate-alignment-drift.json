@@ -1,0 +1,94 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-12-estate-alignment-drift",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "956bc585338b28eda0ec2f88fc920c5f88e756c5",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "szl-estate-authority-chain-projection-drift-20260912",
+    "kind": "authority-chain-alignment-drift",
+    "priority": "P0",
+    "publisher": "SZL Holdings",
+    "repository": "szl-holdings/a11oy",
+    "upstream": {
+      "observedRevision": "578bf8a2291ab345dd98cfe6716a65d55943ec70",
+      "observedAt": "2026-09-12T01:26:11Z",
+      "nativeVerifierRun": 34663464127,
+      "nativeIncident": "szl-holdings/a11oy#2010",
+      "revisionPolicy": "Repair is valid only for this or a later explicitly re-observed protected source vector. Runtime projection may never redefine protected GitHub source."
+    },
+    "materialChanges": [
+      "Protected A11oy source advanced after the previously aligned release vector and the native verifier reopened the existing estate incident.",
+      "Counsel, Finance and Terra Hugging Face runtime projections no longer report the protected A11oy source revision expected by the verifier.",
+      "Lyte protected source advanced to 9ce4e6b5f36fe0b094a07308abe3665cd2a210c1 while the observed runtime projection still mismatched that source.",
+      "The explicit public Hugging Face membership predicate remains aligned at 46 models, 35 datasets and 21 Spaces with no item deltas; this is a source-projection drift, not an inventory-count drift."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/a11oy",
+      "trackingIssue": 2010,
+      "frontierIssue": 96,
+      "relatedPullRequest": 2124,
+      "mode": "CANONICAL_WRITER_EXACT_SOURCE_REALIGNMENT_ONLY",
+      "acceptance": [
+        "Do not create a second writer, hand-edit a Hugging Face Space, lower a source pin, or make vertical publication unconditional.",
+        "Counsel, Finance and Terra must be published only through the existing A11oy domain/vertical writer and must report the exact protected A11oy source revision selected for the repair.",
+        "Lyte must be published only through its existing A11oy single-writer path and must report the exact protected lyte-services source selected for the repair.",
+        "Before any writer action, freeze and record the expected protected source vector; abort if protected source moves before publication begins.",
+        "After publication, independently read back each affected runtime source witness. HTTP 200, Space RUNNING, repository update time or successful upload alone is not source alignment.",
+        "A fresh native estate-release-train receipt must show counsel, finance, lyte and terra without SOURCE_REVISION_MISMATCH, all configured required components aligned, and no product/proof/profile regression.",
+        "The explicit public membership predicate must remain aligned under the same declared scope; do not delete, hide, retype or duplicate assets to force counts.",
+        "If writer dispatch is unavailable or an approved complete vertical plan is absent, retain HOLD and report NOT_REQUESTED or BLOCKED rather than simulating completion.",
+        "Rollback is source-bound: retain the prior immutable runtime/proof evidence and do not rewrite historical receipts if a new projection fails."
+      ],
+      "status": "ALIGNMENT_REPAIR_REQUIRED"
+    }
+  },
+  "observedSourceVector": {
+    "a11oy": "578bf8a2291ab345dd98cfe6716a65d55943ec70",
+    "counsel": "578bf8a2291ab345dd98cfe6716a65d55943ec70",
+    "finance": "578bf8a2291ab345dd98cfe6716a65d55943ec70",
+    "terra": "578bf8a2291ab345dd98cfe6716a65d55943ec70",
+    "lyte": "9ce4e6b5f36fe0b094a07308abe3665cd2a210c1",
+    "killinchu": "a462ef0313d5cd9bb0ad6e8ef13e7857258ba3c1",
+    "vertical-services": "d018c1f2c892bd36f8ba7e9c85ee0430da348a17",
+    "proof": "441f18bc3e6edb61f4b19d534077379ba4787829",
+    "profile": "348b779f04f598acca23e83f59462307b2188866"
+  },
+  "observedBlockers": [
+    "counsel:SOURCE_REVISION_MISMATCH",
+    "finance:SOURCE_REVISION_MISMATCH",
+    "lyte:SOURCE_REVISION_MISMATCH",
+    "terra:SOURCE_REVISION_MISMATCH"
+  ],
+  "inventoryPredicate": {
+    "scope": "hf-public-author-membership/v1",
+    "state": "ALIGNED",
+    "models": 46,
+    "datasets": 35,
+    "spaces": 21,
+    "itemDeltas": false
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "nativeIncidentReused": "szl-holdings/a11oy#2010",
+    "sourceHardeningPullRequestReused": "szl-holdings/a11oy#2124",
+    "frontierTrackingIssue": 96,
+    "result": "record current reopened drift and route repair to existing canonical ownership; no duplicate writer or issue in A11oy"
+  },
+  "authorityChain": {
+    "githubSource": "protected GitHub revisions remain authoritative",
+    "huggingFaceProjection": "HOLD for counsel, finance, lyte and terra until exact runtime source readback converges",
+    "productRuntime": "no product-route/default change is authorized by this record",
+    "proofEvidence": "a11oy.net proof must not claim the new source vector closed until a fresh native receipt proves the configured required scope"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "The previous aligned receipt remains valid historical evidence for its dated vector. This newer source vector is currently divergent and must be repaired through canonical writers before it inherits any alignment claim."
+  }
+}
