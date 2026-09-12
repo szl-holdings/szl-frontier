@@ -1,0 +1,87 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-12-hf-harbor-reviewed-replacements",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "956bc585338b28eda0ec2f88fc920c5f88e756c5",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "huggingface-harbor-hf-reviewed-replacement-runs",
+    "kind": "evaluation-recovery-and-benchmark-integrity-infrastructure",
+    "priority": "P0",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/harbor-hf",
+    "upstream": {
+      "observedRevision": "dafc6a3c0a98f806d23f26cd5438ceb8367390ec",
+      "observedAt": "2026-09-12T00:34:36Z",
+      "priorObservedRevision": "ec1020c77cd3c159c91b7d1d68639317fb133c32",
+      "releaseState": "MAIN_ONLY_WATCH",
+      "commitSignatureVerified": true,
+      "upstreamPullRequest": 220,
+      "revisionPolicy": "Evaluation is pinned to this exact material commit. Later Harbor main commits do not inherit qualification automatically."
+    },
+    "materialChanges": [
+      "Adds operator-reviewed replacement runs over exact native errored trial identities with an explicit budget review before submission.",
+      "Preserves original executions and artifacts while binding replacement selection to native source evidence and replacement lineage.",
+      "Uses Harbor native aggregation for combined results rather than introducing a parallel metric implementation.",
+      "Separates Original, Replacements and Combined presentation and distinguishes selected-cohort cost coverage from all-incurred reported cost coverage.",
+      "Excludes related subsets from independent leaderboard pooling and withholds pending, invalid or ambiguous assemblies rather than treating them as comparable scalar evidence."
+    ],
+    "upstreamReportedValidation": {
+      "classification": "UPSTREAM_REPORTED_NOT_SZL_MEASURED",
+      "typescriptTests": 1523,
+      "browserTests": 75,
+      "agentPackageTests": 394,
+      "cliTests": 102,
+      "limits": [
+        "No paid replacement execution was reported in the upstream merge evidence.",
+        "No live private-source canary was reported in the upstream merge evidence.",
+        "No credential movement or benchmark control action was reported in the upstream merge evidence."
+      ]
+    },
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "trackingIssue": 227,
+      "frontierIssue": 94,
+      "mode": "BOUNDED_REVIEWED_REPLACEMENT_RUN_EVALUATION_ONLY",
+      "acceptance": [
+        "Use fixed non-secret synthetic run fixtures and bind Harbor, fixture, original-run and trial identities exactly.",
+        "Operator selection must bind original run identity, exact native trial IDs, source-evidence fingerprint, actor and reviewed budget; score-based selection is denied.",
+        "Original execution and artifacts remain immutable evidence. Replacement preparation or execution cannot rewrite, relabel or delete original receipts.",
+        "Reject source drift, forged or unknown trial IDs, cancelled or invalid originals, stale selection review, overlapping replacement batches and invalid replacement-of-replacement lineage.",
+        "Prove idempotency: identical idempotency key and body is stable, conflicting retry bodies are denied, and uncertain submission state cannot silently duplicate replacement work.",
+        "Combined results must match the admitted native Harbor aggregation contract on fixed fixtures; do not implement an SZL-only replacement metric path.",
+        "Original, replacement and combined related subsets cannot be pooled as independent leaderboard observations. Ambiguous multi-reward or multi-metric objects remain withheld from scalar ranking.",
+        "Keep selected-cohort cost and all-incurred cost coverage distinct, enforce reviewed budget ceilings and reject hidden replacement spend.",
+        "Preserve private Dataset, LFS and provider-secret isolation inherited from predecessor Harbor waves.",
+        "Exercise cancellation, partial result, failure, retry and rollback paths. Rollback target is the exact predecessor local-parent-artifact evaluation contract.",
+        "Record all evidence as EVALUATION unless an independent normal gate proves more; successful local fixtures do not authorize paid execution, publication or production benchmark promotion."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWave": "2026-09-11-hf-harbor-local-parent-artifacts",
+    "priorRevision": "ec1020c77cd3c159c91b7d1d68639317fb133c32",
+    "priorPullRequest": 89,
+    "trackingIssue": 94,
+    "implementationIssue": "szl-holdings/szl-forge#227",
+    "result": "material successor: reviewed replacement selection, lineage, aggregation and leaderboard/cost integrity create a new evaluation-governance boundary"
+  },
+  "authorityChain": {
+    "githubSource": "exact Harbor mainline commit admitted for bounded evaluation only",
+    "huggingFaceProjection": "no SZL Harbor worker, model, dataset, Space or paid Job publication is authorized by this wave",
+    "productRuntime": "no a-11-oy.com product route, provider route or default change is implied",
+    "proofEvidence": "HOLD until Forge receipts prove replacement selection, lineage, aggregation, cost and rollback invariants at the exact admitted source"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "Operator-reviewed replacement runs are evaluation-recovery infrastructure. They do not convert repeated or repaired benchmark evidence into independent observations, do not authorize paid replacement execution, and do not qualify models or production routes."
+  }
+}
