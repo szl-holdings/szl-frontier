@@ -40,7 +40,8 @@ test("deterministic self-merge is declared and bounded", () => {
   assert.equal(dm.strategy, "python-merge");
   assert.equal(dm.script, "scripts/wave-merge.py");
   assert.equal(dm.selfEnforcing, true);
-  assert.ok(dm.touchedPaths.includes(wavePath.split("frontier/")[1] + ""));
+  const waveRel = "frontier/waves/" + wavePath.split("/").at(-1);
+  assert.ok(dm.touchedPaths.includes(waveRel));
   for (const f of dm.forbidden) {
     assert.ok(!dm.touchedPaths.includes(f));
   }
