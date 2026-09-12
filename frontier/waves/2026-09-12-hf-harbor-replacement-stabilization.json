@@ -1,0 +1,75 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-12-hf-harbor-replacement-stabilization",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "62bfc47327d859b5c18bec9bf1c8797db6e7dd4e",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "huggingface-harbor-hf-replacement-stabilization",
+    "kind": "evaluation-evidence-integrity-and-parent-failure-control",
+    "priority": "P0",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/harbor-hf",
+    "upstream": {
+      "observedRevision": "59756acf33bcdf4c63ab9a5cf30b9bcc7d0caa30",
+      "observedAt": "2026-09-12T12:17:28Z",
+      "priorObservedRevision": "dafc6a3c0a98f806d23f26cd5438ceb8367390ec",
+      "releaseState": "MAIN_ONLY_WATCH",
+      "commitSignatureVerified": false,
+      "upstreamPullRequests": [221, 222, 223],
+      "revisionPolicy": "Evaluation is pinned to this exact successor head. Later Harbor main commits do not inherit qualification automatically."
+    },
+    "materialChanges": [
+      "Preserves native task names and validates replacement locks through Harbor's native task-ID API instead of silently changing task identity.",
+      "Reviews recorded-run inference access from immutable run configuration and the current image while preserving explicit review and existing owned policy scope; review is not an automatic grant or execution event.",
+      "Normalizes JSON number transport before native replacement-evidence validation so integral-float union values can retain the intended existing fingerprint without introducing a fallback hash or rewriting stored source evidence.",
+      "Pauses a run on any unacknowledged owned Hugging Face parent error instead of automatically launching another parent, requiring explicit operator resume.",
+      "Records explicit acknowledgements as owned parent-error job IDs; new errors require new review and acknowledgement is not provider status, native retry state or success evidence."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "trackingIssue": 227,
+      "frontierIssue": 104,
+      "mode": "BOUNDED_REPLACEMENT_STABILIZATION_EVALUATION_ONLY",
+      "acceptance": [
+        "Pin exact Harbor source 59756acf33bcdf4c63ab9a5cf30b9bcc7d0caa30 and keep dafc6a3c0a98f806d23f26cd5438ceb8367390ec as the rollback predecessor.",
+        "Cross-language numeric fixtures must prove intended integral-float normalization while preserving booleans, fractional floats and arbitrary integers; non-finite values and unsafe integer precision changes fail closed.",
+        "Do not add a fallback hash, dual identity, evidence migration or source rewrite to make mismatched replacement evidence pass.",
+        "Native task names and task IDs must round-trip through replacement selection and coverage checks without widening or silently relabeling the selected cohort.",
+        "Current-image inference-access review must derive only from immutable recorded run configuration and existing owned scope; missing, stale or conflicting review evidence grants nothing and starts no work.",
+        "Any unacknowledged owned parent error must persist a pause and must not launch another parent. Repeated reconciliation of the same error is idempotent.",
+        "Explicit resume may acknowledge only currently observed owned parent-error IDs under the existing run lock; unknown recorded-parent state, source drift or review failure cannot acknowledge or launch.",
+        "A newly observed parent error after resume requires a new review. Acknowledgement is operator decision metadata, never native retry state, provider status or a success receipt.",
+        "Preserve native Harbor trial retries, immutable original evidence, replacement lineage, native aggregation, anti-double-counting, selected-versus-all-incurred cost accounting, private Dataset/LFS/provider-secret isolation and cancellation semantics from the predecessor wave.",
+        "Exercise rollback to the exact reviewed-replacement predecessor contract without mutating original executions, receipts or source evidence.",
+        "Keep results EVALUATION unless independent normal controls prove more; no paid Job, provider write, Hub publication, product route/default change, model qualification or automatic promotion is authorized."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWave": "2026-09-12-hf-harbor-reviewed-replacements",
+    "priorRevision": "dafc6a3c0a98f806d23f26cd5438ceb8367390ec",
+    "priorPullRequest": 95,
+    "trackingIssue": 104,
+    "implementationIssue": "szl-holdings/szl-forge#227",
+    "result": "material successor: replacement evidence transport, native task identity, inference-access review and parent-error containment change the already-admitted evaluation integrity boundary"
+  },
+  "authorityChain": {
+    "githubSource": "exact Harbor successor commit admitted for bounded evaluation only",
+    "huggingFaceProjection": "no SZL Harbor worker, model, dataset, Space or paid Job publication is authorized by this wave",
+    "productRuntime": "no a-11-oy.com product route, provider route or default change is implied",
+    "proofEvidence": "HOLD until Forge receipts prove the successor numeric, task-identity, access-review, parent-error and rollback invariants at the exact admitted source"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "Replacement evidence normalization and parent-error acknowledgement are integrity and operator-control mechanisms. They do not turn reviewed replacement runs into independent benchmark observations, do not certify provider recovery, do not authorize paid execution and do not qualify a model or production route."
+  }
+}
