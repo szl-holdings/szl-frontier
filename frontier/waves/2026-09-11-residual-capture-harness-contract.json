@@ -1,0 +1,72 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "id": "2026-09-11-residual-capture-harness-contract",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "956bc585338b28eda0ec2f88fc920c5f88e756c5",
+  "class": "preparation",
+  "lane": "governed-inference",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false
+  },
+  "deduplication": {
+    "canonicalPredecessor": "frontier/waves/2026-09-11-governed-inference-binding-contract.json",
+    "predecessorRelation": "consumes the predecessor's binding receipt as its mandatory join key",
+    "note": "Third wave of the governed-inference lane chain: binding contract -> capture harness contract -> workspace readout (szl-holdings/a11oy#2020 steps 2-4)."
+  },
+  "candidate": {
+    "repository": null,
+    "kind": "contract-only",
+    "title": "Residual-stream capture harness contract v1",
+    "authority": "estate-internal-contract",
+    "note": "No capture exists yet; this wave defines what a capture receipt must carry so no readout claim may be made from an uncontracted capture."
+  },
+  "trackedIssues": [
+    "szl-holdings/a11oy#2020",
+    "szl-holdings/a11oy#1806"
+  ],
+  "captureContract": {
+    "version": 1,
+    "joinKey": {
+      "name": "bindingReceipt",
+      "rule": "Every capture receipt carries the DSSE receipt id of the bound route it ran on. A capture without a valid binding receipt is invalid by construction; the estate never captures on an unbound route."
+    },
+    "requiredFields": [
+      {
+        "name": "exactRevisions",
+        "rule": "Model and tokenizer revisions echoed verbatim from the binding receipt; any mismatch fails the capture before it starts."
+      },
+      {
+        "name": "captureConfig",
+        "rule": "Layers sampled (all or explicit stride), hook points, tensor dtype, and sequence boundary policy are declared and hashed into the receipt. Undeclared captures cannot anchor a claim."
+      },
+      {
+        "name": "storageClass",
+        "rule": "Captured residual streams live in ephemeral storage only (tmpfs or equivalent); captured tensors never persist beyond the governed session boundary."
+      },
+      {
+        "name": "captureReceipt",
+        "rule": "A partial-DSSE receipt binds bindingReceiptId + captureConfigHash + inference receipt hash. Readout steps consume only capture receipts."
+      },
+      {
+        "name": "failureDisposition",
+        "rule": "Capture failure, partial capture, or config drift produces abstention: no readout claim, no labeled receipt field, no silent fallback to behavioral output alone presented as workspace evidence."
+      }
+    ]
+  },
+  "relationToWorkspaceReadout": {
+    "consumes": "frontier/waves/2026-09-11-governed-inference-binding-contract.json",
+    "enables": "szl-holdings/a11oy#2020 step 2 (residual-stream-capture)",
+    "rule": "Step 2 of the measurement order is satisfied by a capture receipt against this contract running on a bound route. Steps 3-4 remain blocked until then."
+  },
+  "claimSurfaces": [
+    "No residual stream has been captured; no capture receipt exists; no readout has run.",
+    "This wave changes no runtime; it defines the contract a future harness must satisfy.",
+    "Behavioral output alone is never presented as workspace evidence."
+  ],
+  "labels": {
+    "provenance": ["OBSERVED"],
+    "honesty": "labels-verbatim"
+  },
+  "signoff": "Lutar, Stephen P. <stephenlutar2@gmail.com>"
+}
