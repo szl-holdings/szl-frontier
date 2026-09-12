@@ -1,0 +1,66 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-12-k2-horizon-mova-36b-a4b",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "b4da14ba0b45f66ffba9db4d179ff8f15f8fefc1",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "ifm-k2-horizon-mova-36b-a4b",
+    "kind": "model-admission",
+    "priority": "P0",
+    "publisher": "IFM",
+    "repository": "IFM/K2-Horizon-MoVA-36B-A4B",
+    "upstream": {
+      "observedRevision": "05cab0a4d7150c1c460a000b37ff40cc1af2feaa",
+      "observedAt": "2026-09-12T22:20:00Z",
+      "lastModified": "2026-09-03T13:08:17Z",
+      "releaseState": "PUBLIC_OPEN_WEIGHTS_WATCH",
+      "licenseDeclared": "apache-2.0",
+      "revisionPolicy": "Admission is pinned to the observed Hub revision 05cab0a4; later revisions do not inherit qualification automatically."
+    },
+    "materialChanges": [
+      "Sparse Mixture-of-Experts model storing about 36B parameters and activating about 4B per token, with Mixture-of-Values attention and a 100-expert, 8-experts-per-token configuration reported by the published config.",
+      "Native 524,288-token context from midtraining onward; advertised context is not an SZL memory or KV-cache budget.",
+      "Ships a custom k2_horizon architecture with custom auto_map and the custom_code tag, requiring trust_remote_code review before any SZL execution; no automatic trust-remote-code.",
+      "Chat template implements structured tool calling with tool_call_format json/xml/xml_typed and tool_presentation_format json/xml/markdown, directly relevant to SZL governed tool-call and receipt contracts.",
+      "Upstream reports frontier-class agentic and reasoning benchmark results at 4B active parameters; all benchmark claims are UPSTREAM_REPORTED_NOT_SZL_MEASURED.",
+      "Open-weights release; intermediate checkpoints, training data and training code are promised but not yet published, so the fully-open claim remains unverified."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "frontierIssue": 100,
+      "mode": "BOUNDED_MODEL_ADMISSION_EVALUATION_ONLY",
+      "acceptance": [
+        "Pin the exact Hub revision 05cab0a4 and LICENSE bytes before evaluation; the Apache-2.0 declaration does not establish constituent or input rights.",
+        "Review the custom k2_horizon modeling and configuration code under trust_remote_code review with no automatic execution; sandbox before any owned-hardware run.",
+        "Exercise the declared json/xml/xml_typed tool-call formats against fixed non-secret SZL tool-call fixtures before any routing consideration.",
+        "Verify the claimed 4B-active expert routing and 512K context behavior on owned hardware or an approved provider; advertised numbers are UPSTREAM_REPORTED_NOT_SZL_MEASURED.",
+        "Exercise failure, cancellation and rollback paths; keep training, model publication, provider routing and automatic promotion false until separate normal controls pass."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "exactRevisionPreviouslyPresent": false,
+    "relatedModelWave": "frontier/waves/2026-09-08-kimi-hy4-spark.json",
+    "trackingIssue": 100,
+    "result": "material sparse-MoE agentic model admission: high-leverage candidate for the governed inference and tool-use plane; no serving or routing authority granted"
+  },
+  "authorityChain": {
+    "githubSource": "public Hub model admitted for bounded evaluation only",
+    "huggingFaceProjection": "no SZL model rehosting, dataset or Space publication is authorized by this wave",
+    "productRuntime": "no a-11-oy.com model or route/default changes from this wave",
+    "proofEvidence": "HOLD until exact-revision custom-code review, tool-call compliance and context-behavior receipts exist; model-card benchmarks are UPSTREAM_REPORTED_NOT_SZL_MEASURED"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "The model card claims frontier-class results at 4B active parameters. Admission records the claim; it does not verify benchmarks, qualify the model for governed inference, authorize trust-remote-code execution, or change any route."
+  }
+}
