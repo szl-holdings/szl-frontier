@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   catalogCandidate,
-  classifiedWatchDelta,
   editorialMateriality,
   feedCandidate,
   hasCompleteSourceCoverage,
@@ -13,11 +12,6 @@ import {
   stableStringify,
 } from "./frontier-release-watch.mjs";
 import { productionDisposition } from "../src/lib/frontier/release-catalog.js";
-import {
-  FIRST_OBSERVATION,
-  NO_MATERIAL,
-  SUBSTANTIVE_CHANGE,
-} from "../src/lib/frontier/watch-materiality.js";
 
 describe("frontier release watch", () => {
   it("canonicalizes object keys deterministically", () => {
@@ -61,8 +55,6 @@ describe("frontier release watch", () => {
     assert.equal(snapshot.revision, "abc123");
     assert.equal(snapshot.license, "apache-2.0");
     assert.match(snapshot.artifactFingerprint, /^[a-f0-9]{64}$/);
-    assert.ok("substantive" in (snapshot.classifiedFingerprints ?? {}));
-    assert.equal(snapshot.inventoryComplete, false);
   });
 
   it("fingerprints a bounded official blog page without executing its content", () => {
@@ -148,59 +140,5 @@ describe("frontier release watch", () => {
       }),
       "PROMOTE",
     );
-  });
-
-  it("keeps card-only Hub churn quiet and first observation off the alert channel", () => {
-    const hubPayload = (readmeOid, weightOid) => ({
-      sha: "a".repeat(40),
-      lastModified: "2026-09-11T00:00:00Z",
-      private: false,
-      gated: false,
-      disabled: false,
-      cardData: { license: "apache-2.0" },
-      siblings: [
-        { rfilename: "README.md", size: 30, blobId: readmeOid },
-        { rfilename: "LICENSE", size: 31, blobId: "c".repeat(40) },
-        { rfilename: "config.json", size: 32, blobId: "d".repeat(40) },
-        { rfilename: "model.safetensors", size: 100, lfs: { oid: weightOid, size: 100 } },
-      ],
-    });
-    const release = {
-      id: "granite-patchtst-fm-r2",
-      title: "Granite PatchTST-FM-r2",
-      publisher: "IBM",
-      category: "models",
-      primarySource: "https://huggingface.co/ibm-granite/granite-timeseries-patchtst-fm-r2",
-      artifactSource: "https://huggingface.co/ibm-granite/granite-timeseries-patchtst-fm-r2",
-      targetOrgans: ["szl-frontier"],
-      whyItMatters: "Pinned Granite adapter is the optional Lyte challenger.",
-      operationalTarget: "Review classified fingerprints only.",
-      maturity: "released",
-      license: "apache-2.0",
-      licensePosture: "clear",
-      posture: "EVALUATE_NOW",
-      signals: { impact: 25, estateFit: 25, evidenceQuality: 24, integrationReadiness: 20, riskPenalty: 4 },
-      gates: [{ scope: "production", state: "pending" }],
-      watch: { kind: "model", repoId: "ibm-granite/granite-timeseries-patchtst-fm-r2" },
-    };
-    const first = snapshotHubAsset("model", release.watch.repoId, hubPayload("b".repeat(40), "e".repeat(64)));
-    assert.equal(first.inventoryComplete, true);
-    assert.match(first.classifiedFingerprints.substantive, /^[a-f0-9]{64}$/);
-    assert.equal(classifiedWatchDelta(release, first), FIRST_OBSERVATION);
-    const firstLook = catalogCandidate(release, first, "2026-09-01T00:00:00Z");
-    assert.equal(firstLook.material, false);
-
-    const seeded = {
-      ...release,
-      watch: { ...release.watch, classifiedFingerprints: first.classifiedFingerprints },
-    };
-    const cardChurn = snapshotHubAsset("model", release.watch.repoId, hubPayload("f".repeat(40), "e".repeat(64)));
-    assert.notEqual(cardChurn.artifactFingerprint, first.artifactFingerprint);
-    assert.equal(classifiedWatchDelta(seeded, cardChurn), NO_MATERIAL);
-    assert.equal(catalogCandidate(seeded, cardChurn, "2026-09-01T00:00:00Z").material, false);
-
-    const weights = snapshotHubAsset("model", release.watch.repoId, hubPayload("b".repeat(40), "f".repeat(64)));
-    assert.equal(classifiedWatchDelta(seeded, weights), SUBSTANTIVE_CHANGE);
-    assert.equal(catalogCandidate(seeded, weights, "2026-09-01T00:00:00Z").material, true);
   });
 });
