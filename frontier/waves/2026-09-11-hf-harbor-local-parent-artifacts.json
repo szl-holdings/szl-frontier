@@ -1,0 +1,68 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-11-hf-harbor-local-parent-artifacts",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "718e4ee7196803f665b77c7061bf70907722a537",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "huggingface-harbor-hf-local-parent-artifacts",
+    "kind": "evaluation-execution-and-artifact-handoff-infrastructure",
+    "priority": "P0",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/harbor-hf",
+    "upstream": {
+      "observedRevision": "ec1020c77cd3c159c91b7d1d68639317fb133c32",
+      "observedAt": "2026-09-11T16:42:03Z",
+      "priorObservedRevision": "8685727908e8d9ee5ccde48586864a851e24ff79",
+      "releaseState": "MAIN_ONLY_WATCH",
+      "commitSignatureVerified": true,
+      "revisionPolicy": "Evaluation is pinned to this exact material commit. Later Harbor main commits do not inherit qualification automatically."
+    },
+    "materialChanges": [
+      "Moves parent execution to local Harbor-controlled execution rather than treating a remote parent as the execution authority.",
+      "Consumes acknowledged native artifact copies from local parent storage while explicitly retaining Harbor execution authority.",
+      "Changes the parent-to-child artifact handoff boundary and therefore requires provenance, freshness, ownership and cancellation revalidation rather than a source-only compatibility check.",
+      "Includes cancellation and dashboard-refresh changes that preserve accessible error details while parent observations are refreshed."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "trackingIssue": 227,
+      "mode": "BOUNDED_LOCAL_PARENT_ARTIFACT_HANDOFF_EVALUATION_ONLY",
+      "acceptance": [
+        "Run only fixed non-secret parent/child fixtures and bind Harbor plus fixture revisions exactly.",
+        "Prove local parent execution retains Harbor authority and that an artifact copy cannot independently authorize child execution, promotion, publication or credential use.",
+        "Bind every copied parent artifact to content digest, parent run identity, producer source revision and acknowledgement event; reject stale, partial, mismatched or unacknowledged copies.",
+        "Exercise parent cancellation before copy, during copy and after acknowledgement; child execution must fail closed when the inherited evidence is no longer admissible.",
+        "Prove retries do not duplicate parent execution or silently reuse a stale local artifact after source/revision drift.",
+        "Preserve the private Dataset credential/LFS boundaries from the predecessor wave; local parent storage must not become a path for credential or private-data propagation into trial environments.",
+        "Retain accessible structured error details without treating dashboard freshness or HTTP success as benchmark qualification.",
+        "Record rollback to the exact predecessor Harbor evaluation contract."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWave": "2026-09-11-hf-harbor-private-datasets",
+    "priorRevision": "8685727908e8d9ee5ccde48586864a851e24ff79",
+    "trackingIssue": 83,
+    "implementationIssue": "szl-holdings/szl-forge#227",
+    "result": "material successor: execution authority and parent artifact handoff semantics changed after the private-Dataset boundary wave"
+  },
+  "authorityChain": {
+    "githubSource": "exact Harbor mainline commit admitted for bounded evaluation only",
+    "huggingFaceProjection": "no Harbor worker/control publication authorized by this wave",
+    "productRuntime": "no A11oy product route or default change is implied",
+    "proofEvidence": "HOLD until measured Forge receipts bind parent execution, copied artifact identity and cancellation behavior"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "Local parent execution and native artifact copies are an evaluation orchestration change only. They do not authorize provider writes, production benchmarks, private corpus propagation, publication, deployment or model qualification."
+  }
+}
