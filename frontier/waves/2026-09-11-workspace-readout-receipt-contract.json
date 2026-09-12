@@ -54,7 +54,7 @@
       },
       {
         "name": "failureDisposition",
-        "rule": "Readout failure, ancestry break, or method drift produces abstention: the disposition field reads UNAVAILABLE with the failure code; behavioral output alone is never presented as workspace evidence."
+        "rule": "Readout failure, ancestry break, or method drift produces abstention: the disposition field reads UNAVAILABLE with the failure code; behavioral output alone is never workspace evidence."
       }
     ]
   },
