@@ -1,0 +1,69 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-12-peft-distributed-lora-export-integrity",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "733f383360b027682ba862dd1ca502fe0130d70d",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "huggingface-peft-zero3-fsdp-lora-export-integrity",
+    "kind": "post-training-artifact-integrity",
+    "priority": "P1",
+    "publisher": "Hugging Face",
+    "repository": "huggingface/peft",
+    "upstream": {
+      "observedRevision": "78bce7cb48f800a7ad0d352b68a46302e13e1687",
+      "observedAt": "2026-09-10T13:49:59Z",
+      "releaseState": "MAIN_ONLY_WATCH",
+      "upstreamPullRequest": 3251,
+      "revisionPolicy": "Evaluation is pinned to this exact commit; later PEFT revisions do not inherit qualification automatically."
+    },
+    "materialChanges": [
+      "Detects 1-D or zero-sized LoRA A/B tensors that typically indicate ungathered DeepSpeed ZeRO-3 or FSDP shards at adapter export time.",
+      "Emits PeftWarning for inferred state dicts rather than silently deferring the malformed-artifact failure to downstream loaders.",
+      "Leaves explicitly supplied state dicts outside this heuristic because their provenance is unknown.",
+      "Excludes legitimate one-dimensional parameters such as DoRA magnitude vectors and AdaLoRA lora_E from the LoRA A/B shape check.",
+      "Upstream warning does not refuse the write, so SZL requires separate receipt-backed publication integrity evidence before any adapter can advance."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "trackingIssue": 257,
+      "frontierIssue": 110,
+      "mode": "BOUNDED_DISTRIBUTED_LORA_EXPORT_INTEGRITY_EVALUATION_ONLY",
+      "acceptance": [
+        "Pin exact PEFT source 78bce7cb48f800a7ad0d352b68a46302e13e1687, torch, DeepSpeed or FSDP, safetensors, base-model revision and adapter configuration.",
+        "Reproduce valid gathered export and intentionally ungathered one-dimensional or zero-sized lora_A/lora_B tensors on synthetic or fixed public non-secret fixtures.",
+        "Prove PeftWarning behavior for inferred state dicts and prove the explicit-state-dict bypass boundary; never describe the upstream warning as refusing a write.",
+        "Verify legitimate one-dimensional DoRA magnitude vectors and AdaLoRA lora_E parameters are not false positives.",
+        "Evaluate an independent SZL pre-publication receipt check requiring serialized LoRA A/B tensors to be at least two-dimensional, non-empty, immutable-byte readable, exact-base bound and successfully reloadable before public publication can be considered.",
+        "Exercise malformed shard, explicit-state-dict, save-load, immutable readback, cancellation, failure and rollback cases.",
+        "Do not silently turn the upstream warning into a production policy; any fail-closed SZL publisher guard requires its own reviewed implementation and tests.",
+        "Keep training, adapter or model publication, model qualification, provider routing and automatic promotion false until separate normal controls pass."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "exactRevisionPreviouslyPresent": false,
+    "distributedLoraExportGuardPreviouslyPresent": false,
+    "trackingIssue": 110,
+    "implementationIssue": "szl-holdings/szl-forge#257",
+    "result": "material post-training artifact-integrity boundary: malformed distributed LoRA exports can look structurally valid and fail only at downstream load time"
+  },
+  "authorityChain": {
+    "githubSource": "exact PEFT mainline commit admitted for bounded evaluation only",
+    "huggingFaceProjection": "no SZL adapter, model, dataset or Space publication is authorized by this wave",
+    "productRuntime": "no a-11-oy.com model or adapter route/default changes from this wave",
+    "proofEvidence": "HOLD until exact-source warning, serialized-byte, binding and reload receipts exist; a warning alone is not artifact qualification"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "The PEFT source adds a distributed-LoRA shape warning. It does not by itself refuse malformed writes, prove complete sharded gathering, certify adapter bytes, prove loadability or authorize publication."
+  }
+}
