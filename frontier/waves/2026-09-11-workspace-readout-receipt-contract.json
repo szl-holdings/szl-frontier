@@ -2,7 +2,7 @@
   "schema": "szl.frontier.integration-wave.v1",
   "id": "2026-09-11-workspace-readout-receipt-contract",
   "sourceOfTruth": "szl-holdings/szl-frontier",
-  "sourceRevisionObserved": "443bba7434c94a5719c904ed41b2ef1866024c4c",
+  "sourceRevisionObserved": "62bfc47327d859b5c18bec9bf1c8797db6e7dd4e",
   "class": "preparation",
   "lane": "governed-inference",
   "policy": {
@@ -12,19 +12,24 @@
   "deduplication": {
     "canonicalPredecessor": "frontier/waves/2026-09-11-residual-capture-harness-contract.json",
     "predecessorRelation": "consumes the predecessor's capture receipt as its mandatory join key",
-    "note": "Keystone wave of the governed-inference lane chain: binding contract -> capture harness contract -> readout receipt contract. Satisfies the claim side of szl-holdings/a11oy#2020 steps 3-4 as a contract; performs no readout."
+    "note": "Keystone wave of the governed-inference lane chain: binding contract -> capture harness contract -> readout contract. Converged onto canonical main after the concurrent 2026-09-11 identity-bind and command-readout waves; references them for the discretionary executor pass that produced them."
   },
   "candidate": {
     "repository": null,
     "kind": "contract-only",
     "title": "Workspace readout receipt contract v1",
     "authority": "estate-internal-contract",
-    "note": "No readout exists yet; this wave defines what a readout receipt must carry so no workspace disposition field can appear on a DSSE receipt without full receipt ancestry."
+    "note": "No readout exists yet; this wave reconciles the keystone against the two canonical 2026-09-11 additions on same-day main."
   },
   "trackedIssues": [
-    "szl-holdings/a11oy#2020",
-    "szl-holdings/a11oy#1806"
+    "szl-holdings/a11oy#1806",
+    "szl-holdings/a11oy#2020"
   ],
+  "relatedWaves": {
+    "identityBind": "frontier/waves/2026-09-11-identity-bind.json",
+    "commandReadout": "frontier/waves/2026-09-11-command-readout.json",
+    "rule": "Those two waves advanced same-day main; this receipt records that their push path is the one the keystone received and reconciled against."
+  },
   "readoutContract": {
     "version": 1,
     "joinKey": {
@@ -65,7 +70,7 @@
   },
   "claimSurfaces": [
     "No readout has run; no disposition field has been emitted; every estate organ remains MODELED or NO_ORGAN.",
-    "This wave changes no runtime; it defines the claim contract a future readout must satisfy.",
+    "This record is preparation, not measurement, not deployment, not qualification.",
     "The output is not the truth of the computation; a disposition field is a labeled observation, not a verdict."
   ],
   "labels": {
