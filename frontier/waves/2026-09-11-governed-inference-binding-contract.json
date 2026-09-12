@@ -1,0 +1,82 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "id": "2026-09-11-governed-inference-binding-contract",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "863898ea363679a47c17533967db34310067c069",
+  "class": "preparation",
+  "lane": "governed-inference",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false
+  },
+  "deduplication": {
+    "canonicalPredecessor": "frontier/waves/2026-09-11-workspace-readout-preparation.json",
+    "predecessorRelation": "predecessor is the downstream consumer; this wave prepares the prerequisite it is gated on",
+    "note": "First wave of the governed-inference lane. Satisfies the estate prerequisite szl-holdings/a11oy#1806 P1 as a contract; it calls no inference and changes no route."
+  },
+  "candidate": {
+    "repository": null,
+    "kind": "contract-only",
+    "title": "Governed inference route binding contract v1",
+    "authority": "estate-internal-contract",
+    "note": "No candidate model is named by this wave. A candidate becomes eligible to be named only by presenting evidence satisfying every contract field. Naming a candidate without evidence is a guard failure."
+  },
+  "trackedIssues": [
+    "szl-holdings/a11oy#1806",
+    "szl-holdings/a11oy#2020",
+    "szl-holdings/a11oy#1686"
+  ],
+  "bindingContract": {
+    "version": 1,
+    "requiredFields": [
+      {
+        "name": "modelRevision",
+        "rule": "Exact immutable model revision (commit SHA or content-addressed artifact hash) from a license-admitted source. A mutable ref (main, latest, a tag alone) is never a binding."
+      },
+      {
+        "name": "tokenizerRevision",
+        "rule": "Exact tokenizer revision, bound independently of the model revision; a tokenizer that silently floats invalidates the route."
+      },
+      {
+        "name": "benchmarkSuite",
+        "rule": "Named benchmark set with pinned versions and a committed harness; results land on receipts, not in prose."
+      },
+      {
+        "name": "latencyCostEnvelope",
+        "rule": "Declared p50/p95/p99 latency bounds and cost-per-token envelope measured on the exact bound revisions; overruns fail closed, never silently degrade."
+      },
+      {
+        "name": "fallbackPolicy",
+        "rule": "Named fallback disposition for provider failure: abstain, downgrade to a separately bound route, or refuse. 'Try anyway' is not a policy."
+      },
+      {
+        "name": "piiBoundary",
+        "rule": "Declared PII handling boundary: what may reach the provider, what is redacted, what is refused at the gate."
+      },
+      {
+        "name": "failClosedBehavior",
+        "rule": "Every failure mode (provider down, revision mismatch, envelope breach, benchmark regression, PII violation) terminates in refusal, never in a weaker silent route."
+      }
+    ],
+    "bindingReceipt": "A route is bound only when a DSSE receipt records all seven fields against the exact revisions; the receipt, not the declaration, is the binding.",
+    "unbindingRule": "Any field that drifts (revision floats, benchmark regresses, envelope breaches persist) unbinds the route automatically and returns the estate to the plan state."
+  },
+  "relationToWorkspaceReadout": {
+    "consumes": "frontier/waves/2026-09-11-workspace-readout-preparation.json",
+    "rule": "The workspace readout lane's step 1 (governed-inference-binding) is satisfied by a receipt against this contract. Only then do steps 2-4 of that wave become executable."
+  },
+  "relationToBakeoff": {
+    "references": "szl-holdings/a11oy#1686",
+    "rule": "Engine-bakeoff candidates (vLLM, SGLang, transformers serve, llama.cpp/MLX lanes) are evaluated behind this contract; the bakeoff measures bound routes, never unbound demos."
+  },
+  "claimSurfaces": [
+    "No route is bound by this wave; this wave defines what binding means.",
+    "No inference is called; no model revision, tokenizer, benchmark, envelope, fallback, PII, or fail-closed evidence exists yet.",
+    "An unbound plan remains a plan; the estate does not call it inference."
+  ],
+  "labels": {
+    "provenance": ["OBSERVED"],
+    "honesty": "labels-verbatim"
+  },
+  "signoff": "Lutar, Stephen P. <stephenlutar2@gmail.com>"
+}
