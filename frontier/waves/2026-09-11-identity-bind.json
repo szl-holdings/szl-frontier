@@ -1,0 +1,75 @@
+{
+  "schema": "szl.frontier.wave/v1",
+  "id": "2026-09-11-identity-bind",
+  "observedAt": "2026-09-11T23:22:00Z",
+  "disposition": "PARTIAL",
+  "evaluationOnly": true,
+  "productionAuthorized": false,
+  "automaticPromotionAuthorized": false,
+  "allWorkPackagesComplete": false,
+  "candidate": {
+    "publisher": "SZL Holdings",
+    "repository": "szl-holdings/szl-frontier",
+    "note": "Successor identity-bind after #90. Not a new model admission. Not ALL_DONE."
+  },
+  "authorityChain": {
+    "githubSource": "szl-forge 8befca224540cb811586e99bea676d98ca7ac4b0 after #235/#236/#242; a11oy 7253ccb1f6ef888f87fcd9299baabde239a0ced0",
+    "huggingFaceProjection": "no Hub write from this wave; 46 models / 35 datasets / 22 spaces observed",
+    "productRuntime": "a-11-oy.com/api/build-info revision 7253ccb1f6ef888f87fcd9299baabde239a0ced0 MATCHES GitHub a11oy main this observation; image_digest null; huggingface_hub 1.31 import unproven",
+    "proofEvidence": "a11oy-net 50829911cc268e822cd4e8419041d88d77319c21 four-origin recapture #179; static health.json is not runtime healthz; ready=false"
+  },
+  "heads": {
+    "szl-forge": "8befca224540cb811586e99bea676d98ca7ac4b0",
+    "szl-frontier": "fde55c77bb78d70cad5d16fb753b2965557f72c6",
+    "a11oy": "7253ccb1f6ef888f87fcd9299baabde239a0ced0",
+    "a11oy-net": "50829911cc268e822cd4e8419041d88d77319c21",
+    "lyte-services": "dd17d9f524b76c8f0e260d7ec1e084cc079dfc43",
+    "szl-kernels": "ea507322d8e2ce90ce6e78f6889ab1c8f4874b0b"
+  },
+  "landedThisWave": [
+    "szl-frontier#90 command readout admitted under HOLD as fde55c77.",
+    "a11oy#2113 Lyte fail-closed Space revision probe merged (329fb9a on history).",
+    "szl-forge#235 kernel Hub fleet HOLD catalog merged (e97d7dc). Does not requalify kernels.",
+    "Product origin recovered after restart. Source=served MATCH at 7253ccb.",
+    "a11oy-net#179 four-origin ops recapture 22:53Z."
+  ],
+  "liveObservations": {
+    "healthz": "status=ok preflight=DEGRADED signer=DSSE-LIVE sovereign=UNAVAILABLE frontier=8/8 uptime~302s this observer",
+    "lyteHealthz": "source_revision=dd17d9f524b76c8f0e260d7ec1e084cc079dfc43 runtime_source_revision=dd17d9f524b76c8f0e260d7ec1e084cc079dfc43 effectors_enabled=false",
+    "servedShaMatchesGithub": true,
+    "buildInfoRevision": "7253ccb1f6ef888f87fcd9299baabde239a0ced0"
+  },
+  "remainingHolds": [
+    "WP06 kernel first-class identities before 2026-09-13; #235 catalogued HOLD; missing kernel-type v1 szl-maskmod szl-block-kv szl-receipt-attn YARQA-ATTN",
+    "WP04 Lyte #18 UI identity UNAVAILABLE despite healthz pin match; do not hand-patch SZLHOLDINGS/lyte",
+    "WP03/WP20 installed-image huggingface_hub 1.31 import still unproven",
+    "WP14 GPU/vLLM AsyncGRPO measurements (#224 open)",
+    "WP09 Ghlore named corpus/citation/freshness run",
+    "WP08/WP10-WP13 Tau Harbor Repo2RLEnv measured reruns",
+    "WP23 rendered UX 320/375/768/1440",
+    "Preflight DEGRADED: missing Stripe/provider/GPU/compute secrets. Sovereign NODE_UNREACHABLE_THIS_REQUEST"
+  ],
+  "policy": {
+    "hubPublicationAuthorized": false,
+    "providerWriteAuthorized": false,
+    "productionRouteChangeAuthorized": false,
+    "massPurposePinUpgradeAuthorized": false,
+    "weightRehostingAuthorized": false,
+    "branchProtectionMutationAuthorized": false,
+    "preserveLicensing": true,
+    "preserveProvenance": true,
+    "preserveRollback": true,
+    "preserveReceipts": true
+  },
+  "deduplication": {
+    "canonicalPredecessor": "frontier/waves/2026-09-11-command-readout.json",
+    "doNotRecreate": [
+      "a11oy#2098",
+      "a11oy#2100",
+      "a11oy#2113",
+      "szl-forge#238",
+      "szl-forge#235",
+      "szl-frontier#90"
+    ]
+  }
+}
