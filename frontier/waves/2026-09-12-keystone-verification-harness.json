@@ -1,0 +1,58 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "id": "2026-09-12-keystone-verification-harness",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "8c93cc96e89bd37b046b487f1a2589b10e0531ed",
+  "class": "preparation",
+  "lane": "governed-inference",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false
+  },
+  "deterministicMerge": {
+    "strategy": "python-merge",
+    "script": "scripts/wave-merge.py",
+    "touchedPaths": [
+      "frontier/waves/2026-09-12-keystone-verification-harness.json",
+      "scripts/frontier-keystone-verification-harness.test.mjs"
+    ],
+    "forbidden": [
+      "README.md",
+      "docs/METRICS.md",
+      "docs/LAUNCH_DICTIONARY.md"
+    ],
+    "selfEnforcing": true
+  },
+  "purpose": {
+    "summary": "Checkout-scoped verification harness for the canonical readout keystone (dafa2978). The 2026-09-12 chain receipt recorded the keystone's internal fields as UNVERIFIED; this wave installs the instrument that can honestly move them to VERIFIED when CI checks out main, and honestly keeps them UNVERIFIED while anchors are absent.",
+    "principle": "Report-only by design: the suite fails only on its own inconsistency, never on keystone structure it cannot predict. Dispositions are VERIFIED or UNAVAILABLE per requirement with evidence strings."
+  },
+  "targets": {
+    "keystone": "frontier/waves/2026-09-11-workspace-readout-receipt-contract.json",
+    "checklistSource": "frontier/waves/2026-09-12-governed-inference-chain-receipt.json",
+    "requirements": [
+      "joinKeyAncestryCheck",
+      "pinnedReadoutMethod",
+      "coverageAgainstCaptureHash",
+      "dispositionBesideBehavioral",
+      "unavailableFloor",
+      "measuredUpgradeReversible",
+      "failureAbstains"
+    ]
+  },
+  "relationToLane": {
+    "consumes": "frontier/waves/2026-09-12-governed-inference-chain-receipt.json",
+    "satisfies": "szl-holdings/a11oy#2020 verification follow-up (instrument side)",
+    "rule": "Exists to close the keystone's UNVERIFIED window without guessing its bytes; verifies against the semantic checklist taught by the Codex-reviewed superseded wave."
+  },
+  "claimSurfaces": [
+    "The harness asserts structure, not correctness of claims; a VERIFIED requirement means the anchor language is present in the canonical record.",
+    "Until a CI run reports 7-of-7 VERIFIED, every estate organ remains MODELED or NO_ORGAN and the keystone internals remain UNVERIFIED.",
+    "This record is preparation, not measurement, not deployment, not qualification."
+  ],
+  "labels": {
+    "provenance": ["OBSERVED"],
+    "honesty": "labels-verbatim"
+  },
+  "signoff": "Lutar, Stephen P. <stephenlutar2@gmail.com>"
+}
