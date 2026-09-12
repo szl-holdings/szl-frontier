@@ -1,0 +1,64 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-12-trl-grpo-structured-output-recipe",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "c52f2b19f830816c51a04f441e59a20430ee0fea",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "hf-blog-trl-grpo-structured-output-recipe",
+    "kind": "post-training-recipe-schema-compliance",
+    "priority": "P1",
+    "publisher": "Hugging Face",
+    "upstream": {
+      "observedSource": "https://huggingface.co/blog/grpo-with-trl-ifstruct",
+      "observedAt": "2026-09-12T21:50:00Z",
+      "publishedAt": "2026-09-03",
+      "releaseState": "PUBLISHED_RECIPE_WATCH",
+      "revisionPolicy": "The recipe is a published procedure, not a pinned upstream code revision; evaluation must pin exact TRL, PEFT, transformers and llama.cpp versions at run time before any result is comparable."
+    },
+    "materialChanges": [
+      "Fine-tunes LiquidAI/LFM2.5-350M with TRL GRPO plus a LoRA adapter (rank 16, about 6M parameters, about 1.66% of the model) on roughly 500 structured-output samples over 100 training steps on a free-tier 16 GB GPU.",
+      "Defines three bounded [0,1] reward functions (json_format_reward, field_count_reward, schema_validation_reward) combined with weights 1.0/0.5/2.0, directly aligned with SZL governed JSON, YAML, tool-call and receipt contracts.",
+      "Augments training prompts so 40 percent request fenced code blocks and a disjoint 20 percent become top-level-array tasks, training form-following rather than raw-JSON-only behavior.",
+      "Merges the LoRA adapter into base weights and converts to BF16 GGUF for llama.cpp serving before evaluation.",
+      "Upstream reports overall IFStruct v1.0 improvement from 22.6 percent to 29.7 percent (JSON 18.0 to 31.9; bare list 16.6 to 29.7; YAML approximately unchanged) with the tuned model still below the upstream-reported Qwen3.5-2B 33.15 percent."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "frontierIssue": 101,
+      "mode": "BOUNDED_STRUCTURED_OUTPUT_GRPO_RECIPE_EVALUATION_ONLY",
+      "acceptance": [
+        "Pin exact TRL, PEFT, transformers, llama.cpp and base-model revisions at evaluation time; the published recipe inherits no qualification.",
+        "Reproduce base and tuned IFStruct v1.0 runs on the same serving stack or record honest UNAVAILABLE; never transcribe upstream-reported scores as SZL measurements.",
+        "Unit-test the three reward functions on fixed non-secret fixtures including unparseable output, wrong-but-parseable form, exact and decaying field-count misses, and schema violations with partial credit gating.",
+        "Exercise the fenced-code-block versus raw-output instruction split and top-level-array item-count compliance.",
+        "Prove merged-adapter serving parity against the adapter-served checkpoint before any comparison claim.",
+        "Exercise failure, cancellation and rollback paths; keep training, model publication, provider routing and automatic promotion false until separate normal controls pass."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "exactRecipePreviouslyPresent": false,
+    "relatedTriageWave": "frontier/waves/2026-09-10-trl-asyncgrpo-lora-vllm-sync.json",
+    "trackingIssue": 101,
+    "result": "material small-model schema-compliance post-training recipe: upstream-reported gains are recipe-illustrative and are not SZL measurements"
+  },
+  "authorityChain": {
+    "githubSource": "published HF blog recipe admitted for bounded evaluation only",
+    "huggingFaceProjection": "no SZL model, adapter, dataset or Space publication is authorized by this wave",
+    "productRuntime": "no a-11-oy.com model or route/default changes from this wave",
+    "proofEvidence": "HOLD until exact-revision reproduction receipts exist; upstream blog numbers are UPSTREAM_REPORTED_NOT_SZL_MEASURED"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "The recipe demonstrates that cheap task-specific GRPO rewards can improve small-model output-form compliance. It does not certify the upstream-reported benchmark scores, qualify any model for governed inference, or authorize production use."
+  }
+}
