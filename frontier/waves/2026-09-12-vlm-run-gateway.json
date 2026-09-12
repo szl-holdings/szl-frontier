@@ -1,0 +1,61 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-12-vlm-run-gateway",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "3ac9342660ada3aaeb00d94a6d3c0a1bc9ee83c3",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "vlm-run-gateway-unified-visual-api",
+    "kind": "third-party-visual-inference-gateway",
+    "priority": "P2",
+    "publisher": "VLM Run (community)",
+    "upstream": {
+      "observedSource": "https://huggingface.co/blog/vlm-run/introducing-gateway",
+      "observedAt": "2026-09-12T22:33:00Z",
+      "publishedAt": "2026-09-04",
+      "releaseState": "ALPHA_FREE_TIER_WATCH",
+      "revisionPolicy": "A community-published alpha service with no pinned revision; any evaluation must pin the exact gateway client version and per-model serving configuration before results are comparable."
+    },
+    "materialChanges": [
+      "Unified API and CLI for open-weight VLMs, OCR VLMs and ViT-based vision models behind one interface, with a catalog including GLM-OCR, dots.mocr, PaddleOCR VL 1.6, Qwen3.8-27B and Gemma4-26B-A4B.",
+      "Motivated by serving footguns that also affect SZL visual bake-offs: quantized variants served under one model-id with visual-quality sensitivity, uneven video input and FPS control across providers, document-inference pipelining burdens, and leaky serving abstractions.",
+      "Free to use with no sign-up during alpha; availability, serving stack, quant posture and per-request configuration are not certified by the provider.",
+      "Materiality 72/100 from python-admission intake; potentially useful for reproducible visual model bake-offs, which remains unverified until configuration-pinned receipts exist."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "frontierIssue": 102,
+      "mode": "BOUNDED_THIRD_PARTY_GATEWAY_EVALUATION_ONLY",
+      "acceptance": [
+        "Pin the exact vlmrun client version and per-model serving configuration (quant, resolution, FPS sampling, context limits) in a receipt before any bake-off comparison.",
+        "Verify gateway response determinism on fixed non-secret fixtures or record honest UNAVAILABLE; alpha-service variance is expected and is not by itself a defect finding.",
+        "Compare at least one OCR and one VLM model against SZL-owned serving on the same fixtures before any gateway-parity claim.",
+        "Keep credentials within the free tier; no paid provider use, no production routing, no weight rehosting and no automatic promotion."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "exactServicePreviouslyPresent": false,
+    "relatedOwnedHarness": "szl-holdings/frontier-bench",
+    "trackingIssue": 102,
+    "result": "third-party alpha gateway admission for bounded visual bake-off use only; no serving, routing or production authority"
+  },
+  "authorityChain": {
+    "githubSource": "published community blog announcement admitted for bounded evaluation only",
+    "huggingFaceProjection": "no SZL model, dataset or Space publication is authorized by this wave",
+    "productRuntime": "no a-11-oy.com route/default changes from this wave",
+    "proofEvidence": "HOLD until configuration-pinned comparison receipts exist against SZL-owned serving; gateway availability or catalog breadth is not qualification"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "The gateway advertises unified visual-model access. Admission records the announcement; it does not certify availability, serving determinism, quant posture, or authorize any production route."
+  }
+}
