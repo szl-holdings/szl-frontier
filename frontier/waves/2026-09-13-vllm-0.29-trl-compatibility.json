@@ -1,0 +1,66 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-13-vllm-0.29-trl-compatibility",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "e4661fe971fc222c7b91c42851d3bb43f89f68f9",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "vllm-v0.29.0-trl-compatibility-boundary",
+    "kind": "serving-runtime-release-boundary",
+    "priority": "P0",
+    "publisher": "vLLM project / Hugging Face",
+    "upstream": {
+      "observedSource": "vllm-project/vllm tag v0.29.0",
+      "observedRevision": "98dff2a81d747d1dba01a47f939f48c3526d4206",
+      "companionRevision": "huggingface/trl@488a0d34be07c7cb2c130e8ba44cb9a4103717b2",
+      "observedAt": "2026-09-13T14:16:00Z",
+      "releaseState": "STABLE_TAG_WITH_TRL_SUPPORT_EXTENSION_WATCH",
+      "license": "Apache-2.0",
+      "revisionPolicy": "Evaluation is pinned to the exact vLLM tag commit and the exact TRL compatibility commit; later revisions do not inherit qualification automatically."
+    },
+    "materialChanges": [
+      "vLLM 0.29.0 makes Model Runner V2 the default execution path and changes serving admission-control and prefix-cache behavior.",
+      "RL weight synchronization gains sharded and rank-local paths; the release includes material speculative-decoding, hybrid and Mamba cache behavior, and accelerator/runtime changes.",
+      "huggingface/trl@488a0d3 extends TRL's declared supported vLLM range from <=0.28.0 to <=0.29.0 across the vLLM extra, integration documentation and runtime version guard, extending the admitted AsyncGRPO LoRA synchronization lane (#76) to this release without inventing an unsupported dependency bound.",
+      "Supplements rather than replaces #76: that lane owns adapter-only AsyncGRPO semantics; this wave owns the broader vLLM runtime release boundary and matched serving regression evaluation."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "frontierIssue": 121,
+      "mode": "BOUNDED_VLLM_RUNTIME_RELEASE_EVALUATION_ONLY",
+      "acceptance": [
+        "Bind exact vLLM tag commit 98dff2a8, exact wheel and container digests actually evaluated, CUDA/driver/runtime identity, and huggingface/trl@488a0d3 when TRL integration is exercised.",
+        "Run matched baseline versus the currently admitted serving path for schema and tool-call correctness, deterministic fixtures, TTFT, ITL, throughput, peak memory, cold start, concurrency and backpressure, and failure and restart behavior.",
+        "Explicitly exercise Model Runner V2 default behavior and any required V1 fallback; do not silently accept a fallback as a V2 pass.",
+        "Extend the AsyncGRPO adapter-only versus merged synchronization lane to 0.29 only after the exact TRL support commit is installed; measure bytes transferred, pause duration, version correctness, eviction and reload, server restart, and stale or shared-path negatives.",
+        "Exercise deterministic prefix-cache hashing, queue and admission limits, speculative decoding, hybrid and Mamba cache behavior, and accelerator-specific startup on the hardware actually claimed; record UNAVAILABLE where hardware is absent.",
+        "Preserve current routes and rollback; a benchmark win does not grant production authority, and normal security, provenance, licensing, receipt and product or proof gates remain mandatory.",
+        "No weight rehosting for inventory, no individual model qualification inferred from runtime support, and no masking or bypassing of the a11oy#2143 alignment blocker."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "exactTagPreviouslyPresent": false,
+    "relatedAsyncGrpoLane": "szl-holdings/szl-frontier#76",
+    "trackingIssue": 121,
+    "result": "material serving-runtime release boundary admission; no production default, route, runtime image or accelerator allocation authorized"
+  },
+  "authorityChain": {
+    "githubSource": "exact vLLM tag and TRL compatibility commit admitted for bounded evaluation only",
+    "huggingFaceProjection": "no SZL model, dataset or Space publication is authorized by this wave",
+    "productRuntime": "no a-11-oy.com route/default changes from this wave",
+    "proofEvidence": "HOLD until matched-baseline serving receipts and Model Runner V2 evidence exist; release discovery and TRL's version-range update grant nothing"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "Admission records the vLLM 0.29.0 release boundary and TRL compatibility declaration. It does not qualify the runtime, authorize Model Runner V2 by default, or change any serving route. Estate alignment is independently HOLD pending a11oy#2143 and must not be masked or bypassed by this wave."
+  }
+}
