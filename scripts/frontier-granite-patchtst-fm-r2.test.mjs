@@ -17,6 +17,7 @@ assert.equal(wave.candidate.id, "ibm-granite-timeseries-patchtst-fm-r2");
 assert.equal(wave.candidate.publisher, "IBM");
 assert.equal(wave.candidate.upstream.publishedAt, "2026-09-09");
 assert.equal(wave.candidate.upstream.releaseState, "PUBLIC_DUAL_LICENSE_CHECKPOINT_WATCH");
+assert.ok(wave.candidate.upstream.revisionPolicy.includes("dual-licensed Apache-2.0 and OpenMDW-1.0"));
 assert.equal(wave.candidate.evaluation.owner, "szl-holdings/szl-forge");
 assert.equal(wave.candidate.evaluation.frontierIssue, 65);
 assert.equal(wave.candidate.evaluation.status, "EVALUATION");
@@ -26,7 +27,6 @@ const materialChanges = wave.candidate.materialChanges.join("\n");
 assert.match(materialChanges, /385M-parameter time-series foundation model/);
 assert.match(materialChanges, /conformer blocks/);
 assert.match(materialChanges, /GIFT-Eval/);
-assert.match(materialChanges, /dual-licensed Apache-2.0 and OpenMDW-1.0/);
 assert.match(materialChanges, /UPSTREAM_REPORTED_NOT_SZL_MEASURED/);
 
 const acceptance = wave.candidate.evaluation.acceptance.join("\n");
