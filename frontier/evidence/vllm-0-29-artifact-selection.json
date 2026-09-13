@@ -1,0 +1,53 @@
+{
+  "schema": "szl.frontier.upstream-artifact-selection.v1",
+  "wave": "2026-09-13-vllm-0-29-trl-compatibility",
+  "frontierIssue": 121,
+  "source": {
+    "repository": "vllm-project/vllm",
+    "tag": "v0.29.0",
+    "revision": "98dff2a81d747d1dba01a47f939f48c3526d4206",
+    "releaseId": 385359183,
+    "releaseImmutable": false
+  },
+  "trlRevision": "488a0d34be07c7cb2c130e8ba44cb9a4103717b2",
+  "evidenceClass": "UPSTREAM_RELEASE_METADATA_NOT_INDEPENDENT_BYTE_VERIFICATION",
+  "assets": [
+    {
+      "id": 552379258,
+      "name": "vllm-0.29.0+cpu-cp38-abi3-manylinux_2_34_x86_64.whl",
+      "size": 137859053,
+      "sha256": "4d22dac8259e7e24dbc615531c73cbd1a6d4b4214a3329ccddb7854f26c9dac8",
+      "platform": "linux-x86_64-cpu-glibc-2.34",
+      "runnerV2Qualification": "NOT_RUN"
+    },
+    {
+      "id": 552379252,
+      "name": "vllm-0.29.0+cu129-cp38-abi3-manylinux_2_28_x86_64.whl",
+      "size": 548493389,
+      "sha256": "22e8d8fec755986b3ad964004a1f8c65a55626ec948354bdbe95993e6b0289fe",
+      "platform": "linux-x86_64-cuda-12.9-glibc-2.28",
+      "runnerV2Qualification": "NOT_RUN"
+    }
+  ],
+  "selectionOwner": "szl-holdings/szl-forge",
+  "hardwareOwner": "szl-holdings/szl-gpu-bridge",
+  "servingOwner": "szl-holdings/szl-serve",
+  "acquisitionContract": [
+    "Reobserve exact release, tag commit, asset ID/name/size/digest; reject drift instead of refreshing pins silently.",
+    "Select only after interpreter ABI, architecture, libc and actual accelerator/driver preflight; no default wheel.",
+    "Before installing, independently stream and hash the selected exact artifact with a fixed size limit; inspect wheel metadata without executing it.",
+    "A matching upstream digest verifies content identity, not a reproducible build or independent signer attestation.",
+    "Capture complete resolved dependency identity and binary environment; do not use --no-deps or ignore resolver conflicts.",
+    "Extend the existing AsyncGRPO owner contract rather than changing its TRL revision or supported version range in place.",
+    "Record actual Model Runner V2 selection and each fallback separately; CPU wheel integrity cannot qualify a GPU/V2 execution.",
+    "Complete the original wave correctness, negative, matched performance, rollback and product/proof gates before production."
+  ],
+  "downloaded": false,
+  "installed": false,
+  "engineExecuted": false,
+  "sourceToBinaryAttestation": "NOT_VERIFIED",
+  "productionDisposition": "HOLD",
+  "productionAuthorized": false,
+  "weightRehosting": false,
+  "unknownPlatforms": "UNQUALIFIED_NOT_ABSENT"
+}
