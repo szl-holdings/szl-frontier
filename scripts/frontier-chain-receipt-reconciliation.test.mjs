@@ -23,6 +23,10 @@ const wavePath = join(
   "2026-09-13-chain-receipt-reconciliation-01.json",
 );
 const wave = JSON.parse(readFileSync(wavePath, "utf8"));
+// Sentence-initial capitalization is presentation, not a different claim.
+// Keep sentence/word boundaries so negation and "canonicalized" cannot pass.
+const canonicalInstrumentStatement =
+  /(?:^|[.!?]\s+)[Tt]he instrument is canonical(?:[.;]|$)/;
 
 test("wave declares the house integration-wave schema", () => {
   assert.equal(wave.schema, "szl.frontier.integration-wave.v1");
@@ -89,7 +93,31 @@ test("keystone verification status is checkout-verifiable, instrument canonical"
   const v = wave.reconciliation.verificationStatus;
   assert.match(v.current, /checkout-verifiable/);
   assert.match(v.current, /frontier-keystone-verification-harness/);
-  assert.match(v.current, /the instrument is canonical/);
+  assert.match(v.current, canonicalInstrumentStatement);
+});
+
+test("canonical instrument matcher accepts sentence-initial capitalization", () => {
+  for (const statement of [
+    "The instrument is canonical.",
+    "the instrument is canonical.",
+    "Checkout witness. The instrument is canonical; qualification remains separate.",
+    "Checkout witness. the instrument is canonical; qualification remains separate.",
+  ]) {
+    assert.match(statement, canonicalInstrumentStatement);
+  }
+});
+
+test("canonical instrument matcher rejects absent, negated and changed claims", () => {
+  for (const statement of [
+    "",
+    "The instrument is not canonical.",
+    "The instrument is noncanonical.",
+    "The instrument is canonicalized.",
+    "Not the instrument is canonical.",
+    "The instrument was canonical.",
+  ]) {
+    assert.doesNotMatch(statement, canonicalInstrumentStatement);
+  }
 });
 
 test("claim surfaces admit no execution and preserve the receipt of record", () => {
