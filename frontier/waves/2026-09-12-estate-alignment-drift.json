@@ -2,7 +2,7 @@
   "schema": "szl.frontier.integration-wave.v1",
   "wave": "2026-09-12-estate-alignment-drift",
   "sourceOfTruth": "szl-holdings/szl-frontier",
-  "sourceRevisionObserved": "956bc585338b28eda0ec2f88fc920c5f88e756c5",
+  "sourceRevisionObserved": "5cd12544bee45b66ddb6d2bab76aed20329ed361",
   "policy": {
     "defaultEffect": "hold",
     "automaticProductionPromotion": false,
@@ -15,56 +15,89 @@
     "priority": "P0",
     "publisher": "SZL Holdings",
     "repository": "szl-holdings/a11oy",
-    "upstream": {
-      "observedRevision": "578bf8a2291ab345dd98cfe6716a65d55943ec70",
-      "observedAt": "2026-09-12T01:26:11Z",
-      "nativeVerifierRun": 34663464127,
-      "nativeIncident": "szl-holdings/a11oy#2010",
-      "revisionPolicy": "Repair is valid only for this or a later explicitly re-observed protected source vector. Runtime projection may never redefine protected GitHub source."
+    "protectedSource": "f02f4978c32665b55c41f1b3f47cfa087c3b69a0",
+    "history": {
+      "failingRun": 34729765971,
+      "failingObservedAt": "2026-09-13T01:28:34Z",
+      "failingArtifactDigest": "sha256:8434e97b4a4b9d17a8f5019a5acd257e516539e2669e416c34bc2d16597dfe7a",
+      "failingBlockers": [
+        "PRODUCT_DOMAIN_SPACE_SEMANTIC_DRIFT",
+        "counsel:SOURCE_REVISION_MISMATCH",
+        "finance:SOURCE_REVISION_MISMATCH",
+        "lyte:SOURCE_REVISION_MISMATCH",
+        "terra:SOURCE_REVISION_MISMATCH"
+      ]
+    },
+    "currentCandidateEvidence": {
+      "repairPullRequest": "szl-holdings/a11oy#2142",
+      "headRevision": "b8241fca605aba03890b2caba519aed3ca3569bc",
+      "verifierRun": 34733259799,
+      "observedAt": "2026-09-13T02:31:50.964871Z",
+      "artifactDigest": "sha256:bfae52a577825974b5111d4bf80aef3f063eedde526101944c29c33815abd78d",
+      "releaseId": "dc182307ce756cdc6ff94ff9",
+      "proofChainSha256": "f1de94e8e79cfcefd6a5a3d1920e864a93521aebd1c6386df8010d42b557bd40",
+      "state": "ALIGNED",
+      "blockers": []
     },
     "materialChanges": [
-      "Protected A11oy source advanced after the previously aligned release vector and the native verifier reopened the existing estate incident.",
-      "Counsel, Finance and Terra Hugging Face runtime projections no longer report the protected A11oy source revision expected by the verifier.",
-      "Lyte protected source advanced to 9ce4e6b5f36fe0b094a07308abe3665cd2a210c1 while the observed runtime projection still mismatched that source.",
-      "The explicit public Hugging Face membership predicate remains aligned at 46 models, 35 datasets and 21 Spaces with no item deltas; this is a source-projection drift, not an inventory-count drift."
+      "The originally observed Counsel, Finance, Lyte and Terra source-projection mismatches independently converged after the failing protected-main run; no writer was dispatched by A11oy PR #2142.",
+      "The remaining protected-source defect is the estate verifier false positive: Cloudflare injects its Web Analytics beacon on the proxied apex while the direct Hugging Face Space does not, even though both product origins serve the same protected A11oy source and SZL semantic assets.",
+      "A11oy draft PR #2142 narrowly normalizes only HTTPS static.cloudflareinsights.com/beacon.min.js/* from the semantic digest while retaining the exact provider URL as evidence and keeping all SZL scripts, unknown external scripts and other Cloudflare paths parity-significant.",
+      "Exact-head hosted run 34733259799 using the candidate verifier observed the configured required release vector ALIGNED with no blockers; public Hugging Face membership remained 46 models, 35 datasets and 21 Spaces.",
+      "The alignment claim remains candidate evidence until the verifier change passes all normal controls, is admitted to protected main, and a fresh protected-main native run independently reproduces the terminal state."
     ],
     "evaluation": {
       "owner": "szl-holdings/a11oy",
       "trackingIssue": 2010,
       "frontierIssue": 96,
-      "relatedPullRequest": 2124,
-      "mode": "CANONICAL_WRITER_EXACT_SOURCE_REALIGNMENT_ONLY",
+      "relatedPullRequests": [2124, 2142],
+      "mode": "VERIFIER_ADMISSION_AND_PROTECTED_MAIN_REOBSERVATION",
       "acceptance": [
         "Do not create a second writer, hand-edit a Hugging Face Space, lower a source pin, or make vertical publication unconditional.",
-        "Counsel, Finance and Terra must be published only through the existing A11oy domain/vertical writer and must report the exact protected A11oy source revision selected for the repair.",
-        "Lyte must be published only through its existing A11oy single-writer path and must report the exact protected lyte-services source selected for the repair.",
-        "Before any writer action, freeze and record the expected protected source vector; abort if protected source moves before publication begins.",
-        "After publication, independently read back each affected runtime source witness. HTTP 200, Space RUNNING, repository update time or successful upload alone is not source alignment.",
-        "A fresh native estate-release-train receipt must show counsel, finance, lyte and terra without SOURCE_REVISION_MISMATCH, all configured required components aligned, and no product/proof/profile regression.",
+        "Verifier repair may normalize only the observed HTTPS static.cloudflareinsights.com/beacon.min.js/* provider injection, must retain that URL as provider_scripts evidence, and must continue to hash every SZL script plus unknown external scripts and other Cloudflare paths.",
+        "Treat run 34733259799 as exact-head candidate evidence, not protected-main production proof; the repair must pass all normal repository checks and review requirements without bypass.",
+        "Before admission, re-read protected A11oy main and abort or rebase if the base source moved.",
+        "After normal merge, require a fresh protected-main native estate-release-train receipt showing ALIGNED with no configured required-component blocker and no product/proof/profile regression.",
+        "The fresh protected-main receipt must still record the Cloudflare beacon as provider_scripts evidence while semantic parity remains true, and planted or unknown semantic differences must remain fail closed.",
         "The explicit public membership predicate must remain aligned under the same declared scope; do not delete, hide, retype or duplicate assets to force counts.",
-        "If writer dispatch is unavailable or an approved complete vertical plan is absent, retain HOLD and report NOT_REQUESTED or BLOCKED rather than simulating completion.",
-        "Rollback is source-bound: retain the prior immutable runtime/proof evidence and do not rewrite historical receipts if a new projection fails."
+        "Sentra and David Leads are non-required observations in this release-vector configuration and may not be silently promoted to proof of configured required scope.",
+        "Historical failing and aligned receipts remain immutable evidence for their exact source, verifier and observation time."
       ],
-      "status": "ALIGNMENT_REPAIR_REQUIRED"
+      "status": "CANDIDATE_ALIGNED_PENDING_PROTECTED_MAIN_ADMISSION"
     }
   },
   "observedSourceVector": {
-    "a11oy": "578bf8a2291ab345dd98cfe6716a65d55943ec70",
-    "counsel": "578bf8a2291ab345dd98cfe6716a65d55943ec70",
-    "finance": "578bf8a2291ab345dd98cfe6716a65d55943ec70",
-    "terra": "578bf8a2291ab345dd98cfe6716a65d55943ec70",
+    "a11oy": "f02f4978c32665b55c41f1b3f47cfa087c3b69a0",
+    "counsel": "f02f4978c32665b55c41f1b3f47cfa087c3b69a0",
+    "finance": "f02f4978c32665b55c41f1b3f47cfa087c3b69a0",
+    "terra": "f02f4978c32665b55c41f1b3f47cfa087c3b69a0",
     "lyte": "9ce4e6b5f36fe0b094a07308abe3665cd2a210c1",
-    "killinchu": "a462ef0313d5cd9bb0ad6e8ef13e7857258ba3c1",
+    "killinchu": "06ab306bdebacc678cc04ca30ba5022c893c8f5a",
+    "david-leads": "ff75071508bd16423453c06d427996ea3a1512ff",
     "vertical-services": "d018c1f2c892bd36f8ba7e9c85ee0430da348a17",
-    "proof": "441f18bc3e6edb61f4b19d534077379ba4787829",
-    "profile": "348b779f04f598acca23e83f59462307b2188866"
+    "proof": "11c6f38969877181fda1ab6cda346ed3ebb21bad",
+    "profile": "60c9ce7ba56c30b5f6529c916ca55e0bad8eff3b"
   },
-  "observedBlockers": [
-    "counsel:SOURCE_REVISION_MISMATCH",
-    "finance:SOURCE_REVISION_MISMATCH",
-    "lyte:SOURCE_REVISION_MISMATCH",
-    "terra:SOURCE_REVISION_MISMATCH"
-  ],
+  "currentRuntimeWitnesses": {
+    "a11oy": "f02f4978c32665b55c41f1b3f47cfa087c3b69a0",
+    "counsel": "f02f4978c32665b55c41f1b3f47cfa087c3b69a0",
+    "finance": "f02f4978c32665b55c41f1b3f47cfa087c3b69a0",
+    "terra": "f02f4978c32665b55c41f1b3f47cfa087c3b69a0",
+    "lyte": "9ce4e6b5f36fe0b094a07308abe3665cd2a210c1",
+    "killinchu": "06ab306bdebacc678cc04ca30ba5022c893c8f5a",
+    "vertical-services": "d018c1f2c892bd36f8ba7e9c85ee0430da348a17"
+  },
+  "configuredRequiredComponentState": "ALIGNED_IN_CANDIDATE_READBACK",
+  "semanticDriftRootCause": {
+    "classification": "VERIFIER_FALSE_POSITIVE_PROVIDER_INJECTION",
+    "domainOrigin": "https://a-11-oy.com",
+    "spaceOrigin": "https://szlholdings-a11oy.hf.space",
+    "domainAndSpaceSourceRevisionEqual": true,
+    "providerScript": "https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495",
+    "candidateSemanticSha256": "6c1dd9bc05e119d6d8df1fcd3655e67a61a4a8bbf711ce3e86fe38f3b0c9a3a0",
+    "repairPullRequest": "szl-holdings/a11oy#2142",
+    "repairDisposition": "DRAFT_HOLD_UNTIL_ALL_CHECKS_AND_PROTECTED_MAIN_REOBSERVATION"
+  },
   "inventoryPredicate": {
     "scope": "hf-public-author-membership/v1",
     "state": "ALIGNED",
@@ -77,18 +110,19 @@
     "canonicalCatalogChecked": true,
     "nativeIncidentReused": "szl-holdings/a11oy#2010",
     "sourceHardeningPullRequestReused": "szl-holdings/a11oy#2124",
+    "semanticVerifierRepairPullRequest": "szl-holdings/a11oy#2142",
     "frontierTrackingIssue": 96,
-    "result": "record current reopened drift and route repair to existing canonical ownership; no duplicate writer or issue in A11oy"
+    "result": "advance the existing governed alignment wave with current exact-head evidence; no duplicate writer, incident or frontier candidate"
   },
   "authorityChain": {
     "githubSource": "protected GitHub revisions remain authoritative",
-    "huggingFaceProjection": "HOLD for counsel, finance, lyte and terra until exact runtime source readback converges",
-    "productRuntime": "no product-route/default change is authorized by this record",
-    "proofEvidence": "a11oy.net proof must not claim the new source vector closed until a fresh native receipt proves the configured required scope"
+    "huggingFaceProjection": "configured required runtime projections are currently source-exact in candidate readback; no new publication is authorized by this record",
+    "productRuntime": "a-11-oy.com and the canonical A11oy Space are source-exact and candidate semantic parity is true after narrow provider-beacon normalization",
+    "proofEvidence": "a11oy.net proof source is aligned in candidate readback, but terminal current-vector closure waits for protected-main verifier admission and fresh native evidence"
   },
   "alignment": {
     "productionDisposition": "HOLD",
     "automaticPromotion": false,
-    "claimBoundary": "The previous aligned receipt remains valid historical evidence for its dated vector. This newer source vector is currently divergent and must be repaired through canonical writers before it inherits any alignment claim."
+    "claimBoundary": "Runtime projection drift has been repaired in current readback and the candidate verifier yields an ALIGNED configured release vector. Protected main still lacks the verifier repair, so this wave remains HOLD until normal admission and a fresh protected-main receipt reproduce the result."
   }
 }
