@@ -1,0 +1,127 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-13-vllm-omni-0.29.0rc1",
+  "evaluatedAt": "2026-09-13T19:36:00Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "d8bf3701ee6879821f82e523d632be57bdb93d9a",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true,
+    "requiredEvidence": [
+      "exact-upstream-revision",
+      "license-posture",
+      "runtime-package-or-image-digest",
+      "matched-baseline-evaluation",
+      "hardware-and-driver-identity",
+      "rollback-or-fallback",
+      "domain-proof-record"
+    ]
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWavesChecked": [
+      "2026-09-13-vllm-0-29-trl-compatibility",
+      "2026-09-12 active multimodal/runtime waves",
+      "2026-09-08-runtime-retrieval-frontier"
+    ],
+    "openIssuesChecked": [96, 121, 129],
+    "organizationCodeSearch": [
+      "vllm-omni",
+      "v0.29.0rc1"
+    ],
+    "exactCandidatePreviouslyPresent": false,
+    "excludedAlreadyRepresented": [
+      "plain vLLM 0.29 serving/runtime qualification owned by issue 121",
+      "individual model families already admitted by their own waves",
+      "routine model-card, demo Space and patch-only churn"
+    ],
+    "newMaterialBoundary": "vLLM-Omni v0.29.0rc1 prerelease multimodal serving/runtime boundary rebased onto vLLM 0.29.0",
+    "result": "one non-duplicate multimodal-runtime evaluation candidate"
+  },
+  "candidate": {
+    "id": "vllm-omni-v0-29-0rc1-2026-09-13",
+    "kind": "multimodal-inference-engine-prerelease-boundary",
+    "priority": "P0",
+    "upstream": {
+      "repository": "vllm-project/vllm-omni",
+      "tag": "v0.29.0rc1",
+      "revision": "aff7d64948f6c0e81e9b3272234623044e215967",
+      "license": "Apache-2.0",
+      "releasePublishedAt": "2026-09-10T04:40:56Z",
+      "prerelease": true,
+      "immutableRelease": false,
+      "baseRuntime": "vLLM 0.29.0"
+    },
+    "materialChanges": [
+      "MiniCPM-o 4.5 and PersonaPlex full-duplex serving graduate out of experimental and the realtime stack adds a Python DuplexClient API",
+      "server-side VAD is added for turn-based omni models with explicit turn and interrupt constraints",
+      "Nemotron VoiceChat gains native vLLM talker execution with paged attention, CUDA Graphs and realtime startup warmup",
+      "diffusion gains BAGEL continuous batching, Boogu request batching and CFG parallelism, SANA-Video tensor/sequence/CFG parallelism and component-selective offload",
+      "parallel_stage_init adds opt-in colocated-stage initialization with memory-admission and device-phase locking semantics",
+      "paged AR-to-DiT KV transfer uses the native Mooncake connector but upstream states end-to-end completion handling is not yet complete",
+      "diffusion_batch_size is removed and max_num_seqs becomes the single diffusion batching configuration",
+      "new audiovisual/image/speech integrations expand the execution surface but require separate model-specific rights and qualification"
+    ],
+    "owners": [
+      "szl-holdings/szl-forge",
+      "szl-holdings/szl-serve",
+      "szl-holdings/szl-gpu-bridge"
+    ],
+    "relatedFrontierIssues": [121, 129],
+    "acceptance": [
+      "Bind exact tag commit aff7d64948f6c0e81e9b3272234623044e215967 plus the exact package or container digest actually executed; capture Python, dependency, CUDA, driver and accelerator identity.",
+      "Keep the prerelease isolated from production and compare it against the currently admitted multimodal serving baseline; an RC result cannot change routes or defaults.",
+      "Exercise duplex and realtime correctness for MiniCPM-o 4.5, PersonaPlex and Nemotron VoiceChat where prerequisites exist, including session concurrency, turn boundaries, server VAD, cancellation, playback state, long-context behavior, restart and failure cases; record UNAVAILABLE where prerequisites are absent.",
+      "Evaluate BAGEL continuous batching, Boogu batching and CFG parallelism, SANA-Video TP/SP/CFG parallelism and component-selective offload as separate measured paths with correctness, latency, throughput, memory and rollback evidence.",
+      "Exercise parallel_stage_init only as opt-in and compare it with serial initialization while validating memory-admission and device-lock failure behavior.",
+      "Treat paged AR-to-DiT Mooncake transfer as partial until an actual end-to-end completion witness exists; release notes alone cannot qualify completion.",
+      "Add a deterministic migration regression proving diffusion_batch_size is rejected or migrated explicitly and max_num_seqs semantics are preserved; no silent configuration reinterpretation.",
+      "Keep model-specific licenses, remote-code requirements, voice-cloning/privacy constraints and weight rights as independent gates; do not rehost upstream weights for inventory.",
+      "Preserve current rollback/fallback, provenance, receipts, security controls and branch protections. Upstream performance claims or model support do not grant production authority."
+    ],
+    "status": "EVALUATION",
+    "productionDisposition": "HOLD"
+  },
+  "alignmentObservation": {
+    "state": "HOLD_THREE_VERTICAL_SOURCE_PROJECTIONS",
+    "directAuthorityChain": "OPERATIONAL_VERIFIED",
+    "a11oySourceRevision": "3486a274076d0c1e36d42fce90e9ddf97befa0dc",
+    "huggingFaceRuntimeRevision": "9c28138d55fa5ab383316abed1de7fba6f0abb7f",
+    "readiness": {
+      "endpoints": 100,
+      "ok": 95,
+      "stateChangingSkipped": 5,
+      "lies": 0,
+      "throttled": 0,
+      "unreachable": 0
+    },
+    "remainingBlockers": [
+      "counsel:SOURCE_REVISION_MISMATCH",
+      "finance:SOURCE_REVISION_MISMATCH",
+      "terra:SOURCE_REVISION_MISMATCH"
+    ],
+    "frontierAlignmentIssue": "szl-holdings/szl-frontier#96",
+    "productionDisposition": "HOLD"
+  },
+  "routing": {
+    "catalogOwner": "szl-holdings/szl-frontier",
+    "runtimeQualificationOwner": "szl-holdings/szl-forge",
+    "servingOwner": "szl-holdings/szl-serve",
+    "gpuInfrastructureOwner": "szl-holdings/szl-gpu-bridge",
+    "productOwner": "szl-holdings/a11oy",
+    "proofOwner": "szl-holdings/a11oy-net"
+  },
+  "codexCompletionContract": {
+    "required": [
+      "prepare exact-pinned prerelease evaluation in the owning runtime repositories without changing production defaults",
+      "reuse the admitted plain vLLM 0.29 source/runtime boundary where applicable but do not conflate plain-serving qualification with multimodal-runtime qualification",
+      "add deterministic migration, duplex/VAD, initialization and rollback negatives before any runtime recommendation",
+      "retain missing models, hardware or provider capabilities as UNAVAILABLE rather than simulating passes",
+      "project only merged source evidence through Hugging Face and product/proof surfaces",
+      "leave production HOLD until ordinary runtime, security, provenance, licensing, rollback and authority-chain gates pass"
+    ],
+    "definitionOfDone": "vLLM-Omni 0.29.0rc1 has exact source/binary identity, matched multimodal execution evidence, explicit duplex/VAD and diffusion results, migration/fallback tests, model-rights gates, rollback proof and source-bound product/proof projection without masking the remaining Counsel/Finance/Terra estate drift."
+  }
+}
