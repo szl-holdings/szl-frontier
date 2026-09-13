@@ -1,0 +1,106 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "id": "2026-09-13-chain-receipt-reconciliation-01",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "a6df37af1636400e35b4d01d0b311cc4797047dd",
+  "class": "preparation",
+  "lane": "governed-inference",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false
+  },
+  "deterministicMerge": {
+    "strategy": "python-merge",
+    "script": "scripts/wave-merge.py",
+    "touchedPaths": [
+      "frontier/waves/2026-09-13-chain-receipt-reconciliation-01.json",
+      "scripts/frontier-chain-receipt-reconciliation.test.mjs"
+    ],
+    "forbidden": [
+      "README.md",
+      "docs/METRICS.md",
+      "docs/LAUNCH_DICTIONARY.md"
+    ],
+    "selfEnforcing": true
+  },
+  "reconciliation": {
+    "reconcilesAgainst": "frontier/waves/2026-09-12-governed-inference-chain-receipt.json",
+    "reconciledBlob": "e66cf07babb537215dd0706362634bc330340831",
+    "kind": "ledger-drift-reconciliation",
+    "reason": "The executor lane restructured the governed-inference chain on 2026-09-11/12 after the receipt was recorded at 733f3833: two pinned records no longer exist at their pinned paths, one pinned record changed content, and two new records exist. The drift is legitimate history; the stale pinset is the hazard. This reconciliation re-files the observed truth at a6df37af without editing receipts of record.",
+    "supersessionSemantics": "The 2026-09-12 chain receipt is not replaced. It remains the receipt of record for the ledger at 733f3833. This reconciliation records the current ledger state; both stand.",
+    "current": [
+      {
+        "path": "frontier/waves/2026-09-11-governed-inference-binding-contract.json",
+        "blob": "26af5b52cc83470e82f1a7f729355c3990fa814e",
+        "bytes": 4213,
+        "status": "present-new"
+      },
+      {
+        "path": "frontier/waves/2026-09-11-residual-capture-harness-contract.json",
+        "blob": "bbeb393ad8871b6fba11df53b2d96b2bb265b259",
+        "bytes": 3446,
+        "status": "present-changed",
+        "previousBlob": "20262c63e4e6bdf0b04fb9f75e110c0d0c3b4847"
+      },
+      {
+        "path": "frontier/waves/2026-09-11-workspace-readout-preparation.json",
+        "blob": "d65d3a73cda911b1020247030d5712429929947f",
+        "bytes": 3634,
+        "status": "present-new"
+      },
+      {
+        "path": "frontier/waves/2026-09-11-workspace-readout-receipt-contract.json",
+        "blob": "dafa297895fc882ac526ddb2de10d8f662b4552b",
+        "bytes": 4328,
+        "status": "present-unchanged"
+      }
+    ],
+    "removedSincePin": [
+      {
+        "path": "frontier/waves/2026-09-11-consortium-preparation-spine.json",
+        "previousBlob": "a1766d251dd5b447228b3c3aaebdeeca07e09fba",
+        "status": "absent-on-current-main"
+      },
+      {
+        "path": "frontier/waves/2026-09-11-inference-binding-contract.json",
+        "previousBlob": "2dcebad5712f750bdb1a6d6e9bc72620a3476fa0",
+        "status": "absent-on-current-main"
+      }
+    ],
+    "laneAdjacent": [
+      {
+        "path": "frontier/waves/2026-09-11-identity-bind.json",
+        "blob": "9ceb5a3d4f550b8645d2626369ce06419558e94c"
+      },
+      {
+        "path": "frontier/waves/2026-09-11-command-readout.json",
+        "blob": "6638b013d26d49690357a81357d7929d617c797d"
+      }
+    ],
+    "contentCaveat": "File contents are not readable through the recording connector; all role semantics inferred from filenames are UNVERIFIED. The capture harness's changed content means prior 'role: capture' claims about it are SUPERSEDED pending checkout verification. The two removed records' history is preserved in the receipt of record.",
+    "verificationStatus": {
+      "subject": "frontier/waves/2026-09-11-workspace-readout-receipt-contract.json",
+      "current": "checkout-verifiable via scripts/frontier-keystone-verification-harness.test.mjs (PR #115, blob 1d459e95935dfa1f36f4fb0613da58607a9ef0fe). The instrument is canonical; what remains is a green CI run.",
+      "note": "The harness anchors may need recalibration against the executor's final phrasing; an anchor miss reports UNAVAILABLE with the missing anchor named."
+    }
+  },
+  "relationToLane": {
+    "consumes": "frontier/waves/2026-09-12-governed-inference-chain-receipt.json",
+    "satisfies": "szl-holdings/a11oy#2020 ledger-integrity maintenance",
+    "rule": "Ledger integrity is maintained by additive reconciliation receipts with pinned blobs; receipts of record are never edited or deleted."
+  },
+  "claimSurfaces": [
+    "No execution has run; no bound route exists; every estate organ remains MODELED or NO_ORGAN.",
+    "This reconciliation enumerates what the connector can observe (paths, blobs, sizes); it verifies no record's internal semantics.",
+    "The original chain receipt is preserved; this record supersedes its pinset as the current-state view only.",
+    "This record is preparation, not measurement, not deployment, not qualification."
+  ],
+  "labels": {
+    "provenance": [
+      "OBSERVED"
+    ],
+    "honesty": "labels-verbatim"
+  },
+  "signoff": "Lutar, Stephen P. <stephenlutar2@gmail.com>"
+}
