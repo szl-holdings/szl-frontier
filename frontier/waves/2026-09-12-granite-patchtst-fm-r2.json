@@ -1,0 +1,61 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-12-granite-patchtst-fm-r2",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "bcdc3401e85d4d10c8ccd55d4c6ba782682bb68b",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "ibm-granite-timeseries-patchtst-fm-r2",
+    "kind": "model-admission",
+    "priority": "P1",
+    "publisher": "IBM",
+    "upstream": {
+      "observedSource": "https://huggingface.co/blog/ibm-research/ibm-releases-sota-granite-time-series",
+      "observedAt": "2026-09-12T23:57:00Z",
+      "publishedAt": "2026-09-09",
+      "releaseState": "PUBLIC_DUAL_LICENSE_CHECKPOINT_WATCH",
+      "revisionPolicy": "The checkpoint is dual-licensed Apache-2.0 and OpenMDW-1.0 with the user selecting the license; evaluation must record the selected license and the exact checkpoint revision before any use."
+    },
+    "materialChanges": [
+      "About 385M-parameter time-series foundation model (ibm-granite/granite-timeseries-patchtst-fm-r2) built from conformer blocks mixing multi-head self-attention with temporal convolutions (kernel sizes 5, 5, 3, 3) across 30 blocks, with 50 percent overlapping patches, Hamming windows and overlap-and-add reconstruction, supporting context up to 8,192 points, 99 predicted quantiles, probabilistic forecasting and imputation.",
+      "Upstream reports GIFT-Eval zero-shot replicable leaderboard rank 2 (CRPS 0.467 geomean, MASE 0.6846) and rank 1 among permissively licensed models, from a fully documented pretraining corpus (selected GIFT-Eval pretraining datasets, KernelSynth and CauKer synthetic data; TSMixup restricted to exclude GIFT-Eval evaluation data). All leaderboard numbers are UPSTREAM_REPORTED_NOT_SZL_MEASURED.",
+      "Weights, training code and data recipe are published for reproducibility; inference served through granite-tsfm version 0.3.9 or later.",
+      "Material for the SZL quant/finance and telemetry drift planes; materiality 89/100 from python-admission intake; production disposition HOLD."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "frontierIssue": 65,
+      "mode": "BOUNDED_TIME_SERIES_MODEL_ADMISSION_EVALUATION_ONLY",
+      "acceptance": [
+        "Pin the exact checkpoint revision and record the selected license (Apache-2.0 or OpenMDW-1.0) before evaluation; dual licensing requires an explicit recorded selection.",
+        "Reproduce zero-shot probabilistic forecasting on fixed non-secret SZL time-series fixtures in the quant/finance and telemetry lanes, or record honest UNAVAILABLE; never transcribe GIFT-Eval scores as SZL measurements.",
+        "Independently assess the documented-corpus leakage boundary where feasible; a documented pretraining corpus is an upstream claim, not leakage-proof evidence.",
+        "Keep provider routing, model publication and automatic promotion false until separate normal controls pass; no weight rehosting."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "exactModelPreviouslyPresent": false,
+    "relatedOwnedHarness": "szl-holdings/szl-quant",
+    "trackingIssue": 65,
+    "result": "material permissively-licensed time-series foundation-model admission for the quant and telemetry lanes; no serving, routing or production authority"
+  },
+  "authorityChain": {
+    "githubSource": "published IBM blog and dual-licensed checkpoint admitted for bounded evaluation only",
+    "huggingFaceProjection": "no SZL model rehosting, dataset or Space publication is authorized by this wave",
+    "productRuntime": "no a-11-oy.com model or route/default changes from this wave",
+    "proofEvidence": "HOLD until exact-revision forecasting receipts exist; GIFT-Eval leaderboard numbers are UPSTREAM_REPORTED_NOT_SZL_MEASURED"
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "The publication claims top replicable zero-shot time-series performance among permissively licensed models. Admission records the claim; it does not verify GIFT-Eval scores, qualify the model for the quant or telemetry planes, or change any route."
+  }
+}
