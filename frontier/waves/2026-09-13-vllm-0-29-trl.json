@@ -1,0 +1,113 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-13-vllm-0-29-trl-compatibility",
+  "evaluatedAt": "2026-09-13T02:59:00Z",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "445dbd9027135a201734b388ad92686f66da391e",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true,
+    "requiredEvidence": [
+      "exact-upstream-revision",
+      "license-posture",
+      "runtime-wheel-or-image-digest",
+      "matched-baseline-evaluation",
+      "hardware-and-driver-identity",
+      "rollback-or-fallback",
+      "domain-proof-record"
+    ]
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWavesChecked": [
+      "2026-09-08-runtime-retrieval-frontier",
+      "2026-09-10 TRL AsyncGRPO adapter-sync intake",
+      "2026-09-12 active core-stack and distributed-training waves"
+    ],
+    "openIssuesChecked": [60, 76, 106, 108, 110, 121],
+    "excludedAlreadyRepresented": [
+      "individual model families already admitted by their own waves",
+      "TRL AsyncGRPO LoRA adapter-only semantics already owned by issue 76",
+      "routine documentation and patch-only release churn"
+    ],
+    "newMaterialBoundary": "vLLM v0.29.0 runtime release plus exact Hugging Face TRL compatibility expansion",
+    "result": "one non-duplicate runtime evaluation candidate"
+  },
+  "candidate": {
+    "id": "vllm-v0-29-0-trl-compat-2026-09-13",
+    "kind": "inference-engine-and-training-runtime-boundary",
+    "priority": "P0",
+    "runtime": {
+      "repository": "vllm-project/vllm",
+      "tag": "v0.29.0",
+      "revision": "98dff2a81d747d1dba01a47f939f48c3526d4206",
+      "license": "Apache-2.0",
+      "releasePublishedAt": "2026-09-09T08:54:49Z"
+    },
+    "huggingFaceIntegration": {
+      "repository": "huggingface/trl",
+      "revision": "488a0d34be07c7cb2c130e8ba44cb9a4103717b2",
+      "change": "Add support for vLLM 0.29.0 (#7178)",
+      "declaredSupportedRange": ">=0.19.1,<=0.29.0"
+    },
+    "materialChanges": [
+      "Model Runner V2 is the default serving execution path and must be distinguished from any fallback path",
+      "release-level queue/admission and deterministic prefix-cache behavior can alter overload, cache and latency semantics",
+      "RL weight synchronization adds sharded/rank-local paths relevant to the existing AsyncGRPO adapter-sync lane",
+      "speculative decoding, hybrid/Mamba caching and accelerator/runtime changes can materially alter correctness and performance",
+      "Hugging Face TRL explicitly expands its supported vLLM upper bound to 0.29.0 at an exact source revision"
+    ],
+    "owners": [
+      "szl-holdings/szl-forge",
+      "szl-holdings/szl-serve",
+      "szl-holdings/szl-gpu-bridge"
+    ],
+    "relatedFrontierIssues": [76, 121],
+    "acceptance": [
+      "Bind the exact vLLM tag commit and the exact wheel or container digest actually executed; record CUDA, driver and accelerator identity.",
+      "When TRL integration is evaluated, install the exact TRL compatibility revision rather than widening the dependency bound locally.",
+      "Run a sealed matched baseline for schema and tool-call correctness, TTFT, inter-token latency, throughput, peak memory, cold start, concurrency, backpressure, restart and failure behavior.",
+      "Exercise Model Runner V2 explicitly and record fallback separately; a fallback result cannot be labeled as a V2 pass.",
+      "Extend issue 76 adapter-only versus merged synchronization tests to 0.29 with byte-transfer, pause, policy-version, eviction, restart and stale/shared-path negatives.",
+      "Exercise deterministic prefix-cache hashing, queue limits, speculative decoding and hybrid/Mamba cache behavior on hardware actually present; record UNAVAILABLE instead of simulating unsupported hardware.",
+      "Preserve current production routes and a verified rollback path. No benchmark result or upstream support declaration grants production authority."
+    ],
+    "status": "EVALUATION",
+    "productionDisposition": "HOLD"
+  },
+  "alignmentObservation": {
+    "state": "HOLD_INDEPENDENT_RUNTIME_TRUTH_BLOCKER",
+    "a11oySourceRevision": "4845411b81f6aa32c9802dae0b851928fc4f36c6",
+    "hfSyncRun": 34733618642,
+    "successfulPredicates": [
+      "canonical HF Space deployed",
+      "running bytes and source identity attested",
+      "persistent signer and GDW restart proofs passed"
+    ],
+    "blockingPredicate": "post-deploy readiness refused compact verdict because DEV-A deal returned raw unavailable freshness without an observation timestamp",
+    "ownerIssue": "szl-holdings/a11oy#2143",
+    "frontierAlignmentIssue": "szl-holdings/szl-frontier#96",
+    "productionDisposition": "HOLD"
+  },
+  "routing": {
+    "catalogOwner": "szl-holdings/szl-frontier",
+    "runtimeQualificationOwner": "szl-holdings/szl-forge",
+    "servingOwner": "szl-holdings/szl-serve",
+    "gpuInfrastructureOwner": "szl-holdings/szl-gpu-bridge",
+    "productOwner": "szl-holdings/a11oy",
+    "proofOwner": "szl-holdings/a11oy-net"
+  },
+  "codexCompletionContract": {
+    "required": [
+      "prepare exact-pinned evaluation changes in the owning runtime repositories without changing production defaults",
+      "reuse issue 76 for AsyncGRPO adapter-only semantics and do not create a competing sync contract",
+      "add deterministic negative and rollback tests before any runtime recommendation",
+      "retain environment-specific failures and unavailable hardware as evidence rather than retrying to green",
+      "project only merged source evidence through Hugging Face and product/proof surfaces",
+      "leave production HOLD until ordinary runtime, security, provenance, rollback and authority-chain gates pass"
+    ],
+    "definitionOfDone": "vLLM 0.29 has exact binary/source identity, matched execution evidence, explicit V2/fallback results, bounded TRL integration evidence, rollback proof and source-bound product/proof projection without masking the independent estate-alignment blocker."
+  }
+}
