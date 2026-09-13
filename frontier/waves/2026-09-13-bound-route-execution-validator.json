@@ -1,0 +1,69 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "id": "2026-09-13-bound-route-execution-validator",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "fa16050c930a2f5a258619101a98bfc2013cb783",
+  "class": "preparation",
+  "lane": "governed-inference",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false
+  },
+  "deterministicMerge": {
+    "strategy": "python-merge",
+    "script": "scripts/wave-merge.py",
+    "touchedPaths": [
+      "frontier/waves/2026-09-13-bound-route-execution-validator.json",
+      "scripts/frontier-execution-witness-check.mjs",
+      "scripts/frontier-bound-route-execution-validator.test.mjs"
+    ],
+    "forbidden": [
+      "README.md",
+      "docs/METRICS.md",
+      "docs/LAUNCH_DICTIONARY.md"
+    ],
+    "selfEnforcing": true
+  },
+  "validator": {
+    "contractReference": {
+      "path": "frontier/waves/2026-09-12-bound-route-execution-contract.json",
+      "pinnedBlob": "f380025ccd02cfb00ab2b0b355034447c40a5a3c",
+      "admitted_via": "szl-frontier#124",
+      "note": "Contract contents are not byte-read through the recording connector; field inventory and canonical order are recorded from the admitted PR record, which is member-authored and merged. The six-field set and order are treated as REPORTED-from-record; the blob identity is OBSERVED."
+    },
+    "sixFieldsCanonicalOrder": [
+      "routeDescriptor",
+      "bindingReceipt",
+      "captureAnchor",
+      "readoutReceipt",
+      "witnessRecord",
+      "abstentionRule"
+    ],
+    "verdictSpace": ["VERIFIED", "UNVERIFIED"],
+    "abstentionSemantics": "Any structural break in binding, capture, readout, witness, ordering, or cross-reference yields UNVERIFIED with a named failure code. There is no partial credit.",
+    "toolBoundaries": {
+      "offline": true,
+      "network": false,
+      "providerCalls": false,
+      "mutations": false,
+      "exitCodeOnViolation": 1
+    }
+  },
+  "claimSurfaces": [
+    "No execution has run; no bound route exists; no executional receipt has been emitted. Every estate organ remains MODELED or NO_ORGAN.",
+    "This wave ships a structural checker only; it inspects a witness bundle's shape against the contract's six fields and validates nothing about any deployed system.",
+    "The checker does not and cannot prove a route exists, a DSSE envelope verifies, or timestamps are truthful; it only enforces that a claimed witness bundle is internally complete and ordered before any deeper verification lane consumes it.",
+    "A passing structural check is a precondition for evaluation, not evidence of executional satisfaction.",
+    "If the checker and an executor disagree, that is evidence of route or record drift, never of success."
+  ],
+  "relationToLane": {
+    "consumes": "frontier/waves/2026-09-12-bound-route-execution-contract.json",
+    "satisfies": "szl-holdings/a11oy#1806 P1 preparatory instrumentation",
+    "rule": "Claim graduation happens only by a new wave receipt citing a witness record that passes every contract field; this checker is one input to that evaluation, never the graduation itself."
+  },
+  "labels": {
+    "provenance": ["OBSERVED", "REPORTED"],
+    "honesty": "labels-verbatim"
+  },
+  "signoff": "Lutar, Stephen P. <stephenlutar2@gmail.com>"
+}
