@@ -1,0 +1,79 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "id": "2026-09-12-bound-route-execution-contract",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "bcdc3401e85d4d10c8ccd55d4c6ba782682bb68b",
+  "class": "preparation",
+  "lane": "governed-inference",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false
+  },
+  "deterministicMerge": {
+    "strategy": "python-merge",
+    "script": "scripts/wave-merge.py",
+    "touchedPaths": [
+      "frontier/waves/2026-09-12-bound-route-execution-contract.json",
+      "scripts/frontier-bound-route-execution-contract.test.mjs"
+    ],
+    "forbidden": [
+      "README.md",
+      "docs/METRICS.md",
+      "docs/LAUNCH_DICTIONARY.md"
+    ],
+    "selfEnforcing": true
+  },
+  "executionContract": {
+    "version": 1,
+    "definitionOfExecutionalSatisfaction": "Executional satisfaction of a11oy#1806 P1 and a11oy#2020 steps 1-4 is claimed only when the receipt chain binding -> capture -> readout is observed on one real bound route, with the chain's own cross-references intact and out-of-band evidence preserved.",
+    "realBoundRoute": {
+      "rule": "A real bound route is a deployed estate route whose routeConfigHash matches the route descriptor captured in the binding wave's declared route. Synthetic fixtures, offline replays, and simulated routes never count.",
+      "field": "routeDescriptor"
+    },
+    "requiredFields": [
+      {
+        "name": "routeDescriptor",
+        "rule": "The bound route's identity and integrity: route name, route id, and routeConfigHash (SHA-256 of the deployed route configuration), matching the binding wave's declared route. A mismatch is evidence of route drift, not of success."
+      },
+      {
+        "name": "bindingReceipt",
+        "rule": "The DSSE binding receipt id (a11oy#1806 P1) plus the call-time verification timestamp. The receipt is re-verified at execution; a receipt verified only at issue time is not carried forward."
+      },
+      {
+        "name": "captureAnchor",
+        "rule": "The capture configuration hash and the capture receipt id produced for this run, joined to the binding receipt id. Capture config drift relative to the ledgered capture wave invalidates the run."
+      },
+      {
+        "name": "readoutReceipt",
+        "rule": "The readout receipt id satisfying the canonical keystone contract (method, pinned implementation version, coverage map, disposition field, join key to the capture receipt). Emitted only after capture completes; ordering is evidence."
+      },
+      {
+        "name": "witnessRecord",
+        "rule": "The executing organ identity, UTC timestamps for each stage, and the evidence pointer: evidenceUri plus evidenceHash covering the ordered receipt chain. Unsigned or unhash-committed logs do not count as evidence."
+      },
+      {
+        "name": "abstentionRule",
+        "rule": "Any missing link, broken cross-reference, hash mismatch, or timestamp inversion renders the run non-evidence: the aggregate disposition reads UNVERIFIED with the failure code, and no stage may be claimed individually."
+      }
+    ],
+    "consistencyRule": "Receipt ids must cross-reference in order (readout -> capture -> binding) and timestamps must be monotonic across stages. The chain is verified as a whole, never stage-by-stage.",
+    "claimGraduation": "Only a run passing every requiredField and the consistencyRule upgrades a11oy#1806 / a11oy#2020 from contract-side to executional-side satisfaction. The upgrade is recorded as a new wave receipt citing the witnessRecord, never by editing this contract."
+  },
+  "relationToLane": {
+    "consumes": "frontier/waves/2026-09-12-governed-inference-chain-receipt.json",
+    "satisfies": "szl-holdings/a11oy#1806 + szl-holdings/a11oy#2020 (executional bar definition only)",
+    "rule": "This wave defines the bar for executional satisfaction; it satisfies nothing executional. The first real bound-route run against this bar is the follow-up wave."
+  },
+  "claimSurfaces": [
+    "No execution has run; no bound route exists; no executional receipt has been emitted.",
+    "This contract is preparation, not measurement, not deployment, and not a claim that any organ is more than MODELED or NO_ORGAN.",
+    "A future executional claim requires evidence, hashes, and a witnessRecord; prose does not graduate anyone."
+  ],
+  "labels": {
+    "provenance": [
+      "OBSERVED"
+    ],
+    "honesty": "labels-verbatim"
+  },
+  "signoff": "Lutar, Stephen P. <stephenlutar2@gmail.com>"
+}
