@@ -3,7 +3,8 @@
  * Asserts the audit record's own invariants: dated readback schema, HOLD
  * policy, exact open-PR inventory, HF public/private reconciliation with the
  * README-card inference honestly labeled UNVERIFIED, alignment state with the
- * owner dispatch outstanding, and claim surfaces. Offline; no network calls.
+ * owner dispatch outstanding, post-window forward pointer, and claim
+ * surfaces. Offline; no network calls.
  */
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -84,4 +85,18 @@ test("deterministic self-merge is declared and bounded", () => {
   assert.equal(dm.selfEnforcing, true);
   assert.ok(dm.touchedPaths.some((p) => p.endsWith("2026-09-13-estate-audit-reconciliation-01.json")));
   for (const f of dm.forbidden) assert.ok(!dm.touchedPaths.includes(f));
+});
+
+test("post-window forward pointer records the #96 closure without rewriting the window", () => {
+  const events = wave.audit.postWindowEvents;
+  assert.ok(Array.isArray(events) && events.length === 1);
+  const e = events[0];
+  assert.equal(e.at, "2026-09-14T01:59:02Z");
+  assert.match(e.event, /#96 closed as completed/);
+  assert.match(e.evidence, /#132/);
+  assert.match(e.evidence, /8799de710fccf4569c861678ff94294d690a051c/);
+  assert.match(e.evidence, /production_authorization=false retained/);
+  assert.match(e.effect, /superseded/);
+  assert.match(e.effect, /not a rewrite/);
+  assert.equal(wave.audit.observationWindowUtc, "2026-09-13T20:45Z/2026-09-13T21:10Z");
 });

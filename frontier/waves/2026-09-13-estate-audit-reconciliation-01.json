@@ -81,7 +81,15 @@
       ],
       "ownerActionOutstanding": "Estate release train workflow_dispatch on szl-holdings/a11oy main with repair=true, publish_vertical_flagships=true, expected_source_revision = a7bf14a576bc79b4db1945384c55a3c56b109670 (REPORTED from frontier#96 2026-09-13T19:48Z). Connectors and this session lack dispatch authority; no substitute writer is permitted.",
       "exitGate": "fresh native estate ALIGNED receipt with the three mismatches absent and proof/profile/inventory predicates retained"
-    }
+    },
+    "postWindowEvents": [
+      {
+        "at": "2026-09-14T01:59:02Z",
+        "event": "szl-holdings/szl-frontier#96 closed as completed — the protected-main estate alignment exit gate was satisfied",
+        "evidence": "szl-holdings/szl-frontier#132 merged 2026-09-14T02:02:45Z as 8799de710fccf4569c861678ff94294d690a051c, admitting the 2026-09-12 alignment wave's terminal protected-main native ALIGNED evidence; production_authorization=false retained",
+        "effect": "The counsel/finance/terra SOURCE_REVISION_MISMATCH blockers and the owner workflow_dispatch recorded above were true inside the observation window and are superseded by this closure. This dated readback stands unedited; this note is the additive forward pointer, not a rewrite."
+      }
+    ]
   },
   "claimSurfaces": [
     "This wave is a dated readback, not a certificate. Counts and states are point-in-time observations.",
