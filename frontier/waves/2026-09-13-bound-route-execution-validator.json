@@ -29,7 +29,7 @@
       "path": "frontier/waves/2026-09-12-bound-route-execution-contract.json",
       "pinnedBlob": "f380025ccd02cfb00ab2b0b355034447c40a5a3c",
       "admitted_via": "szl-frontier#124",
-      "note": "Contract contents are not byte-read through the recording connector; field inventory and canonical order are recorded from the admitted PR record, which is member-authored and merged. The six-field set and order are treated as REPORTED-from-record; the blob identity is OBSERVED."
+      "note": "Full contract bytes read at PR head 0b4d4951d42c67d39cce59b238f5d30497e156b9; Git blob independently matched. The six required fields and SHA-256 route-config rule are observed source, not deployed execution evidence."
     },
     "sixFieldsCanonicalOrder": [
       "routeDescriptor",
@@ -39,7 +39,10 @@
       "witnessRecord",
       "abstentionRule"
     ],
-    "verdictSpace": ["VERIFIED", "UNVERIFIED"],
+    "verdictSpace": [
+      "VERIFIED",
+      "UNVERIFIED"
+    ],
     "abstentionSemantics": "Any structural break in binding, capture, readout, witness, ordering, or cross-reference yields UNVERIFIED with a named failure code. There is no partial credit.",
     "toolBoundaries": {
       "offline": true,
@@ -47,6 +50,29 @@
       "providerCalls": false,
       "mutations": false,
       "exitCodeOnViolation": 1
+    },
+    "readoutContractReference": {
+      "path": "frontier/waves/2026-09-11-workspace-readout-receipt-contract.json",
+      "pinnedBlob": "dafa297895fc882ac526ddb2de10d8f662b4552b",
+      "note": "Observed canonical joinKey captureReceipt and method/coverage/disposition requirements. Contract unchanged."
+    },
+    "wireProfile": {
+      "id": "szl.execution-witness-structure/v1",
+      "status": "PREPARATION_PROFILE_NOT_DEPLOYED_EXECUTOR_SCHEMA",
+      "scope": "Concrete structural representation of the two observed prose contracts. Passing verifies shape and internal correspondence only, never authenticity, source admission, execution or production.",
+      "configurationAndEvidenceDigests": "routeConfigHash, capture configHash, parametersHash and evidenceHash use lowercase SHA-256 (64 hex). ImplementationRevision is a separate Git SHA-40.",
+      "routeDescriptor": "routeName, routeId, routeConfigHash; bindingReceipt repeats routeId and routeConfigHash for structural agreement.",
+      "bindingReceipt": "dsseId, reverifiedAtCallTime=true, verifiedAt. The UTC timestamp equals the bind-stage instant; the declaration is NOT cryptographic re-verification.",
+      "captureAnchor": "receiptId, configHash, joinedToBindingReceipt=true, bindingReceiptId. The receipt id is distinct from its config digest.",
+      "readoutReceipt": "receiptId, captureReceipt=the capture receiptId, keystoneConformant=true, ordersAfterCapture=true; legacy captureAnchorRef is rejected. Binding/capture/readout receipt IDs are distinct.",
+      "readoutMethod": "name, implementationRevision (Git SHA-40), parametersHash (SHA-256). These are declared pins; source/parameter bytes are not fetched.",
+      "coverageMap": "captureConfigHash, nonempty unique layers and hookPoints lists (at most128 each), state FULL or PARTIAL. The checker preserves declared partial coverage, not measurement truth.",
+      "dispositionField": "property, state MEASURED or UNAVAILABLE, method matching readoutMethod.name, captureReceiptId, failureCode null for MEASURED and nonempty for UNAVAILABLE. Aggregate VERIFIED refuses failed readouts; caller MEASURED is not upgraded to verified measurement.",
+      "unavailableSemantics": "directedModulation, internalReasoning, generalization must each be UNAVAILABLE; these named properties cannot have a MEASURED disposition.",
+      "timestamps": "Exact UTC YYYY-MM-DDTHH:mm:ssZ or YYYY-MM-DDTHH:mm:ss.sssZ with valid calendar roundtrip. Exactly bind,capture,readout in strictly increasing order. No clock truth/freshness claim.",
+      "inputBounds": "CLI: one regular non-leaf-symlink file;64KiB UTF-8;16 nesting levels;4096 JSON values. Reject duplicate decoded keys, nonfinite numbers, malformed/trailing input. Detect observed file size/time movement. Not an atomic hostile-filesystem snapshot or a JavaScript sandbox.",
+      "order": "Retains the existing six-field top-level ordering rule as a property of this profile, not a general JSON ordering guarantee.",
+      "output": "Every result has scope STRUCTURE_ONLY and executionVerified, dsseVerified, evidenceBytesVerified, productionAuthorized=false. Input state cannot override these fields."
     }
   },
   "claimSurfaces": [
@@ -62,7 +88,10 @@
     "rule": "Claim graduation happens only by a new wave receipt citing a witness record that passes every contract field; this checker is one input to that evaluation, never the graduation itself."
   },
   "labels": {
-    "provenance": ["OBSERVED", "REPORTED"],
+    "provenance": [
+      "OBSERVED",
+      "REPORTED"
+    ],
     "honesty": "labels-verbatim"
   },
   "signoff": "Lutar, Stephen P. <stephenlutar2@gmail.com>"
