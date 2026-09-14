@@ -1,0 +1,27 @@
+{
+  "schema": "szl.frontier.execution-handoffs.v1",
+  "wave": "2026-09-14-tencent-auk-speech",
+  "disposition": "HOLD",
+  "productionAuthorization": false,
+  "automaticPromotion": false,
+  "handoffs": {
+    "evaluation": {
+      "repository": "szl-holdings/szl-forge",
+      "issue": 311,
+      "pullRequest": 313,
+      "responsibility": "task-separated source-bound evaluation and consent/provenance contract"
+    },
+    "serving": {
+      "repository": "szl-holdings/szl-serve",
+      "issue": 10,
+      "responsibility": "exact-runtime task support, session failure handling and rollback"
+    },
+    "hardware": {
+      "repository": "szl-holdings/szl-gpu-bridge",
+      "issue": 103,
+      "responsibility": "accelerator, memory, codec/runtime closure and bounded failure evidence"
+    }
+  },
+  "productGate": "a11oy and a-11-oy.com remain unchanged until Forge, Serve and required GPU evidence satisfy normal controls.",
+  "proofGate": "a11oy-net and a11oy.net may publish only measured non-sensitive receipts and known bounds; no raw reference audio or upstream-only benchmark claim is proof."
+}
