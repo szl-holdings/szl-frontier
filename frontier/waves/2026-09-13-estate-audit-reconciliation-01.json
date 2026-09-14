@@ -1,0 +1,98 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "id": "2026-09-13-estate-audit-reconciliation-01",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "fa16050c930a2f5a258619101a98bfc2013cb783",
+  "class": "preparation",
+  "lane": "estate-integrity",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false
+  },
+  "deterministicMerge": {
+    "strategy": "python-merge",
+    "script": "scripts/wave-merge.py",
+    "touchedPaths": [
+      "frontier/waves/2026-09-13-estate-audit-reconciliation-01.json",
+      "scripts/frontier-estate-audit-reconciliation.test.mjs"
+    ],
+    "forbidden": [
+      "README.md",
+      "docs/METRICS.md",
+      "docs/LAUNCH_DICTIONARY.md"
+    ],
+    "selfEnforcing": true
+  },
+  "audit": {
+    "kind": "dated-estate-readback",
+    "observationWindowUtc": "2026-09-13T20:45Z/2026-09-13T21:10Z",
+    "observer": "assistant-session via connectors",
+    "githubOrg": {
+      "reposEnumerated": 123,
+      "openPullRequests": 5,
+      "openPullRequestRefs": [
+        "szl-holdings/szl-forge#271",
+        "szl-holdings/szl-forge#243",
+        "szl-holdings/a11oy#2125",
+        "szl-holdings/szl-atelier#21",
+        "szl-holdings/szl-atelier#22"
+      ],
+      "allOpenPullRequestsDraftHeld": true,
+      "openIssuesTotal": 151,
+      "issueClassification": {
+        "intentionalHoldOrEvaluation": "majority; disposition records, not defects",
+        "blockedExternal": "owner credentials/devices required (e.g. szl-forge#284 HF_ORG_TOKEN, platform#774/#778/#779 signed promotions, szl-forge#264 laptop recovery)",
+        "genuineDefectsP0": [
+          "szl-holdings/a11oy#2143 DEV-A readiness truth boundary",
+          "szl-holdings/.github#739 yarqa Space paused plus three Spaces externally unverifiable",
+          "szl-holdings/killinchu#441 and #442 missing hf-training environment and dead required checks"
+        ]
+      },
+      "mergedTodayOnFrontierMain": ["#124", "#127", "#128", "#130"]
+    },
+    "huggingFace": {
+      "org": "SZLHOLDINGS",
+      "enumeratedVia": "admin connector hf_fs ls",
+      "models": { "enumerated": 46, "private": 0, "publicComputed": 46 },
+      "datasets": { "enumerated": 43, "private": 8, "publicComputed": 35 },
+      "spaces": { "enumerated": 26, "private": 4, "publicComputed": 22 },
+      "nativeReceiptPin": {
+        "counts": "46 models / 35 datasets / 21 Spaces",
+        "source": "frontier#96 comment chain, latest 2026-09-13T19:48Z, REPORTED",
+        "predicate": "public membership"
+      },
+      "reconciliation": {
+        "modelsMatchExactly": true,
+        "datasetsMatchWhenPrivateExcluded": true,
+        "spacesMatchWhenPrivateExcludedAndStaticReadmeCardExcluded": "UNVERIFIED inference",
+        "statement": "The public-inventory predicate reconciles with the dated native pin when private repositories are excluded and the static README Space card is treated as non-member. The README-card exclusion is an inference by the auditor, not an observed predicate rule. The next native estate receipt is the resolver; this wave does not declare clean alignment."
+      }
+    },
+    "domains": {
+      "a-11-oy.com": { "fetched": true, "content": "doctrine-v11 product surface served, honesty tiers intact, Λ = Conjecture 1 advisory" },
+      "a11oy.net": { "fetched": true, "content": "proof registry served; public-inventory snapshot dated 2026-08-31, stale-pending-next-native-receipt by design" }
+    },
+    "alignmentState": {
+      "devaReadinessIncident": "a11oy#2143 source repair merged via #2144 and signed successor #2146 on 2026-09-13 (~11:36Z/11:45Z); canonical relock PASS with zero doctrine lies recorded 2026-09-13T12:04Z (REPORTED via frontier#96 and a11oy#1043); estate controller OPERATIONAL_VERIFIED 2026-09-13T12:28Z (REPORTED)",
+      "remainingBlockers": [
+        "counsel:SOURCE_REVISION_MISMATCH",
+        "finance:SOURCE_REVISION_MISMATCH",
+        "terra:SOURCE_REVISION_MISMATCH"
+      ],
+      "ownerActionOutstanding": "Estate release train workflow_dispatch on szl-holdings/a11oy main with repair=true, publish_vertical_flagships=true, expected_source_revision = a7bf14a576bc79b4db1945384c55a3c56b109670 (REPORTED from frontier#96 2026-09-13T19:48Z). Connectors and this session lack dispatch authority; no substitute writer is permitted.",
+      "exitGate": "fresh native estate ALIGNED receipt with the three mismatches absent and proof/profile/inventory predicates retained"
+    }
+  },
+  "claimSurfaces": [
+    "This wave is a dated readback, not a certificate. Counts and states are point-in-time observations.",
+    "No issue is declared green by this audit; intentional HOLDs remain open by design and blocked-external items await the owner.",
+    "The HF inventory reconciliation is constructive but carries an explicit UNVERIFIED inference about the static README card; the next native receipt resolves it.",
+    "No execution has run; no bound route exists; every estate organ remains MODELED or NO_ORGAN.",
+    "Nothing in this record authorizes promotion, publication, or dispatch."
+  ],
+  "labels": {
+    "provenance": ["OBSERVED", "REPORTED"],
+    "honesty": "labels-verbatim"
+  },
+  "signoff": "Lutar, Stephen P. <stephenlutar2@gmail.com>"
+}
