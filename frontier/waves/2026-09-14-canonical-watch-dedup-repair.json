@@ -1,0 +1,38 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-14-canonical-watch-dedup-repair",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "d18258309bc7633919086e25e4857b58687f90ed",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "materialNewUpstreamCandidates": [],
+  "controlRepair": {
+    "owner": "szl-holdings/szl-frontier",
+    "state": "PREPARED",
+    "reason": "The combined watcher scans Python-curated admissions but its post-combine dedupe consulted only the legacy JavaScript release manifest. Already-admitted Python blog sources could therefore reach the issue publisher as false material candidates.",
+    "observedFalsePositiveIssues": [139, 140],
+    "alreadyCanonicalEvidence": [
+      "frontier/waves/2026-09-12-trl-grpo-structured-output-recipe.json",
+      "frontier/waves/2026-09-12-vlm-run-gateway.json",
+      "frontier/waves/2026-09-08-watch-signal-hygiene.json"
+    ],
+    "repair": "Filter combined watch candidates against both the generated JavaScript manifest and the full Python catalog emitted by `python3 -m szl_frontier list --min-score 70`; accept either catalog shape deterministically and fail closed on malformed admission input.",
+    "tests": [
+      "Python-curated admitted blog candidates are suppressed before alert publication",
+      "uncataloged release-feed candidates remain eligible",
+      "malformed admitted catalogs fail closed",
+      "existing model and dataset normalized-artifact churn rules remain unchanged"
+    ],
+    "productionPromotionEffect": "NONE"
+  },
+  "downstreamProjection": {
+    "huggingFace": "UNCHANGED",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "UNCHANGED",
+    "reason": "This repair changes notification deduplication only and does not alter a runtime, artifact, route, claim, or proof state."
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}
