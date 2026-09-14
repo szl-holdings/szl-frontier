@@ -1,0 +1,86 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-14-deepseek-v4-1-flash",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "798aeb827f0b4dd6bf47c01b78d071b5b2e63d12",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "deepseek-v4-1-flash-2026-09-10",
+    "kind": "multimodal-model-serving-boundary",
+    "priority": "P0",
+    "publisher": "DeepSeek-AI",
+    "repository": "deepseek-ai/DeepSeek-V4.1-Flash",
+    "upstream": {
+      "observedRevision": "df42c109f1defefcbfcedbe7d905718a12266e40",
+      "observedAt": "2026-09-14T07:41:52Z",
+      "lastModified": "2026-09-10",
+      "releaseState": "PUBLIC_OPEN_WEIGHTS_EVALUATION",
+      "licenseDeclared": "mit",
+      "revisionPolicy": "Admission is pinned to Hub revision df42c109f1defefcbfcedbe7d905718a12266e40. Later revisions, runtime integrations, quantizations and protocol helpers inherit no qualification automatically."
+    },
+    "materialChanges": [
+      "DeepSeek-V4.1-Flash is a multimodal Mixture-of-Experts release with a 552B backbone, native image and text input, and an advertised context window up to one million tokens; those scale and context claims are upstream-reported, not SZL qualification.",
+      "The model introduces a 40-layer Causal Encoder-Decoder topology split into 20 causal encoder layers and 20 decoder layers, with upstream reporting 8B active parameters per token during prefill and 16B during decode.",
+      "Compressed Sparse Attention 2 uses Full, Reindex and Reuse modes plus a hierarchical sparse indexer; FP4 main-KV caching and SWA Bounded Replay materially change serving-memory and cache-integrity assumptions.",
+      "The official card reports a global KV-cache footprint of about 890 bytes per token and materially lower persistent KV than DeepSeek-V4-Flash. These figures are UPSTREAM_REPORTED_NOT_SZL_MEASURED until reproduced on an exact runtime and hardware stack.",
+      "The exact config declares deepseek_v41, 1,048,576 max positions, 384 routed experts plus one shared expert, six routed experts per token, dynamic FP8 quantization with FP4 expert weights, and a vision configuration.",
+      "Additional source-owned components include Engram conditional memory and DSpark speculative decoding; baseline decode, memory offload and speculative execution require separate correctness and rollback evidence.",
+      "V4.1 intentionally has no Jinja chat template. The source-owned encoding reference and maintained deepseek-recipe protocol toolkit define multi-turn messages, numeric reasoning effort, tool calls, images, Chat Completions / Responses conversion and streamed parsing; no generic template fallback is admissible.",
+      "The repository and model weights declare MIT licensing. Runtime, container, dependency and any derived-quantization rights remain separate provenance gates."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "frontierIssue": 134,
+      "mode": "BOUNDED_MULTIMODAL_MODEL_AND_SERVING_EVALUATION_ONLY",
+      "relatedOwners": [
+        "szl-holdings/szl-serve",
+        "szl-holdings/szl-gpu-bridge",
+        "szl-holdings/a11oy",
+        "szl-holdings/a11oy-net"
+      ],
+      "acceptance": [
+        "Pin exact Hub revision df42c109f1defefcbfcedbe7d905718a12266e40 and retain hashes for the README, config, LICENSE and source-owned encoding reference used by evaluation; later Hub revisions do not inherit evidence.",
+        "Do not rehost upstream weights merely for inventory. Pin exact checkpoint and quantization artifacts actually exercised, with immutable content digests and source provenance.",
+        "Correctness precedes performance: fixed non-secret text-only and image-plus-text fixtures must verify prompt encoding, output termination, structured output and repeatability before latency, throughput or memory claims are considered.",
+        "Treat the V4.1 prompt and tool protocol as a separate compatibility contract. Verify multi-turn, numeric reasoning-effort, tool-call, image and streamed-response encode/decode fixtures against source-owned reference behavior; a generic Jinja fallback must fail rather than silently alter semantics.",
+        "Measure CED, CSA2, SWA Bounded Replay, Engram/offload and FP4-KV behavior only on an exact supported serving-engine, CUDA/driver and accelerator identity. The approximately 890-bytes-per-token and relative KV-footprint claims remain UPSTREAM_REPORTED_NOT_SZL_MEASURED until reproduced; unsupported prerequisites are UNAVAILABLE.",
+        "Qualify DSpark or other MTP speculative execution independently from baseline decode, including accepted-token correctness, cancellation, failure, restart and rollback behavior. A speed result cannot substitute for output correctness.",
+        "Pin every serving engine, protocol helper and container by exact revision or immutable digest. Existing vLLM, SGLang or provider support statements do not qualify deepseek_v41 under SZL controls.",
+        "Exercise OOM and long-context admission, malformed image and tool payloads, cancellation, engine restart, cache mismatch or corruption and rollback to the incumbent path without partial-success promotion.",
+        "Preserve MIT source and weight provenance while reviewing runtime and dependency licenses separately. Keep provider secrets, paid routing, product defaults, autonomous tool authority, publication and automatic promotion false until normal downstream controls independently pass."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWavesChecked": true,
+    "openIssuesAndPullRequestsChecked": true,
+    "exactRevisionPreviouslyPresent": false,
+    "relatedCandidates": [
+      "deepseek-v4-flash-vision-exp-2026-09-01",
+      "DeepSeek-V4-Pro-0813 development snapshot",
+      "vLLM 0.29 + TRL compatibility",
+      "vLLM-Omni v0.29.0rc1",
+      "SGLang v0.5.19"
+    ],
+    "trackingIssue": 134,
+    "result": "New DeepSeek V4.1 architecture and serving/protocol boundary; predecessor V4 and generic serving-runtime waves do not qualify this exact source or behavior."
+  },
+  "authorityChain": {
+    "githubSource": "Frontier records only the exact upstream identity and bounded evaluation contract; no production source owner is changed by admission.",
+    "huggingFaceProjection": "The upstream Hub model remains external source material. No SZLHOLDINGS weight mirror, model duplicate or runtime projection is authorized by this wave.",
+    "productRuntime": "No a-11-oy.com route, parser, provider or model default changes until Forge, Serve and GPU qualification receipts pass normal controls.",
+    "proofEvidence": "a11oy.net may publish only measured downstream receipts and known bounds; upstream benchmark, 1M-context and KV-efficiency claims remain UPSTREAM_REPORTED_NOT_SZL_MEASURED."
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "Admission establishes a material exact-source evaluation target only. It does not establish model quality, full-context feasibility, engine support, KV-cache performance, speculative-decoding correctness, tool authority, product readiness or production authorization."
+  }
+}
