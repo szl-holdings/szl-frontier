@@ -44,3 +44,27 @@ test('keeps the newer PEFT dtype-forwarding fix as separate unreleased watch evi
   assert.equal(wave.unreleasedSuccessorWatch.revision, 'e99fdd275075068d093f8996a59bc0eb865f71a2');
   assert.equal(wave.unreleasedSuccessorWatch.qualification, 'SEPARATE_WATCH_NOT_STABLE_020_EVIDENCE');
 });
+
+test('binds the modules_to_save restoration fix as a separate exact-source successor', () => {
+  const successor = wave.transformersModulesToSaveSuccessorWatch;
+  assert.equal(successor.repository, 'huggingface/transformers');
+  assert.equal(successor.revision, 'dbbd551285e9d591a5c9692154341531531dac6c');
+  assert.equal(successor.upstreamPullRequest, 48595);
+  assert.equal(successor.sourceVerification, 'UPSTREAM_COMMIT_SIGNATURE_VERIFIED');
+  assert.equal(successor.qualification, 'SEPARATE_EXACT_SOURCE_EVALUATION_REQUIRED');
+  assert.equal(successor.productionDisposition, 'HOLD');
+  assert.equal(wave.deduplication.transformersModulesToSaveSuccessorPreviouslyAdmitted, false);
+});
+
+test('requires an executable modules_to_save restoration witness before promotion', () => {
+  assert.ok(
+    wave.requiredEvidence.some((entry) => entry.includes('modules_to_save sentinel round trip')),
+  );
+  assert.ok(
+    wave.requiredEvidence.some(
+      (entry) =>
+        entry.includes('dbbd551285e9d591a5c9692154341531531dac6c') &&
+        entry.includes('does not inherit'),
+    ),
+  );
+});
