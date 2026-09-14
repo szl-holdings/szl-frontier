@@ -1,0 +1,75 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-14-transformers-peft-020-load-floor",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "d18258309bc7633919086e25e4857b58687f90ed",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#142",
+  "candidate": {
+    "publisher": "Hugging Face Transformers",
+    "category": "training-post-training-compatibility",
+    "upstreamRepository": "huggingface/transformers",
+    "upstreamRevision": "75c3583e042c0765874784306fb9ace2137925d1",
+    "observedAt": "2026-09-14T13:32:54Z",
+    "change": "Transformers raises the PEFT integration minimum from 0.19.1 to 0.20.0 because upstream reports that 0.19.1 cannot correctly load adapter weights.",
+    "releaseState": "POST_5_17_UNRELEASED_WATCH",
+    "productionDisposition": "HOLD"
+  },
+  "deduplication": {
+    "releasedCoreStackOwner": "szl-holdings/szl-frontier#60",
+    "peftExportIntegrityOwner": "szl-holdings/szl-frontier#110",
+    "exactSourcePreviouslyAdmitted": false,
+    "inheritsQualification": false
+  },
+  "estateObservations": [
+    {
+      "repository": "szl-holdings/a11oy",
+      "path": "training/box/requirements-box.txt",
+      "observedPin": "peft==0.19.1",
+      "pairedTransformersPin": "transformers==5.10.1",
+      "classification": "PIN_REQUIRES_SUCCESSOR_COMPATIBILITY_REVIEW_NOT_CURRENT_BREAKAGE_CLAIM"
+    },
+    {
+      "repository": "szl-holdings/szl-gpu-bridge",
+      "path": "laptop/Dockerfile.nemo-v3",
+      "observedPin": "peft==0.19.1",
+      "classification": "PIN_REQUIRES_SUCCESSOR_COMPATIBILITY_REVIEW_NOT_CURRENT_BREAKAGE_CLAIM"
+    },
+    {
+      "repository": "szl-holdings/szl-gpu-bridge",
+      "path": "laptop/bootstrap.ps1",
+      "observedPin": "peft==0.19.1",
+      "classification": "PIN_REQUIRES_SUCCESSOR_COMPATIBILITY_REVIEW_NOT_CURRENT_BREAKAGE_CLAIM"
+    }
+  ],
+  "evaluationOwners": {
+    "canonicalAdmission": "szl-holdings/szl-frontier",
+    "adapterCompatibility": "szl-holdings/szl-forge",
+    "acceleratorAndLaptopStack": "szl-holdings/szl-gpu-bridge",
+    "trainingBoxPin": "szl-holdings/a11oy"
+  },
+  "requiredEvidence": [
+    "Bind Transformers exact revision 75c3583e042c0765874784306fb9ace2137925d1 and the exact PEFT 0.20.0 package/source identity evaluated.",
+    "Run deterministic adapter load/add/switch/delete and save-load round trips on fixed non-secret LoRA fixtures before any dependency promotion.",
+    "Reject or quarantine a successor Transformers plan that requires PEFT >=0.20.0 while the planned environment still pins 0.19.1.",
+    "Re-run the distributed LoRA export/load integrity cases governed by Frontier #110 under the successor pair.",
+    "Preserve the current admitted stack as rollback until exact compatibility and artifact-integrity gates pass.",
+    "Do not blanket-bump purpose-pinned environments or infer compatibility from package resolution alone."
+  ],
+  "unreleasedSuccessorWatch": {
+    "repository": "huggingface/peft",
+    "revision": "e99fdd275075068d093f8996a59bc0eb865f71a2",
+    "change": "Forward autocast_adapter_dtype=False through affected PeftModel subclasses and load_adapter paths.",
+    "qualification": "SEPARATE_WATCH_NOT_STABLE_020_EVIDENCE"
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "MEASURED_RECEIPTS_ONLY_AFTER_EVALUATION"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}
