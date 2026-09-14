@@ -3,7 +3,7 @@
   "wave": "2026-09-14-transformers-peft-020-load-floor",
   "priority": "P0",
   "sourceOfTruth": "szl-holdings/szl-frontier",
-  "sourceRevisionObserved": "d18258309bc7633919086e25e4857b58687f90ed",
+  "sourceRevisionObserved": "ae0109a44890a268bd72c2e60f3ab09fbdae34d5",
   "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
   "canonicalIssue": "szl-holdings/szl-frontier#142",
   "candidate": {
@@ -20,6 +20,7 @@
     "releasedCoreStackOwner": "szl-holdings/szl-frontier#60",
     "peftExportIntegrityOwner": "szl-holdings/szl-frontier#110",
     "exactSourcePreviouslyAdmitted": false,
+    "transformersModulesToSaveSuccessorPreviouslyAdmitted": false,
     "inheritsQualification": false
   },
   "estateObservations": [
@@ -51,7 +52,9 @@
   },
   "requiredEvidence": [
     "Bind Transformers exact revision 75c3583e042c0765874784306fb9ace2137925d1 and the exact PEFT 0.20.0 package/source identity evaluated.",
+    "Bind successor Transformers exact revision dbbd551285e9d591a5c9692154341531531dac6c independently when evaluating modules_to_save restoration; qualification at 75c3583e042c0765874784306fb9ace2137925d1 does not inherit across the successor source boundary.",
     "Run deterministic adapter load/add/switch/delete and save-load round trips on fixed non-secret LoRA fixtures before any dependency promotion.",
+    "Include a modules_to_save sentinel round trip that proves AutoModel.from_pretrained restores wrapped module weights through the PEFT adapter_state_dict_load_map mapping, including a classification-head case.",
     "Reject or quarantine a successor Transformers plan that requires PEFT >=0.20.0 while the planned environment still pins 0.19.1.",
     "Re-run the distributed LoRA export/load integrity cases governed by Frontier #110 under the successor pair.",
     "Preserve the current admitted stack as rollback until exact compatibility and artifact-integrity gates pass.",
@@ -62,6 +65,16 @@
     "revision": "e99fdd275075068d093f8996a59bc0eb865f71a2",
     "change": "Forward autocast_adapter_dtype=False through affected PeftModel subclasses and load_adapter paths.",
     "qualification": "SEPARATE_WATCH_NOT_STABLE_020_EVIDENCE"
+  },
+  "transformersModulesToSaveSuccessorWatch": {
+    "repository": "huggingface/transformers",
+    "revision": "dbbd551285e9d591a5c9692154341531531dac6c",
+    "observedAt": "2026-09-14T16:42:05Z",
+    "upstreamPullRequest": 48595,
+    "change": "AutoModel.from_pretrained previously ignored AuxiliaryTrainingWrapper.adapter_state_dict_load_map, so PEFT modules_to_save weights could fail to restore; the successor adds WeightRenaming mappings and a sentinel restoration regression.",
+    "sourceVerification": "UPSTREAM_COMMIT_SIGNATURE_VERIFIED",
+    "qualification": "SEPARATE_EXACT_SOURCE_EVALUATION_REQUIRED",
+    "productionDisposition": "HOLD"
   },
   "projection": {
     "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
