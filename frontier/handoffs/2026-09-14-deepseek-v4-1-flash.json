@@ -1,0 +1,27 @@
+{
+  "schema": "szl.frontier.execution-handoffs.v1",
+  "wave": "2026-09-14-deepseek-v4-1-flash",
+  "disposition": "HOLD",
+  "productionAuthorization": false,
+  "automaticPromotion": false,
+  "handoffs": {
+    "evaluation": {
+      "repository": "szl-holdings/szl-forge",
+      "issue": 310,
+      "pullRequest": 312,
+      "responsibility": "exact-source qualification, protocol evidence and bounded model/runtime observations"
+    },
+    "serving": {
+      "repository": "szl-holdings/szl-serve",
+      "issue": 9,
+      "responsibility": "prompt/protocol compatibility, exact-engine support states, failure handling and rollback"
+    },
+    "hardware": {
+      "repository": "szl-holdings/szl-gpu-bridge",
+      "issue": 102,
+      "responsibility": "accelerator identity, checkpoint feasibility, memory/KV measurements and bounded context closure"
+    }
+  },
+  "productGate": "a11oy and a-11-oy.com remain unchanged until Forge, Serve and GPU evidence satisfy normal controls.",
+  "proofGate": "a11oy-net and a11oy.net may publish only exact-source measured receipts and known bounds; upstream-only 1M-context, KV or quality claims are not proof."
+}
