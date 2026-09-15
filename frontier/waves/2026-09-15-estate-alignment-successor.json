@@ -69,7 +69,30 @@
         "added": [
           "SZLHOLDINGS/szl-receiptagent-qwen35-0.8b-v2-merged"
         ],
-        "removed": []
+        "removed": [],
+        "classification": {
+          "state": "ADMITTED_PUBLISHED_DECLARATION_STALE",
+          "githubOwner": "szl-holdings/szl-forge",
+          "githubRevisionObserved": "df0bc50c6b5cd7821941366803b2b943d6b964e8",
+          "candidatePath": "frontier/qwen35-receiptagent-v2-merged/candidate.json",
+          "publicationPath": "frontier/qwen35-receiptagent-v2-merged/publication.json",
+          "candidateStatus": "PUBLISHED",
+          "publicationState": "MEASURED_HF_READBACK_VERIFIED",
+          "publicationAuthority": "owner (org admin) after lane admission (forge PR #308, merge 115f5038)",
+          "base": "unsloth/Qwen3.5-0.8B@23c69c53358a07516b5827588b3fdb12ae78fd65",
+          "qualification": "merged-vs-adapter greedy equivalence 5/5 exact matches",
+          "intendedFileCount": 8,
+          "intendedBytes": 3432006714,
+          "hubMetadata": {
+            "parameters": 853000000,
+            "architecture": "qwen3_5",
+            "modelClass": "AutoModelForMultimodalLM",
+            "license": "apache-2.0",
+            "lastModified": "2026-09-14"
+          },
+          "remainingPublicationReceiptGap": "capture Hub release revision SHA on next owner-side readback",
+          "repairBoundary": "refresh the canonical declared public-membership/profile/proof sources through their normal reviewed writer; do not delete or hide the admitted model to force the old count"
+        }
       },
       "blockers": [
         "CANONICAL_SPACE_SOURCE_MISMATCH",
@@ -87,7 +110,8 @@
       "estateReadbackReused": "szl-holdings/.github#298",
       "healthWitnessReused": "szl-holdings/szl-org-health#41",
       "fullCheckpointMetadataDriftReused": "szl-holdings/szl-forge#319",
-      "result": "successor drift wave only; no duplicate publisher, runtime writer, model-card incident, or inventory asset"
+      "modelAdmissionEvidenceReused": "szl-holdings/szl-forge@df0bc50c6b5cd7821941366803b2b943d6b964e8:frontier/qwen35-receiptagent-v2-merged",
+      "result": "successor drift wave only; admitted published inventory delta is classified without creating a duplicate publisher, runtime writer, model-card incident, or inventory asset"
     },
     "ownership": {
       "governance": "szl-holdings/szl-frontier",
@@ -101,7 +125,8 @@
       "Preserve the prior ALIGNED closure as immutable evidence for its exact source and observation window.",
       "Do not lower or rewrite protected GitHub source identity to match stale Hugging Face runtime bytes.",
       "Use only the established canonical publisher/release-train path to project exact admitted source; no manual Space edit or second writer.",
-      "Reconcile SZLHOLDINGS/szl-receiptagent-qwen35-0.8b-v2-merged item-by-item as admitted-but-unmanifested or unadmitted projection; do not delete, hide, retype, duplicate, or mirror an asset merely to force counts.",
+      "Treat SZLHOLDINGS/szl-receiptagent-qwen35-0.8b-v2-merged as an admitted published model whose declared public-membership/profile/proof snapshot is stale; refresh the declaration through its normal reviewed writer and do not delete, hide, retype, duplicate, or mirror the model merely to force the old count.",
+      "Capture the model Hub release revision SHA in the canonical publication receipt before inventory closure claims exact artifact revision binding.",
       "Require fresh build-info readback with observed source exactly equal to protected A11oy main before source alignment can pass.",
       "Require a fresh native estate receipt under the same declared public-membership predicate with zero configured required blockers.",
       "Keep product and proof claims fail-closed while source identity or public membership is divergent.",
@@ -111,10 +136,11 @@
       "mode": "SOURCE_FIRST_ALIGNMENT_REPAIR",
       "steps": [
         "Audit the exact protected A11oy main and the existing canonical publisher inputs without modifying provider state.",
-        "Classify the added public model against admitted GitHub source, publication receipts, manifest/profile membership, and exact Hub revision/digests.",
-        "Prepare the smallest owner-repository source repair needed for canonical publication or inventory declaration; preserve the current incident if no source repair is required.",
+        "Use the admitted Forge candidate/publication evidence to refresh the canonical declared public-membership/profile/proof source from 46 to the observed admitted 47-model membership through the normal reviewed writer; do not manually normalize provider inventory.",
+        "Capture the merged model's Hub release revision SHA during the next owner-side readback and bind it into the canonical publication receipt.",
+        "Prepare the smallest owner-repository source repair needed for exact canonical runtime publication and inventory declaration.",
         "Run deterministic source/inventory tests before any provider write.",
-        "After normal merge controls, allow only the existing publisher to project the exact admitted source and record its run/source binding.",
+        "After normal merge controls, allow only the existing publisher to project the exact admitted A11oy source and record its run/source binding.",
         "Re-read canonical HF build-info, required runtime witnesses, public membership, a-11-oy.com product state, and a11oy.net proof state.",
         "Return immutable evidence to Frontier #151; close only when the same-run native receipt is ALIGNED with zero configured required blockers."
       ]
