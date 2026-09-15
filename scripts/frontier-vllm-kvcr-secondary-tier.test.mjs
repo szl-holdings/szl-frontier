@@ -63,6 +63,8 @@ test('keeps router hints outside authorization and fallback fail-closed', () => 
 test('binds concrete execution ownership without opening projections', () => {
   assert.equal(wave.evaluationOwners.canonicalGovernance, 'szl-holdings/szl-frontier#157');
   assert.equal(wave.evaluationOwners.runtimeCorrectness, 'szl-holdings/szl-forge#329');
+  assert.equal(wave.evaluationOwners.servingIsolationAndRollback, 'szl-holdings/szl-serve#11');
+  assert.equal(wave.evaluationOwners.acceleratorAndTransport, 'szl-holdings/szl-gpu-bridge#104');
   assert.equal(
     wave.projection.huggingFace,
     'NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED',
