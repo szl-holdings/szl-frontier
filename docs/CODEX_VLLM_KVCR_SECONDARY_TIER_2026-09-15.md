@@ -1,7 +1,9 @@
 # Codex handoff — vLLM KVCR secondary-tier KV offload
 
 Canonical issue: `szl-holdings/szl-frontier#157`  
-Execution issue: `szl-holdings/szl-forge#329`  
+Forge issue: `szl-holdings/szl-forge#329`  
+Serve issue: `szl-holdings/szl-serve#11`  
+GPU Bridge issue: `szl-holdings/szl-gpu-bridge#104`  
 Governed wave: `frontier/waves/2026-09-15-vllm-kvcr-secondary-tier.json`  
 vLLM feature source: `000c7df9ffd3e470980fd4cd6b8ec1b0585500ff`  
 KVCR release: `ai-dynamo/kvcr` tag `v0.1.0`, annotated tag `5db29e54f05be36d2afd691ba93878a99658bfe6`, peeled commit `1b790eff53edcdc6398121b6e6ee48ba43cf2579`  
@@ -36,13 +38,13 @@ Required deterministic fixtures:
 
 Successful import, upstream unit tests, or a throughput improvement alone is not qualification.
 
-### 2. `szl-gpu-bridge` — NIXL/CUDA/transport closure
+### 2. `szl-gpu-bridge#104` — NIXL/CUDA/transport closure
 
 Bind the exact accelerator SKU/count, driver, CUDA, NIXL wheel/version, network/interconnect and any GDR/RDMA or host-memory assumptions actually exercised. Validate resource ownership and cleanup under cancellation, source/target loss, timeout, restart and shutdown. Missing hardware or transport prerequisites are `UNAVAILABLE`, never simulated PASS.
 
 The vLLM integration's CUDA-family NIXL wheel selection is integration evidence, not proof that the estate's runner has a qualified transport stack.
 
-### 3. `szl-serve` — router hints, isolation, fallback and rollback
+### 3. `szl-serve#11` — router hints, isolation, fallback and rollback
 
 Router hints are cache-location evidence only. They must never authorize a model, provider, tenant, policy, tool or paid route.
 
