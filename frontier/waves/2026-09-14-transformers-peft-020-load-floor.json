@@ -3,7 +3,7 @@
   "wave": "2026-09-14-transformers-peft-020-load-floor",
   "priority": "P0",
   "sourceOfTruth": "szl-holdings/szl-frontier",
-  "sourceRevisionObserved": "ae0109a44890a268bd72c2e60f3ab09fbdae34d5",
+  "sourceRevisionObserved": "81d787df65791384b5629ca1b80b4c3f179eef3c",
   "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
   "canonicalIssue": "szl-holdings/szl-frontier#142",
   "candidate": {
@@ -21,6 +21,7 @@
     "peftExportIntegrityOwner": "szl-holdings/szl-frontier#110",
     "exactSourcePreviouslyAdmitted": false,
     "transformersModulesToSaveSuccessorPreviouslyAdmitted": false,
+    "peft021ReleasePreviouslyAdmitted": false,
     "inheritsQualification": false
   },
   "estateObservations": [
@@ -51,10 +52,14 @@
     "trainingBoxPin": "szl-holdings/a11oy"
   },
   "requiredEvidence": [
-    "Bind Transformers exact revision 75c3583e042c0765874784306fb9ace2137925d1 and the exact PEFT 0.20.0 package/source identity evaluated.",
+    "Bind Transformers exact revision 75c3583e042c0765874784306fb9ace2137925d1 and the exact PEFT package/source identity evaluated.",
     "Bind successor Transformers exact revision dbbd551285e9d591a5c9692154341531531dac6c independently when evaluating modules_to_save restoration; qualification at 75c3583e042c0765874784306fb9ace2137925d1 does not inherit across the successor source boundary.",
+    "Bind PEFT v0.21.0 to annotated tag object ec824fda1917cbe768fe34f7aa8d953db35dcf32 peeling to exact commit 9dc6fa2d2093853dec3889b790d4f251efe7fcac; do not substitute moving main or infer source authenticity from the unsigned tag.",
+    "Before executable PEFT v0.21.0 qualification, record the exact installed wheel or sdist digest plus package index/source provenance; this wave does not assert artifact publication merely from the source tag.",
     "Run deterministic adapter load/add/switch/delete and save-load round trips on fixed non-secret LoRA fixtures before any dependency promotion.",
     "Include a modules_to_save sentinel round trip that proves AutoModel.from_pretrained restores wrapped module weights through the PEFT adapter_state_dict_load_map mapping, including a classification-head case.",
+    "Under PEFT v0.21.0, explicitly exercise the formerly unreleased autocast_adapter_dtype=False forwarding path at e99fdd275075068d093f8996a59bc0eb865f71a2 and prove that release inclusion does not imply compatibility qualification.",
+    "Exercise state-dict serialization/deserialization, mixed-adapter add/delete/switch behavior, hotswap/load failure paths and rollback under the exact v0.21.0 source/artifact identity because the release is 105 commits ahead of v0.20.0 and materially refactors save/load and tuner surfaces.",
     "Reject or quarantine a successor Transformers plan that requires PEFT >=0.20.0 while the planned environment still pins 0.19.1.",
     "Re-run the distributed LoRA export/load integrity cases governed by Frontier #110 under the successor pair.",
     "Preserve the current admitted stack as rollback until exact compatibility and artifact-integrity gates pass.",
@@ -64,7 +69,23 @@
     "repository": "huggingface/peft",
     "revision": "e99fdd275075068d093f8996a59bc0eb865f71a2",
     "change": "Forward autocast_adapter_dtype=False through affected PeftModel subclasses and load_adapter paths.",
-    "qualification": "SEPARATE_WATCH_NOT_STABLE_020_EVIDENCE"
+    "qualification": "CONVERGED_IN_V0_21_0_REQUIRES_RELEASE_QUALIFICATION",
+    "convergedInReleaseRevision": "9dc6fa2d2093853dec3889b790d4f251efe7fcac"
+  },
+  "peft021Release": {
+    "repository": "huggingface/peft",
+    "release": "v0.21.0",
+    "revision": "9dc6fa2d2093853dec3889b790d4f251efe7fcac",
+    "tagObject": "ec824fda1917cbe768fe34f7aa8d953db35dcf32",
+    "tagObservedAt": "2026-09-15T12:29:21Z",
+    "tagVerification": "UNSIGNED_ANNOTATED_TAG",
+    "v020BaseRevision": "a5526d27a9d47d1e8264d5e1b1f96c0fdc79464e",
+    "commitsAheadOfV020": 105,
+    "containsPreviouslyWatchedRevision": "e99fdd275075068d093f8996a59bc0eb865f71a2",
+    "artifactPublication": "NOT_ASSERTED_BY_THIS_WAVE_REQUIRE_EXACT_EVALUATED_ARTIFACT_DIGEST",
+    "materialBoundary": "Release source materially changes save/load, state-dict, tuner, mixed-adapter, hotswap and method surfaces relative to v0.20.0; no compatibility or performance qualification is inherited.",
+    "qualification": "SEPARATE_EXACT_RELEASE_EVALUATION_REQUIRED",
+    "productionDisposition": "HOLD"
   },
   "transformersModulesToSaveSuccessorWatch": {
     "repository": "huggingface/transformers",
