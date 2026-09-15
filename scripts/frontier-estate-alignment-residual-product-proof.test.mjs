@@ -15,12 +15,13 @@ const wave = JSON.parse(
 
 const repair = wave.repairContract.join('\n').toLowerCase();
 
-test('records the later exact protected source and repaired HF predicate', () => {
+test('records the exact protected source and repaired HF predicate', () => {
   assert.equal(wave.canonicalIssue, 'szl-holdings/szl-frontier#151');
   assert.equal(
     wave.observations.githubProtectedSource.revision,
     'ebfd70f4c6915c2640cf82a97c7f22b6c62906eb',
   );
+  assert.equal(wave.observations.githubProtectedSource.verifiedCommit, true);
   assert.equal(
     wave.observations.huggingFaceCanonicalRuntime.observedSourceRevision,
     'ebfd70f4c6915c2640cf82a97c7f22b6c62906eb',
@@ -29,17 +30,20 @@ test('records the later exact protected source and repaired HF predicate', () =>
   assert.equal(wave.advancement.canonicalHfRuntimeSourceDrift, 'REPAIRED');
 });
 
-test('keeps the stale product source as an explicit blocker', () => {
+test('records the later product source parity repair without claiming whole-estate closure', () => {
   assert.equal(
     wave.observations.productRuntime.observedGitSha,
-    'a7bf14a576bc79b4db1945384c55a3c56b109670',
+    'ebfd70f4c6915c2640cf82a97c7f22b6c62906eb',
   );
   assert.equal(
     wave.observations.productRuntime.expectedGitSha,
     'ebfd70f4c6915c2640cf82a97c7f22b6c62906eb',
   );
-  assert.equal(wave.observations.productRuntime.state, 'SOURCE_DRIFT');
-  assert.equal(wave.advancement.productDomainSourceDrift, 'OPEN');
+  assert.equal(wave.observations.productRuntime.state, 'ALIGNED_FOR_THIS_PREDICATE');
+  assert.equal(wave.observations.productRuntime.observationMethod, 'FRESH_PUBLIC_GET');
+  assert.equal(wave.advancement.productDomainSourceDrift, 'REPAIRED');
+  assert.equal(wave.advancement.publicMembershipDeclarationDrift, 'OPEN');
+  assert.equal(wave.advancement.proofSnapshotDrift, 'OPEN');
 });
 
 test('preserves separate current public-membership and proof predicates', () => {
@@ -60,15 +64,21 @@ test('preserves separate current public-membership and proof predicates', () => 
   );
 });
 
-test('forbids rollback-to-stale and destructive count forcing', () => {
-  assert.match(repair, /never repin source to stale product bytes/);
+test('preserves repaired source legs while forbidding destructive count forcing', () => {
+  assert.match(repair, /never repin source to stale runtime or proof bytes/);
+  assert.match(repair, /preserve the newly reobserved a-11-oy.com product source parity/);
   assert.match(repair, /do not delete or hide the admitted model/);
   assert.match(repair, /historical snapshots remain historical evidence/);
-  assert.match(repair, /reachability alone is never source parity or readiness/);
+  assert.match(repair, /never whole-estate readiness/);
 });
 
-test('keeps the residual incident fail-closed', () => {
+test('keeps the residual incident fail-closed until same-window named-predicate closure', () => {
   assert.equal(wave.advancement.historicalClosurePreserved, true);
+  assert.ok(
+    wave.repairContract.some(
+      (entry) => entry.includes('fresh same-window reconciliation') && entry.includes('zero required blockers'),
+    ),
+  );
   assert.equal(wave.productionDisposition, 'HOLD');
   assert.equal(wave.candidate.productionDisposition, 'HOLD');
   assert.equal(wave.automaticProductionPromotion, false);
