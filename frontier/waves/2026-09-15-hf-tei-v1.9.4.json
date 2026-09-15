@@ -1,0 +1,62 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-15-hf-tei-v1.9.4",
+  "priority": "P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "81d787df65791384b5629ca1b80b4c3f179eef3c",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#162",
+  "candidate": {
+    "publisher": "Hugging Face",
+    "category": "retrieval-reranking-serving-runtime",
+    "upstreamRepository": "huggingface/text-embeddings-inference",
+    "upstreamTag": "v1.9.4",
+    "upstreamRevision": "e80ef225ed0e6cb1717ce632a6a84b6cf211bb67",
+    "observedAt": "2026-09-15T19:32:21Z",
+    "publishedAt": "2026-09-15T09:28:03Z",
+    "releaseState": "RELEASED_EXACT_SOURCE_EVALUATION",
+    "productionDisposition": "HOLD"
+  },
+  "materialChanges": [
+    "ARM64 and multi-arch CUDA serving support including sm_121 / DGX Spark paths",
+    "initial AMD ROCm serving path including varlen flash-attention and Triton layer norm integration",
+    "bounded-allocation correction in PaddedBatch.from_pb",
+    "NomicBert max_position_embeddings correctness fix",
+    "DeBERTaV2 large-batch correctness fix",
+    "GKE CUDA entrypoint/runtime fixes",
+    "GitHub Actions dependencies pinned to commit SHAs"
+  ],
+  "deduplication": {
+    "canonicalTeiWavePreviouslyFound": false,
+    "estateLegacyReference": "platform/replit-sync/FOUNDER_GPU_RUNBOOK.md references text-embeddings-inference:1.5",
+    "estatePortfolioReference": "holographic-unify/src/lib/sota.ts identifies text-embeddings-inference as the embedding serve job",
+    "legacyReferencesAuthorizeUpgrade": false,
+    "inheritsQualification": false
+  },
+  "requiredEvidence": [
+    "Bind tag v1.9.4 to exact commit e80ef225ed0e6cb1717ce632a6a84b6cf211bb67 and record the immutable package/container digest actually evaluated.",
+    "Run deterministic embedding and reranking fixtures with fixed input bytes and an incumbent oracle; retain dimensions, normalization contract, result ordering, scores or canonical hashes, and PASS/FAIL/UNAVAILABLE disposition.",
+    "Exercise an adversarial oversized PaddedBatch request that demonstrates bounded allocation and fail-closed behavior rather than process growth or partial success.",
+    "Exercise NomicBert maximum-position and DeBERTaV2 large-batch regression fixtures before making either model-family compatibility claim.",
+    "Qualify ARM64, sm_121/DGX Spark, CUDA/GKE and ROCm independently. A hardware lane that cannot be exercised is UNAVAILABLE, not PASS.",
+    "Bind each exercised container lane to image digest plus relevant driver/runtime identity and preserve rollback to the incumbent retrieval serving path.",
+    "Preserve source-document provenance, rights boundaries and evidence handles through retrieval; an embedding or rerank result cannot replace source evidence.",
+    "Do not rehost upstream model weights merely for inventory and do not project capability to Hugging Face, product or proof surfaces before exact-source gates pass."
+  ],
+  "evaluationOwners": {
+    "canonicalAdmission": "szl-holdings/szl-frontier#162",
+    "retrievalExecution": "szl-holdings/szl-second-brain",
+    "kernelQualificationWhenConsumed": "szl-holdings/szl-kernels",
+    "productProjection": "szl-holdings/a11oy",
+    "proofProjection": "szl-holdings/a11oy-net"
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "MEASURED_EXACT_SOURCE_RECEIPTS_ONLY_AFTER_EVALUATION"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}
