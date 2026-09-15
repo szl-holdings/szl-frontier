@@ -51,8 +51,8 @@
   "evaluationOwners": {
     "canonicalGovernance": "szl-holdings/szl-frontier#157",
     "runtimeCorrectness": "szl-holdings/szl-forge#329",
-    "servingIsolationAndRollback": "szl-holdings/szl-serve",
-    "acceleratorAndTransport": "szl-holdings/szl-gpu-bridge",
+    "servingIsolationAndRollback": "szl-holdings/szl-serve#11",
+    "acceleratorAndTransport": "szl-holdings/szl-gpu-bridge#104",
     "productProjection": "szl-holdings/a11oy",
     "proofProjection": "szl-holdings/a11oy-net"
   },
