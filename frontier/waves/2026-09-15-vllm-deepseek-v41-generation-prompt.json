@@ -1,0 +1,66 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-15-vllm-deepseek-v41-generation-prompt",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "81d787df65791384b5629ca1b80b4c3f179eef3c",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#134",
+  "candidate": {
+    "publisher": "vLLM",
+    "category": "serving-protocol-correctness-successor",
+    "upstreamRepository": "vllm-project/vllm",
+    "upstreamRevision": "142020c6c2c0d4fec4d36df28290e3d9b654a385",
+    "observedAt": "2026-09-15T10:03:26Z",
+    "upstreamPullRequest": 56593,
+    "change": "Rust DeepSeek V3.2/V4/V4.1 renderers now honor add_generation_prompt at the final rendered user-like boundary instead of unconditionally emitting the assistant/thinking transition.",
+    "releaseState": "MAINLINE_EXACT_SOURCE_WATCH",
+    "productionDisposition": "HOLD"
+  },
+  "deduplication": {
+    "deepSeekV41ModelOwner": "szl-holdings/szl-frontier#134",
+    "deepSeekV41ForgeOwner": "szl-holdings/szl-forge#310",
+    "deepSeekV41ServeOwner": "szl-holdings/szl-serve#9",
+    "deepSeekV41GpuOwner": "szl-holdings/szl-gpu-bridge#102",
+    "sglangRendererSuccessor": "szl-holdings/szl-frontier#150",
+    "vllmAdaptiveAcceptanceSuccessor": "szl-holdings/szl-frontier#149",
+    "exactSourcePreviouslyAdmitted": false,
+    "inheritsQualification": false
+  },
+  "protocolBoundary": {
+    "affectedDialects": ["DeepSeek V3.2", "DeepSeek V4", "DeepSeek V4.1"],
+    "affectedOption": "add_generation_prompt",
+    "risk": "A renderer that ignores the option can append an assistant/thinking opener when the caller explicitly requested no generation prompt, changing prompt bytes, continuation semantics, tool/result boundaries and receipt reproducibility.",
+    "sourceOwnedProtocolRequired": true,
+    "genericJinjaFallbackAuthorized": false
+  },
+  "requiredEvidence": [
+    "Bind vLLM exact revision 142020c6c2c0d4fec4d36df28290e3d9b654a385 and the exact built package/container digest actually evaluated; moving main inherits no qualification.",
+    "Use the exact DeepSeek-V4.1-Flash Hub source revision already governed by Frontier #134 when exercising V4.1 protocol fixtures; do not change model admission in this successor wave.",
+    "At byte level, compare the vLLM Rust renderer against the source-owned DeepSeek encoding oracle for add_generation_prompt=true and add_generation_prompt=false.",
+    "Cover a terminal user turn, user then assistant continuation, trailing system message, trailing developer message, merged tool-result tail, multi-turn reasoning-effort input and tool-call flows.",
+    "When add_generation_prompt=false, require no synthetic final Assistant or thinking opener beyond bytes required by an already-present assistant turn; when true, require the expected source-owned transition exactly once.",
+    "Prove continue_final_message, reasoning mode and add_generation_prompt interactions independently so one option cannot silently override another.",
+    "Run malformed/unsupported protocol cases fail-closed and preserve cancellation, parser error and rollback behavior in the existing serving lane.",
+    "Re-run the relevant Forge #310 and Serve #9 deterministic protocol fixtures under the exact successor engine; GPU Bridge #102 owns accelerator/runtime closure only when model execution is actually attempted.",
+    "Record output bytes and receipt hashes before any latency/throughput measurement. Upstream test success is integration evidence, not an SZL production PASS.",
+    "Preserve rollback to the currently admitted serving path; do not change production defaults, providers, model routes, tool authority or product claims from this intake."
+  ],
+  "evaluationOwners": {
+    "canonicalAdmission": "szl-holdings/szl-frontier#134",
+    "protocolFixtures": "szl-holdings/szl-forge#310",
+    "servingContract": "szl-holdings/szl-serve#9",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge#102",
+    "productProjection": "szl-holdings/a11oy",
+    "proofProjection": "szl-holdings/a11oy-net"
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_FROM_THIS_SUCCESSOR_UNTIL_QUALIFIED",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "MEASURED_EXACT_SOURCE_RECEIPTS_ONLY_AFTER_EVALUATION"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}
