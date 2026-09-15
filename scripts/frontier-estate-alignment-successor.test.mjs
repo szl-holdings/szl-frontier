@@ -68,8 +68,9 @@ test("independent health plane classifies source integrity as drift", () => {
   assert.match(health.reason, /cannot be repaired by a runtime restart/);
 });
 
-test("public membership delta is item-level and cannot be normalized by deletion", () => {
+test("public membership delta is admitted publication with stale declaration", () => {
   const inv = wave.candidate.publicInventoryObservation;
+  const cls = inv.modelDelta.classification;
   assert.equal(inv.scope, "hf-public-author-membership/v1");
   assert.equal(inv.scopeSha256, "9060fa8d7edcd5c246b86bcfcf1916df44b18038253325336f2f46208f8001ae");
   assert.equal(inv.state, "DIVERGENT");
@@ -77,6 +78,15 @@ test("public membership delta is item-level and cannot be normalized by deletion
   assert.deepEqual(inv.observed, { models: 47, datasets: 35, spaces: 21 });
   assert.deepEqual(inv.modelDelta.added, [ADDED_MODEL]);
   assert.deepEqual(inv.modelDelta.removed, []);
+  assert.equal(cls.state, "ADMITTED_PUBLISHED_DECLARATION_STALE");
+  assert.equal(cls.githubOwner, "szl-holdings/szl-forge");
+  assert.equal(cls.candidateStatus, "PUBLISHED");
+  assert.equal(cls.publicationState, "MEASURED_HF_READBACK_VERIFIED");
+  assert.equal(cls.base, "unsloth/Qwen3.5-0.8B@23c69c53358a07516b5827588b3fdb12ae78fd65");
+  assert.equal(cls.intendedFileCount, 8);
+  assert.equal(cls.intendedBytes, 3432006714);
+  assert.match(cls.remainingPublicationReceiptGap, /Hub release revision SHA/);
+  assert.match(cls.repairBoundary, /do not delete or hide the admitted model/);
   assert.match(wave.candidate.acceptance.join("\n"), /do not delete, hide, retype, duplicate, or mirror/i);
 });
 
@@ -86,13 +96,16 @@ test("existing owners are reused and no parallel writer is introduced", () => {
   assert.equal(dedupe.estateReadbackReused, "szl-holdings/.github#298");
   assert.equal(dedupe.healthWitnessReused, "szl-holdings/szl-org-health#41");
   assert.equal(dedupe.fullCheckpointMetadataDriftReused, "szl-holdings/szl-forge#319");
-  assert.match(dedupe.result, /no duplicate publisher/);
+  assert.match(dedupe.modelAdmissionEvidenceReused, /szl-holdings\/szl-forge@df0bc50/);
+  assert.match(dedupe.result, /admitted published inventory delta is classified/);
   assert.match(wave.candidate.acceptance.join("\n"), /no manual Space edit or second writer/i);
 });
 
 test("Codex handoff requires source-first repair and same-run closure evidence", () => {
   const handoff = wave.candidate.codexHandoff;
   assert.equal(handoff.mode, "SOURCE_FIRST_ALIGNMENT_REPAIR");
+  assert.ok(handoff.steps.some((step) => step.includes("normal reviewed writer")));
+  assert.ok(handoff.steps.some((step) => step.includes("Hub release revision SHA")));
   assert.ok(handoff.steps.some((step) => step.includes("deterministic source/inventory tests")));
   assert.ok(handoff.steps.some((step) => step.includes("existing publisher")));
   assert.ok(handoff.steps.some((step) => step.includes("ALIGNED with zero configured required blockers")));
