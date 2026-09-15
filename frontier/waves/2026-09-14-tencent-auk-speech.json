@@ -1,0 +1,89 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-14-tencent-auk-speech",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "798aeb827f0b4dd6bf47c01b78d071b5b2e63d12",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true
+  },
+  "candidate": {
+    "id": "tencent-auk-speech-family-2026-09-09",
+    "kind": "speech-generation-editing-model-family",
+    "priority": "P0",
+    "publisher": "Tencent",
+    "repositories": [
+      "tencent/AuK",
+      "tencent/AuK-Flash"
+    ],
+    "upstream": {
+      "observedRevisions": {
+        "tencent/AuK": "43c9447eb0a8085d1694b2eb4963051dda8ed231",
+        "tencent/AuK-Flash": "575b92f0895f75180bf2cbd35f2e176c5732b8ed"
+      },
+      "observedAt": "2026-09-14T07:46:25Z",
+      "releaseState": "PUBLIC_OPEN_WEIGHTS_EVALUATION",
+      "licenseDeclared": "mit",
+      "revisionPolicy": "Each model is admitted only at its listed exact Hub snapshot. Later cards, weights, serving integrations and distilled variants inherit no qualification automatically."
+    },
+    "materialChanges": [
+      "AuK is an open 1.5B speech foundation model family spanning zero-shot and instruction TTS, content editing, acoustic editing, paralinguistic editing, enhancement and source separation through one natural-language instruction interface.",
+      "AuK-Flash is a separately published distilled variant whose upstream claim is fast 4-step generation and editing; its latency-quality tradeoff must be evaluated independently from the base model.",
+      "The technical report describes semantic conditioning, a jointly trained speech/audio/music VAE and a hybrid rectified-flow Transformer trained across generation and editing task families, making this materially broader than a conventional TTS-only checkpoint.",
+      "The selected AuK source snapshot records Day-0 SGLang-Omni serving support. Runtime support text is integration evidence only and is not an SZL serving, latency or stability measurement.",
+      "The Hub repositories declare MIT licensing. The published license scopes the Tencent open release to training code, inference code, parameters and weights made publicly available under the license; dataset/input rights and downstream runtime dependencies remain separate review boundaries.",
+      "Voice cloning and speaker-conditioned generation create a provenance and consent boundary that must be carried into fixtures, receipts and any later product exposure rather than treated as a generic audio benchmark.",
+      "All quality, data-scale, latency, speaker-similarity, intelligibility and editing claims remain UPSTREAM_REPORTED_NOT_SZL_MEASURED until reproduced on exact artifacts and runtime identity."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-forge",
+      "frontierIssue": 136,
+      "mode": "BOUNDED_SPEECH_GENERATION_AND_EDITING_EVALUATION_ONLY",
+      "relatedOwners": [
+        "szl-holdings/szl-serve",
+        "szl-holdings/szl-gpu-bridge",
+        "szl-holdings/a11oy",
+        "szl-holdings/a11oy-net"
+      ],
+      "acceptance": [
+        "Pin the exact AuK and AuK-Flash Hub revisions recorded by this wave and retain hashes for README, config, LICENSE and each checkpoint/index artifact actually evaluated; later revisions do not inherit evidence.",
+        "Do not rehost weights merely for inventory. Preserve Xet or SHA256 identities and upstream provenance for every exercised artifact.",
+        "Evaluate AuK and AuK-Flash independently. The four-step Flash claim is not a base-model quality claim and cannot be promoted without matched task-specific evidence.",
+        "Use deterministic, non-sensitive fixtures for TTS, content editing, acoustic editing, paralinguistic editing, enhancement and source separation. Emit separate results by task instead of one aggregate PASS.",
+        "Voice-cloning or speaker-conditioned fixtures must use explicitly authorized synthetic or consented reference audio with speaker-consent and provenance metadata. Public-figure impersonation and untracked voice identity are outside the evaluation contract.",
+        "Measure intelligibility, edit locality, speaker similarity where consent permits, acoustic preservation, separation leakage or artifacts and failure behavior. Upstream metrics remain UPSTREAM_REPORTED_NOT_SZL_MEASURED until reproduced.",
+        "Pin SGLang-Omni or any alternative serving runtime by exact revision or immutable container digest and record CUDA/driver, PyTorch and audio-codec dependency identity. Day-0 support text does not establish production compatibility.",
+        "Exercise malformed and oversized audio, unsupported sample rates, cancellation, OOM, long input, runtime restart, partial generation or editing failure and rollback or fallback to the incumbent speech path.",
+        "Treat generated and edited audio provenance as a first-class receipt boundary: preserve source-audio hash, instruction hash, model/runtime revision and output hash without publishing sensitive raw reference audio.",
+        "Keep provider routing, product defaults, public voice-cloning endpoints, model publication, autonomous audio actions and automatic production promotion false until downstream normal controls independently pass."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWavesChecked": true,
+    "openIssuesAndPullRequestsChecked": true,
+    "exactRevisionPreviouslyPresent": false,
+    "relatedCandidates": [
+      "Open Yap 1K full-duplex speech corpus",
+      "vLLM-Omni v0.29.0rc1",
+      "Transformers 5.17 speech-family compatibility"
+    ],
+    "trackingIssue": 136,
+    "result": "New open speech model family with unified generation/editing/separation behavior; existing dataset and generic serving-runtime waves do not qualify its exact model/task/provenance surface."
+  },
+  "authorityChain": {
+    "githubSource": "Frontier records exact external source snapshots and the bounded evaluation contract only; no production source owner is modified by intake.",
+    "huggingFaceProjection": "Tencent Hub repositories remain the upstream artifacts. No SZLHOLDINGS model mirror or Space deployment is authorized by this wave.",
+    "productRuntime": "No a-11-oy.com speech route, model, voice-cloning endpoint or default changes until Forge, Serve and any required GPU receipts satisfy normal controls.",
+    "proofEvidence": "a11oy.net may publish only non-sensitive measured receipts, hashes and known bounds. Raw consented reference audio and unsupported upstream metrics must not be promoted as proof."
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "Admission establishes an exact-source speech evaluation target only. It does not establish voice identity rights, data rights, task quality, latency, SGLang-Omni production support, deployment readiness or authorization for voice cloning or audio effectors."
+  }
+}
