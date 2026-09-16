@@ -1,0 +1,76 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-16-sglang-deepseek-v41-kernel-stack",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "81d787df65791384b5629ca1b80b4c3f179eef3c",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#134",
+  "companionTrackingIssue": "szl-holdings/szl-frontier#168",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidate": {
+    "id": "sglang-deepseek-v41-sparse-indexer-kernel-stack",
+    "category": "model-specific-kernel-sparse-indexer-and-mtp-correctness",
+    "upstreamRepository": "sgl-project/sglang",
+    "upstreamRevision": "faaff1eca8876b8b77d8704f080c3ee2064b8b65",
+    "upstreamPullRequest": 39648,
+    "observedMergedAt": "2026-09-16T06:54:36Z",
+    "includedPredecessors": [
+      {
+        "revision": "91f691c4907739438e86ecb4e07dbd77cb93912f",
+        "pullRequest": 39646,
+        "relation": "ancestor containing the standalone DeepSeek V4.1 kernel and Python-wrapper layer"
+      },
+      {
+        "revision": "954bb6804a6331bbf6e5ff88675f972aaf0f12b2",
+        "pullRequest": 39547,
+        "relation": "ancestor containing the AMD DeepSeek V4 MTP crash correction"
+      }
+    ],
+    "ancestryVerified": true,
+    "deduplicatesUnder": [
+      "szl-holdings/szl-frontier#134",
+      "szl-holdings/szl-frontier#37"
+    ],
+    "relatedButNonTransferringWaves": [
+      "szl-holdings/szl-frontier#150",
+      "szl-holdings/szl-frontier#149",
+      "szl-holdings/szl-frontier#161"
+    ],
+    "inheritsQualification": false,
+    "productionDisposition": "HOLD",
+    "executionOwners": {
+      "independentModelAndKernelOracles": "szl-holdings/szl-forge#310",
+      "servingProtocolFailureAndRollback": "szl-holdings/szl-serve#9",
+      "acceleratorRuntimeAndMemoryClosure": "szl-holdings/szl-gpu-bridge#102",
+      "szlOwnedKernelCodeOnlyIfModified": "szl-holdings/szl-kernels"
+    },
+    "upstreamEvidenceBoundary": {
+      "topkV2ReportedCases": "288 cases reported passing on SM90 and SM100",
+      "standaloneKernelReportedHardware": "one GB300 for extracted test files",
+      "newSparseIndexerKernelsHaveDedicatedRegisteredTests": false,
+      "upstreamCiIsSzlQualification": false,
+      "note": "Upstream reference checks and hardware runs are integration context only; the new sparse-indexer kernels lack their own registered test suite and no upstream result becomes an SZL PASS."
+    },
+    "requiredEvidence": [
+      "Bind exact SGLang source faaff1eca8876b8b77d8704f080c3ee2064b8b65 plus the exact built wheel/container/JIT artifacts, compiler, CUDA or ROCm runtime, driver and hardware identity; moving main inherits no qualification.",
+      "Bind the exact admitted DeepSeek-V4.1 model, tokenizer, encoding/protocol and checkpoint bytes from Frontier #134; this kernel wave creates no second model admission.",
+      "Independently verify topk_bf16_small, block_amax and candidate_block_table against simple reference implementations, including ragged rows, page transforms, duplicate/tied values, valid -Inf values, NaN padding, newest-block +Inf forcing and boundary key-space behavior.",
+      "Prove Top-k v2 cluster and streaming dispatch separately: SM90/SM100 cluster paths, unsupported-architecture fallback, occupancy-derived pool sizing and fixed-seed output/index parity. Missing hardware is UNAVAILABLE, never simulated PASS.",
+      "Exercise the included standalone DeepSeek V4.1 primitives actually reached by the selected runtime, including small BF16 GEMM, WO-A projection, Engram hash/gather/gate, Q RoPE/store, FP32 RMSNorm, HC/MXFP8 epilogues, row argmax and decode-scheduling metadata; unexercised primitives remain UNQUALIFIED.",
+      "On an available AMD lane, reproduce the pre-fix MTP failure condition or an equivalent deterministic guard and prove the exact source keeps the D2H synchronization behavior required for MTP while preserving the DSpark-specific skip. Hardware absence is UNAVAILABLE.",
+      "Run fixed-seed end-to-end DeepSeek-V4.1 baseline-versus-candidate correctness with identical model bytes, prompt/protocol bytes and decoding controls before any throughput or memory claim; include sparse-indexer, MTP/DSpark, cancellation and long-context cases that are actually supported.",
+      "Exercise malformed metadata, candidate-table/index bounds, cancellation, worker restart, cache lifecycle and rollback to the incumbent exact runtime. A kernel or scheduler failure may not silently change model bytes, tokenizer/protocol, quantization class, provider authority or policy.",
+      "Treat upstream GB300/SM90/SM100 tests, reported accuracy and performance as UPSTREAM_REPORTED_NOT_SZL_MEASURED until independently reproduced under bound artifacts."
+    ]
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
