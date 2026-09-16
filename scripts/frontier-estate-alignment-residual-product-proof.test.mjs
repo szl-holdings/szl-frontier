@@ -33,17 +33,20 @@ test('records the protected-source successor without inheriting stale runtime qu
   );
 });
 
-test('reopens product parity when the protected source moves', () => {
-  assert.equal(wave.observations.productRuntime.observedGitSha, predecessor);
+test('records later current-source product parity repair without claiming whole-estate closure', () => {
+  assert.equal(wave.observations.productRuntime.observedGitSha, currentSource);
   assert.equal(wave.observations.productRuntime.expectedGitSha, currentSource);
   assert.equal(
     wave.observations.productRuntime.state,
-    'SOURCE_DRIFT_AFTER_PROTECTED_MAIN_MOVED',
+    'ALIGNED_FOR_CURRENT_SOURCE_PREDICATE',
   );
-  assert.equal(wave.observations.productRuntime.observationMethod, 'FRESH_PUBLIC_GET');
+  assert.equal(
+    wave.observations.productRuntime.observationMethod,
+    'FRESH_PUBLIC_GET_LATER_SAME_WINDOW',
+  );
   assert.equal(
     wave.advancement.productDomainSourceDrift,
-    'REOPENED_BY_NEW_PROTECTED_SOURCE',
+    'REPAIRED_AFTER_SOURCE_MOVE',
   );
   assert.equal(wave.advancement.protectedSourceMovedSincePriorObservation, true);
 });
@@ -58,7 +61,7 @@ test('preserves separate current public-membership and proof predicates', () => 
   assert.equal(wave.observations.proofSurface.modelsRecord.reportedModels, 46);
   assert.equal(
     wave.observations.proofSurface.modelsRecord.state,
-    'STALE_AGAINST_CURRENT_PUBLIC_MEMBERSHIP_AND_NEW_SOURCE',
+    'STALE_AGAINST_CURRENT_PUBLIC_MEMBERSHIP',
   );
   assert.equal(
     wave.observations.proofSurface.publicInventoryRecord.state,
@@ -66,10 +69,10 @@ test('preserves separate current public-membership and proof predicates', () => 
   );
 });
 
-test('forbids stale repinning and destructive count forcing', () => {
-  assert.match(repair, /never repin source to the older runtime, product or proof bytes/);
+test('preserves repaired product source while forbidding stale runtime repinning or destructive count forcing', () => {
+  assert.match(repair, /never repin source to older runtime or proof bytes/);
+  assert.match(repair, /preserve the fresh a-11-oy.com honesty observation/);
   assert.match(repair, /fresh exact-source read from the canonical hugging face a11oy runtime/);
-  assert.match(repair, /normal source-bound deployment controls only/);
   assert.match(repair, /do not delete or hide the admitted model/);
   assert.match(repair, /historical snapshots remain historical evidence/);
 });
