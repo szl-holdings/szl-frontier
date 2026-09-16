@@ -1,0 +1,60 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-16-vllm-reasoning-boundary-parser",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "81d787df65791384b5629ca1b80b4c3f179eef3c",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#168",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidate": {
+    "id": "vllm-reasoning-end-boundary-parser-correctness",
+    "category": "reasoning-tool-call-stream-parser-correctness",
+    "upstreamRepository": "vllm-project/vllm",
+    "upstreamRevision": "8be5205abbabf4c377c603d6c4180a99373f6415",
+    "upstreamPullRequest": 56635,
+    "observedMergedAt": "2026-09-16T08:17:23Z",
+    "affectedSemantics": [
+      "mixed streaming deltas containing tool calls and reasoning-end tokens could drop content",
+      "fresh turns could be misclassified as reasoning-ended without boundary guards",
+      "Qwen3Parser and Glm47MoeParser now rely on corrected centralized frontend scanning semantics"
+    ],
+    "deduplicatesUnder": [
+      "szl-holdings/szl-frontier#25",
+      "szl-holdings/szl-frontier#47"
+    ],
+    "relatedButNonTransferringWaves": [
+      "szl-holdings/szl-frontier#161",
+      "szl-holdings/szl-frontier#150"
+    ],
+    "inheritsQualification": false,
+    "productionDisposition": "HOLD",
+    "exposureGate": "Prove an admitted SZL serving route actually uses the affected vLLM reasoning/tool parser frontend. If no active route reaches it, record NOT_EXPOSED and make no dependency or production change.",
+    "requiredEvidence": [
+      "Bind exact vLLM source 8be5205abbabf4c377c603d6c4180a99373f6415 plus exact executed wheel/container digest, parser configuration, tokenizer revision and model/protocol bytes.",
+      "First prove route exposure. If the estate does not reach the affected reasoning/tool parser frontend, stop with NOT_EXPOSED rather than upgrading production merely because upstream changed.",
+      "Create byte-exact streaming fixtures where a single delta includes ordinary content, a tool-call boundary and a reasoning-end token; prove no content is dropped and tool arguments remain intact across chunk boundaries.",
+      "Create fresh-turn fixtures with and without reasoning-end tokens and turn-boundary tokens; prove is_reasoning_end does not leak state from the prior turn or return true without the required boundary evidence.",
+      "Exercise Qwen3Parser and Glm47MoeParser separately with tokenizer-specific boundary-token IDs, including split-token, repeated-token, empty-content, malformed-tool-call and cancellation cases.",
+      "Compare incumbent versus candidate complete reconstructed response bytes and structured tool calls under fixed fixtures; parser correctness precedes latency or throughput claims.",
+      "Exercise server restart, interleaved concurrent streams and rollback to the incumbent exact vLLM artifact without changing model bytes, tokenizer/protocol, provider authority or policy.",
+      "No capability claim, Hugging Face projection, product default or proof update is permitted from source support alone."
+    ]
+  },
+  "owners": {
+    "governance": "szl-holdings/szl-frontier#168",
+    "servingExposureAndProtocol": "szl-holdings/szl-serve",
+    "deterministicParserFixtures": "szl-holdings/szl-forge",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
