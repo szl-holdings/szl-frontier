@@ -1,0 +1,122 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-16-runtime-correctness-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "81d787df65791384b5629ca1b80b4c3f179eef3c",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#168",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "transformers-qwen38-gguf",
+      "priority": "P1",
+      "category": "model-format-loader-dequant-correctness",
+      "upstreamRepository": "huggingface/transformers",
+      "upstreamRevision": "41f519e7419f5c4cf71d173403caae63c5b28275",
+      "upstreamPullRequest": 48660,
+      "observedMergedAt": "2026-09-15T20:40:21Z",
+      "deduplicatesUnder": ["szl-holdings/szl-frontier#25", "szl-holdings/szl-frontier#164"],
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "requiredEvidence": [
+        "Bind exact Transformers source plus executed wheel or container digest; moving main inherits no qualification.",
+        "Pin the exact legally usable Qwen3.8 GGUF repository revision and file SHA-256 without rehosting weights merely for inventory.",
+        "Compare GGUF-loaded structure and tokenizer/config identity with the canonical source model.",
+        "Exercise independent deterministic dequantization fixtures for every GGML dtype actually used by the selected GGUF artifact.",
+        "Compare bounded logits or deterministic generation against the canonical source under predeclared tolerances and separate quantization error from loader error.",
+        "Corrupt, truncated, unsupported or structurally inconsistent GGUF inputs fail explicitly; load-only success is insufficient.",
+        "Preserve rollback to the incumbent admitted runtime and treat upstream performance numbers as upstream-reported until reproduced."
+      ]
+    },
+    {
+      "id": "vllm-kimik3-rocm-a4w4-flydsl",
+      "priority": "P1",
+      "category": "accelerator-kernel-dispatch",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "a4d2d9d95edd2db39cc7dec0a3433c764ff2c578",
+      "upstreamPullRequest": 53940,
+      "upstreamParent": "c8d1cf077a7878ea30040a33ac61262003a3953a",
+      "observedMergedAt": "2026-09-16T01:38:03Z",
+      "requiredDependency": "ROCm/AITER >= v0.1.20 for tuned Kimi-K3 A4W4 rows; exact executed AITER revision required",
+      "deduplicatesUnder": ["szl-holdings/szl-frontier#47"],
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "requiredEvidence": [
+        "Bind exact vLLM, AITER, ROCm, driver, PyTorch and built image or wheel identities.",
+        "On exercised supported AMD hardware, prove SiTUv2 dispatch selects A4W4 FlyDSL and does not silently retain an A8W4 override or heuristic fallback when tuned qualification is claimed.",
+        "Run deterministic correctness comparison against the incumbent exact Kimi-K3 runtime before throughput measurement.",
+        "Exercise eager and cudagraph paths, environment-toggle behavior, cleanup and rollback.",
+        "Missing supported AMD hardware is UNAVAILABLE, never inferred PASS; upstream accuracy and kernel timing claims are not SZL measurements."
+      ]
+    },
+    {
+      "id": "vllm-glm53-flash-quark-mxfp4",
+      "priority": "P0",
+      "category": "quantized-checkpoint-load-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "c8d1cf077a7878ea30040a33ac61262003a3953a",
+      "upstreamPullRequest": 56176,
+      "observedMergedAt": "2026-09-16T01:25:29Z",
+      "deduplicatesUnder": ["szl-holdings/szl-frontier#25"],
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "requiredEvidence": [
+        "Pin exact source and Quark checkpoint revisions and weight/config/tokenizer digests plus executed vLLM/AITER/runtime artifacts.",
+        "Use deterministic fixtures that independently prove gate_up_proj split-shard quant-scheme resolution and Quark weight_scale handling for MLA projections.",
+        "Exercise missing, malformed, mis-shaped and inconsistent weight/scale shards and require explicit failure rather than partial load.",
+        "Compare bounded logits or deterministic generation against the exact source checkpoint under predeclared tolerances.",
+        "Do not infer a trust_remote_code exception or capability from upstream sample commands; preserve normal SZL provenance and remote-code policy.",
+        "Preserve rollback to the admitted incumbent; upstream GSM8K results remain upstream-reported."
+      ]
+    },
+    {
+      "id": "sglang-rocm-eagle-sampling-correctness",
+      "priority": "P0",
+      "category": "speculative-decoding-sampling-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "7eedd57ab0970dab586fa8ab00d4e4de93392ff5",
+      "upstreamPullRequest": 37134,
+      "observedMergedAt": "2026-09-16T01:49:49Z",
+      "deduplicatesUnder": ["szl-holdings/szl-frontier#37"],
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "requiredEvidence": [
+        "Bind exact SGLang source and executed package/container plus HIP/ROCm hardware/runtime identity.",
+        "Use seeded deterministic fixtures where greedy verification and requested temperature/top-p sampling produce distinguishable outcomes; prove HIP EAGLE honors the requested sampling contract.",
+        "Exercise rejection sampling with zero, negative, NaN and infinity draft probabilities and verify safe target-resampling behavior.",
+        "Prove EAGLE3 or token-map configurations that cannot use this path are not silently auto-enabled and remain explicit or unchanged.",
+        "Compare baseline and speculative output distributions under a frozen fixture set; preserve cancellation, restart and rollback behavior.",
+        "Source-only tests cannot establish an AMD hardware PASS; missing hardware is UNAVAILABLE."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#168",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingAndRollback": "szl-holdings/szl-serve",
+    "szlOwnedKernelChangesOnly": "szl-holdings/szl-kernels",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentObservation": {
+    "githubA11oyProtectedMain": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
+    "a11oyProductHonestyGitSha": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
+    "sourceToProductParity": true,
+    "proofModelsCapturedAt": "2026-09-12T01:25:04Z",
+    "proofModelsDeclared": 46,
+    "proofState": "DATED_STALE_PENDING_FRESH_SAME_SCOPE_RECONCILIATION",
+    "fullChainClosed": false,
+    "note": "This wave records no new product capability. Existing Frontier #159 remains the canonical residual alignment reconciliation."
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
