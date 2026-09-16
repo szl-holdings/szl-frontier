@@ -68,6 +68,6 @@ assert.equal(wave.weightsRehosted, false);
 assert.equal(wave.productionDefaultsChanged, false);
 assert.equal(wave.policyOrProtectionWeakened, false);
 assert.match(wave.projection.huggingFace, /UNTIL_QUALIFIED/);
-assert.match(wave.projection.a11oy.net, /MEASURED_RECEIPTS/);
+assert.match(wave.projection["a11oy.net"], /MEASURED_RECEIPTS/);
 
 console.log("2026-09-16 runtime correctness successor wave invariants OK");
