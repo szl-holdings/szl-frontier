@@ -1,0 +1,131 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-16-post-wave-runtime-correctness-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "27e49abd8dd500f28c54d9bf700d23e5542cb503",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#168",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-deepseek-v41-flashmla-nvfp4-kv",
+      "priority": "P0",
+      "category": "compressed-kv-attention-runtime-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "d6a1677d5504244c566eb900ca605cb5511f4ab4",
+      "upstreamPullRequest": 56935,
+      "observedMergedAt": "2026-09-16T10:07:50Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "deduplicatesUnder": [
+        "szl-holdings/szl-frontier#134",
+        "szl-holdings/szl-frontier#168"
+      ],
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Adds a DeepSeek V4.1 FlashMLA mega-attention execution path.",
+        "Adds an NVFP4 compressed KV-cache record path distinct from the existing FP8 cache format.",
+        "Changes fused Q/KV preparation, cache insertion and sparse decode execution, so loader or model admission evidence cannot qualify it."
+      ],
+      "requiredEvidence": [
+        "Bind the exact vLLM source revision plus the exact executed wheel or container digest, FlashMLA dependency identity, CUDA/driver/compiler and accelerator identity, and the exact DeepSeek V4.1 model/tokenizer/encoding source already governed by Frontier #134.",
+        "Prove the FP8 and NVFP4 compressed-cache record layouts, bytes-per-token, scaling and quantize/dequantize semantics with independent deterministic reference fixtures; mixed or stale cache formats must fail explicitly rather than be silently accepted.",
+        "Compare the fused mega-attention path against the split-KV reference path under fixed seeds and predeclared tolerances across prefill, decode, sliding-window and compressed-cache cases, including ragged/page-boundary inputs and the local-head/TP configurations actually exercised.",
+        "Bind any SM100/Blackwell-specific result to the exact hardware lane. Unsupported or unavailable hardware is UNAVAILABLE, never an inferred PASS, and an unexercised kernel remains UNQUALIFIED.",
+        "Exercise cache lifecycle, cancellation, worker restart, request isolation, malformed metadata and rollback to the incumbent exact runtime; no correctness result may depend on an implicit fallback that is not captured in the receipt.",
+        "Measure memory, latency and throughput only after correctness gates pass; upstream benchmark numbers remain upstream-reported until reproduced by SZL."
+      ]
+    },
+    {
+      "id": "vllm-kimik3-stateless-first-chunk",
+      "priority": "P0",
+      "category": "recurrent-state-request-classification-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "f8b5c11468f665c75968e3a7c12f16ca074f3a30",
+      "upstreamPullRequest": 51483,
+      "observedMergedAt": "2026-09-16T13:24:48Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "deduplicatesUnder": [
+        "szl-holdings/szl-frontier#47",
+        "szl-holdings/szl-frontier#168"
+      ],
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Fixes Kimi-K3 KDA metadata that could classify a stateless first chunk as decode instead of prefill.",
+        "Changes recurrent-state initialization semantics while preserving resumed one-token decode and CUDA-graph capture behavior."
+      ],
+      "requiredEvidence": [
+        "Bind the exact vLLM source and executed artifact plus the exact Kimi-K3 model/tokenizer revision and runtime environment; moving vLLM main inherits no qualification.",
+        "Use deterministic fixtures that distinguish a true stateless first chunk, a resumed one-token chunk, padding rows and a missing prefill flag, and verify state initialization occurs only for the true first-chunk case.",
+        "Prove full CUDA-graph capture remains decode-only and that recycled or stale recurrent state cannot leak into a new request; include pointer/state-index invariants where the runtime exposes them.",
+        "Exercise non-speculative and speculative paths, mixed batches, concurrent requests, cancellation and worker restart with fixed-seed output parity against the independent incumbent reference.",
+        "Malformed or contradictory sequence/query/prefill metadata must fail closed or produce an explicitly classified unsupported state; it must not silently select a decode kernel with uninitialized recurrent state.",
+        "Preserve rollback to the incumbent exact Kimi-K3 runtime and keep all production model/provider/default and Hugging Face projection state unchanged until the normal gates pass."
+      ]
+    },
+    {
+      "id": "sglang-deepseek-v41-communication-kernels",
+      "priority": "P0",
+      "category": "distributed-communication-kernel-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "7d5696b3a1638a7c980e46ed77eb876faad158a2",
+      "upstreamPullRequest": 39653,
+      "observedMergedAt": "2026-09-16T09:09:40Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "deduplicatesUnder": [
+        "szl-holdings/szl-frontier#134",
+        "szl-holdings/szl-frontier#168",
+        "frontier/waves/2026-09-16-sglang-deepseek-v41-kernel-stack.json"
+      ],
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Adds DeepSeek V4.1 distributed communication kernels and Python wrappers after the exact SGLang source previously governed by the Sep-16 kernel-stack wave.",
+        "Introduces fused communication/finalization behavior whose rank ordering, synchronization, dtype and topology semantics require independent distributed qualification."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/build/JIT bytes plus the Frontier #134 DeepSeek V4.1 model/tokenizer/encoding source and exact CUDA/compiler/driver/NCCL-or-equivalent/runtime/device topology identities.",
+        "Reference-check each exercised communication primitive and wrapper for world size, rank mapping, counts, dtype, empty/ragged inputs, dropped-slot behavior, bounds and output parity against an unfused or independently implemented reference.",
+        "Run distributed evidence only on actual supported multi-accelerator hardware. Missing topology is UNAVAILABLE rather than PASS, and primitives not reached by an execution receipt remain UNQUALIFIED.",
+        "Stress deterministic rank ordering and synchronization under repeated execution and exercise timeout, peer/process failure, cancellation, restart and stale-workspace or phase-counter behavior without deadlock or cross-request contamination.",
+        "Run fixed-seed end-to-end DeepSeek V4.1 correctness against the previously governed exact SGLang kernel-stack source before measuring any fused communication performance benefit.",
+        "Preserve an explicit rollback to the previous exact SGLang source/runtime; no production route/default, autonomous tool authority, Hugging Face projection or public capability/proof claim is authorized by source support alone."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#168",
+    "canonicalDeepSeekModelProtocol": "szl-holdings/szl-frontier#134",
+    "deterministicEvaluation": "szl-holdings/szl-forge#331",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge#105",
+    "servingAndRollback": "szl-holdings/szl-serve after prerequisite correctness receipts",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentObservation": {
+    "githubA11oyProtectedMain": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
+    "a11oyProductHonestyGitSha": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
+    "sourceToProductParity": true,
+    "publicHuggingFacePageObservedModels": 46,
+    "publicHuggingFacePageObservedAt": "2026-09-16",
+    "sameWindowHuggingFaceMembershipApiVerified": false,
+    "huggingFaceConnectorState": "TRANSIENT_UNAVAILABLE_DURING_OBSERVATION",
+    "proofModelsCapturedAt": "2026-09-12T01:25:04Z",
+    "proofModelsDeclared": 46,
+    "proofState": "DATED_STALE_PENDING_FRESH_SAME_SCOPE_RECONCILIATION",
+    "fullChainClosed": false,
+    "canonicalResidualAlignmentPullRequest": "szl-holdings/szl-frontier#159",
+    "note": "Do not infer alignment closure from a public page count. Frontier #159 remains canonical until a fresh same-window membership predicate and proof predicate reconcile under the normal writers and receipts."
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
