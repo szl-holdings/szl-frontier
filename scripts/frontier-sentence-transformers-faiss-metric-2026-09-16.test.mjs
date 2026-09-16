@@ -30,6 +30,6 @@ assert.equal(wave.weightsRehosted, false);
 assert.equal(wave.productionDefaultsChanged, false);
 assert.equal(wave.policyOrProtectionWeakened, false);
 assert.match(wave.projection.huggingFace, /NO_NEW_SZL_ARTIFACT/);
-assert.match(wave.projection.a11oy.net, /MEASURED_RECEIPTS/);
+assert.match(wave.projection["a11oy.net"], /MEASURED_RECEIPTS/);
 
 console.log("Sentence Transformers FAISS metric correctness wave invariants OK");
