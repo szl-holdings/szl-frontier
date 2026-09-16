@@ -3,7 +3,7 @@
   "wave": "2026-09-15-estate-alignment-residual-product-proof",
   "priority": "P0",
   "sourceOfTruth": "szl-holdings/szl-frontier",
-  "sourceRevisionObserved": "81d787df65791384b5629ca1b80b4c3f179eef3c",
+  "sourceRevisionObserved": "27e49abd8dd500f28c54d9bf700d23e5542cb503",
   "authorityChain": [
     "GitHub",
     "Hugging Face",
@@ -21,31 +21,36 @@
     "githubProtectedSource": {
       "repository": "szl-holdings/a11oy",
       "branch": "main",
-      "revision": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
+      "revision": "49f114dd9bdb47e0efef5caa3c3f0db3df6c2431",
+      "parentRevision": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
+      "observedAt": "2026-09-16",
       "observedFrom": "protected main",
-      "verifiedCommit": true
+      "verifiedCommit": true,
+      "state": "AUTHORITATIVE_SOURCE_MOVED"
     },
     "huggingFaceCanonicalRuntime": {
       "owner": "szl-holdings/.github#298",
-      "generatedAt": "2026-09-15T06:37:43.065070+00:00",
-      "run": 34937775314,
+      "lastExactSourceObservationGeneratedAt": "2026-09-15T06:37:43.065070+00:00",
+      "lastExactSourceObservationRun": 34937775314,
       "url": "https://szlholdings-a11oy.hf.space/api/build-info",
-      "expectedSourceRevision": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
-      "observedSourceRevision": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
-      "sourceBound": true,
-      "state": "ALIGNED_FOR_THIS_PREDICATE"
+      "lastObservedSourceRevision": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
+      "expectedSourceRevision": "49f114dd9bdb47e0efef5caa3c3f0db3df6c2431",
+      "freshRuntimeSourceReadAvailable": false,
+      "hubSpaceObservedUpdated": "2026-09-13",
+      "state": "STALE_SOURCE_OBSERVATION_AFTER_GITHUB_MOVED",
+      "note": "The prior exact runtime observation is retained as historical evidence. It cannot qualify the newer protected source without a fresh exact runtime read."
     },
     "productRuntime": {
       "url": "https://a-11-oy.com/api/a11oy/v1/honest",
-      "observedAt": "2026-09-15",
+      "observedAt": "2026-09-16",
       "observationMethod": "FRESH_PUBLIC_GET",
       "observedGitSha": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
-      "expectedGitSha": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
-      "state": "ALIGNED_FOR_THIS_PREDICATE"
+      "expectedGitSha": "49f114dd9bdb47e0efef5caa3c3f0db3df6c2431",
+      "state": "SOURCE_DRIFT_AFTER_PROTECTED_MAIN_MOVED"
     },
     "publicHfMembership": {
       "owner": "szl-holdings/a11oy#2010",
-      "updatedAt": "2026-09-15T13:01:03Z",
+      "lastGovernedObservationUpdatedAt": "2026-09-15T13:01:03Z",
       "scope": "hf-public-author-membership/v1",
       "expected": {
         "models": 46,
@@ -63,14 +68,16 @@
       "origin": "https://a11oy.net",
       "modelsRecord": {
         "url": "https://a11oy.net/models.json",
+        "freshReadAt": "2026-09-16",
         "capturedAt": "2026-09-12T01:25:04Z",
         "reportedModels": 46,
         "reportedDatasets": 35,
         "reportedSpaces": 21,
-        "state": "STALE_AGAINST_CURRENT_PUBLIC_MEMBERSHIP"
+        "state": "STALE_AGAINST_CURRENT_PUBLIC_MEMBERSHIP_AND_NEW_SOURCE"
       },
       "publicInventoryRecord": {
         "url": "https://a11oy.net/public-inventory.json",
+        "freshReadAt": "2026-09-16",
         "capturedAt": "2026-08-31T18:59:11Z",
         "reportedModels": 44,
         "reportedDatasets": 30,
@@ -80,21 +87,22 @@
     }
   },
   "advancement": {
-    "canonicalHfRuntimeSourceDrift": "REPAIRED",
-    "productDomainSourceDrift": "REPAIRED",
+    "protectedSourceMovedSincePriorObservation": true,
+    "canonicalHfRuntimeSourceDrift": "OPEN_FRESH_READ_REQUIRED",
+    "productDomainSourceDrift": "REOPENED_BY_NEW_PROTECTED_SOURCE",
     "publicMembershipDeclarationDrift": "OPEN",
     "proofSnapshotDrift": "OPEN",
     "historicalClosurePreserved": true
   },
   "repairContract": [
-    "Do not rewrite the prior historical alignment closure or the earlier successor observations; this wave records later predicate repairs additively.",
-    "Treat current protected szl-holdings/a11oy main ebfd70f4c6915c2640cf82a97c7f22b6c62906eb as authoritative. Never repin source to stale runtime or proof bytes.",
-    "Preserve the repaired canonical Hugging Face A11oy runtime source binding at ebfd70f4c6915c2640cf82a97c7f22b6c62906eb while repairing the remaining projections.",
-    "Preserve the newly reobserved a-11-oy.com product source parity at ebfd70f4c6915c2640cf82a97c7f22b6c62906eb. Do not redeploy merely to force inventory counts or proof state, and do not infer whole-estate alignment from product parity alone.",
+    "Do not rewrite the prior historical alignment closure or earlier repaired observations; the protected source moved again and this wave records the successor drift additively.",
+    "Treat current protected szl-holdings/a11oy main 49f114dd9bdb47e0efef5caa3c3f0db3df6c2431 as authoritative. Never repin source to the older runtime, product or proof bytes.",
+    "Obtain a fresh exact-source read from the canonical Hugging Face A11oy runtime. The prior ebfd70f4c6915c2640cf82a97c7f22b6c62906eb observation is historical only and must not be inferred to represent the newer protected source.",
+    "The fresh a-11-oy.com honesty read still reports ebfd70f4c6915c2640cf82a97c7f22b6c62906eb while protected main is 49f114dd9bdb47e0efef5caa3c3f0db3df6c2431. Repair through the normal source-bound deployment controls only after their existing admission gates pass; do not manually mutate provider bytes or bypass failing controls.",
     "Refresh the canonical public-membership declaration through its normal reviewed writer to represent the admitted 47th model. Do not delete or hide the admitted model to force the old count.",
-    "Refresh a11oy.net proof inventory records only from exact measured public-Hub observations, preserving their observation times and predicates; historical snapshots remain historical evidence and are not rewritten in place.",
+    "Refresh a11oy.net proof inventory records only from exact measured public-Hub observations, preserving observation times and predicates; historical snapshots remain historical evidence and are not rewritten in place.",
     "Require one fresh same-window reconciliation showing GitHub source, canonical Hugging Face runtime, product source identity and current proof/public-membership predicates aligned, with zero required blockers for those predicates.",
-    "Reachability or one repaired source leg is never whole-estate readiness. Keep production authorization and automatic promotion false until exact-source and named-predicate closure is measured."
+    "Reachability, a prior repaired source leg, or a successful source commit is never whole-estate readiness. Keep production authorization and automatic promotion false until exact-source and named-predicate closure is measured."
   ],
   "owners": {
     "governance": "szl-holdings/szl-frontier#151",
