@@ -1,0 +1,126 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-15-trl-activation-offload-successor",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "ae0109a44890a268bd72c2e60f3ab09fbdae34d5",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "exactSourceBindingRequired": true,
+    "noWeightRehostingForInventory": true,
+    "requiredEvidence": [
+      "exact-upstream-source-set",
+      "exact-evaluated-package-or-source-digest",
+      "matched-no-offload-baseline",
+      "forward-and-gradient-parity",
+      "storage-view-semantics",
+      "live-compute-stream-semantics",
+      "hardware-runtime-identity",
+      "rollback-or-fallback",
+      "authority-chain-receipt"
+    ]
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "orgExactSourceSearches": [
+      "61c04cd306a41c536b44c172d840398d3e3e1a73",
+      "8d58043c4c1c4d736b0350f82eebff6269b0ff1b"
+    ],
+    "orgExactSourceMatchesBeforeIntake": [],
+    "predecessorWave": "2026-09-13-vllm-0-29-trl-compatibility",
+    "predecessorTrlRevision": "488a0d34be07c7cb2c130e8ba44cb9a4103717b2",
+    "frontierIssue": 153,
+    "forgeIssue": 324,
+    "result": "post-wave training-runtime correctness successor; predecessor evidence is not inherited and no competing adapter-sync contract is created"
+  },
+  "candidate": {
+    "id": "trl-activation-offload-stream-correctness-20260915",
+    "kind": "training-post-training-runtime-correctness",
+    "priority": "P0",
+    "repository": "huggingface/trl",
+    "sourceSet": [
+      {
+        "revision": "61c04cd306a41c536b44c172d840398d3e3e1a73",
+        "change": "Fix two stream races in OffloadActivations (#7195)",
+        "committedAt": "2026-09-14T05:10:13Z",
+        "materialBoundary": [
+          "compute stream is resolved live instead of cached at OffloadActivations construction",
+          "nonzero-storage-offset and noncontiguous normalization happens on the compute stream before the offload stream wait",
+          "FSDP2, checkpoint recompute and custom-autograd execution may use a different current stream than construction time"
+        ]
+      },
+      {
+        "revision": "8d58043c4c1c4d736b0350f82eebff6269b0ff1b",
+        "change": "Only dedupe offloaded activation storages in streams mode (#7193)",
+        "committedAt": "2026-09-14T05:10:44Z",
+        "materialBoundary": [
+          "storage-pointer deduplication is restricted to use_streams=true",
+          "single-stream mode independently offloads multiple saved views sharing storage",
+          "upstream regression fixes the expected modified flags to [true,true] without streams and [true,false] with streams"
+        ]
+      }
+    ],
+    "predecessor": {
+      "wave": "2026-09-13-vllm-0-29-trl-compatibility",
+      "trlRevision": "488a0d34be07c7cb2c130e8ba44cb9a4103717b2",
+      "inheritQualification": false
+    },
+    "owners": {
+      "catalogAndGovernance": "szl-holdings/szl-frontier",
+      "executableEvaluation": "szl-holdings/szl-forge",
+      "acceleratorQualification": "szl-holdings/szl-gpu-bridge",
+      "artifactProjection": "SZLHOLDINGS Hugging Face only after admitted GitHub source evidence",
+      "productProjection": "szl-holdings/a11oy",
+      "proofProjection": "szl-holdings/a11oy-net"
+    },
+    "evaluation": {
+      "trackingIssue": "szl-holdings/szl-frontier#153",
+      "executionIssue": "szl-holdings/szl-forge#324",
+      "requiredCases": [
+        "fixed-seed no-offload versus single-stream versus streams-mode forward parity",
+        "fixed-seed gradient parity across the same three modes",
+        "two autograd-saved views sharing a storage with mode-specific deduplication behavior",
+        "contiguous nonzero-storage-offset view reconstruction",
+        "noncontiguous view reconstruction",
+        "non-default accelerator compute stream pack/unpack",
+        "checkpoint-recompute or custom-autograd execution-context transition",
+        "FSDP2 on available accelerator hardware or explicit UNAVAILABLE evidence"
+      ],
+      "secondaryMeasurements": [
+        "peak accelerator memory",
+        "step throughput",
+        "offload transfer timing"
+      ],
+      "acceptance": [
+        "Bind each exact upstream source and the exact TRL package/source artifact actually executed; moving main is not equivalent.",
+        "Correctness gates require matched outputs and gradients against a no-offload baseline before performance can be interpreted.",
+        "Single-stream shared-storage views must not inherit streams-mode deduplication semantics.",
+        "The evaluator must prove live-current-stream behavior on a non-default compute stream rather than only exercising the default stream.",
+        "Nonzero storage offsets and noncontiguous views must reconstruct in bounds with correct values and gradients.",
+        "Unsupported FSDP2 or accelerator configurations are recorded as UNAVAILABLE and are never simulated as passing.",
+        "Preserve rollback to the currently admitted exact TRL stack and keep production training routes/defaults unchanged.",
+        "Project only admitted exact-source evidence through Hugging Face, a-11-oy.com and a11oy.net."
+      ]
+    },
+    "codexHandoff": {
+      "mode": "EXACT_SOURCE_TRAINING_CORRECTNESS_EVALUATION",
+      "steps": [
+        "Implement the deterministic evaluation lane in szl-forge issue #324 without widening production dependencies.",
+        "Add the accelerator-specific non-default-stream and FSDP2-or-UNAVAILABLE evidence lane in szl-gpu-bridge if the existing Forge runner cannot prove it.",
+        "Record exact source/package, Python, Torch, CUDA or accelerator runtime, driver and device identities in the evidence bundle.",
+        "Fail closed on any output mismatch, gradient mismatch, out-of-bounds view reconstruction, stale stream ordering, missing hardware identity or ambiguous source revision.",
+        "After normal merge controls, return sealed evidence to Frontier #153; do not publish a product/runtime capability or change a training default from evaluation-only evidence."
+      ],
+      "definitionOfDone": "Exact-source TRL activation offloading has deterministic matched correctness evidence for storage views and stream ordering, explicit hardware/FSDP2 status, rollback proof and authority-chain projection only after normal admission."
+    },
+    "status": "EVALUATION",
+    "productionDisposition": "HOLD"
+  },
+  "authorityChain": {
+    "githubSource": "evaluation source set is exact and additive to the prior admitted TRL compatibility wave",
+    "huggingFaceProjection": "no new runtime or artifact projection authorized by this wave",
+    "productRuntime": "unchanged and HOLD for this candidate",
+    "proofEvidence": "publish only measured exact-source receipts and known bounds after admission"
+  }
+}
