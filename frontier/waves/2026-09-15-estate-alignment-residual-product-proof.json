@@ -37,16 +37,16 @@
       "expectedSourceRevision": "49f114dd9bdb47e0efef5caa3c3f0db3df6c2431",
       "freshRuntimeSourceReadAvailable": false,
       "hubSpaceObservedUpdated": "2026-09-13",
-      "state": "STALE_SOURCE_OBSERVATION_AFTER_GITHUB_MOVED",
+      "state": "FRESH_EXACT_SOURCE_READ_REQUIRED",
       "note": "The prior exact runtime observation is retained as historical evidence. It cannot qualify the newer protected source without a fresh exact runtime read."
     },
     "productRuntime": {
       "url": "https://a-11-oy.com/api/a11oy/v1/honest",
       "observedAt": "2026-09-16",
-      "observationMethod": "FRESH_PUBLIC_GET",
-      "observedGitSha": "ebfd70f4c6915c2640cf82a97c7f22b6c62906eb",
+      "observationMethod": "FRESH_PUBLIC_GET_LATER_SAME_WINDOW",
+      "observedGitSha": "49f114dd9bdb47e0efef5caa3c3f0db3df6c2431",
       "expectedGitSha": "49f114dd9bdb47e0efef5caa3c3f0db3df6c2431",
-      "state": "SOURCE_DRIFT_AFTER_PROTECTED_MAIN_MOVED"
+      "state": "ALIGNED_FOR_CURRENT_SOURCE_PREDICATE"
     },
     "publicHfMembership": {
       "owner": "szl-holdings/a11oy#2010",
@@ -73,7 +73,7 @@
         "reportedModels": 46,
         "reportedDatasets": 35,
         "reportedSpaces": 21,
-        "state": "STALE_AGAINST_CURRENT_PUBLIC_MEMBERSHIP_AND_NEW_SOURCE"
+        "state": "STALE_AGAINST_CURRENT_PUBLIC_MEMBERSHIP"
       },
       "publicInventoryRecord": {
         "url": "https://a11oy.net/public-inventory.json",
@@ -89,20 +89,20 @@
   "advancement": {
     "protectedSourceMovedSincePriorObservation": true,
     "canonicalHfRuntimeSourceDrift": "OPEN_FRESH_READ_REQUIRED",
-    "productDomainSourceDrift": "REOPENED_BY_NEW_PROTECTED_SOURCE",
+    "productDomainSourceDrift": "REPAIRED_AFTER_SOURCE_MOVE",
     "publicMembershipDeclarationDrift": "OPEN",
     "proofSnapshotDrift": "OPEN",
     "historicalClosurePreserved": true
   },
   "repairContract": [
-    "Do not rewrite the prior historical alignment closure or earlier repaired observations; the protected source moved again and this wave records the successor drift additively.",
-    "Treat current protected szl-holdings/a11oy main 49f114dd9bdb47e0efef5caa3c3f0db3df6c2431 as authoritative. Never repin source to the older runtime, product or proof bytes.",
+    "Do not rewrite the prior historical alignment closure or earlier repaired observations; the protected source moved again and this wave records successor observations additively.",
+    "Treat current protected szl-holdings/a11oy main 49f114dd9bdb47e0efef5caa3c3f0db3df6c2431 as authoritative. Never repin source to older runtime or proof bytes.",
+    "Preserve the fresh a-11-oy.com honesty observation that now matches current protected source 49f114dd9bdb47e0efef5caa3c3f0db3df6c2431. Do not redeploy or mutate product state merely to force inventory or proof closure.",
     "Obtain a fresh exact-source read from the canonical Hugging Face A11oy runtime. The prior ebfd70f4c6915c2640cf82a97c7f22b6c62906eb observation is historical only and must not be inferred to represent the newer protected source.",
-    "The fresh a-11-oy.com honesty read still reports ebfd70f4c6915c2640cf82a97c7f22b6c62906eb while protected main is 49f114dd9bdb47e0efef5caa3c3f0db3df6c2431. Repair through the normal source-bound deployment controls only after their existing admission gates pass; do not manually mutate provider bytes or bypass failing controls.",
     "Refresh the canonical public-membership declaration through its normal reviewed writer to represent the admitted 47th model. Do not delete or hide the admitted model to force the old count.",
     "Refresh a11oy.net proof inventory records only from exact measured public-Hub observations, preserving observation times and predicates; historical snapshots remain historical evidence and are not rewritten in place.",
     "Require one fresh same-window reconciliation showing GitHub source, canonical Hugging Face runtime, product source identity and current proof/public-membership predicates aligned, with zero required blockers for those predicates.",
-    "Reachability, a prior repaired source leg, or a successful source commit is never whole-estate readiness. Keep production authorization and automatic promotion false until exact-source and named-predicate closure is measured."
+    "Reachability, a repaired product source leg, or a successful source commit is never whole-estate readiness. Keep production authorization and automatic promotion false until exact-source and named-predicate closure is measured."
   ],
   "owners": {
     "governance": "szl-holdings/szl-frontier#151",
