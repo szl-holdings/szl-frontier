@@ -6,48 +6,54 @@ Estate reconciliation owner: `szl-holdings/.github#298`
 Governed wave: `frontier/waves/2026-09-15-estate-alignment-residual-product-proof.json`  
 Disposition: **P0 ALIGNMENT DRIFT / HOLD**
 
-## Current measured state
+## Current measured state — source moved again on 2026-09-16
 
-Two source-identity legs have now been repaired additively; their earlier failures remain historical evidence.
+Protected `szl-holdings/a11oy` `main` is now `49f114dd9bdb47e0efef5caa3c3f0db3df6c2431`, a verified commit whose parent is the previously reconciled `ebfd70f4c6915c2640cf82a97c7f22b6c62906eb`.
 
-1. `.github#298` generated a reconciliation at `2026-09-15T06:37:43.065070+00:00` where protected `szl-holdings/a11oy` main was `ebfd70f4c6915c2640cf82a97c7f22b6c62906eb` and the canonical Hugging Face A11oy `/api/build-info` reported the same source revision with `source_bound=true`.
-2. A later fresh public GET of `https://a-11-oy.com/api/a11oy/v1/honest` reports `git_sha=ebfd70f4c6915c2640cf82a97c7f22b6c62906eb`, matching the still-current protected A11oy main source exactly.
+That source movement reopens exact-source alignment. The previous repaired observations remain valid historical evidence for the predecessor SHA, but they do not inherit forward:
 
-The product-source drift recorded earlier in this branch is therefore **repaired for this predicate**. Do not erase the stale predecessor observation and do not infer whole-estate alignment from this repair.
+1. the latest governed exact Hugging Face runtime observation still names `ebfd70f4c6915c2640cf82a97c7f22b6c62906eb`; no fresh exact runtime source read for the new protected source was available in this observation window;
+2. a fresh public GET of `https://a-11-oy.com/api/a11oy/v1/honest` on 2026-09-16 still reports `git_sha=ebfd70f4c6915c2640cf82a97c7f22b6c62906eb`;
+3. `a11oy.net/models.json`, freshly re-read on 2026-09-16, still carries its 2026-09-12 capture at 46 models / 35 datasets / 21 Spaces;
+4. the governed `hf-public-author-membership/v1` incident observation remains 47 observed models vs 46 declared, with the added model already classified as admitted/published.
 
-Residual drift remains in the named inventory/proof predicates:
-
-- `a11oy#2010`, updated 2026-09-15, still reports `hf-public-author-membership/v1` as 47 observed models vs 46 declared, with the added model already classified as an admitted publication rather than a rogue object;
-- `a11oy.net/models.json` remains a dated 2026-09-12 classification at 46 models / 35 datasets / 21 Spaces;
-- `a11oy.net/public-inventory.json` remains an older 2026-08-31 snapshot with a different historical scope and must stay labeled historical rather than being silently substituted for the current public-membership predicate.
-
-The authority chain is therefore **partially converged**: GitHub -> canonical Hugging Face runtime -> `a-11-oy.com` product source identity are aligned for the exact-source predicate; current public-membership declaration and `a11oy.net` proof projection are not yet aligned under the same named scope.
+The chain is therefore **not aligned to the current protected source**. Do not preserve the earlier "repaired" label as current state merely because the predecessor source once matched Hugging Face and product runtime.
 
 ## Repair order
 
-### 1. Re-read source before any remaining mutation
+### 1. Bind every successor action to the current protected source
 
-Before any writer is dispatched, read protected `szl-holdings/a11oy` `main` again. If it moves from `ebfd70f4c6915c2640cf82a97c7f22b6c62906eb`, the new protected-main SHA becomes authoritative. Never publish or prove an older source merely because it appears in this dated handoff.
+Re-read protected `szl-holdings/a11oy` `main` immediately before any publisher or proof writer. `49f114dd9bdb47e0efef5caa3c3f0db3df6c2431` is authoritative for this observation; if main moves again, the newer protected SHA becomes authoritative and this closure attempt restarts.
 
-### 2. Preserve the repaired Hugging Face and product source legs
+Never repin GitHub to the older runtime/product/proof bytes.
 
-The canonical A11oy Hugging Face runtime and the product honesty endpoint are aligned to the observed protected source. Do not roll either backward, recreate the Space, introduce a second publisher, or redeploy merely to force an inventory count.
+### 2. Re-observe the canonical Hugging Face runtime
 
-Any subsequent writer must re-read both source-identity endpoints and prove it did not regress exact-source equality.
+Obtain a fresh exact source identity from the canonical A11oy Hugging Face runtime through the existing source-bound reconciliation path. The prior `ebfd70...` read is historical only.
 
-### 3. Reconcile the admitted 47th model in the declared public predicate
+If the runtime is still on the predecessor source, repair it only through the normal publisher after all admission, build, policy, provenance and receipt gates for the newer source succeed. Do not recreate the Space, introduce a second publisher or mutate provider bytes manually.
 
-`SZLHOLDINGS/szl-receiptagent-qwen35-0.8b-v2-merged` has already been classified by the existing incident as admitted/published. The correct repair is to refresh the canonical declared membership/profile/proof source through its normal reviewed writer, not delete, hide, rename, or retype the model to restore the old count.
+If the runtime already reports the new source, capture that exact observation and its run/receipt rather than inferring success from the Space card update time or reachability.
 
-Capture the model's current Hub release revision SHA during the same owner-side readback if it remains a required artifact-binding gap. Keep authenticated inventory-v2 or other differently scoped inventories separate from `hf-public-author-membership/v1`.
+### 3. Repair product projection only through normal deployment controls
 
-### 4. Refresh proof without rewriting history
+The live honesty endpoint is definitively stale against protected main in this window: product `ebfd70...` vs GitHub `49f114...`.
 
-For `a11oy.net`, update only the designated current inventory records through the repository's normal reviewed proof writer. Preserve prior dated snapshots as historical evidence where the proof contract expects history.
+Do not force a deploy around repository blockers. The current protected source itself records existing pin/lockfile/scanner acceptance work; resolve those through reviewed source changes and normal checks. Product parity is repaired only when the normal deployment path publishes an exact admitted source and a fresh public read proves that source identity.
+
+### 4. Reconcile the admitted 47th model in the declared public predicate
+
+The governed membership incident still distinguishes 47 observed models from the stale 46-model declaration. Refresh the canonical declaration through its normal reviewed writer. Do not delete, hide, rename or retype the admitted model merely to restore the old count.
+
+Keep differently scoped authenticated inventories separate from `hf-public-author-membership/v1`.
+
+### 5. Refresh proof without rewriting history
+
+For `a11oy.net`, update only designated current proof records through the repository's normal reviewed proof writer. Preserve the 2026-09-12 and older snapshots as historical evidence where the contract expects history.
 
 The current record must name its predicate, observation method, timestamp and exact observed counts/items. It must not infer missing assets as zero, mix incompatible inventory scopes, or treat reachability as membership/readiness evidence.
 
-### 5. Same-window closure
+### 6. Same-window closure
 
 Do not close #151 from separate stale successes. Require one fresh reconciliation window that proves, for the same then-current source and named predicates:
 
@@ -58,7 +64,7 @@ Do not close #151 from separate stale successes. Require one fresh reconciliatio
 5. `a11oy.net` current proof record represents that same measured scope and remains bounded/honest;
 6. zero required blockers for these predicates.
 
-If any source leg moves during proof publication, restart the closure read from the newer protected source. Reachability, a green deployment, or a stale earlier receipt is not sufficient.
+If any source leg moves during publication or proof generation, restart from the newer protected source. Reachability, a green deployment from another source, a stale receipt, or a successful source commit alone is not sufficient.
 
 ## Guardrails
 
