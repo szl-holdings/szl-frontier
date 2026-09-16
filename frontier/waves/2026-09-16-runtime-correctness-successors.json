@@ -94,10 +94,10 @@
   ],
   "owners": {
     "canonicalGovernance": "szl-holdings/szl-frontier#168",
-    "deterministicEvaluation": "szl-holdings/szl-forge",
-    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
-    "servingAndRollback": "szl-holdings/szl-serve",
-    "szlOwnedKernelChangesOnly": "szl-holdings/szl-kernels",
+    "deterministicEvaluation": "szl-holdings/szl-forge#331",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge#105",
+    "servingAndRollback": "szl-holdings/szl-serve after prerequisite correctness receipts",
+    "szlOwnedKernelChangesOnly": "szl-holdings/szl-kernels if SZL-owned kernel code changes",
     "productProjectionAfterQualification": "szl-holdings/a11oy",
     "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
   },
