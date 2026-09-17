@@ -69,13 +69,16 @@ The machine-readable requirements are authoritative in `frontier/waves/2026-09-1
 
 ## Authority-chain gate
 
-Fresh observation in this wave:
+Fresh same-window observation in this wave:
 - protected GitHub `szl-holdings/a11oy@main` = `43058398fb8ea346a7bd977f1a35391aeec1bf1a`;
-- `a-11-oy.com/api/a11oy/v1/honest` reports the same source revision;
-- connected Hugging Face metadata confirms `SZLHOLDINGS/a11oy` exists, but metadata alone does **not** prove the currently executing container's exact source revision;
-- `a11oy.net/models.json` remains a measured record captured `2026-09-12T01:25:04Z` with 46 models / 35 datasets / 21 Spaces and `operational=false`, `trained_all=false`, `benched_all=false`.
+- canonical HF runtime `https://szlholdings-a11oy.hf.space/api/a11oy/v1/honest` reports that same exact source revision;
+- product runtime `https://a-11-oy.com/api/a11oy/v1/honest` reports that same exact source revision;
+- repair PR `szl-holdings/szl-frontier#159` is merged and is a historical repair record, not the active residual owner;
+- active residual alignment governance remains `szl-holdings/szl-frontier#151`;
+- `a11oy.net/models.json` remains a measured record captured `2026-09-12T01:25:04Z` with 46 models / 35 datasets / 21 Spaces and `operational=false`, `trained_all=false`, `benched_all=false`;
+- this observation window still lacks a fresh same-scope `hf-public-author-membership/v1` reconciliation, so a stale proof count cannot be promoted into current truth.
 
-Therefore `szl-holdings/szl-frontier#159` remains the residual alignment owner. Do not close whole-chain alignment or publish a new proof-success claim from this wave.
+Do not close whole-chain alignment or publish a new proof-success claim until #151 receives a fresh same-window public-membership reconciliation and refreshed designated proof records under the same predicate.
 
 ## Verification before marking this governance PR ready
 
