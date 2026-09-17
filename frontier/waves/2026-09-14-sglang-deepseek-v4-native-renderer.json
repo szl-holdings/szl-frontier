@@ -1,0 +1,81 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-14-sglang-deepseek-v4-native-renderer",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "ae0109a44890a268bd72c2e60f3ab09fbdae34d5",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#134",
+  "candidate": {
+    "publisher": "SGLang",
+    "category": "serving-prompt-protocol-rendering",
+    "upstreamRepository": "sgl-project/sglang",
+    "upstreamRevision": "07e1918924b11223c185544507669f9eb02c9b65",
+    "observedAt": "2026-09-15T00:29:10Z",
+    "change": "The Rust OpenAI frontend now falls back to Dynamo native renderers when a model such as DeepSeek V4 ships no chat_template, using the Hugging Face model_type and model path to select the native formatter.",
+    "releaseState": "MERGED_UPSTREAM_MAIN_WATCH",
+    "productionDisposition": "HOLD"
+  },
+  "deduplication": {
+    "deepSeekV41CanonicalOwner": "szl-holdings/szl-frontier#134",
+    "deepSeekV41AdmissionWave": "2026-09-14-deepseek-v4-1-flash",
+    "executionHandoffMergedPr": "szl-holdings/szl-frontier#138",
+    "serveOwner": "szl-holdings/szl-serve#9",
+    "forgeOwner": "szl-holdings/szl-forge#310",
+    "exactSourcePreviouslyAdmitted": false,
+    "inheritsDeepSeekQualification": false,
+    "inheritsSglangQualification": false
+  },
+  "runtimeContract": {
+    "frontend": "SGLang Rust OpenAI frontend",
+    "trigger": "tokenizer configuration has no chat_template and no explicit --chat-template override is supplied",
+    "selectorInputs": ["Hugging Face model_type", "model path"],
+    "renderer": "dynamo_renderer::native_formatter_for",
+    "dynamoRendererVersion": "5.1.2",
+    "explicitTemplateOverridesNativeFallback": true,
+    "missingNativeFormatterMustRefuse": true,
+    "genericJinjaFallbackAuthorized": false
+  },
+  "protocolBoundary": {
+    "deepSeekV41HasNoJinjaTemplate": true,
+    "sourceOwnedEncodingReferenceRemainsAuthority": true,
+    "nativeRendererIsImplementationCandidateNotProtocolAuthority": true,
+    "requiredParity": [
+      "single-turn text",
+      "multi-turn messages",
+      "numeric reasoning effort",
+      "tool-call encode/decode",
+      "image-bearing messages where supported by the bound model protocol",
+      "Chat Completions framing",
+      "Responses framing where the serving path claims support",
+      "streamed parsing and termination"
+    ]
+  },
+  "evaluationOwners": {
+    "canonicalAdmission": "szl-holdings/szl-frontier#134",
+    "servingProtocolAndRollback": "szl-holdings/szl-serve#9",
+    "modelProtocolOracle": "szl-holdings/szl-forge#310",
+    "acceleratorAndRuntimeClosure": "szl-holdings/szl-gpu-bridge#102",
+    "productProjection": "szl-holdings/a11oy",
+    "proofProjection": "szl-holdings/a11oy-net"
+  },
+  "requiredEvidence": [
+    "Bind SGLang exact revision 07e1918924b11223c185544507669f9eb02c9b65 and exact Dynamo renderer/protocol/tokenizer dependency closure; later revisions inherit no qualification.",
+    "For the exact DeepSeek V4.1 artifact revision governed by Frontier #134, byte-compare native-renderer prompt and protocol outputs against the source-owned encoding reference on deterministic fixtures.",
+    "Prove fallback precedence: explicit template override, valid tokenizer chat_template, legacy model inference and native renderer selection must not silently shadow one another.",
+    "Refuse when no valid template or native formatter is available; never invent a generic Jinja format.",
+    "Exercise multi-turn, reasoning-effort, tool-call, image/message, stop/termination and streamed parsing fixtures before any serving capability claim.",
+    "Exercise malformed tokenizer/model configs, wrong model_type, missing config, renderer dependency mismatch, cancellation, restart and rollback to the incumbent serving path.",
+    "Receipt the exact SGLang commit, Rust dependency lock identities, model/tokenizer revisions and all protocol fixture hashes.",
+    "Keep the native renderer as an implementation candidate only; Frontier #134 source-owned protocol remains the semantic authority."
+  ],
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "MEASURED_RECEIPTS_ONLY_AFTER_EVALUATION"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}
