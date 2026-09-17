@@ -1,0 +1,85 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-15-hf-kernels-0-17",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "ae0109a44890a268bd72c2e60f3ab09fbdae34d5",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "exactSourceBindingRequired": true,
+    "noWeightRehostingForInventory": true
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "exactTagCommitSearch": "7a11103e4a85074344de419993d48c1ff3064baf",
+    "exactTagCommitMatchBeforeIntake": false,
+    "helionCatalogMatchBeforeIntake": false,
+    "frontierIssue": 155,
+    "forgeIssue": 325,
+    "result": "new released kernel runtime/provenance boundary; no prior v0.17.0 admission found"
+  },
+  "candidate": {
+    "id": "huggingface-kernels-v0-17-0-20260915",
+    "kind": "kernel-runtime-provenance-and-accelerator-boundary",
+    "priority": "P0",
+    "repository": "huggingface/kernels",
+    "tag": "v0.17.0",
+    "revision": "7a11103e4a85074344de419993d48c1ff3064baf",
+    "publishedAt": "2026-09-14T09:20:23Z",
+    "materialChanges": [
+      "former kernels-data Python binding is integrated into the kernels package",
+      "Helion is a supported kernel DSL/dependency",
+      "explicit trusted repository IDs can replace blanket trust_remote_code=True",
+      "minimum-version and capability validation can fail early before incompatible kernel execution",
+      "conditional use_kernel_forward_from_hub supports predicate-bounded kernelization",
+      "ROCm 7.14 and Intel Crescent Island/XPU build support are included",
+      "kernel upload/build/test and variant handling changed materially"
+    ],
+    "owners": {
+      "governance": "szl-holdings/szl-frontier",
+      "execution": "szl-holdings/szl-forge",
+      "acceleratorQualification": "szl-holdings/szl-gpu-bridge",
+      "product": "szl-holdings/a11oy",
+      "proof": "szl-holdings/a11oy-net"
+    },
+    "evaluation": {
+      "trackingIssue": "szl-holdings/szl-frontier#155",
+      "executionIssue": "szl-holdings/szl-forge#325",
+      "required": [
+        "bind exact tag commit and exact wheel/source digest actually executed",
+        "prove explicit trusted-repository allowlist positive and negative behavior without blanket remote-code trust",
+        "prove min-version/capability fail-closed behavior before incompatible execution",
+        "prove conditional kernelization separates reference fallback from kernelized execution",
+        "detect stale kernels-data import/dependency assumptions after packaging integration",
+        "run deterministic reference-output parity on fixed tensors",
+        "evaluate Helion only on supported toolchain or record UNAVAILABLE",
+        "record exact accelerator/backend/driver/compiler and selected variant",
+        "preserve rollback and current production kernel defaults"
+      ],
+      "acceleratorScope": {
+        "cuda": "evaluate on actually available supported CUDA runner",
+        "rocm714": "evaluate only if actually available; otherwise UNAVAILABLE",
+        "xpuCrescentIsland": "evaluate only if actually available; otherwise UNAVAILABLE"
+      }
+    },
+    "codexHandoff": {
+      "mode": "EXACT_RELEASE_KERNEL_QUALIFICATION",
+      "steps": [
+        "Implement Forge #325 deterministic trust, compatibility, conditional-kernelization and reference-parity fixtures against exact v0.17.0 source/package identity.",
+        "Use GPU Bridge for accelerator-specific compiler/driver/variant evidence not available in Forge.",
+        "Fail closed on ambiguous source, blanket trust, compatibility bypass, output mismatch, unknown variant or missing environment identity.",
+        "Do not publish a remote kernel or alter production kernel defaults during evaluation.",
+        "Return sealed evidence to Frontier #155 after normal repository controls; project downstream only after admission."
+      ]
+    },
+    "status": "EVALUATION",
+    "productionDisposition": "HOLD"
+  },
+  "authorityChain": {
+    "githubSource": "exact released tag bound for evaluation only",
+    "huggingFaceProjection": "no new SZL artifact/runtime projection authorized",
+    "productRuntime": "unchanged",
+    "proofEvidence": "exact-source measured receipts only after admission"
+  }
+}
