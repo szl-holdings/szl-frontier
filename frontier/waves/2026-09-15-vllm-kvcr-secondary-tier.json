@@ -1,0 +1,80 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-15-vllm-kvcr-secondary-tier",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "ae9d6eebab56110d6e9c5c61a2b82a7800360668",
+  "authorityChain": [
+    "GitHub",
+    "Hugging Face",
+    "a-11-oy.com",
+    "a11oy.net"
+  ],
+  "canonicalIssue": "szl-holdings/szl-frontier#157",
+  "candidate": {
+    "publisher": "vLLM + NVIDIA Dynamo",
+    "category": "inference-kv-cache-offload-secondary-tier-p2p",
+    "upstreamRepository": "vllm-project/vllm",
+    "upstreamRevision": "000c7df9ffd3e470980fd4cd6b8ec1b0585500ff",
+    "observedAt": "2026-09-15T06:55:04Z",
+    "change": "vLLM V1 KV-offload adds an optional KVCR-backed SecondaryTierManager with router-hint and NIXL-backed external cache transport integration.",
+    "releaseState": "UNRELEASED_MAIN_SUCCESSOR_WATCH",
+    "productionDisposition": "HOLD"
+  },
+  "dependencyBinding": {
+    "repository": "ai-dynamo/kvcr",
+    "tag": "v0.1.0",
+    "annotatedTagObject": "5db29e54f05be36d2afd691ba93878a99658bfe6",
+    "revision": "1b790eff53edcdc6398121b6e6ee48ba43cf2579",
+    "tagVerified": true,
+    "binding": "The observed vLLM integration installs KVCR by exact v0.1.0 git tag. Evaluation may not float KVCR main.",
+    "nixlRequirement": "Record the exact installed NIXL package/version and CUDA-family wheel in each execution receipt."
+  },
+  "deduplication": {
+    "estateSearch": "No existing KVCR integration wave, issue, pull request, or code reference was found in the connected szl-holdings estate before intake.",
+    "deepSeekKvOwnersAreModelSpecific": true,
+    "exactSourcePreviouslyAdmitted": false,
+    "inheritsVllm029Qualification": false,
+    "inheritsAnyModelQualification": false
+  },
+  "runtimeContract": {
+    "tierType": "kvcr",
+    "manager": "KVCRSecondaryTierManager",
+    "optionalDependency": true,
+    "correctnessBeforePerformance": true,
+    "sameExactModelRuntimeProtocolRequiredForBaselineComparison": true,
+    "routerHintsAreCacheLocationEvidenceOnly": true,
+    "routerHintsCannotAuthorizeModelProviderTenantOrTool": true,
+    "failClosedOnUnboundRuntimeIdentity": true,
+    "silentCrossModelOrProviderFallbackForbidden": true
+  },
+  "evaluationOwners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#157",
+    "runtimeCorrectness": "szl-holdings/szl-forge#329",
+    "servingIsolationAndRollback": "szl-holdings/szl-serve#11",
+    "acceleratorAndTransport": "szl-holdings/szl-gpu-bridge#104",
+    "productProjection": "szl-holdings/a11oy",
+    "proofProjection": "szl-holdings/a11oy-net"
+  },
+  "requiredEvidence": [
+    "Bind execution to vllm-project/vllm@000c7df9ffd3e470980fd4cd6b8ec1b0585500ff and ai-dynamo/kvcr v0.1.0 at peeled commit 1b790eff53edcdc6398121b6e6ee48ba43cf2579; later source revisions inherit no qualification automatically.",
+    "Record exact vLLM source or container digest, KVCR source/tag, NIXL package, CUDA runtime, driver, PyTorch, accelerator, transport/backend configuration and test fixture identity.",
+    "Prove the optional-dependency negative control: KVCR absence makes the kvcr tier explicitly unavailable without changing incumbent non-KVCR behavior.",
+    "Prove byte-for-byte block correctness for put, lookup, offload and fetch before comparing model output against the same exact runtime with KVCR disabled.",
+    "Exercise exact-key hit, miss, partial remote hit, repeated miss, mixed local/remote availability, block ordering, supported multi-block or multi-pool layouts, eviction pressure, pin/release, saturation and cleanup.",
+    "Exercise timeout before transport submission, timeout after submission, cancellation, late completion, source or target failure, remote-write uncertainty, Guard-confirmed source death, quarantine or tombstone cleanup, worker restart and shutdown; stale or cross-request KV must never become readable.",
+    "Prove request, session and tenant isolation plus key-collision negative controls; router hints are cache-location evidence and never provider, model, tenant, policy or tool authority.",
+    "Prove rollback to the incumbent exact model/runtime/protocol path when KVCR is disabled; any fallback that changes model bytes, tokenizer/protocol, provider authority, quantization or policy must fail closed.",
+    "Measure transfer latency, cache-hit behavior, TTFT, ITL, throughput and host/device memory only after correctness and failure gates pass; upstream performance claims remain upstream-reported until reproduced.",
+    "Record upstream and transitive license/provenance obligations for KVCR, NIXL and the evaluated runtime closure before any promotion."
+  ],
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "MEASURED_RECEIPTS_AND_KNOWN_BOUNDS_ONLY_AFTER_EVALUATION"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}
