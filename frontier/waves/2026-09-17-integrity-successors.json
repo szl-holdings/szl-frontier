@@ -169,12 +169,16 @@
     "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
   },
   "alignmentDependency": {
-    "canonicalResidualAlignmentPullRequest": "szl-holdings/szl-frontier#159",
-    "state": "PARTIALLY_REPAIRED_INDEPENDENT_HOLD",
+    "activeResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "lastRepairPullRequest": "szl-holdings/szl-frontier#159",
+    "lastRepairPullRequestState": "MERGED",
+    "state": "SOURCE_RUNTIME_PARITY_PROOF_MEMBERSHIP_HOLD",
     "githubSourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "huggingFaceRuntimeRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
     "productRuntimeRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
     "proofRecordCapturedAt": "2026-09-12T01:25:04Z",
-    "note": "GitHub and a-11-oy.com agree on the current A11oy source identity. The connected Hugging Face Space exists, but this wave does not infer its live runtime source identity from metadata alone. a11oy.net remains a dated measured proof record, so whole-chain closure remains HOLD."
+    "freshPublicMembershipReconciled": false,
+    "note": "Fresh same-window GitHub, canonical Hugging Face runtime, and a-11-oy.com reads agree on A11oy revision 43058398fb8ea346a7bd977f1a35391aeec1bf1a. Whole-chain closure remains HOLD because a11oy.net is still the dated 2026-09-12 proof record and the named hf-public-author-membership/v1 predicate has not been freshly reconciled in this observation window."
   },
   "projection": {
     "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
