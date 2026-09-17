@@ -1,0 +1,80 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-14-cosmos3-modelopt-fp8-policy",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "ae0109a44890a268bd72c2e60f3ab09fbdae34d5",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#147",
+  "candidate": {
+    "publisher": "Hugging Face Diffusers",
+    "category": "multimodal-inference-quantization-policy",
+    "upstreamRepository": "huggingface/diffusers",
+    "upstreamRevision": "759164b7ad116e091e9d3e222211c9aa27d835f6",
+    "observedAt": "2026-09-14T20:16:31Z",
+    "change": "Cosmos3 ModelOpt FP8 checkpoints may own a diffusion_step_policy that selects W8A16 on edge scheduler steps and native W8A8 in the middle, with fail-closed policy recovery and non-ModelOpt isolation.",
+    "releaseState": "MERGED_UPSTREAM_EXACT_SOURCE_WATCH",
+    "productionDisposition": "HOLD"
+  },
+  "deduplication": {
+    "exactSourcePreviouslyAdmitted": false,
+    "cosmos3PreviouslyCataloged": false,
+    "genericModelOptQualificationInherited": false,
+    "inheritsQualification": false,
+    "relatedGenericModelOptWave": "2026-09-07"
+  },
+  "artifactBoundary": {
+    "families": [
+      "nvidia/Cosmos3-Nano",
+      "nvidia/Cosmos3-Super",
+      "nvidia/Cosmos3-Super-I2V"
+    ],
+    "movingFp8RevisionIsEvidenceKey": false,
+    "requireImmutableHubRevision": true,
+    "requireCheckpointAndConfigDigests": true,
+    "rehostWeightsForInventory": false,
+    "licensePosture": "review-required-openmdw-1.1-observed"
+  },
+  "runtimeContract": {
+    "policyField": "transformer/config.json:diffusion_step_policy",
+    "videoMixedPolicy": "W8A16 edge steps; native W8A8 middle steps when declared by exact checkpoint policy",
+    "noPolicyBehavior": "native W8A8 for every step",
+    "cfgPrecisionInvariant": "conditional and unconditional calls for one scheduler step must use the same precision",
+    "nonModelOptBehavior": "no-op; retain native quantizer forward",
+    "malformedOrIncompletePolicy": "fail-closed",
+    "upstreamFocusedUnitTestsPresent": false
+  },
+  "evaluationOwners": {
+    "canonicalAdmission": "szl-holdings/szl-frontier",
+    "deterministicCorrectnessAndQuality": "szl-holdings/szl-forge",
+    "modelOptHardwareAndContainer": "szl-holdings/szl-gpu-bridge",
+    "servingAndFallback": "szl-holdings/szl-serve",
+    "productProjection": "szl-holdings/a11oy",
+    "proofProjection": "szl-holdings/a11oy-net"
+  },
+  "requiredEvidence": [
+    "Bind Diffusers exact revision 759164b7ad116e091e9d3e222211c9aa27d835f6; later revisions inherit no qualification.",
+    "Resolve every evaluated Cosmos3 artifact to an immutable Hub revision and record exact transformer/config.json, quantization config, checkpoint identities and digests, license, ModelOpt version, driver, CUDA and container digest.",
+    "Deterministically test declared schedule parsing, no-policy fallback, malformed or incomplete policy rejection, on-disk policy recovery and non-ModelOpt isolation.",
+    "Prove scheduler-step W8A16 and W8A8 selection and identical CFG conditional/unconditional precision selection.",
+    "Exercise supported BF16, FP16 and FP32 activation paths and classify unsupported stacks as UNAVAILABLE rather than simulated PASS.",
+    "Compare fixed-seed temporal stability and output quality for checkpoint-owned mixed precision, all-W8A8 and an incumbent non-quantized fallback before any capability claim.",
+    "Measure latency, throughput, VRAM and cold start independently from visual-quality gates; upstream percentages remain UPSTREAM_REPORTED_NOT_SZL_MEASURED.",
+    "Exercise policy/config corruption, restore failure, OOM, cancellation, restart and rollback while preserving the incumbent route.",
+    "Review OpenMDW 1.1 artifact terms and runtime/container/dependency licenses before product use or redistribution."
+  ],
+  "upstreamEvidenceBoundary": {
+    "focusedRuntimeTestsRemovedDuringReview": true,
+    "classification": "UPSTREAM_IMPLEMENTATION_REQUIRES_SZL_DETERMINISTIC_REPRODUCTION",
+    "performanceClaims": "UPSTREAM_REPORTED_NOT_SZL_MEASURED"
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "MEASURED_RECEIPTS_ONLY_AFTER_EVALUATION"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}

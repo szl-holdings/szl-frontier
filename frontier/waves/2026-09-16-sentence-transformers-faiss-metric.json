@@ -1,0 +1,64 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-16-sentence-transformers-faiss-metric",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "81d787df65791384b5629ca1b80b4c3f179eef3c",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#170",
+  "candidate": {
+    "publisher": "Hugging Face",
+    "category": "retrieval-approximate-search-metric-correctness",
+    "upstreamRepository": "huggingface/sentence-transformers",
+    "upstreamRevision": "7ae9079733b4e7e997f0011a3fef67f73a65aeaa",
+    "upstreamPullRequest": 4022,
+    "observedMergedAt": "2026-09-15T21:58:03Z",
+    "productionDisposition": "HOLD"
+  },
+  "materialChanges": [
+    "Approximate non-binary FAISS HNSW search now explicitly uses inner product instead of the constructor default squared-L2 metric.",
+    "Approximate float32 and uint8 ranking objective and score semantics are brought back into the same metric contract as the exact IndexFlatIP path.",
+    "Upstream regression coverage includes fixtures whose L2 and inner-product rankings differ, proving this is observable retrieval correctness rather than cosmetic churn."
+  ],
+  "deduplication": {
+    "exactSourcePreviouslyGoverned": false,
+    "searchedRepositories": [
+      "szl-holdings/szl-frontier",
+      "szl-holdings/szl-forge",
+      "szl-holdings/szl-second-brain"
+    ],
+    "relatedRetrievalWork": [
+      "szl-holdings/szl-frontier#37",
+      "szl-holdings/szl-forge#102"
+    ],
+    "inheritsQualification": false
+  },
+  "requiredEvidence": [
+    "Bind Sentence Transformers exact revision 7ae9079733b4e7e997f0011a3fef67f73a65aeaa and the exact wheel/container digest actually exercised; moving upstream main inherits no qualification.",
+    "Prove whether an active SZL retrieval path directly or transitively calls semantic_search_faiss with exact=false for float32 or uint8; dependency presence alone is not exposure.",
+    "If no active exposure exists, record NOT_EXPOSED with code and dependency evidence and do not change production dependencies merely to consume this upstream fix.",
+    "If exposed, use frozen synthetic fixtures where L2 and inner-product rankings are intentionally different and assert ranking order plus score semantics for exact and approximate search.",
+    "Exercise only the scalar precisions and rescore modes actually used by SZL and separate approximate-recall effects from metric-selection correctness.",
+    "Run the existing frozen non-sensitive SZL retrieval evaluation slice before and after under exact dependency/build pins, retaining changed document IDs and retrieval metrics in a receipt.",
+    "Preserve the incumbent retrieval dependency/runtime rollback and fail closed on incompatible FAISS or Sentence Transformers versions.",
+    "No live tenant corpus, no benchmark leakage, no default retrieval-route change and no product/proof claim before normal owning-repository gates pass."
+  ],
+  "evaluationOwners": {
+    "canonicalAdmission": "szl-holdings/szl-frontier#170",
+    "retrievalExposureAndPolicy": "szl-holdings/szl-second-brain#21",
+    "sharedDeterministicHarness": "szl-holdings/szl-forge#331",
+    "servingOwner": "ACTIVE_SERVING_OWNER_AFTER_PREREQUISITE_RECEIPTS",
+    "productProjection": "szl-holdings/a11oy",
+    "proofProjection": "szl-holdings/a11oy-net"
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_FROM_DISCOVERY",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
