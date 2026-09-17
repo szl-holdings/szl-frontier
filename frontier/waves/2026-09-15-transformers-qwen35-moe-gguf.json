@@ -1,0 +1,59 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-15-transformers-qwen35-moe-gguf",
+  "priority": "P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "81d787df65791384b5629ca1b80b4c3f179eef3c",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#164",
+  "candidate": {
+    "publisher": "Hugging Face",
+    "category": "model-format-moe-loader-kernel-correctness",
+    "upstreamRepository": "huggingface/transformers",
+    "upstreamRevision": "26d8e7164fb94b5f5b004c03d6c405ab083a56c7",
+    "upstreamPullRequest": 48529,
+    "observedAt": "2026-09-15T19:35:28Z",
+    "upstreamState": "MAINLINE_EXACT_SOURCE_WATCH",
+    "productionDisposition": "HOLD"
+  },
+  "materialChanges": [
+    "Qwen3.5-MoE GGUF architecture, config and tokenizer mappings",
+    "expert-bank tensor loading for MoE GGUF files",
+    "SoftmaxTopKRouter semantics whose operation order differs from superficially similar top-k router kernels",
+    "RMSNormZeroCentered semantics requiring x * (1 + w) rather than ordinary x * w normalization",
+    "GGUF model discovery updates in Transformers serving"
+  ],
+  "deduplication": {
+    "canonicalExactSourceWavePreviouslyFound": false,
+    "existingQwen35Work": "szl-forge contains dense Qwen3.5 Chaski/A11OY-MINI conversion and evaluation paths",
+    "existingDenseReceiptsQualifyMoe": false,
+    "inheritsQualification": false
+  },
+  "requiredEvidence": [
+    "Bind Transformers exact revision 26d8e7164fb94b5f5b004c03d6c405ab083a56c7 and the exact wheel/container digest actually evaluated; moving upstream main inherits no qualification.",
+    "Pin a legally usable Qwen3.5-MoE GGUF fixture by repository revision and GGUF file digest without rehosting weights merely for inventory.",
+    "Compare GGUF-loaded structure with a canonical non-GGUF source for expert count, expert tensor shapes and order, router topology, tokenizer/config mapping, and zero-centered norm parameters.",
+    "Use deterministic numerical fixtures that distinguish SoftmaxTopKRouter operation order from top-k-before-softmax behavior and distinguish RMSNormZeroCentered x*(1+w) from ordinary x*w behavior.",
+    "Compare bounded prompt logits or generation against the canonical model under predeclared tolerances, separating expected quantization error from loader or kernel error.",
+    "Exercise malformed or incomplete expert tensors and unsupported GGUF architecture metadata fail-closed; a load-only happy path is insufficient.",
+    "Record exact model, GGUF, Transformers build and hardware identities in receipts and preserve rollback to the incumbent admitted serving path.",
+    "Hardware-specific kernel claims require an exercised lane; unavailable hardware remains UNAVAILABLE rather than inferred PASS."
+  ],
+  "evaluationOwners": {
+    "canonicalAdmission": "szl-holdings/szl-frontier#164",
+    "conversionAndEquivalence": "szl-holdings/szl-forge",
+    "kernelQualificationWhenAdopted": "szl-holdings/szl-kernels",
+    "servingContract": "ACTIVE_SERVING_OWNER_AT_EXECUTION_TIME",
+    "productProjection": "szl-holdings/a11oy",
+    "proofProjection": "szl-holdings/a11oy-net"
+  },
+  "projection": {
+    "huggingFace": "NO_SZL_MODEL_OR_RUNTIME_PROJECTION_FROM_THIS_WATCH_UNTIL_QUALIFIED",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "MEASURED_EXACT_SOURCE_RECEIPTS_ONLY_AFTER_EVALUATION"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}
