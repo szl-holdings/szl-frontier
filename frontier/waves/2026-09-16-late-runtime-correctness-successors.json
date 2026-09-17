@@ -1,0 +1,134 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-16-late-runtime-correctness-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "27e49abd8dd500f28c54d9bf700d23e5542cb503",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#168",
+  "predecessorWave": "szl-holdings/szl-frontier#172",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-deepseek-v41-causal-image-swa",
+      "priority": "P0",
+      "category": "multimodal-attention-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "9f9e1dac26ff0379651dd7e8ca409b573ccfce54",
+      "upstreamPullRequest": 57152,
+      "observedMergedAt": "2026-09-16T18:09:01Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "deduplicatesUnder": [
+        "szl-holdings/szl-frontier#134",
+        "szl-holdings/szl-frontier#168",
+        "szl-holdings/szl-frontier#172"
+      ],
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Corrects DeepSeek V4.1 VL image-token sliding-window attention from inherited widened/bidirectional visibility to the official causal-window contract.",
+        "Affects both full-image and continuation prefill and therefore can change multimodal outputs even when model weights and tokenizer bytes are unchanged."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream reports 30 targeted tests passed on GB200 with 3 gated-builder tests deselected.",
+        "Upstream explicitly did not claim full-model VL accuracy, generation-length evaluation, or AMD runtime validation."
+      ],
+      "requiredEvidence": [
+        "Bind the exact vLLM source revision and executed wheel/container digest, CUDA/driver/compiler/device identity, and the exact governed DeepSeek V4.1 model, tokenizer, processor, chat-template and encoding revisions.",
+        "Construct deterministic independent causal-window fixtures covering text-only, image spans, boundary queries, full prefill and continuation prefill with compression ratios 0, 1 and 2; assert that no future image token or out-of-window predecessor is visible.",
+        "Compare paged and gathered sparse-window indices against an independent reference implementation and prove identical causal positions at image-span starts, interiors, ends and chunk boundaries.",
+        "Run fixed-seed end-to-end text+image generation parity/quality checks against the official model contract and the incumbent admitted runtime; distinguish intentional correction from unrelated output drift.",
+        "Exercise CUDA-graph and eager execution, prefix reuse, mixed text/image batches, cancellation, worker restart and malformed multimodal metadata; unsupported hardware or unexecuted paths remain UNAVAILABLE or UNQUALIFIED, never PASS.",
+        "Preserve explicit rollback to the previous exact admitted runtime. No production route, provider, model default, Hugging Face projection or public capability claim changes before normal qualification gates pass."
+      ]
+    },
+    {
+      "id": "vllm-deepseek-v4-rocm-accuracy-revert",
+      "priority": "P0",
+      "category": "rocm-quantized-linear-accuracy-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "bc0f47cd03d6ae99f9f217f096684423bb4ebc2b",
+      "upstreamPullRequest": 57132,
+      "observedMergedAt": "2026-09-16T18:58:24Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "deduplicatesUnder": [
+        "szl-holdings/szl-frontier#134",
+        "szl-holdings/szl-frontier#168",
+        "szl-holdings/szl-frontier#172"
+      ],
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Upstream identified a catastrophic DeepSeek V4 ROCm accuracy regression where GSM8K exact-match fell to near zero under an AITER/FP8 configuration.",
+        "The merged repair reverts two quantized-linear changes and upstream reports restored GSM8K exact-match around 0.95, making this a correctness boundary rather than routine backend churn."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream reports the repaired DeepSeek-V4-Pro TP8 ROCm/AITER configuration restored GSM8K accuracy in its measured setup.",
+        "Those upstream measurements are not SZL receipts and do not establish correctness for other AMD generations, precisions, kernels, concurrency levels or SZL runtime composition."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/build bytes, exact DeepSeek V4 model/tokenizer/encoding source, AITER revision, ROCm/driver/compiler identities, accelerator SKU/topology and every quantization/KV-cache/runtime flag used in the executed lane.",
+        "Add a deterministic low-level reference test that detects the preshuffled/row-major FP8 weight-layout or scale-layout failure mode independently of GSM8K and fails on the known-bad predecessor when that predecessor is executable.",
+        "Run fixed-seed model correctness on the supported ROCm lane with an accuracy sentinel large enough to reject catastrophic collapse, plus token/logit parity probes that localize regressions before aggregate benchmark interpretation.",
+        "Exercise AITER enabled/disabled, fused/shared-expert settings actually admitted by SZL, startup/load, warm restart, prefix cache and representative concurrency; configurations not executed remain UNQUALIFIED.",
+        "Capture negative controls demonstrating that the guard detects the previously bad selection/layout path rather than merely recording a healthy score from a different backend.",
+        "Preserve rollback to the previous exact admitted ROCm runtime and do not infer NVIDIA qualification, production readiness, provider promotion or public benchmark claims from the upstream repair."
+      ]
+    },
+    {
+      "id": "vllm-a100-fp8-kernel-selection",
+      "priority": "P1",
+      "category": "ampere-fp8-backend-admission-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "2bdbbc80804b2199cbf39b75e78cf7269d0383a4",
+      "upstreamPullRequest": 55884,
+      "observedMergedAt": "2026-09-16T19:31:43Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "deduplicatesUnder": [
+        "szl-holdings/szl-frontier#168",
+        "szl-holdings/szl-frontier#172"
+      ],
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Fixes vLLM selecting a CUTLASS FP8 scaled-matmul backend on A100/sm80 even though that backend is unsupported there, causing model startup/execution failure.",
+        "The repair tightens capability admission and falls back to a supported FP8 linear backend, directly affecting an accelerator class already represented in the SZL estate."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream reports Nemotron-3 GSM8K on A100 no longer fails and selects the Marlin FP8 linear backend.",
+        "The five-line upstream source fix does not itself qualify every FP8 model, Ampere topology, CUDA version or fallback backend combination used by SZL."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM wheel/source, CUDA/driver/compiler, A100 SKU/SM capability, exact model/quantization source and the loaded kernel/backend identities in the execution receipt.",
+        "Add deterministic capability-selection tests proving CUTLASS FP8 is rejected on unsupported sm80 and the expected supported fallback is selected; include a negative control that fails if unsupported CUTLASS selection is reintroduced.",
+        "Prove the same selector still admits CUTLASS FP8 only on architectures where its own capability predicate is true, preventing an A100 repair from silently disabling valid newer-GPU paths.",
+        "Run at least one representative SZL FP8 model on real A100 hardware through load, prefill and decode with fixed-seed output/accuracy sanity against the incumbent reference; unavailable A100 hardware is UNAVAILABLE, not PASS.",
+        "Exercise fallback absence/failure explicitly so an unsupported or missing alternate kernel fails with a classified error rather than silent precision or backend substitution.",
+        "Keep existing runtime defaults and rollback intact until normal accelerator, correctness, provenance and serving gates produce source-bound receipts."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#168",
+    "canonicalDeepSeekModelProtocol": "szl-holdings/szl-frontier#134",
+    "deterministicEvaluation": "szl-holdings/szl-forge#331",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge#105",
+    "servingAndRollback": "szl-holdings/szl-serve after prerequisite correctness receipts",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentPullRequest": "szl-holdings/szl-frontier#159",
+    "state": "OPEN_INDEPENDENT_HOLD",
+    "note": "Runtime candidate evaluation does not close or override the separately reopened A11oy source/projection drift. No candidate may use stale projection state as qualification evidence."
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
