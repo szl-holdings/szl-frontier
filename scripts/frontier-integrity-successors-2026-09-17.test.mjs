@@ -76,12 +76,18 @@ test('does not promote autotune probes without complete runtime evidence', () =>
   assert.match(evidence, /unavailable/);
 });
 
-test('keeps authority-chain projection fail closed', () => {
+test('keeps authority-chain projection fail closed while recording repaired source/runtime parity', () => {
   assert.equal(wave.projection.huggingFace, 'NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED');
   assert.equal(wave.projection['a-11-oy.com'], 'NO_CAPABILITY_CHANGE_FROM_DISCOVERY');
   assert.equal(wave.projection['a11oy.net'], 'EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION');
-  assert.equal(wave.alignmentDependency.canonicalResidualAlignmentPullRequest, 'szl-holdings/szl-frontier#159');
-  assert.equal(wave.alignmentDependency.state, 'PARTIALLY_REPAIRED_INDEPENDENT_HOLD');
+  assert.equal(wave.alignmentDependency.activeResidualAlignmentIssue, 'szl-holdings/szl-frontier#151');
+  assert.equal(wave.alignmentDependency.lastRepairPullRequest, 'szl-holdings/szl-frontier#159');
+  assert.equal(wave.alignmentDependency.lastRepairPullRequestState, 'MERGED');
+  assert.equal(wave.alignmentDependency.state, 'SOURCE_RUNTIME_PARITY_PROOF_MEMBERSHIP_HOLD');
+  assert.equal(wave.alignmentDependency.githubSourceRevision, '43058398fb8ea346a7bd977f1a35391aeec1bf1a');
+  assert.equal(wave.alignmentDependency.huggingFaceRuntimeRevision, '43058398fb8ea346a7bd977f1a35391aeec1bf1a');
+  assert.equal(wave.alignmentDependency.productRuntimeRevision, '43058398fb8ea346a7bd977f1a35391aeec1bf1a');
+  assert.equal(wave.alignmentDependency.freshPublicMembershipReconciled, false);
   assert.equal(wave.weightsRehosted, false);
   assert.equal(wave.productionDefaultsChanged, false);
   assert.equal(wave.policyOrProtectionWeakened, false);
