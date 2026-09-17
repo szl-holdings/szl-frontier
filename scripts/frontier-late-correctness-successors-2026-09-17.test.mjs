@@ -80,7 +80,7 @@ test('correctness-specific negative controls remain explicit', () => {
 test('downstream projections remain closed and alignment drift stays independent', () => {
   assert.equal(wave.projection.huggingFace, 'NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED');
   assert.equal(wave.projection['a-11-oy.com'], 'NO_CAPABILITY_CHANGE_FROM_DISCOVERY');
-  assert.equal(wave.projection.a11oy.net, 'EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION');
+  assert.equal(wave.projection['a11oy.net'], 'EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION');
   assert.equal(wave.alignmentDependency.canonicalResidualAlignmentIssue, 'szl-holdings/szl-frontier#151');
   assert.equal(wave.alignmentDependency.state, 'INDEPENDENT_HOLD');
   assert.match(wave.alignmentDependency.note, /cannot close public-membership or proof drift/i);
