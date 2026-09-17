@@ -1,0 +1,187 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-17-integrity-successors",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "f2a4dc5d68159ba05444c8e3e48d592c54f3817b",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#175",
+  "predecessorWave": "szl-holdings/szl-frontier#174",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "sglang-safe-unpickler-exact-allowlists",
+      "priority": "P0",
+      "category": "deserialization-security",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "882577451e764a515df2a386a055012e8f075a16",
+      "upstreamPullRequest": 39858,
+      "observedMergedAt": "2026-09-17T08:09:56Z",
+      "sourceVerification": "GITHUB_EXACT_MERGE_SHA",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "SafeUnpickler previously admitted broad standard-library and multiprocessing module globals; upstream now uses exact-name allowlists and rejects unlisted globals by default.",
+        "The upstream regression explicitly rejects copyreg._reconstructor while preserving supported Python objects and tensor round trips, making this an execution-boundary hardening candidate rather than cosmetic churn."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream reports CPU deserialization regression tests passing.",
+        "Upstream did not run model-server or distributed tensor-transfer tests; source support is not a whole-runtime security receipt."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source, wheel/container and Python/runtime identities.",
+        "Inventory every SZL path that can deserialize untrusted, persisted or cross-process payloads and prove it reaches the constrained loader where intended.",
+        "Add positive round trips for admitted payload classes and negative fixtures for rejected standard-library, multiprocessing and gadget-like globals, malformed/truncated bytes and nested containers.",
+        "Prove no fallback path silently calls unrestricted pickle and run distributed-transfer/model-server regression where executable.",
+        "Keep unexercised paths UNQUALIFIED and preserve rollback to the incumbent exact runtime."
+      ]
+    },
+    {
+      "id": "sglang-flashinfer-trtllm-swiglu-clamp-correctness",
+      "priority": "P0",
+      "category": "moe-activation-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "aebae58b8c7894287a9ea8b5d844c65bbb58c9b2",
+      "upstreamPullRequest": 39920,
+      "observedMergedAt": "2026-09-17T07:25:18Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "The FlashInfer TRT-LLM MoE backend silently ignored swiglu_limit for model families that route their trained clamp semantics through that field.",
+        "Upstream GLM-5.3-Flash FP8 evidence reports GSM8K strict-match mean 0.9277 before versus 0.9360 after, matching the upstream Triton baseline mean 0.9360."
+      ],
+      "upstreamEvidenceBounds": [
+        "The upstream numbers are not SZL measurements and do not qualify other models, precisions, kernels or hardware.",
+        "The source change is scoped to FlashInfer TRT-LLM activation-parameter preparation and must be independently reached and measured."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang, FlashInfer/TRT-LLM, model, checkpoint, tokenizer, device and quantization identities.",
+        "Add activation-level fixtures proving the clamped SwiGLU formula and an executable known-bad predecessor control.",
+        "Compare fixed-seed logits/outputs against an independently correct backend for every admitted model/configuration that uses swiglu_limit; separately prove explicit gemm1_clamp_limit retains priority.",
+        "Measure performance only after correctness closes and preserve rollback."
+      ]
+    },
+    {
+      "id": "sglang-mooncake-ssd-rank-isolation",
+      "priority": "P0",
+      "category": "cache-data-integrity",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "329ffc89b9129be3ef9135108cd74f7a699e819b",
+      "upstreamPullRequest": 31926,
+      "observedMergedAt": "2026-09-17T02:51:03Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Multiple Mooncake clients sharing one SSD offload directory can generate colliding bucket ids and O_CREAT|O_TRUNC can silently replace another rank's cache bytes.",
+        "The repair gives DP/TP/PP/attention-CP ranks private offload directories, converting a silent data-integrity hazard into isolated cache state."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream base and extra CI were reported green while an AMD lane was not green; those checks are not an SZL multi-rank storage receipt.",
+        "Existing root-level cached buckets become orphaned and should be treated as recomputable cache loss, never migrated as trusted state without proof."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang/Mooncake build, topology and storage configuration.",
+        "Construct deterministic same-second/restart multi-rank collision controls against a known-bad predecessor and prove unique DP/TP/PP/attention-CP paths after repair.",
+        "Verify byte-for-byte cache retrieval through concurrency, restart, cancellation and eviction; stale root data must miss/recompute instead of being reused across ranks.",
+        "Preserve rollback and never infer cache correctness from successful process startup alone."
+      ]
+    },
+    {
+      "id": "vllm-flashinfer-bf16-autotune-isolation",
+      "priority": "P1",
+      "category": "kernel-autotune-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "4e5ffda19d897f3c34455167dc0503620f1b3e2a",
+      "upstreamPullRequest": 57285,
+      "observedMergedAt": "2026-09-17T07:38:58Z",
+      "sourceVerification": "GITHUB_EXACT_MERGE_SHA",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "A supplemental 32-token FlashInfer BF16 warmup could leak its bounded tuning buckets into unrelated operations, allowing an MXFP8 drafter GEMM to reuse a low-M tactic outside its supported input.",
+        "Upstream B200 probes report correct MXFP8 bucket retention and cosine similarity 0.99930 after isolation, but full pytest and end-to-end model serving were not completed."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM, FlashInfer, CuTe/CUDA, device and model/runtime identities.",
+        "Add a deterministic cross-operation tuning-context fixture and known-bad predecessor control proving non-BF16 operations cannot inherit supplemental BF16 buckets.",
+        "Exercise cache persistence/reload and representative MXFP8 shapes against an independent numerical reference before any throughput claim.",
+        "Keep unexecuted device lanes UNAVAILABLE and preserve rollback."
+      ]
+    },
+    {
+      "id": "transformers-minimax-m2-partial-rope-parity",
+      "priority": "P0",
+      "category": "model-definition-correctness",
+      "upstreamRepository": "huggingface/transformers",
+      "upstreamRevision": "da9d2c460c24cd9b1ee215d6e824601b48fbf9d4",
+      "upstreamPullRequest": 48486,
+      "observedMergedAt": "2026-09-17T04:54:34Z",
+      "sourceVerification": "GITHUB_EXACT_MERGE_SHA",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Released MiniMax-M2 checkpoints use legacy rotary_dim=64 with head_dim=128 for partial RoPE, while the in-tree config previously left rotary_dim opaque and silently rotated the full head dimension.",
+        "Upstream reports mean KL 13.1 and cosine 0.02 versus a faithful reference over 2,048 tokens before the repair, a substantial semantic divergence."
+      ],
+      "requiredEvidence": [
+        "Bind exact Transformers wheel/source and exact checkpoint/config/tokenizer bytes.",
+        "Test legacy rotary_dim mapping, explicit partial_rotary_factor precedence and configs without the legacy field against an independent frequency/rotate-half reference.",
+        "Run an executable known-bad predecessor control and fixed-seed logits/output parity, including remote-code versus in-tree parity when legally and operationally available.",
+        "No generic Transformers qualification transfers; preserve rollback."
+      ]
+    },
+    {
+      "id": "trl-wrapped-packing-sliced-table-integrity",
+      "priority": "P0",
+      "category": "post-training-data-integrity",
+      "upstreamRepository": "huggingface/trl",
+      "upstreamRevision": "f78d649ebf12dc13aa88b2d9a1c0800564d654ed",
+      "upstreamPullRequest": 6670,
+      "observedMergedAt": "2026-09-17T05:04:26Z",
+      "sourceVerification": "GITHUB_EXACT_MERGE_SHA",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Wrapped sequence packing could size output from a sliced Arrow view but read token data from the underlying unsliced child buffer, silently repeating early dataset rows in later Dataset.map batches.",
+        "Row and token counts remain plausible, so training receipts based only on cardinality can miss the corruption."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream reports 10 targeted packing tests plus randomized reference comparisons and multi-process end-to-end checks.",
+        "Those tests do not establish whether any SZL training receipt used the affected wrapped-packing toolchain."
+      ],
+      "requiredEvidence": [
+        "Inventory every admitted SZL training/post-training recipe that used TRL wrapped packing and bind TRL, Datasets and PyArrow versions plus recipe/data revisions.",
+        "Add deterministic multi-batch content-hash and row-order fixtures covering sliced offsets, ragged/empty rows, multiple columns, list/large-list and multi-process map.",
+        "Require a known-bad predecessor to reproduce duplication and mark any affected historical training receipt NEEDS_REVALIDATION until rebuilt or replayed from exact input bytes.",
+        "Do not retroactively declare PASS from unchanged row/token counts."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#175",
+    "deterministicEvaluationAndTrainingAudit": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingDeserializationCacheAndRollback": "szl-holdings/szl-serve after prerequisite receipts",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentPullRequest": "szl-holdings/szl-frontier#159",
+    "state": "PARTIALLY_REPAIRED_INDEPENDENT_HOLD",
+    "githubSourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "productRuntimeRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "proofRecordCapturedAt": "2026-09-12T01:25:04Z",
+    "note": "GitHub and a-11-oy.com agree on the current A11oy source identity. The connected Hugging Face Space exists, but this wave does not infer its live runtime source identity from metadata alone. a11oy.net remains a dated measured proof record, so whole-chain closure remains HOLD."
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
