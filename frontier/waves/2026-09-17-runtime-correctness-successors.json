@@ -1,0 +1,116 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-17-runtime-correctness-successors",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "03dcae0a86df6056fe5ed8b02f26e57007d1cfcc",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#168",
+  "predecessorWave": "szl-holdings/szl-frontier#173",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-rocm-aiter-unquantized-cache-descale-correctness",
+      "priority": "P0",
+      "category": "rocm-attention-cache-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "19b6ff62f24d477a2760602b9e94eb6e4dd7dcdd",
+      "upstreamPullRequest": 56726,
+      "observedMergedAt": "2026-09-17T01:29:51Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "ROCM_AITER_FA could pass stale non-neutral K/V scale tensors as descales even when the KV cache was unquantized, corrupting attention output.",
+        "Upstream reproduced a post-reload MI300X InfoVQA collapse from the expected 0.952 to 0.000 and reports recovery to 0.952 after the repair, making this a correctness boundary rather than routine backend churn."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream reports one targeted ROCm backend test passing on MI300X plus a 4/4 InfoVQA reproduction with successful CUDA graph recaptures.",
+        "Those results are upstream evidence only and do not qualify other ROCm devices, cache precisions, AITER revisions, model families, reload paths, or SZL runtime composition."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/wheel/container digest, AITER revision/build, ROCm/driver/compiler, device SKU/topology, exact model/tokenizer/processor bytes, KV-cache dtype and every attention/backend flag.",
+        "Add an independent deterministic negative fixture with deliberately non-neutral stale scale tensors proving unquantized caches ignore descales while FP8 caches continue to consume the intended scales.",
+        "Exercise initial load, dummy-weight initialization, real-weight reload, CUDA-graph recapture, eager execution, sliding-window cache and representative concurrency; compare logits or deterministic task outputs to an independent reference/backend.",
+        "Require a known-bad predecessor control when executable so the sentinel demonstrates it can detect the failure rather than merely recording a healthy candidate score.",
+        "Keep non-executed hardware/configuration lanes UNAVAILABLE or UNQUALIFIED and preserve rollback to the incumbent exact runtime."
+      ]
+    },
+    {
+      "id": "sglang-kda-prefill-async-proxy-fence",
+      "priority": "P0",
+      "category": "gpu-memory-ordering-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "0443e3179fa9feada0b90e03be8567218fedad47",
+      "upstreamPullRequest": 39124,
+      "observedMergedAt": "2026-09-17T01:37:20Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "The KDA prefill path wrote shared memory through the generic proxy and consumed it through tcgen05 async machinery without the required proxy fence, allowing a hardware ordering race on SM103.",
+        "Upstream A/B stress evidence reports large mismatch rates for the unfenced path and zero mismatches for the fenced path across the exercised shapes; incorrect output or device faults are therefore possible without the repair."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream reports B300/SM103 A/B stress evidence: fenced 0/100 mismatches in each tested shape while the deliberately unfenced variant mismatched frequently.",
+        "Upstream explicitly notes a CPU test cannot exercise this hardware memory-ordering rule and a race-provocation regression is nondeterministic; its CI state is not an SZL hardware receipt."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang/JIT source, emitted kernel/module digest, CUDA/driver/compiler/toolchain identity and exact SM103 device topology.",
+        "Use a deterministic structural/kernel witness proving fence.proxy.async.shared::cta exists at the required ordering point, then pair it with bounded repeated hardware stress using fixed inputs and a separately computed reference result.",
+        "Record mismatch distributions and device-fault outcomes for candidate and an intentionally fence-removed negative control built from the same source boundary; do not turn probabilistic absence of a race into PASS by itself.",
+        "Exercise all admitted KDA prefill shapes/prefix-composition paths, worker restart, cancellation and CUDA graph/eager modes that reach the kernel; unexecuted paths remain UNQUALIFIED.",
+        "Preserve rollback and do not claim performance improvement because upstream makes no speed claim."
+      ]
+    },
+    {
+      "id": "sglang-hicache-mxfp8-scale-roundtrip",
+      "priority": "P0",
+      "category": "kv-cache-tiering-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "4c85172f3a05d7959a69f8179587b6ac92494d06",
+      "upstreamPullRequest": 39089,
+      "observedMergedAt": "2026-09-17T01:40:27Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "HiCache host backup/restore for MXFP8 KV payloads previously omitted the separate UE8M0 scale buffers and undercounted host-pool bytes, so restored pages could use unrelated device-row scales.",
+        "The repair adds an MXFP8-aware host pool, transfers scale bytes with payload state, accounts for their capacity, and rejects unsupported layout/storage combinations instead of silently proceeding."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream reports bit-exact payload+scale D2H/H2D round trips and shape-matched host-restore versus device-hit output with zero per-token logprob difference on its tested four-rank setup.",
+        "Upstream base CI was green but extra/AMD lanes were not fully green in the PR state; no throughput claim was made and no SZL qualification is inherited."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang/JIT source and runtime image, accelerator/runtime identities, KV format/layout, page size, HiCache settings and exact model/tokenizer source.",
+        "Add deterministic payload-and-scale round-trip fixtures with poisoned destination scale rows so a missing scale restore cannot accidentally pass; verify host-pool byte accounting and capacity boundaries independently.",
+        "Prove unsupported page layout, I/O backend, scale layout and L3 flat-page operations fail explicitly rather than falling back to lossy storage behavior.",
+        "Run fixed-seed device-hit versus host-restore token/logit parity through eviction, repeated restore, mixed batches, cancellation and worker restart on every hardware lane actually admitted.",
+        "Preserve existing non-MXFP8 HiCache behavior and rollback; benchmark overhead only after correctness is closed."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#168",
+    "deterministicEvaluation": "szl-holdings/szl-forge#331",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge#105",
+    "servingAndRollback": "szl-holdings/szl-serve after prerequisite correctness receipts",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentPullRequest": "szl-holdings/szl-frontier#159",
+    "state": "PARTIALLY_REPAIRED_INDEPENDENT_HOLD",
+    "note": "Fresh GitHub, canonical Hugging Face runtime, and a-11-oy.com reads agree on A11oy revision 43058398fb8ea346a7bd977f1a35391aeec1bf1a, but dated a11oy.net inventory/proof predicates still block whole-chain closure. Runtime candidate evaluation cannot override that hold."
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
