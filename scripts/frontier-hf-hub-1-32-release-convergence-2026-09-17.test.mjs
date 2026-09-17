@@ -52,5 +52,5 @@ test('provider, cost, projection and production authority remain closed', () => 
   assert.equal(wave.policyOrProtectionWeakened, false);
   assert.equal(wave.projection.huggingFace, 'NO_PROVIDER_WRITE_OR_RUNTIME_PROJECTION_FROM_RELEASE_DISCOVERY');
   assert.equal(wave.projection['a-11-oy.com'], 'NO_CAPABILITY_CHANGE_UNTIL_EXACT_DEPENDENCY_AND_RUNTIME_READBACK');
-  assert.equal(wave.projection.a11oy.net, 'MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION');
+  assert.equal(wave.projection['a11oy.net'], 'MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION');
 });
