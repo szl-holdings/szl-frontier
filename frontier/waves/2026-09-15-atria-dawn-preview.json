@@ -1,0 +1,60 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-15-atria-dawn-preview",
+  "priority": "P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "81d787df65791384b5629ca1b80b4c3f179eef3c",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#166",
+  "candidate": {
+    "publisher": "InternLM / Atria",
+    "category": "frontier-agentic-scientific-model",
+    "huggingFaceRepository": "internlm/Atria-Dawn-Preview",
+    "weightBearingRevision": "d0c6b46bc1ae6f63b47c32bfed8a674c2bbb9f04",
+    "initialWeightConfigRevision": "1d52e98c830f1194c6bddd8ddd745727ee16cb9d",
+    "architecture": "glm_moe_dsa",
+    "parameterCountApprox": "753B",
+    "license": "MIT",
+    "paper": "arXiv:2609.15818",
+    "observedAt": "2026-09-15T19:38:51Z",
+    "productionDisposition": "HOLD"
+  },
+  "upstreamClaimsAreEvidence": false,
+  "materiality": [
+    "agentic scientific and engineering workflow positioning with verified tool-interaction training",
+    "very large sparse-MoE model footprint requiring explicit feasibility and cost gating",
+    "text-only model interface with documented long-context agent integration",
+    "direct relevance to governed tool-use, evidence-chain and long-horizon evaluation"
+  ],
+  "deduplication": {
+    "canonicalAtriaEntryPreviouslyFound": false,
+    "openEstateIssueOrPrPreviouslyFound": false,
+    "inheritsQualification": false
+  },
+  "requiredEvidence": [
+    "Bind the evaluation to Hugging Face revision d0c6b46bc1ae6f63b47c32bfed8a674c2bbb9f04 or create a successor wave for any later exact revision; retain config, tokenizer and chat-template hashes actually consumed.",
+    "Do not download or rehost approximately 753B weights merely for inventory; local-weight execution without a justified capacity-checked lane is UNAVAILABLE.",
+    "If an official remote endpoint is evaluated, bind provider/model endpoint identity, request schema, observation time and provider-exposed revision identity; remote endpoint behavior does not prove the Hub weight revision without source binding.",
+    "Run deterministic agent fixtures for evidence retrieval, code execution, exact tool-call arguments, abstention, long-horizon state retention, tool failure recovery and explicit human approval boundaries.",
+    "Run prompt-injection and tool-output-injection fixtures proving that model text and tool output cannot grant new execution authority.",
+    "Benchmark against named incumbent baselines under identical fixtures, context, token/tool budgets and scoring rules; upstream paper scores remain upstream claims.",
+    "Verify text-only modality handling so references to images, PDFs or unavailable attachments cannot become fabricated observations.",
+    "Record cost, latency, cancellation, rollback/fallback, licensing and provenance receipts before any route or product claim is considered."
+  ],
+  "evaluationOwners": {
+    "canonicalAdmission": "szl-holdings/szl-frontier#166",
+    "modelAndAgentEvaluation": "szl-holdings/szl-forge",
+    "governedProposalBoundary": "szl-holdings/a11oy",
+    "toolPolicyBoundary": "szl-holdings/hatun-mcp",
+    "proofProjection": "szl-holdings/a11oy-net"
+  },
+  "projection": {
+    "huggingFace": "NO_SZL_REHOST_OR_RUNTIME_PROJECTION_FROM_INTAKE",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "MEASURED_EXACT_SOURCE_RECEIPTS_ONLY_AFTER_EVALUATION"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}
