@@ -1,0 +1,132 @@
+{
+  "schema": "szl.frontier.wave/v1",
+  "id": "2026-09-14-hf-hub-sandbox-security-successor",
+  "observedAt": "2026-09-14T20:07:26Z",
+  "sourceRevisionObserved": "ae0109a44890a268bd72c2e60f3ab09fbdae34d5",
+  "disposition": "EVALUATION",
+  "productionAuthorized": false,
+  "automaticPromotionAuthorized": false,
+  "candidate": {
+    "publisher": "Hugging Face",
+    "repository": "huggingface/huggingface_hub",
+    "version": "post-1.31-mainline-sandbox-security",
+    "releasePublished": false,
+    "clusterStartCommit": "1fb5b3b3216c9d164e78a7e0312b3c2b1ffbdbc0",
+    "exactHeadCommit": "1173050bc71b78c95a7a441796f07d49e8bc7b87",
+    "headCommitPublishedAt": "2026-09-14T12:33:31Z",
+    "headCommitSignatureVerified": true,
+    "headCommitSignatureReason": "valid",
+    "ancestry": {
+      "status": "ahead",
+      "headAheadOfClusterStartBy": 7,
+      "headBehindClusterStartBy": 0
+    }
+  },
+  "constituentCommits": [
+    {
+      "revision": "1fb5b3b3216c9d164e78a7e0312b3c2b1ffbdbc0",
+      "upstreamPullRequest": 4832,
+      "contract": "per-sandbox capability token replaces host-wide credential on sandbox-scoped operations"
+    },
+    {
+      "revision": "ef2662fac2bca2e4c0d2aaadbcc2b99a05b3922a",
+      "upstreamPullRequest": 4834,
+      "contract": "pool host is backend-validated before credential-bearing adoption"
+    },
+    {
+      "revision": "40efc5e89b4f3881059f72cefcc0550f33a86cc1",
+      "upstreamPullRequest": 4838,
+      "contract": "pool cache is endpoint-principal-namespace bound and cached transport URLs cannot redirect credentials"
+    },
+    {
+      "revision": "0613ead586fb5897052db1edf26da49caa2a83b8",
+      "upstreamPullRequest": 4839,
+      "contract": "command output and file transfer allocations are bounded or streamed"
+    },
+    {
+      "revision": "c7e60d81a4959841ea9008191841d632510056b4",
+      "upstreamPullRequest": 4840,
+      "contract": "pool teardown follows per-host ownership, drains in-flight create, and reports cancellation failure"
+    },
+    {
+      "revision": "ec619930857c9eefbc7b21d5646b55e209cf13db",
+      "upstreamPullRequest": 4836,
+      "contract": "background process kill addresses the server-assigned opaque id rather than observational OS pid"
+    },
+    {
+      "revision": "0219ad56d42318411bb04f6f95688ead7f78568f",
+      "upstreamPullRequest": 4837,
+      "contract": "sandbox server binary is digest-pinned, verified before execution, and protocol compatibility is checked"
+    },
+    {
+      "revision": "1173050bc71b78c95a7a441796f07d49e8bc7b87",
+      "upstreamPullRequest": 4835,
+      "contract": "CLI steers secrets away from argv and corrects environment-versus-secret channel guidance"
+    }
+  ],
+  "materialChanges": [
+    "narrows pooled-sandbox credential authority from host-wide management capability to per-sandbox tokens for scoped calls",
+    "rejects forged or context-mismatched discovered hosts and cached transports before credentials are sent",
+    "bounds client memory exposure from runaway command output and large sandbox file transfers",
+    "makes pool ownership and teardown failure explicit instead of cancelling discovered hosts or silently losing failed-cancel state",
+    "repairs process termination semantics so successful API response cannot mask a still-running background process",
+    "replaces mutable root-executed sandbox-server bootstrap identity with a digest-addressed verified binary plus protocol gate",
+    "reduces CLI secret exposure through argv and fixes documentation that could route secrets into the environment channel"
+  ],
+  "deduplication": {
+    "stableReleaseWave": "frontier/waves/2026-09-10-hf-hub-131-stable.json",
+    "stableTrackingIssue": 74,
+    "stableVersion": "1.31.0",
+    "stableReleaseCommit": "495b17c8529614759ae0f1ccf1ebe9a61c148b7c",
+    "stableToSuccessorComparison": "DIVERGED_DO_NOT_INHERIT_QUALIFICATION",
+    "checkpointSecurityWave": "frontier/waves/2026-09-11-hf-hub-checkpoint-deserialization-hardening.json",
+    "trackingIssue": 145,
+    "implementationOwner": {
+      "repository": "szl-holdings/szl-forge",
+      "issue": 322
+    },
+    "exactSuccessorPreviouslyCataloged": false,
+    "classification": "unreleased-sandbox-security-successor"
+  },
+  "authorityChain": {
+    "githubSource": "exact unreleased cluster admitted for bounded evaluation only",
+    "huggingFaceProjection": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "productRuntime": "UNCHANGED: no a-11-oy.com capability or runtime claim follows from source admission",
+    "proofEvidence": "HOLD: a11oy.net may publish only immutable measured evaluation evidence after execution"
+  },
+  "policy": {
+    "billableSandboxJobCreationAuthorized": false,
+    "liveSandboxProbeAuthorized": false,
+    "hubPublicationAuthorized": false,
+    "providerWriteAuthorized": false,
+    "productionRouteChangeAuthorized": false,
+    "productionDependencyUpgradeAuthorized": false,
+    "movingMainProductionPinAuthorized": false,
+    "secretFixtureUseAuthorized": false,
+    "weightRehostingAuthorized": false,
+    "branchProtectionMutationAuthorized": false,
+    "preserveStable131Rollback": true,
+    "preserveLicensing": true,
+    "preserveProvenance": true,
+    "preserveRollback": true,
+    "preserveReceipts": true
+  },
+  "requiredEvidence": [
+    "exact install/source identity for 1173050bc71b78c95a7a441796f07d49e8bc7b87 and explicit membership of all eight security-significant constituent commits",
+    "deterministic fake-server proof that one sandbox capability cannot operate on another sandbox or host management routes",
+    "zero-request hostile-host/cache negative tests proving mismatched initiator, namespace, image, flavor, bootstrap, URL, endpoint or principal is rejected before credential transmission",
+    "bounded-output and bounded-read negative cases plus streaming upload/download cases under explicit local resource ceilings",
+    "opaque-process-id kill witness including refusal when a compatible opaque id is unavailable",
+    "ownership-aware close witness covering locally booted host cancellation, discovered-host non-cancellation, in-flight create drain, and retained discoverability after cancellation failure",
+    "sandbox-server bootstrap witness for expected digest, corrupted digest, absent hash tooling, protocol mismatch and no execution before successful verification",
+    "synthetic secret-path tests proving governed usage can avoid secret values in argv and receipts",
+    "rollback witness to the existing stable 1.31 evaluation baseline"
+  ],
+  "remainingGates": [
+    "execute the exact-cluster deterministic security lane in szl-holdings/szl-forge#322 under normal controls",
+    "do not execute a live Hugging Face Job or Sandbox without a separate bounded cost-authorized follow-up and exact teardown/readback evidence",
+    "wait for a released successor before proposing production dependency convergence; never pin moving main as a production default",
+    "qualify any actual consumer repository independently against the released exact source before projection",
+    "publish a11oy.net proof only from immutable measured evidence and never from this source record alone"
+  ]
+}
