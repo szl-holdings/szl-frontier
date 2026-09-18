@@ -1,0 +1,73 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-14-vllm-adaptive-acceptance-estimator",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "ae0109a44890a268bd72c2e60f3ab09fbdae34d5",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#134",
+  "candidate": {
+    "publisher": "vLLM",
+    "category": "inference-speculative-decoding-adaptive-verification",
+    "upstreamRepository": "vllm-project/vllm",
+    "upstreamRevision": "3bb0a03f35269185b6358753e64932bb946cc531",
+    "observedAt": "2026-09-14T22:58:48Z",
+    "change": "Model Runner V2 adds an online per-position acceptance estimator for adaptive speculative verification, allowing draft-logit-derived acceptance estimates when a trained confidence head is unavailable.",
+    "releaseState": "UNRELEASED_MAIN_SUCCESSOR_WATCH",
+    "productionDisposition": "HOLD"
+  },
+  "deduplication": {
+    "deepSeekV41CanonicalOwner": "szl-holdings/szl-frontier#134",
+    "deepSeekV41AdmissionWave": "2026-09-14-deepseek-v4-1-flash",
+    "executionHandoffMergedPr": "szl-holdings/szl-frontier#138",
+    "forgeOwner": "szl-holdings/szl-forge#310",
+    "serveOwner": "szl-holdings/szl-serve#9",
+    "gpuBridgeOwner": "szl-holdings/szl-gpu-bridge#102",
+    "exactSourcePreviouslyAdmitted": false,
+    "inheritsDeepSeekQualification": false,
+    "inheritsVllm029Qualification": false
+  },
+  "runtimeContract": {
+    "estimator": "OnlineAcceptanceEstimator",
+    "feature": "per-position draft-distribution log-odds mapped to acceptance probability and calibrated online while serving",
+    "adaptiveBudget": "verification slots are admitted under the existing adaptive cost budget rather than a fixed speculative depth",
+    "confidenceHeadRelationship": "trained DSpark confidence head remains authoritative when available; estimator is the successor path when adaptive verification lacks that head",
+    "fullCudagraphRequired": true,
+    "loraSupported": false,
+    "pipelineParallelSupported": false,
+    "attentionBackendMustSupportDeviceDecidedQueryLengths": true
+  },
+  "upstreamDocCodeDrift": {
+    "observed": true,
+    "documentationStatement": "Adaptive verification is currently documented as supported only for DSpark with a confidence head.",
+    "codeObservation": "Current source contains an acceptance-estimator path used when adaptive verification is enabled and disables it when a trained DSpark confidence head is present.",
+    "classification": "UPSTREAM_DOC_CODE_DRIFT_REQUIRES_EXACT_SOURCE_BEHAVIOR_TEST_NOT_CAPABILITY_CLAIM"
+  },
+  "evaluationOwners": {
+    "canonicalAdmission": "szl-holdings/szl-frontier#134",
+    "modelAndRuntimeEvaluation": "szl-holdings/szl-forge#310",
+    "servingProtocolAndRollback": "szl-holdings/szl-serve#9",
+    "acceleratorAndMemoryClosure": "szl-holdings/szl-gpu-bridge#102",
+    "productProjection": "szl-holdings/a11oy",
+    "proofProjection": "szl-holdings/a11oy-net"
+  },
+  "requiredEvidence": [
+    "Bind vLLM exact revision 3bb0a03f35269185b6358753e64932bb946cc531 for feature evaluation; any later runnable revision must be separately exact-pinned and may not inherit qualification silently.",
+    "Reproduce acceptance-estimator slot-to-batch mapping, cudagraph padded-row isolation, probability calculation and online refit behavior with deterministic CUDA fixtures.",
+    "Compare adaptive-estimator verification with the existing full-block baseline under fixed prompts, seeds and exact model bytes; prove emitted-output correctness before measuring speed.",
+    "Measure accepted and rejected token accounting, estimator calibration error, throughput and latency across concurrency/load regimes without converting upstream behavior into an SZL performance claim.",
+    "Prove fail-fast behavior for enforce-eager or missing full cudagraph support, LoRA, pipeline parallelism and attention backends that cannot tolerate device-decided query lengths.",
+    "Exercise cancellation, request removal/reordering, cudagraph padding, restart, estimator cold start and rollback to the incumbent non-adaptive path.",
+    "Treat the upstream documentation/code support disagreement as an evidence gap: runtime behavior and exact tests govern qualification, not the broader inferred capability.",
+    "Preserve the exact DeepSeek V4.1 model/protocol/artifact gates in Frontier #134; this runtime successor cannot authorize the model or provider route independently."
+  ],
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "MEASURED_RECEIPTS_ONLY_AFTER_EVALUATION"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}
