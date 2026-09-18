@@ -1,0 +1,70 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-17-hf-hub-1-32-release-convergence",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "53e05d138e3e54232b66adf4a745a7ae3bcb71ed",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#74",
+  "securitySuccessorIssue": "szl-holdings/szl-frontier#145",
+  "executionOwner": "szl-holdings/szl-forge#322",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "release": {
+    "upstreamRepository": "huggingface/huggingface_hub",
+    "version": "1.32.0",
+    "annotatedTagObject": "917e4c271db593cd0f5e019d7da35620acd69573",
+    "releaseCommit": "8814aabc81298df547bece9e71e4e88d3e513928",
+    "publishedAt": "2026-09-17T10:21:24Z",
+    "tagVerification": "UNSIGNED",
+    "releaseCommitVerification": "UNSIGNED",
+    "inheritsQualification": false,
+    "productionDisposition": "HOLD",
+    "rollbackBaseline": "huggingface_hub 1.31.0 exact previously governed source",
+    "materiality": [
+      "The previously governed post-1.31 Sandbox security sequence is now contained in a stable release source, giving the moving-main watch an immutable convergence target without transferring qualification automatically.",
+      "The release also introduces shared cross-repository Xet blob storage through symlinks, hardened torch checkpoint deserialization and repository-path validation, first-class kernel cache handling, Jobs UV launch configuration and additional deployment/cache boundaries that affect provenance, filesystem and credential assumptions."
+    ],
+    "requiredEvidence": [
+      "Bind the annotated tag object, peeled release commit, exact built/installed wheel digest and Python/platform identity; preserve the unsigned tag/commit observation explicitly.",
+      "Re-run the deterministic Sandbox security contract owned by Frontier #145 / Forge #322 against the stable 1.32.0 artifact rather than inheriting the earlier moving-main result.",
+      "Exercise shared-blob cache creation/reuse/removal/prune with exact content identities, cross-repo references, concurrent readers, repo deletion, stale refs, read-only and symlink-denied filesystems; prove fallback never corrupts or aliases unrelated bytes.",
+      "Exercise checkpoint loading defaults and negative pickle/path traversal fixtures, kernel-repo cache/download handling and Jobs UV launch-config validation using synthetic secrets only.",
+      "Preserve v1.31 exact source as rollback until all actually consumed 1.32 paths close under owning-repository controls; unexercised features remain UNQUALIFIED."
+    ]
+  },
+  "postReleaseWatch": {
+    "id": "hf-hub-symlink-probe-publication-race",
+    "upstreamRepository": "huggingface/huggingface_hub",
+    "upstreamRevision": "618250b65875d388dc269752b111d5e4bf4ffb61",
+    "upstreamPullRequest": 4923,
+    "observedMergedAt": "2026-09-17T11:53:37Z",
+    "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+    "containedInRelease1320": false,
+    "inheritsQualification": false,
+    "productionDisposition": "WATCH_HOLD",
+    "materiality": "The post-release repair stops marking a cache directory symlink-capable before the filesystem probe succeeds; v1.32 shared-blob storage relies on symlink capability and therefore cannot silently inherit this later fix.",
+    "requiredEvidence": [
+      "Run a deterministic concurrent/first-use probe on a filesystem where symlink creation is denied and prove the candidate never publishes a transient true capability.",
+      "Run the immediate v1.32.0 source as a known-bad control where executable and prove the sentinel distinguishes the premature publication behavior.",
+      "Verify shared-blob fallback remains repo-local and byte-correct when symlinks are unavailable, with no extra provider download or cache corruption claim inferred from source inspection.",
+      "Do not fold this post-release commit into a v1.32.0 qualification receipt; a later release or exact-source successor must be separately bound."
+    ]
+  },
+  "deduplication": {
+    "stable131Owner": "szl-holdings/szl-frontier#74",
+    "sandboxMovingMainOwner": "szl-holdings/szl-frontier#145",
+    "sandboxExecutionOwner": "szl-holdings/szl-forge#322",
+    "note": "This wave converges those existing records on stable 1.32.0 and does not create a second Sandbox or Hub base admission."
+  },
+  "projection": {
+    "huggingFace": "NO_PROVIDER_WRITE_OR_RUNTIME_PROJECTION_FROM_RELEASE_DISCOVERY",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_UNTIL_EXACT_DEPENDENCY_AND_RUNTIME_READBACK",
+    "a11oy.net": "MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "providerWriteAuthorized": false,
+  "billableJobOrSandboxAuthorized": false,
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
