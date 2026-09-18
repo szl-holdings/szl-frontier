@@ -1,0 +1,116 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-17-late-correctness-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "53e05d138e3e54232b66adf4a745a7ae3bcb71ed",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#177",
+  "predecessorWave": "szl-holdings/szl-frontier#176",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "transformers-assisted-sliding-window-cache-correctness",
+      "priority": "P0",
+      "category": "speculative-decoding-cache-correctness",
+      "upstreamRepository": "huggingface/transformers",
+      "upstreamRevision": "12b6da1f12517dace0169e86116963137d2c5428",
+      "upstreamPullRequest": 48280,
+      "observedMergedAt": "2026-09-17T10:21:12Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Past-recording sliding-window caches could return more KV columns than the advertised attention-mask width during multi-token assisted/speculative draft bursts.",
+        "Upstream documents eager mask/KV size failures and silent SDPA beyond-window attention divergence once sequences reach the sliding window, making this an output-correctness boundary rather than routine cache refactoring."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream reports a fail-before/pass-after layer regression, an end-to-end assisted-decoding parity fixture, a multi-token eager crash reproduction, five cache-cropping tests and 22 assisted-generation tests passing with three skips.",
+        "Those tests are upstream evidence only and do not qualify SZL model/assistant identities, attention backends, cache implementations, serving cancellation, concurrency or rollback."
+      ],
+      "requiredEvidence": [
+        "Bind exact Transformers source/wheel/container plus exact target model, assistant model, tokenizer, generation configuration, attention backend and cache settings.",
+        "Add a deterministic known-bad predecessor fixture that proves recorded consecutive uncropped updates return over-wide KV while the candidate returns exactly the get_mask_sizes-advertised visible suffix.",
+        "Run fixed-seed greedy-versus-assisted output/logit parity after crossing the sliding-window boundary under eager and SDPA, including multi-token draft bursts and rejection/crop behavior.",
+        "Exercise cancellation, worker restart/cache reset, repeated requests and non-recording cache updates; prove the non-recording path remains unchanged.",
+        "Preserve rollback to the incumbent exact runtime and keep unexercised model/backend lanes UNQUALIFIED."
+      ]
+    },
+    {
+      "id": "vllm-xgrammar-choice-control-character-correctness",
+      "priority": "P0_P1",
+      "category": "structured-output-grammar-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "75c71390d5b399f5397a9166920fc45902f99f14",
+      "upstreamPullRequest": 48115,
+      "observedMergedAt": "2026-09-17T12:57:47Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "The xgrammar choice-to-EBNF path escaped quotes and backslashes but did not safely encode raw C0 control characters and DEL, so a requested literal choice could compile into a different grammar language or fail validation.",
+        "Structured choices can represent exact tool/action arguments; changing or rejecting their literal language is therefore a governed protocol-correctness boundary."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream adds coverage across every C0 codepoint plus DEL, multiline choices, quotes, backslashes and Unicode, including served validation conversion.",
+        "Upstream source tests do not qualify SZL's complete serving stack, xgrammar package identity, concurrency/error behavior or tool-authorization boundary."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image/package and xgrammar package/build identities used in evaluation.",
+        "Use a deterministic independent literal-language oracle over C0/DEL, LF/CR/tab, quotes, backslashes, non-ASCII and multiline values; include the known-bad predecessor as a negative control.",
+        "Assert the exact intended literal is accepted while shortened, raw-escape and alternate-Unicode lookalikes are rejected, both through direct grammar construction and the actual served structured-output request path.",
+        "Exercise malformed/oversized choice input, validation failure, cancellation, concurrency and restart; no failure may silently fall back to unconstrained generation.",
+        "Preserve tool/human-approval authority independently of grammar validity and keep rollback to the incumbent exact serving path."
+      ]
+    },
+    {
+      "id": "peft-delete-active-adapter-fallback-trainability",
+      "priority": "P0",
+      "category": "adapter-training-correctness",
+      "upstreamRepository": "huggingface/peft",
+      "upstreamRevision": "451a247e9695c1d950093e24e3cab71190db0f64",
+      "upstreamPullRequest": 3743,
+      "observedMergedAt": "2026-09-17T10:52:40Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Deleting an active adapter can activate a fallback whose modules_to_save copy remains frozen, so the runtime reports an active training adapter while intended parameters do not receive gradients.",
+        "The same trainability re-synchronization gap existed for ShadowPEFT backbone/projection/head state; this is a training-integrity successor to the already-governed PEFT v0.21 boundary."
+      ],
+      "upstreamEvidenceBounds": [
+        "Upstream adds focused modules_to_save and ShadowPEFT fallback trainability tests.",
+        "Focused upstream tests do not qualify SZL optimizer membership, checkpoint/save-load state, mixed adapter paths, exact package bytes or prior training receipts."
+      ],
+      "requiredEvidence": [
+        "Bind exact PEFT source/wheel, PyTorch/Transformers stack, target model bytes and every adapter configuration exercised.",
+        "Use a known-bad predecessor and deterministic delete-active/fallback fixtures with and without modules_to_save plus ShadowPEFT; assert active-adapter identity and exact requires_grad sets.",
+        "Prove intended fallback parameters are present in optimizer parameter groups, receive nonzero expected gradients and change after one fixed-seed step while frozen parameters remain unchanged.",
+        "Exercise save/load/delete/switch/hotswap interactions and failure/rollback cases, and rerun relevant PEFT v0.21 state-dict/modules_to_save gates without inheriting their qualification.",
+        "Inventory any SZL training receipt that used active-adapter deletion/fallback on an affected source and mark it NEEDS_REVALIDATION if exposure is demonstrated rather than retroactively passing it."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#177",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "servingAndStructuredOutput": "active serving owner after deterministic prerequisite receipts",
+    "trainingAndPostTraining": "szl-holdings/szl-forge",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "note": "The latest governed authority-chain evidence must remain separate from candidate qualification. Candidate source support cannot close public-membership or proof drift."
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
