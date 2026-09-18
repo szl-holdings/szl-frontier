@@ -1,0 +1,173 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-18-midday-cross-stack-integrity-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "b8e8f5a8146b3f8b6484db463646d1fdeb9e8047",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-18-late-runtime-integrity-successors",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "transformers-vibevoice-asr-long-audio-token-count",
+      "priority": "P0",
+      "category": "speech-asr-audio-token-count-correctness",
+      "upstreamRepository": "huggingface/transformers",
+      "upstreamRevision": "719d8090f4040de8563ccf05496419b212fb395f",
+      "upstreamPullRequest": 48864,
+      "observedCommitAt": "2026-09-18T13:32:30Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "primaryArtifact": "microsoft/VibeVoice-ASR-HF",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "VibeVoice-ASR counted padded audio samples with float32 division before ceil; beyond 2^24 samples, precision loss can undercount the model-visible audio-token length by one relative to the processor's integer/float64 expectation.",
+        "The repair uses exact integer ceiling division, making this a long-audio speech correctness boundary rather than a cosmetic arithmetic refactor."
+      ],
+      "requiredEvidence": [
+        "Bind exact Transformers package/source, VibeVoice-ASR checkpoint, processor/tokenizer, hop length, audio bytes/hash, dtype and device/runtime identity.",
+        "Build a known-bad predecessor oracle around sample counts immediately below/at/above 2^24 and hop-length boundaries; require processor and model audio-token counts to agree exactly on the candidate.",
+        "Exercise padded and unpadded batches, long-form audio including representative hour-scale inputs when resources permit, chunk/timestamp/diarization modes actually exposed, and cancellation/restart; compare transcript/token/timestamp results against the qualified baseline.",
+        "Do not rehost model weights for this evaluation; preserve rollback and mark unavailable full-model long-audio hardware UNAVAILABLE rather than transferring the arithmetic fixture PASS."
+      ]
+    },
+    {
+      "id": "peft-lora-hotswap-rank-alpha-pattern-scaling",
+      "priority": "P0",
+      "category": "adapter-hotswap-scaling-correctness",
+      "upstreamRepository": "huggingface/peft",
+      "upstreamRevision": "50a277e7c87db460ef7444055788f9da29f2da71",
+      "upstreamPullRequest": 3752,
+      "observedCommitAt": "2026-09-18T13:30:45Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "LoRA hotswap resolved rank_pattern and alpha_pattern against a full state-dict key instead of the module name used by normal loading, so matching patterns could be missed and scaling silently change even when reloading the same checkpoint.",
+        "The repair aligns hotswap pattern resolution with ordinary loading and adds compiled/rslora pattern regressions; live adapter switching therefore requires fresh equivalence evidence."
+      ],
+      "requiredEvidence": [
+        "Bind exact PEFT/Torch/Transformers versions, base-model bytes, every adapter/config hash, rank/alpha patterns, rslora state, compile mode and serving/training owner revision.",
+        "Known-bad control must show normal load versus hotswap scaling/output divergence for matching module-name patterns; candidate must reproduce the normal-load output across exact, regex-like and missing-target pattern cases.",
+        "Exercise A->B->A swaps, same-checkpoint reload, torch.compile prepared hotswap, rslora on/off, cancellation/failure/rollback and concurrent serving isolation where the owner exposes live swaps; no stale adapter may remain active after error.",
+        "Search historical SZL receipts for the affected hotswap lifecycle and mark demonstrated exposure NEEDS_REVALIDATION; package presence alone is not evidence of corruption."
+      ]
+    },
+    {
+      "id": "trl-kto-liger-ddp-wrapper-gradient-reduction",
+      "priority": "P0",
+      "category": "post-training-distributed-loss-gradient-correctness",
+      "upstreamRepository": "huggingface/trl",
+      "upstreamRevision": "03b22f5f93868a8aa73c5089ab99fbceb05ae144",
+      "upstreamPullRequest": 7247,
+      "observedCommitAt": "2026-09-18T13:05:04Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "KTO's Liger chunked projection reads lm_head.weight directly; when loss calculation bypassed a distributed wrapper forward, DDP gradient-reducer hooks could remain unarmed even though ZeRO-3/FSDP-specific paths were redirected.",
+        "The repair redirects whenever the model is wrapped (or FSDP is active), making this a distributed post-training gradient-integrity boundary."
+      ],
+      "requiredEvidence": [
+        "Bind exact TRL/Liger/Accelerate/Torch versions, KTO config, base checkpoint, dataset fixture, seed, topology and accelerator/runtime identities.",
+        "Reproduce the predecessor under DDP with a deterministic tiny model and compare single-process oracle versus DDP loss, lm_head gradients and one optimizer update; candidate must agree within predeclared tolerances and prove reducer participation.",
+        "Repeat applicable controls under ZeRO-3, FSDP/FSDP2, gradient accumulation, checkpoint/resume, rank failure/restart and uneven/empty local batches; unsupported topology remains UNAVAILABLE.",
+        "No historical training receipt inherits qualification; demonstrate affected KTO+Liger+distributed exposure before marking any prior receipt NEEDS_REVALIDATION, and preserve rollback to the qualified trainer path."
+      ]
+    },
+    {
+      "id": "diffusers-disk-offload-compute-stream-lifetime",
+      "priority": "P0",
+      "category": "multimodal-diffusion-offload-memory-data-integrity",
+      "upstreamRepository": "huggingface/diffusers",
+      "upstreamRevision": "a3e0b8ec235c27a6c17a21976daf7fd32d819d05",
+      "upstreamPullRequest": 14657,
+      "observedCommitAt": "2026-09-18T12:06:16Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Disk group offload could free onloaded device tensors while the compute stream still read them; allocator reuse could feed foreign data to an in-flight kernel and produce NaNs.",
+        "The candidate synchronizes before disk offload when a separate stream is used without record_stream, closing a device-memory lifetime boundary that affects generated media correctness."
+      ],
+      "requiredEvidence": [
+        "Bind exact Diffusers/Torch/accelerator versions, model/pipeline bytes, group-offload configuration, stream/record_stream settings, disk path/filesystem and seed/input hashes.",
+        "Reproduce the upstream VidTok-style known-bad disk-offload path under allocator reuse pressure; require the predecessor NaN/corruption sentinel and candidate finite deterministic result.",
+        "Compare disk offload, memory offload and no-offload outputs/latents across leaf/block modes, separate/default streams, record_stream true/false, repeated runs, cancellation and restart; correctness precedes throughput/memory claims.",
+        "Preserve exact output/latent hashes or declared numerical tolerances, clean temporary files on failure, retain rollback and mark missing accelerator/offload capacity UNAVAILABLE."
+      ]
+    },
+    {
+      "id": "vllm-tritonmla-causal-multitoken-decode-memory-safety",
+      "priority": "P0",
+      "category": "attention-kernel-memory-safety-causal-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "32636580a6f1c3bc41deefc4bf7800f850c24034",
+      "upstreamPullRequest": 51065,
+      "observedCommitAt": "2026-09-18T08:49:53Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "TritonMLA multi-token decode needs one block-table and sequence-length row per query token; without correct flattening/causal per-row extents the decode kernel can read outside metadata rows or let a verify token attend future draft siblings.",
+        "The repair expands metadata, assigns causal prefix-plus-position lengths, keeps padding at zero, and explicitly refuses causal multi-token decode under DCP where local sequence lengths make that arithmetic unsafe."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, model/MLA configuration, Triton/Torch/CUDA-or-ROCm versions, query length, page size, graph mode, DCP/TP topology and accelerator identity.",
+        "Run the immediate predecessor as a known-bad metadata/kernel sentinel for causal multi-token query lengths 2,3,4,5,8; candidate must expand block_table/seq_lens per q row and enforce prefix-plus-own-position causality with zero KV extent on padding rows.",
+        "Exercise non-causal and single-token controls, cudagraph padding, request concurrency/reordering, cancellation/restart, malformed/non-uniform blocks and explicit DCP causal rejection; unsupported combinations must fail before kernel launch.",
+        "Where hardware exists, add memory-safety/poison-canary execution plus logits/output parity against a trusted attention oracle; preserve rollback and never infer GPU safety from metadata-only unit tests."
+      ]
+    },
+    {
+      "id": "hf-hub-http-get-positioned-file-integrity",
+      "priority": "P0_P1",
+      "category": "artifact-download-file-integrity",
+      "upstreamRepository": "huggingface/huggingface_hub",
+      "upstreamRevision": "0ba990ae4b7974f68d281064aca4bb1b1cc61ad0",
+      "upstreamPullRequest": 4937,
+      "observedCommitAt": "2026-09-18T09:02:31Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "http_get measured expected size from the file object's absolute position, so a caller-supplied file already positioned after its own bytes failed consistency checks even when the downloaded payload was correct.",
+        "If a server ignored Range, predecessor recovery could seek to byte zero and truncate caller-owned prefix bytes; the repair rewinds only to the download start and measures bytes downloaded by the call."
+      ],
+      "requiredEvidence": [
+        "Bind exact huggingface_hub source/package, HTTP fixture response bytes, Range behavior, destination-file prefix/suffix bytes and filesystem semantics used by the consuming owner.",
+        "Known-bad controls must cover a nonzero initial file position with Range honored and Range ignored; verify predecessor consistency failure and/or prefix truncation, then require candidate preservation of all caller-owned bytes plus exact downloaded payload hash.",
+        "Exercise retries/resume, append/update modes, expected-size mismatch, partial reads, network failure, cancellation and restart; an error must preserve preexisting bytes and must not convert an incomplete artifact to success.",
+        "Do not bump a production Hub dependency from this discovery alone; qualify the exact consuming path, preserve v1.32 rollback where applicable, and publish only exact artifact/runtime receipts after normal source admission."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active serving owner",
+    "trainingIntegrationAfterQualification": "active training/post-training owner",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "observedA11oySourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "sourceRuntimeProductIdentity": "REQUIRES_FRESH_SAME_WINDOW_RECHECK_FOR_WHOLE_CHAIN_CLOSURE",
+    "proofCapturedAt": "2026-09-12T01:25:04Z",
+    "proofCounts": {"models": 46, "datasets": 35, "spaces": 21},
+    "note": "Prior reads showed GitHub, canonical HF runtime and a-11-oy.com source identity agreement at the protected A11oy revision, while a11oy.net proof remained dated. This wave does not convert earlier different-window observations into a current whole-chain receipt."
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
