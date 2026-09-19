@@ -1,0 +1,217 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-18-evening-model-serving-integrity-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "10d88c01f174acddefaa0bf5f10c0ef8c9ffd63e",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-18-afternoon-runtime-training-successors",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-mistral-large3-yarn-attention-scale",
+      "priority": "P0",
+      "category": "model-rope-attention-scaling-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "2bdae2a5a83fe8e5640078a3d4bfe86cce323d0b",
+      "upstreamPullRequest": 57563,
+      "observedCommitAt": "2026-09-18T14:19:16Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Mistral-Large-3 with yarn.apply_scale=false could be adapted without attention_factor=1.0, selecting deepseek_yarn and applying a spurious yarn magnitude scale despite the model configuration explicitly disabling it.",
+        "Upstream classifies the result as an accuracy regression on main, so this is model arithmetic correctness rather than ordinary configuration churn."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/container, Mistral-Large-3 checkpoint/config/tokenizer revisions, Transformers/Torch/CUDA stack and the adapted rope_parameters actually executed.",
+        "Run the immediate predecessor as a known-bad control with yarn.apply_scale=false and preserve the adapted config plus selected attention-scaling path; prove the candidate emits attention_factor=1.0 and selects the non-yarn-magnitude path.",
+        "Compare short- and long-context logits and a deterministic held-out accuracy/perplexity slice against an independently executed reference; include apply_scale=true as a non-regression control.",
+        "Preserve rollback and do not promote the model/runtime from config-unit tests alone."
+      ]
+    },
+    {
+      "id": "vllm-dsv4-fused-moe-ep-expert-distribution",
+      "priority": "P0",
+      "category": "distributed-moe-expert-partition-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "017dced6a6fd3cf430e4686a47b354da1cadfbf5",
+      "upstreamPullRequest": 57465,
+      "observedCommitAt": "2026-09-18T15:17:07Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "DeepSeek-V4 NVIDIA fused-MoE expert ownership was derived from tensor-parallel rank/size instead of the expert-parallel process group, allowing TP and EP layouts to assign physical experts to the wrong ranks.",
+        "The successor derives local expert count and start/end indices from the EP group's world size and rank, making distributed topology part of the correctness contract."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, DeepSeek-V4 artifact/config, TP/EP/EPLB settings, redundant/shared expert counts, CUDA/NCCL/Torch versions and accelerator topology.",
+        "Run predecessor and candidate on a topology where TP size differs from EP size; record rank-to-physical-expert ownership and prove every logical/physical expert is assigned exactly once with no gaps or overlap.",
+        "Compare fused-MoE outputs/logits against an independently executed non-fused or otherwise qualified reference across routed/shared experts and redundant-expert settings.",
+        "Exercise invalid topology/divisibility, restart/rebalance and rollback before throughput or scaling claims."
+      ]
+    },
+    {
+      "id": "sglang-top1-moe-routed-scaling",
+      "priority": "P0",
+      "category": "moe-routing-numerical-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "7714b182f223bdcd1b376c6ade369d9c48dfb7ac",
+      "upstreamPullRequest": 40187,
+      "observedCommitAt": "2026-09-18T14:53:13Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "The top-k=1 fused MoE fast path could skip the intermediate reduction buffer even when routed_scaling_factor was non-unit, bypassing the stage that applies requested routed scaling.",
+        "The successor forces the intermediate path when scaling is not None/1.0, closing a silent numerical error."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/image, model/checkpoint, MoE backend, dtype/quantization, top-k, routed_scaling_factor, TP/EP topology and accelerator.",
+        "Use predecessor negative controls at top-k=1 with multiple non-unit factors and compare candidate outputs against an explicit post-route scaling reference; include top-k>1 and unit-scaling controls.",
+        "Exercise LoRA hooks present/absent, fused reduction variants, supported quantized/non-quantized paths and graph/eager execution.",
+        "Require finite outputs/logits within declared tolerances and preserve rollback before performance claims."
+      ]
+    },
+    {
+      "id": "sglang-mistral-common-tool-prompt-roundtrip",
+      "priority": "P0",
+      "category": "agent-tool-call-prompt-integrity",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "21e6c98ccbb3d85e716e7639786e7f6135c6d86c",
+      "upstreamPullRequest": 39773,
+      "observedCommitAt": "2026-09-18T23:12:06Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "mistral_common templates can emit control tokens without a faithful text form; rendering to text and re-encoding could corrupt control tokens and prepend another BOS, so tool_choice=auto never sees the intended tool framing.",
+        "The successor probes whether text round-trip is lossy and uses template-produced token IDs directly when safe."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/image, mistral_common/tokenizer package and model/tokenizer revisions, chat-template bytes, tool-schema hash and request settings.",
+        "Preserve predecessor render/re-encode and direct-token-id sequences for tool and no-tool prompts; prove candidate chooses IDs only when round-trip is lossy and never double-inserts BOS/control tokens.",
+        "Exercise tool_choice auto/required/none where supported, multiple tools, cached/uncached templates, streaming/non-streaming, text and multimodal requests and malformed schemas; compare final model input IDs exactly.",
+        "No tool effector may be enabled from prompt/parser qualification alone; downstream selection and arguments retain existing policy/human gates."
+      ]
+    },
+    {
+      "id": "peft-rslora-weighted-adapter-scaling",
+      "priority": "P0",
+      "category": "post-training-adapter-composition-correctness",
+      "upstreamRepository": "huggingface/peft",
+      "upstreamRevision": "fd3a7b1f310c6507ccb8191eb05f404aaf4b36ce",
+      "upstreamPullRequest": 3449,
+      "observedCommitAt": "2026-09-18T11:41:21Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "add_weighted_adapter already folds source scaling into merged LoRA weights but inherited use_rslora=true, multiplying an adapter intended to have scale 1 by sqrt(new_rank).",
+        "Upstream reports rank-4 norm ratios of 2.0 for linear and about 2.83 for cat before the fix; SVD retains a separate pre-existing double-scaling defect and is not qualified by this successor."
+      ],
+      "requiredEvidence": [
+        "Bind exact PEFT/Transformers/Torch revisions, base-model checkpoint, source-adapter hashes/configs, ranks/alphas/use_rslora flags, combination type and dtype.",
+        "Run predecessor and candidate for single- and multi-adapter linear/cat composition with deterministic weights; compare delta weights and outputs to an independently computed weighted-composition reference.",
+        "Include multiple ranks/non-unit source weights, save/reload/merge/unmerge and a non-rslora control; mark SVD UNQUALIFIED until its separate scaling bug is governed and repaired.",
+        "Do not publish/overwrite adapter artifacts until parity, provenance/license and rollback receipts pass."
+      ]
+    },
+    {
+      "id": "diffusers-qwen-image21-block-causal-kvcache",
+      "priority": "P1",
+      "category": "multimodal-image-generation-pipeline-correctness",
+      "upstreamRepository": "huggingface/diffusers",
+      "upstreamRevision": "6256aa7666cedd47443adc8f82da9a10e110b09c",
+      "upstreamPullRequest": 14804,
+      "observedCommitAt": "2026-09-18T05:30:37Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "primaryModelReference": "Qwen/Qwen-Image-2.1",
+      "modelReferenceEvidence": "PRIMARY_HF_DIFFUSERS_DOCS_REFERENCE; DIRECT_CONNECTED_HUB_DETAILS_UNAVAILABLE_IN_THIS_WINDOW",
+      "materiality": [
+        "Diffusers adds Qwen-Image 2.1 with block-causal text/condition/target attention, reusable prefix KV cache, a 64-channel VAE and image-conditioned generation; the integration fixed multiple correctness and memory defects before merge.",
+        "Material merged fixes include exact fallback attention behavior, KV-cache storage ownership, 16x VAE spatial scaling, prompt-mask batching and training-compatible text/image conditioning."
+      ],
+      "requiredEvidence": [
+        "Before execution, resolve and record the exact public Qwen/Qwen-Image-2.1 checkpoint revision/file identities through an allowed primary HF source; if unresolved, keep the lane UNAVAILABLE and do not substitute another Qwen image model.",
+        "Bind exact Diffusers source, checkpoint, Qwen3-VL encoder/processor, VAE/transformer subfolders, Torch/CUDA stack, attention processor, dtype, resolution, seed and condition-image hashes.",
+        "Compare default segmented attention and compiled flex attention to declared reference tolerances; exercise KV cache on/off, batch 1/>1, multiple prompts/images, num_images_per_prompt>1, condition images, empty prompts, save/load and tiled VAE shape.",
+        "Measure memory/throughput only after output/cache correctness; do not mirror weights merely for inventory."
+      ]
+    },
+    {
+      "id": "hf-hub-jobs-cli-format-flag-consumption",
+      "priority": "P1",
+      "category": "deployment-job-launch-argument-integrity",
+      "upstreamRepository": "huggingface/huggingface_hub",
+      "upstreamRevision": "83ba61a53721caaf3cc2d53e65a25315519be122",
+      "upstreamPullRequest": 4936,
+      "observedCommitAt": "2026-09-18T09:09:40Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "hf jobs run/uv run and scheduled variants used ignore_unknown_options, allowing --format, --json and -q to leak into the launched Job as script/image arguments instead of being consumed by the CLI.",
+        "The successor is deployment argument integrity relevant to automated job orchestration and receipt parsing, not cosmetic output formatting."
+      ],
+      "requiredEvidence": [
+        "Bind exact huggingface_hub source/package, hf CLI invocation, namespace identity, test image/script hash and requested output format; use bounded non-secret jobs only.",
+        "Run predecessor parser controls proving format flags can alter forwarded image/script arguments, then prove candidate parsing is positionally stable and respects -- when the child script intentionally needs those flags.",
+        "Exercise jobs run, jobs uv run, scheduled run and scheduled uv run with human/json/quiet and detached/non-detached modes; never treat successful submission as workload success.",
+        "Do not change production schedules/credentials/compute defaults; preserve cancellation and v1.32 rollback until admitted."
+      ]
+    },
+    {
+      "id": "vllm-fast-prefill-active-lora-padding",
+      "priority": "P0_P1",
+      "category": "lora-serving-prefill-shape-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "a1bf8ac12d9f1537ff2d233f5ab3d1346fd8bd44",
+      "upstreamPullRequest": 56456,
+      "observedCommitAt": "2026-09-18T22:13:23Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Fast-prefill padding re-dispatched with num_active_loras=0, so an active-LoRA batch could select a different CUDA-graph padding variant from actual model execution and produce mismatched logits-index shapes.",
+        "The successor threads active-LoRA count into fast-prefill dispatch and adds token-boundary tests with 1/2/4 active adapters."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, base model, every LoRA adapter revision/hash, CUDA-graph mode, num_active_loras, batch/token counts, logits-index geometry and accelerator runtime.",
+        "Use predecessor negative controls where a no-LoRA graph pads differently from active-LoRA execution; prove candidate fast-prefill metadata uses the same active-adapter count and token/logit shape as main dispatch.",
+        "Exercise token counts around graph-padding boundaries, 1/2/4 active adapters, eager/captured modes, adapter add/remove between batches, cancellation/restart and mixed LoRA/non-LoRA requests; compare with fast prefill disabled.",
+        "Retain the non-fast-prefill path as rollback and require adapter/output parity before latency claims."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active serving owner",
+    "trainingPostTrainingEvaluation": "szl-holdings/szl-forge",
+    "deploymentJobEvaluation": "szl-holdings/szl-forge",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "observedA11oySourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "proofCapturedAt": "2026-09-12T01:25:04Z",
+    "proofCounts": {"models": 46, "datasets": 35, "spaces": 21}
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
