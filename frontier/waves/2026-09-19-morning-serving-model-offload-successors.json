@@ -71,6 +71,7 @@
       ],
       "requiredEvidence": [
         "Bind exact vLLM-Omni and vLLM runtime/image, model and deploy-config identities, stage roles, cache keys, accelerator devices, async-output setting and prefix-cache configuration.",
+        "Run a predecessor or equivalent known-bad negative control that forces duplicate or forgotten step-id consumption, published-hash write failure, abort/restart interleaving, or staging exhaustion; preserve the exact expected failure boundary before accepting candidate state-machine behavior.",
         "Exercise every WriteTask state transition plus failure, exactly-once materialize XOR discard_step consumption, duplicate/forgotten step ids, abort, restart, concurrent requests, cold/hot hits and failed writes behind published hashes; prove no stale or foreign hidden state can be returned.",
         "Force staging-slot exhaustion and stuck-write/leaked-step scenarios to validate bounded backpressure and timeout diagnostics; independently verify hidden-key strictness, multimodal-key zero semantics, KV-consumer refusal and pooling-stage refusal.",
         "Run text and audio multimodal paths with async output plus prefix cache on real hardware, compare output bytes or deterministic semantic reference against cache-disabled execution, and measure latency/throughput only after integrity; cache-disable remains rollback."
