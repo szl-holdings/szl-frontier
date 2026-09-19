@@ -1,0 +1,62 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-18-kimi-k3-routed-expert-quant-successor",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "b8e8f5a8146b3f8b6484db463646d1fdeb9e8047",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "existingModelAdmissionOwner": "szl-holdings/szl-frontier#47",
+  "existingKimiRuntimeOwner": "szl-holdings/szl-frontier#168",
+  "predecessorWave": "2026-09-18-midday-cross-stack-integrity-successors",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidate": {
+    "id": "vllm-kimi-k3-nvidia-routed-expert-quant",
+    "priority": "P0_P1",
+    "category": "model-quantization-routed-expert-correctness",
+    "upstreamRepository": "vllm-project/vllm",
+    "upstreamRevision": "76d517fd1279805fa2318c28343fcd57b030ead3",
+    "upstreamPullRequest": 57430,
+    "observedCommitAt": "2026-09-18T14:03:59Z",
+    "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+    "inheritsQualification": false,
+    "productionDisposition": "HOLD",
+    "materiality": [
+      "The NVIDIA Kimi-K3 implementation constructed routed_expert_down_proj and routed_expert_up_proj with quant_config=None, so configured quantization could be silently omitted for the routed-expert projections while the surrounding model was treated as quantized.",
+      "The upstream successor passes the model quantization configuration into both routed-expert projections. Existing Kimi-K3 model admission (#47) and the separate ROCm SiTUv2 A4W4 runtime successor (#168) do not qualify this later NVIDIA quantization boundary."
+    ],
+    "requiredEvidence": [
+      "Bind exact vLLM source/image, the exact legally admitted Kimi-K3 artifact/revision selected under Frontier #47, tokenizer/config, quantization scheme/config, CUDA/driver/Torch/Triton versions, NVIDIA accelerator and TP/EP topology.",
+      "Run the immediate predecessor as a known-bad structural control: prove routed_expert_down_proj/up_proj ignore the requested quantization configuration while the candidate instantiates the intended quantized methods/state; fail if the selected quant scheme is unsupported rather than silently falling back.",
+      "Compare candidate quantized routed-expert outputs/logits against an independently qualified BF16/FP16 or declared reference on deterministic expert-routing fixtures and representative prompts, including multiple experts, routing boundaries, batching, graph/eager modes, cancellation and restart.",
+      "Measure memory, latency and throughput only after correctness; record per-layer quantization coverage so partial quantization cannot be called full-model quantization, preserve the incumbent runtime as rollback and keep absent NVIDIA hardware UNAVAILABLE.",
+      "Do not inherit Kimi-K3 qualification from #47 or ROCm runtime qualification from #168; do not rehost weights and do not authorize a new product/default route from source support alone."
+    ]
+  },
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "modelAdmission": "szl-holdings/szl-frontier#47",
+    "relatedRuntimeSuccessor": "szl-holdings/szl-frontier#168",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active serving owner",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "observedA11oySourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "proofCapturedAt": "2026-09-12T01:25:04Z",
+    "proofCounts": {"models": 46, "datasets": 35, "spaces": 21}
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}

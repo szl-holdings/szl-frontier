@@ -1,0 +1,171 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-18-late-runtime-integrity-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "469dbc1aeba92e1e9158f15dd47abc74859ec16e",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-18-runtime-integrity-successors",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-dsv41-nan-candidate-block-preservation",
+      "priority": "P0",
+      "category": "sparse-attention-candidate-integrity",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "64563d0ec4b761745d5babbc5750b263f0783926",
+      "upstreamPullRequest": 57454,
+      "observedMergedAt": "2026-09-18T02:00:10Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "DeepSeek-V4.1 TP4 MegaAttention dummy-prefill or autotuning can produce NaN candidate scores; the predecessor treated NaN as invalid padding after top-k, underfilled the active sparse-block prefix, and could repeat one block hundreds of times where DeepGEMM expects unique indices.",
+        "The repair preserves top-k selected NaN-scored block IDs while still reserving -inf as padding; it prevents the observed invalid sparse prefix but explicitly does not sanitize or explain the upstream source of NaNs."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, DeepSeek-V4.1 model/config, DSpark/DeepGEMM versions, TP topology, graph mode and accelerator identity.",
+        "Reproduce the known-bad predecessor with zero, NaN and mixed-NaN candidate scores; assert the invalid active-prefix or repeated-index condition, then require the candidate to retain selected block IDs and preserve uniqueness and padding invariants.",
+        "Run finite-score controls against the predecessor or reference selector, captured failing-row replay, short and long prompt traffic, autotuning and target/draft graph capture; candidate must not change finite selection semantics.",
+        "Investigate and separately receipt the upstream NaN source; success of this storage repair must not be claimed as numerical sanitization. Preserve incumbent rollback and mark unavailable hardware/topology UNAVAILABLE."
+      ]
+    },
+    {
+      "id": "vllm-glm53-kpool-tail-slot-mapping-oob",
+      "priority": "P0",
+      "category": "kv-cache-memory-safety-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "70df48dc3d01fe1bb3206f7d8a832c7e8de348e8",
+      "upstreamPullRequest": 57317,
+      "observedMergedAt": "2026-09-18T02:42:55Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "GLM-5.3-Flash KpoolTail is a fixed circular buffer, but the generic slot-mapping kernel indexes by unbounded position divided by block size; sufficiently long prompts can read a neighboring request row or outside the block-table allocation and trigger a memory access fault.",
+        "The upstream repair makes KpoolTail opt out of the generic mapper and retains its tailored circular slot mapping; this is a memory-safety and request-isolation boundary, not a performance tweak."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, GLM-5.3-Flash artifact, ROCm/AITER sparse-MLA configuration, KV layout, max sequence length, concurrency and accelerator/runtime identity.",
+        "Run the known-bad predecessor poison-row and out-of-bounds regression plus long-context reproduction, including the affected 500k-input regime when hardware capacity permits; prove the candidate never derives a KpoolTail slot from neighboring-request or past-table memory.",
+        "Verify tailored circular mapping under request interleaving, slot reuse, cancellation, long-context boundary positions and concurrency; compare generated output plus representative accuracy to the incumbent path.",
+        "Keep generic slot mapping enabled for unaffected KV groups, retain rollback, and classify missing long-context hardware as UNAVAILABLE rather than inferring safety from unit tests."
+      ]
+    },
+    {
+      "id": "vllm-rocm-kv-offload-private-pinned",
+      "priority": "P0_P1",
+      "category": "rocm-kv-offload-availability-data-integrity",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "7b942936276d59cc1912185a442b97dea8d2386c",
+      "upstreamPullRequest": 57160,
+      "observedMergedAt": "2026-09-18T02:35:24Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "On ROCm, native CPU KV offload could allocate the shared mmap path and have every worker register the full region, causing cudaHostRegister failures and startup stalls at large offload sizes.",
+        "The repair routes ROCm to private per-rank pinned tensors and disables replicated-layout assumptions that would otherwise acknowledge rank-local stores without a shared medium; CUDA shared-region behavior is intentionally unchanged."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, ROCm driver/runtime, accelerator model/count, TP topology, KV dtype, offload size/backend and model identity.",
+        "Reproduce the predecessor shared-registration failure or equivalent bounded negative control on affected ROCm, then prove private per-rank pinned allocation reaches readiness without silent replicated-layout admission.",
+        "Exercise cold prompt, GPU eviction, CPU-to-GPU reload and post-eviction replay across multiple ranks; require output parity and transfer/accounting receipts with no cross-rank data loss or stale-block reuse.",
+        "Run a CUDA control proving its shared-region behavior is unchanged, measure host-pinned memory cost of the ROCm private layout, preserve rollback, and mark absent ROCm capacity UNAVAILABLE."
+      ]
+    },
+    {
+      "id": "sglang-flashinfer-moe-fused-finalize-default",
+      "priority": "P0_P1",
+      "category": "moe-numerical-accuracy-default",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "c46bf5e990bdd99e2c200214b04683022100e4df",
+      "upstreamPullRequest": 40105,
+      "observedMergedAt": "2026-09-18T07:15:57Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "SGLang changed the FlashInfer CUTLASS and CuTe DSL MoE fused-finalize default from enabled to disabled for numerical-accuracy reasons while retaining an explicit performance opt-in.",
+        "Upstream performance sweeps show nontrivial workload-dependent cost, but the PR explicitly did not run model accuracy tests and did not measure numerical-error reduction; SZL must not promote either default from the upstream rationale alone."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/image, FlashInfer packages, CUDA/SM target, model/quantization mode, MoE runner, EP/TP topology and fused-finalize environment value.",
+        "Evaluate old-default enabled versus new-default disabled plus deterministic-mode controls on identical prompts/tensors; measure logits/output error against an independent trusted reference and repeated-run variance across CUTLASS and supported CuTe DSL paths.",
+        "Measure latency and throughput separately from accuracy across representative token counts and W4A4/W4A16 modes; an accuracy gain must be evidenced, and a performance tradeoff must never be relabeled as correctness.",
+        "Keep the upstream performance opt-in explicit, do not silently re-enable fused finalize, preserve rollback to the currently qualified behavior, and leave untested hardware/backends UNQUALIFIED."
+      ]
+    },
+    {
+      "id": "transformers-device-map-largest-leaf-buffer",
+      "priority": "P1",
+      "category": "quantized-device-placement-correctness",
+      "upstreamRepository": "huggingface/transformers",
+      "upstreamRevision": "4618eba18322b19e162b0eb7b33464a4d6a50ddd",
+      "upstreamPullRequest": 47211,
+      "observedMergedAt": "2026-09-18T05:17:34Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Balanced device-map sizing considered the largest no-split block but not a larger childless leaf such as embeddings or lm_head; large unquantized leaves can make every capped device look too small, collapse placement onto the last device, spill to CPU and make 4-bit loading fail despite ample aggregate GPU budget.",
+        "The upstream repair sizes the buffer from the largest leaf as well as the largest no-split block and adds accelerator-free regression coverage; deployment qualification still needs an actual representative quantized load."
+      ],
+      "requiredEvidence": [
+        "Bind exact Transformers/Accelerate/quantization package versions, model config/checkpoint, dtype/quantization, requested max_memory map and target accelerator topology.",
+        "Run the known-bad meta/fake-budget case with a large-vocabulary leaf and candidate regression, then verify an actual representative 4-bit model load where aggregate bounded GPU memory is sufficient.",
+        "Assert placement never silently spills required quantized modules to CPU/disk when the declared budget can accommodate the model, while preserving valid CPU/disk offload behavior when explicitly requested or genuinely necessary.",
+        "Compare placement map, peak memory, load success and representative inference output against the qualified baseline; preserve rollback and treat unavailable representative hardware as UNAVAILABLE."
+      ]
+    },
+    {
+      "id": "vllm-dsv4-missing-string-tool-parser",
+      "priority": "P1",
+      "category": "agent-tool-call-parser-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "39e33db7f3b10ebd3aca6a0008f2990978f118e7",
+      "upstreamPullRequest": 56271,
+      "observedMergedAt": "2026-09-18T05:11:25Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "DeepSeek-V4 DSML tool calls can omit the optional string attribute on a parameter; the predecessor parser could drop or mis-handle that parameter, corrupting structured tool arguments.",
+        "The repair covers Python and Rust frontend parsing and related V3.2/V4.1 schema paths; agent tool execution must be qualified on the exact parser/frontend actually serving requests."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, selected Python or Rust frontend, DeepSeek-V4 model/template/tokenizer and tool schema.",
+        "Use a known-bad omitted-string fixture and require the candidate to retain and coerce the parameter correctly in complete and streaming parses across chunk boundaries; execute the same semantic case through both frontends where supported.",
+        "Add controls for explicit string=true/false, booleans, numbers, nested JSON, whitespace, multiple parameters/tools, malformed tags and adversarial closing-tag text; require no argument loss, type drift or cross-tool contamination.",
+        "Bind parsed tool-call receipts to the raw model-output hash before any downstream tool execution, preserve fallback/rollback, and keep external effectors disabled until the serving parser is qualified."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active serving owner",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "observedA11oySourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "sourceRuntimeProductIdentity": "OBSERVED_EQUAL_NOT_WHOLE_CHAIN_CLOSED",
+    "proofCapturedAt": "2026-09-12T01:25:04Z",
+    "proofCounts": {"models": 46, "datasets": 35, "spaces": 21},
+    "note": "Fresh GitHub, canonical HF runtime and a-11-oy.com observations still identify protected A11oy revision 43058398fb8ea346a7bd977f1a35391aeec1bf1a; a11oy.net proof remains dated. Different observation windows are not combined into a whole-chain PASS."
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
