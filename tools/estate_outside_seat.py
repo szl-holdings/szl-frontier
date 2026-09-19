@@ -570,10 +570,13 @@ def check_spaces_freshness(org, stale_hours, client, expected=None, creators=Non
         obs, meta = client.json(f"{ORIGIN}/api/spaces/{sid}")
         notes, _ = metadata_fields(meta, sid, now)
         row = {"space": sid, "lastModified": None, "ageHours": None, "runtimeStage": None,
+               "sourceRevision": None, "runtimeRevision": None, "providerRevisionParity": "UNAVAILABLE",
                "inventory": "organization-profile" if sid in profiles else "creator" if sid in creators else "expected" if sid in expected else "discovered-extra",
                "listed": sid in discovered, "findings": notes, "status": "INCOMPLETE"}
         if isinstance(meta, dict):
             row["lastModified"] = meta.get("lastModified")
+            if isinstance(meta.get("sha"), str) and SHA.fullmatch(meta["sha"]):
+                row["sourceRevision"] = meta["sha"]
             try:
                 raw_age = (now - parse_date(meta.get("lastModified"), now)).total_seconds() / 3600
                 row["ageHours"] = round(raw_age, 3)
@@ -584,12 +587,24 @@ def check_spaces_freshness(org, stale_hours, client, expected=None, creators=Non
                 notes.append("runtime stage unavailable or malformed")
             else:
                 row["runtimeStage"] = runtime["stage"]
-        if not notes:
-            if raw_age > stale_hours:
-                notes.append(f"source metadata age {row['ageHours']}h exceeds {stale_hours}h; this is not an uptime measurement")
-            if row["runtimeStage"] not in ("RUNNING", "RUNNING_BUILDING"):
-                notes.append(f"provider runtime stage is {row['runtimeStage']}; application availability not verified")
-            row["status"] = "FINDING" if notes else "VERIFIED"
+            runtime_revision = runtime.get("sha") if isinstance(runtime, dict) else None
+            if isinstance(runtime_revision, str) and SHA.fullmatch(runtime_revision):
+                row["runtimeRevision"] = runtime_revision
+            else:
+                notes.append("runtime revision unavailable or malformed")
+            if (meta.get("id", meta.get("modelId")) == sid
+                    and row["sourceRevision"] is not None and row["runtimeRevision"] is not None):
+                row["providerRevisionParity"] = (
+                    "MATCH" if row["sourceRevision"] == row["runtimeRevision"] else "MISMATCH"
+                )
+        incomplete = bool(notes)
+        if row["providerRevisionParity"] == "MISMATCH":
+            notes.append("provider runtime revision differs from the observed source revision")
+        if raw_age is not None and raw_age > stale_hours:
+            notes.append(f"source metadata age {row['ageHours']}h exceeds {stale_hours}h; this is not an uptime measurement")
+        if row["runtimeStage"] is not None and row["runtimeStage"] not in ("RUNNING", "RUNNING_BUILDING"):
+            notes.append(f"provider runtime stage is {row['runtimeStage']}; application availability not verified")
+        row["status"] = "INCOMPLETE" if incomplete else "FINDING" if notes else "VERIFIED"
         rows.append(row)
         findings.extend(f"{sid}: {note}" for note in notes)
     return rows, findings
@@ -677,7 +692,7 @@ def run(wave_path, evidence_dir, *, pins_path=DEFAULT_PINS, prev_receipt=None,
         spaces, space_findings = check_spaces_freshness(ORG, stale_hours, client, expected=expected,
                                                       creators=creators, profile_space=profile_space)
         receipt["spaces"] = {"org": ORG, "staleHours": stale_hours, "rows": spaces, "findings": space_findings,
-                             "measurement": "Source lastModified age and provider-reported runtime stage; no uptime or application contract probe."}
+                             "measurement": "Source lastModified age, provider runtime stage and source/runtime revision equality; no uptime or application contract probe."}
         all_rows = rows + cards + spaces
         incomplete = bool(client.errors) or any(r["status"] == "INCOMPLETE" for r in all_rows)
         has_findings = bool(findings or space_findings) or any(r["status"] == "FINDING" for r in all_rows)
