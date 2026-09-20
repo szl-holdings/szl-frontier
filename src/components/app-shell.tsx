@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+  Anchor,
   Brain,
   Compass,
   Cpu,
@@ -32,6 +33,7 @@ const NAV = [
   { to: "/adversary", label: "Adversary", icon: ShieldAlert },
   { to: "/brain", label: "Brain", icon: Brain },
   { to: "/frontier", label: "Frontier", icon: Compass },
+  { to: "/harbor", label: "Harbor", icon: Anchor },
   { to: "/mesh", label: "Mesh", icon: Network },
   { to: "/proof", label: "Proof", icon: Link2 },
   { to: "/gates", label: "Gates", icon: ShieldCheck },
@@ -156,6 +158,7 @@ function PlaneStatus() {
         <div>rcpt {receipts}</div>
         <div>brain {brainN || "—"}</div>
         <div>deny-by-default</div>
+        <div>prod HOLD</div>
       </div>
     </div>
   );

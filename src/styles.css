@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --font-display: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-display: "Segoe UI", system-ui, sans-serif;
 
   --color-bg: #09090b;
   --color-bg-elevated: #121214;
