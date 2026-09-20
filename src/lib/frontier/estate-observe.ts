@@ -42,7 +42,16 @@ function asArray(value: unknown): Record<string, unknown>[] {
   return Array.isArray(value) ? (value as Record<string, unknown>[]) : [];
 }
 
-export const observeEstate = createServerFn({ method: "GET" }).handler(async () => {
+function runtimeStage(row: Record<string, unknown>): string | null {
+  if (typeof row.runtime === "string") return row.runtime;
+  if (row.runtime && typeof row.runtime === "object") {
+    const stage = (row.runtime as { stage?: unknown }).stage;
+    return typeof stage === "string" ? `stage:${stage}` : "reported";
+  }
+  return null;
+}
+
+export async function observePublicEstate() {
   const started = new Date().toISOString();
   const [gh1, gh2, models, datasets, spaces] = await Promise.all([
     boundedGet("https://api.github.com/orgs/szl-holdings/repos?per_page=100&page=1&type=public&sort=full_name"),
@@ -61,7 +70,7 @@ export const observeEstate = createServerFn({ method: "GET" }).handler(async () 
     itemsObserved: ghOk ? ghItems.length : null,
     paginationComplete: ghOk && gh2.status === "MEASURED" && asArray(gh2.json).length < 100,
     error: ghOk ? (gh2.status === "MEASURED" ? null : gh2.error ?? "PAGE_2") : gh1.error ?? "UNAVAILABLE",
-    items: ghItems.slice(0, 160).map((r) => ({
+    items: ghItems.slice(0, 200).map((r) => ({
       id: String(r.full_name ?? ""),
       private: Boolean(r.private),
       archived: Boolean(r.archived),
@@ -82,12 +91,13 @@ export const observeEstate = createServerFn({ method: "GET" }).handler(async () 
       family: name,
       status: ok ? ("MEASURED" as const) : ("UNAVAILABLE" as const),
       itemsObserved: ok ? rows.length : null,
+      paginationComplete: ok ? rows.length < 100 : false,
       error: ok ? null : probe.error ?? "UNAVAILABLE",
       items: rows.slice(0, 100).map((r) => ({
         id: String(r.id ?? r.modelId ?? ""),
         likes: typeof r.likes === "number" ? r.likes : null,
         downloads: typeof r.downloads === "number" ? r.downloads : null,
-        runtime: typeof r.runtime === "string" ? r.runtime : r.runtime && typeof r.runtime === "object" ? "reported" : null,
+        runtime: runtimeStage(r),
         lastModified: typeof r.lastModified === "string" ? r.lastModified : null,
       })),
       note:
@@ -105,6 +115,7 @@ export const observeEstate = createServerFn({ method: "GET" }).handler(async () 
       family: "kernels" as const,
       status: "UNAVAILABLE" as const,
       itemsObserved: null,
+      paginationComplete: false,
       error: "NO_PUBLIC_KERNELS_MEMBERSHIP_API",
       items: [],
       note: "Kernels family is UNKNOWN, not zero.",
@@ -139,7 +150,9 @@ export const observeEstate = createServerFn({ method: "GET" }).handler(async () 
         },
     note: "Public metadata only. Tree hashing, LFS, private assets, and semantic review were not performed.",
   };
-});
+}
+
+export const observeEstate = createServerFn({ method: "GET" }).handler(async () => observePublicEstate());
 
 export const observeFrontierRepo = createServerFn({ method: "GET" }).handler(async () => {
   const probe = await boundedGet("https://api.github.com/repos/szl-holdings/szl-frontier");
