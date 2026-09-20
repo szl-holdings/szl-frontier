@@ -1,0 +1,26 @@
+{
+  "schema": "szl.frontier.wave4-receipt/v1",
+  "complete": false,
+  "productionAuthorization": false,
+  "observed_at": "2026-09-20T16:10:00Z",
+  "organ": "szl-holdings/szl-frontier",
+  "pr": 194,
+  "branch": "frontier/cto-kernels-pin-codex-20260920",
+  "disposition": "HOLD",
+  "evidenceClass": "EVALUATION",
+  "landed": [
+    "kernel-family 14-vs-15 CONFLICT kept",
+    "capability leases",
+    "explicit agent state STOP-before-tools",
+    "/api/kernels /api/leases /api/agent-state",
+    "frontier tabs triad/kernels/leases"
+  ],
+  "forbidden": [
+    "LIVE",
+    "PRODUCTION",
+    "TRAINED",
+    "second publisher",
+    "collapse conflicts",
+    "merge to main this wave"
+  ]
+}
