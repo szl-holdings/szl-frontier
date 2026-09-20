@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GATE_SPECS } from "@/lib/covenant/gates";
+import { paintLabel, paintTone } from "@/lib/ouroboros/paint";
 import { useOrchestrator } from "@/stores/orchestrator";
 
 export const Route = createFileRoute("/gates")({ component: GatesPage });
@@ -14,6 +15,8 @@ function GatesPage() {
   const resetPlane = useOrchestrator((s) => s.resetPlane);
 
   const passed = lastGates?.filter((g) => g.passed).length ?? 0;
+  const organPaint = useOrchestrator((s) => s.organPaint);
+  const organCycle = useOrchestrator((s) => s.organCycle);
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-8">
@@ -32,6 +35,24 @@ function GatesPage() {
           </div>
         }
       />
+
+      <div className="rounded-xl bg-bg-elevated px-5 py-4 shadow-[inset_0_0_0_1px_var(--color-border)]">
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge tone={paintTone(organPaint)}>
+            {paintLabel(organPaint, organCycle?.verdict)}
+          </Badge>
+          <span className="text-sm text-muted">
+            Organ cycle is the only ALLOW chrome. Missing JSON is UNAVAILABLE, not green.
+            Arithmetic shadows cannot act. Λ stays Conjecture 1.
+          </span>
+        </div>
+        {organCycle?.divergent ? (
+          <p className="mt-2 font-mono text-xs text-muted">
+            divergent arithmetic ghost recorded — executable=
+            {String(organCycle.shadow?.executable ?? false)}
+          </p>
+        ) : null}
+      </div>
 
       {lastGates ? (
         <div className="rounded-xl bg-bg-elevated px-5 py-4 shadow-[inset_0_0_0_1px_var(--color-border)]">
