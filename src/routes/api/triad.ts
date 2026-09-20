@@ -1,23 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { readyPayload } from "@/lib/frontier/source";
+import { composeTriad } from "@/lib/frontier/triad";
 import { WORKSTREAMS } from "@/lib/frontier/workstreams";
 
-export const Route = createFileRoute("/api/ready")({
+export const Route = createFileRoute("/api/triad")({
   server: {
     handlers: {
       GET: async () => {
-        const body = readyPayload({
+        const body = await composeTriad({
           catalogLoaded: WORKSTREAMS.length === 34,
           engineHydratable: true,
         });
         return new Response(JSON.stringify(body), {
-          status: body.ready && body.productionReady === false ? 200 : body.ready ? 200 : 503,
+          status: 200,
           headers: {
             "content-type": "application/json; charset=utf-8",
             "cache-control": "no-store",
-            "x-szl-kind": "readiness",
-            "x-szl-production-ready": "false",
+            "x-szl-kind": "triad",
             "x-szl-production-authorization": "false",
+            "x-szl-authority": "NONE",
           },
         });
       },
