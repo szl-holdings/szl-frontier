@@ -173,6 +173,38 @@ class EvidenceReceipt:
         if not hmac.compare_digest(expected, self.signature.value):
             raise ReceiptError("receipt signature verification failed")
 
+    @classmethod
+    def from_mapping(cls, value: Mapping[str, Any]) -> "EvidenceReceipt":
+        """Reconstruct a receipt and fail closed if the digest does not bind."""
+
+        if not isinstance(value, Mapping):
+            raise ReceiptError("receipt mapping is required")
+        raw_sig = value.get("signature")
+        signature = None
+        if raw_sig is not None:
+            if not isinstance(raw_sig, Mapping):
+                raise ReceiptError("receipt signature must be an object")
+            signature = ReceiptSignature(
+                algorithm=str(raw_sig["algorithm"]),
+                key_id=str(raw_sig["keyId"]),
+                value=str(raw_sig["value"]),
+            )
+        receipt = cls(
+            receipt_id=str(value["receiptId"]),
+            release_id=str(value["releaseId"]),
+            created_at=str(value["createdAt"]),
+            subject=str(value["subject"]),
+            payload_digest=str(value["payloadDigest"]),
+            payload=dict(value["payload"]),
+            previous_receipt_digest=value.get("previousReceiptDigest"),
+            signature=signature,
+            schema=str(value.get("schema", RECEIPT_SCHEMA)),
+        )
+        declared = value.get("receiptDigest")
+        if declared is not None and not hmac.compare_digest(str(declared), receipt.digest):
+            raise ReceiptError("receiptDigest does not match reconstructed digest")
+        return receipt
+
 
 class ReceiptFactory:
     """Construct hash-linked receipts without owning signing secrets."""
