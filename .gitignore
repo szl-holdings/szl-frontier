@@ -17,6 +17,6 @@ AGENTS.project.md
 .node_modules.lock
 *.log
 .cache
-
 __pycache__/
 *.pyc
+.pytest_cache/

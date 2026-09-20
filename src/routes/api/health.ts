@@ -17,6 +17,7 @@ function jsonResponse(body: unknown, status = 200) {
       "content-type": "application/json; charset=utf-8",
       "cache-control": "no-store",
       "x-szl-kind": "health",
+      "x-szl-production-authorization": "false",
     },
   });
 }

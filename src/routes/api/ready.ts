@@ -16,6 +16,7 @@ export const Route = createFileRoute("/api/ready")({
             "content-type": "application/json; charset=utf-8",
             "cache-control": "no-store",
             "x-szl-kind": "readiness",
+            "x-szl-production-authorization": "false",
           },
         });
       },

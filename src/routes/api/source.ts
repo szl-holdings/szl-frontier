@@ -11,6 +11,7 @@ export const Route = createFileRoute("/api/source")({
             "content-type": "application/json; charset=utf-8",
             "cache-control": "no-store",
             "x-szl-kind": "source-identity",
+            "x-szl-production-authorization": "false",
           },
         }),
     },
