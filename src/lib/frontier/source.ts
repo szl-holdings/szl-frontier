@@ -25,23 +25,37 @@ export function healthPayload() {
   return {
     schema: "szl.frontier.health/v1",
     status: "ok" as HealthStatus,
+    ok: true,
     kind: "SOFTWARE",
+    organ: SOURCE.repository,
+    disposition: "HOLD" as const,
     productionAuthorization: false,
+    runtimeVerified: false,
     checkedAt: new Date().toISOString(),
     note: "Process is up. Health is not readiness, task quality, or production authorization.",
   };
 }
 
 export function readyPayload(opts: { catalogLoaded: boolean; engineHydratable: boolean }) {
-  const ready = opts.catalogLoaded && opts.engineHydratable;
+  const operatorHydratable = opts.catalogLoaded && opts.engineHydratable;
+  const blockers: string[] = [];
+  if (!opts.catalogLoaded) blockers.push("CATALOG_NOT_LOADED");
+  if (!opts.engineHydratable) blockers.push("ENGINE_NOT_HYDRATABLE");
+  blockers.push("PRODUCTION_HOLD");
   return {
     schema: "szl.frontier.readiness/v1",
-    status: (ready ? "ready" : "not_ready") as ReadyStatus,
+    status: (operatorHydratable ? "ready" : "not_ready") as ReadyStatus,
+    ready: operatorHydratable,
+    productionReady: false,
     catalogLoaded: opts.catalogLoaded,
     engineHydratable: opts.engineHydratable,
+    blockers,
+    reason: operatorHydratable
+      ? "Operator plane hydratable. productionReady stays false."
+      : blockers.join(","),
     productionAuthorization: false,
     checkedAt: new Date().toISOString(),
-    note: "Readiness means the operator plane can run software gates. It does not authorize promotion.",
+    note: "Readiness means the operator plane can run software gates. It does not authorize promotion. RUNNING is not ready.",
   };
 }
 
@@ -49,6 +63,10 @@ export function sourcePayload() {
   return {
     schema: "szl.frontier.source-identity/v1",
     ...SOURCE,
+    semanticReviewComplete: false,
+    sourceContentFilesRead: 0,
+    fileAuditComplete: false,
+    runtimeVerified: false,
     checkedAt: new Date().toISOString(),
     note: "Source identity is not a live GitHub-to-deployment provenance proof.",
   };
