@@ -282,6 +282,24 @@ export async function runSoftwareCycle(opts: {
   };
 }
 
+export function parseStoredCycle(raw: string): CycleReport | null {
+  try {
+    const value = JSON.parse(raw) as CycleReport;
+    if (!value || typeof value !== "object") return null;
+    if (value.schema !== CYCLE_SCHEMA) return null;
+    if (value.kind !== "SOFTWARE") return null;
+    if (value.productionAuthorized !== false) return null;
+    if (value.trainingAdmission !== false) return null;
+    if (!Array.isArray(value.rounds) || value.rounds.length > MAX_ROUNDS) return null;
+    if (value.exit !== "converged" && value.exit !== "aborted") return null;
+    return value;
+  } catch {
+    return null;
+  }
+}
+
+export const CYCLE_LEDGER_KEY = "szl-frontier-cycle-ledger";
+
 export function promotionBlockedReason(): string {
   return "Production promotion is HOLD. Missing independent witness, human approval, and an explicit productionDisposition change. This control cannot lift HOLD.";
 }
