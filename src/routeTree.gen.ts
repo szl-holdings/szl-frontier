@@ -22,6 +22,12 @@ import { Route as MemoryRouteImport } from './routes/memory'
 import { Route as MeshRouteImport } from './routes/mesh'
 import { Route as ModelsRouteImport } from './routes/models'
 import { Route as ProofRouteImport } from './routes/proof'
+import { Route as ApiCycleRouteImport } from './routes/api/cycle'
+import { Route as ApiEstateRouteImport } from './routes/api/estate'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
+import { Route as ApiReadyRouteImport } from './routes/api/ready'
+import { Route as ApiSourceRouteImport } from './routes/api/source'
+import { Route as ApiWorkstreamsRouteImport } from './routes/api/workstreams'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -88,6 +94,36 @@ const ProofRoute = ProofRouteImport.update({
   path: '/proof',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCycleRoute = ApiCycleRouteImport.update({
+  id: '/api/cycle',
+  path: '/api/cycle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEstateRoute = ApiEstateRouteImport.update({
+  id: '/api/estate',
+  path: '/api/estate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiReadyRoute = ApiReadyRouteImport.update({
+  id: '/api/ready',
+  path: '/api/ready',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSourceRoute = ApiSourceRouteImport.update({
+  id: '/api/source',
+  path: '/api/source',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWorkstreamsRoute = ApiWorkstreamsRouteImport.update({
+  id: '/api/workstreams',
+  path: '/api/workstreams',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,6 +139,12 @@ export interface FileRoutesByFullPath {
   '/mesh': typeof MeshRoute
   '/models': typeof ModelsRoute
   '/proof': typeof ProofRoute
+  '/api/cycle': typeof ApiCycleRoute
+  '/api/estate': typeof ApiEstateRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/ready': typeof ApiReadyRoute
+  '/api/source': typeof ApiSourceRoute
+  '/api/workstreams': typeof ApiWorkstreamsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +160,12 @@ export interface FileRoutesByTo {
   '/mesh': typeof MeshRoute
   '/models': typeof ModelsRoute
   '/proof': typeof ProofRoute
+  '/api/cycle': typeof ApiCycleRoute
+  '/api/estate': typeof ApiEstateRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/ready': typeof ApiReadyRoute
+  '/api/source': typeof ApiSourceRoute
+  '/api/workstreams': typeof ApiWorkstreamsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,6 +182,12 @@ export interface FileRoutesById {
   '/mesh': typeof MeshRoute
   '/models': typeof ModelsRoute
   '/proof': typeof ProofRoute
+  '/api/cycle': typeof ApiCycleRoute
+  '/api/estate': typeof ApiEstateRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/ready': typeof ApiReadyRoute
+  '/api/source': typeof ApiSourceRoute
+  '/api/workstreams': typeof ApiWorkstreamsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +205,12 @@ export interface FileRouteTypes {
     | '/mesh'
     | '/models'
     | '/proof'
+    | '/api/cycle'
+    | '/api/estate'
+    | '/api/health'
+    | '/api/ready'
+    | '/api/source'
+    | '/api/workstreams'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,6 +226,12 @@ export interface FileRouteTypes {
     | '/mesh'
     | '/models'
     | '/proof'
+    | '/api/cycle'
+    | '/api/estate'
+    | '/api/health'
+    | '/api/ready'
+    | '/api/source'
+    | '/api/workstreams'
   id:
     | '__root__'
     | '/'
@@ -181,6 +247,12 @@ export interface FileRouteTypes {
     | '/mesh'
     | '/models'
     | '/proof'
+    | '/api/cycle'
+    | '/api/estate'
+    | '/api/health'
+    | '/api/ready'
+    | '/api/source'
+    | '/api/workstreams'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -197,6 +269,12 @@ export interface RootRouteChildren {
   MeshRoute: typeof MeshRoute
   ModelsRoute: typeof ModelsRoute
   ProofRoute: typeof ProofRoute
+  ApiCycleRoute: typeof ApiCycleRoute
+  ApiEstateRoute: typeof ApiEstateRoute
+  ApiHealthRoute: typeof ApiHealthRoute
+  ApiReadyRoute: typeof ApiReadyRoute
+  ApiSourceRoute: typeof ApiSourceRoute
+  ApiWorkstreamsRoute: typeof ApiWorkstreamsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -292,6 +370,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProofRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cycle': {
+      id: '/api/cycle'
+      path: '/api/cycle'
+      fullPath: '/api/cycle'
+      preLoaderRoute: typeof ApiCycleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/estate': {
+      id: '/api/estate'
+      path: '/api/estate'
+      fullPath: '/api/estate'
+      preLoaderRoute: typeof ApiEstateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ready': {
+      id: '/api/ready'
+      path: '/api/ready'
+      fullPath: '/api/ready'
+      preLoaderRoute: typeof ApiReadyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/source': {
+      id: '/api/source'
+      path: '/api/source'
+      fullPath: '/api/source'
+      preLoaderRoute: typeof ApiSourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/workstreams': {
+      id: '/api/workstreams'
+      path: '/api/workstreams'
+      fullPath: '/api/workstreams'
+      preLoaderRoute: typeof ApiWorkstreamsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -309,6 +429,12 @@ const rootRouteChildren: RootRouteChildren = {
   MeshRoute: MeshRoute,
   ModelsRoute: ModelsRoute,
   ProofRoute: ProofRoute,
+  ApiCycleRoute: ApiCycleRoute,
+  ApiEstateRoute: ApiEstateRoute,
+  ApiHealthRoute: ApiHealthRoute,
+  ApiReadyRoute: ApiReadyRoute,
+  ApiSourceRoute: ApiSourceRoute,
+  ApiWorkstreamsRoute: ApiWorkstreamsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
