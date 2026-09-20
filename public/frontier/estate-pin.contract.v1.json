@@ -1,0 +1,10 @@
+{
+  "schema": "szl.frontier.membership-identity-pin/v1",
+  "production_authorization": false,
+  "file_audit_complete": false,
+  "source_content_files_read": 0,
+  "semantic_review_complete": false,
+  "head_sha_pin_without_revisions": "REFUSED",
+  "unknown_as_zero": false,
+  "note": "Membership identity pin of public ids. Not a tree hash and not a content audit."
+}
