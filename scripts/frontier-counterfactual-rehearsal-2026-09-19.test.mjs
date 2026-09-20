@@ -36,3 +36,23 @@ test("rehearsal contract refuses promotion shortcuts", () => {
   assert.equal(wave.policy.hubPublicationAuthorized, false);
   assert.equal(wave.policy.providerWriteAuthorized, false);
 });
+
+test("v1.1 graph and analog catalog stay citation-only under HOLD", () => {
+  assert.equal(wave.rehearsal.graphSchema, "szl.frontier.evidence-graph/v1");
+  assert.equal(wave.rehearsal.analogSchema, "szl.frontier.analog-catalog/v1");
+  assert.deepEqual(wave.rehearsal.nodeKinds, [
+    "DECISION",
+    "POLICY",
+    "SIGNAL",
+    "ARTIFACT",
+  ]);
+  assert.equal(wave.rehearsal.inheritsQualification, false);
+  assert.equal(wave.rehearsal.analogCitationIsNotQualification, true);
+  assert.equal(wave.rehearsal.hostedCiGreenIsNotPublish, true);
+  assert.equal(wave.rehearsal.unshippedDreamIsNamedNotAdmitted, true);
+  assert.equal(wave.analogCatalog.inheritsQualification, false);
+  assert.equal(wave.analogCatalog.citationOnly, true);
+  assert.ok(wave.analogCatalog.entries.length >= 10);
+  assert.ok(wave.deduplication.doNotRecreate.includes("a11oy#2205"));
+  assert.ok(wave.remainingHolds.some((row) => row.includes("Forge #347")));
+});
