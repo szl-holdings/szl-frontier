@@ -1,7 +1,36 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { collectSoftwareAxes, promotionBlockedReason, runSoftwareCycle } from "./cycle.ts";
+import {
+  collectSoftwareAxes,
+  CYCLE_SCHEMA,
+  parseStoredCycle,
+  promotionBlockedReason,
+  runSoftwareCycle,
+} from "./cycle.ts";
 import { WORKSTREAMS } from "./workstreams.ts";
+
+test("stored cycle cannot smuggle production authorization", () => {
+  assert.equal(parseStoredCycle("not-json"), null);
+  assert.equal(
+    parseStoredCycle(
+      JSON.stringify({ schema: "other", kind: "SOFTWARE", productionAuthorized: false, trainingAdmission: false, rounds: [], exit: "converged" }),
+    ),
+    null,
+  );
+  assert.equal(
+    parseStoredCycle(
+      JSON.stringify({
+        schema: CYCLE_SCHEMA,
+        kind: "SOFTWARE",
+        productionAuthorized: true,
+        trainingAdmission: false,
+        rounds: [],
+        exit: "converged",
+      }),
+    ),
+    null,
+  );
+});
 
 test("software cycle always terminates in two rounds and never authorizes production", async () => {
   const report = await runSoftwareCycle({ live: false, now: new Date("2026-09-20T11:30:00Z") });
@@ -34,4 +63,12 @@ test("catalog axes see all 34 workstreams and promotion stays blocked", () => {
   const axes = collectSoftwareAxes(new Date("2026-09-20T11:30:00Z"), false);
   assert.ok(axes.some((a) => a.name === "schema_validity" && a.value === 1));
   assert.match(promotionBlockedReason(), /HOLD/);
+});
+
+test("a sealed software cycle round-trips the local ledger parser", async () => {
+  const report = await runSoftwareCycle({ live: false, now: new Date("2026-09-20T11:30:00Z") });
+  const parsed = parseStoredCycle(JSON.stringify(report));
+  assert.equal(parsed?.schema, CYCLE_SCHEMA);
+  assert.equal(parsed?.productionAuthorized, false);
+  assert.equal(parsed?.rounds.length, 2);
 });
