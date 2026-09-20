@@ -48,7 +48,7 @@ def model_metadata(repo: str = MODEL) -> dict:
 def space_metadata(repo: str = SPACE) -> dict:
     return {
         "id": repo, "sha": SHA, "lastModified": FRESH, "private": False,
-        "sdk": "docker", "runtime": {"stage": "RUNNING"},
+        "sdk": "docker", "runtime": {"stage": "RUNNING", "sha": SHA},
     }
 
 
@@ -357,7 +357,7 @@ class WitnessFixtureTests(unittest.TestCase):
         for stage in ("PAUSED", "RUNTIME_ERROR", "BUILD_ERROR"):
             with self.subTest(stage=stage):
                 metadata = space_metadata()
-                metadata["runtime"] = {"stage": stage}
+                metadata["runtime"] = {"stage": stage, "sha": SHA}
                 self.transport.add("/api/spaces", [metadata])
                 self.transport.add(f"/api/spaces/{SPACE}", metadata)
                 rows, findings = self.freshness()
