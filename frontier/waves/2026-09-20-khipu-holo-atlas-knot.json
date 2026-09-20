@@ -1,0 +1,84 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-20-khipu-holo-atlas-knot",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "32b2173062dde7098cb881b9264d612324317b4c",
+  "policy": {
+    "defaultEffect": "hold",
+    "automaticProductionPromotion": false,
+    "changeTransport": "branch-and-pull-request",
+    "noWeightRehostingForInventory": true,
+    "noNewSpaces": true
+  },
+  "candidate": {
+    "id": "khipu-holo-atlas-knot-2026-09-20",
+    "kind": "analog-receipt-kernel",
+    "priority": "P1",
+    "publisher": "SZL Holdings",
+    "repository": "szl-holdings/szl-frontier",
+    "upstream": {
+      "observedRevision": "eval-only-local-kernel",
+      "observedAt": "2026-09-20T00:50:00Z",
+      "releaseState": "EVALUATION",
+      "licenseDeclared": "Apache-2.0",
+      "revisionPolicy": "This wave admits an EVAL kernel only. It does not qualify NEXUS hardware, DSSE minting, Hub publication, or product routes."
+    },
+    "materialChanges": [
+      "KHIPU-HOLO / ATLAS-KNOT binds a payload SHA into Lorenz initial conditions, samples a Poincaré section Φ, ternary-quantizes eight crossings, and Reed-Solomon encodes Φ as locked-8 shards plus four GF(256) parity symbols.",
+      "Verify is re-integration plus RS syndrome. Same payload is stereotyped MATCH_SIM. Drift or mutated payload is HOLD. Two-integrator agreement may relabel Φ from MODELED to MATCH; otherwise Φ stays MODELED.",
+      "Hop-2 holographic composition stays HOLD per arXiv:2606.24948 (capacity, not algebra).",
+      "Intel BITCOS (arXiv:2609.16338) bits/weight = 2 - z is implemented as an optional formula only. z defaults null. A local tile histogram may supply z; the formula never emits joules.",
+      "Live Hugging Face scrape 2026-09-19/20 is recorded as REPORTED claims only: prism-ml/Ternary-Bonsai-2-27B-gguf Apache-2.0 (+705 / 24h), deepseek-ai/DeepSeek-V4.1-Flash MIT KV-card 890 B/token, Qwen/Qwen3.8-27B, XingChen-AGI/Xing4.0-29B-A4B, deepgrove/maple-preview MIT. No weights downloaded. No Space created.",
+      "Does not replace nexus.html, /brain, hf-sync, estate.json, or kernel-kind. Energy stays UNAVAILABLE. ready stays false."
+    ],
+    "evaluation": {
+      "owner": "szl-holdings/szl-frontier",
+      "mode": "BOUNDED_ANALOG_RECEIPT_EVALUATION_ONLY",
+      "relatedOwners": [
+        "szl-holdings/nexus",
+        "szl-holdings/a11oy",
+        "szl-holdings/a11oy-net",
+        "szl-holdings/immune"
+      ],
+      "acceptance": [
+        "Offline unittest tools/test_khipu_holo.py passes with zero network and zero weights.",
+        "Receipt fields energy=UNAVAILABLE ready=false authorized=false production_disposition=HOLD signing=UNSIGNED_ATOMIC inherits_qualification=false hop2_composition=HOLD.",
+        "Φ is labeled MODELED unless a second independent integrator produces an identical phi_hex.",
+        "Vendor bpw and KV-cache figures remain REPORTED. BITCOS z remains null unless a local histogram is supplied.",
+        "No Hugging Face Space, weight mirror, product route, or hf-sync run is authorized by this wave."
+      ],
+      "status": "EVALUATION"
+    }
+  },
+  "deduplication": {
+    "canonicalCatalogChecked": true,
+    "priorWavesChecked": true,
+    "openIssuesAndPullRequestsChecked": true,
+    "exactRevisionPreviouslyPresent": false,
+    "relatedCandidates": [
+      "k2-horizon-mova-36b-a4b",
+      "deepseek-v4-1-flash-2026-09-10",
+      "NX08 counterfactual rehearsal",
+      "evidence-completeness kernel szl-hf-frontier#36"
+    ],
+    "result": "New analog-receipt primitive. Existing NEXUS visualization and HF model-serving waves do not implement attractor-keyed RS receipts."
+  },
+  "authorityChain": {
+    "githubSource": "Frontier records the EVAL kernel and citations only. NEXUS source remains szl-holdings/nexus. Runtime remains IMMUNE /nexus.html.",
+    "huggingFaceProjection": "No new Space. No weight rehost. Ternary-Bonsai and DeepSeek V4.1 Flash remain external REPORTED cards.",
+    "productRuntime": "No a-11-oy.com route change. No /brain overwrite.",
+    "proofEvidence": "a11oy.net may publish only a dated RECORD pointer after protected source admission. Do not stamp LIVE."
+  },
+  "alignment": {
+    "productionDisposition": "HOLD",
+    "automaticPromotion": false,
+    "claimBoundary": "Admission establishes an EVAL attractor-keyed receipt kernel only. It does not establish analog hardware, energy measurement, DSSE minting, holographic hop-2 algebra, model quality, or production authorization."
+  },
+  "citations": [
+    {"id": "arXiv:2603.17049", "title": "Attractor-Keyed Memory", "note": "cite; do not copy Zenodo supplement"},
+    {"id": "arXiv:2606.24948", "title": "holographic hop-2 failure", "note": "composition stays HOLD"},
+    {"id": "arXiv:2609.16338", "title": "BITCOS", "note": "formula only; z unmeasured by default"},
+    {"id": "Agnuxo1/Holographic-Reservoir", "license": "Apache-2.0", "note": "SHA-256 sim default; do not vendor NEBULA cards"},
+    {"id": "prism-ml/Ternary-Bonsai-2-27B-gguf", "license": "Apache-2.0", "note": "EVAL readout only"}
+  ]
+}
