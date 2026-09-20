@@ -1,0 +1,171 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-18-runtime-integrity-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "469dbc1aeba92e1e9158f15dd47abc74859ec16e",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-17-evening-runtime-successors",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-dsv41-flashinfer-dspark-noncausal-attention",
+      "priority": "P0",
+      "category": "attention-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "80447d27655918da6bfbccd0d3a40e975bda220a",
+      "upstreamPullRequest": 57432,
+      "observedMergedAt": "2026-09-17T22:14:37Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "DeepSeek-V4.1 FlashInfer DSpark non-causal sparse attention needs visible-window metadata that excludes padded sparse slots and remains correct across graph replay.",
+        "The upstream repair adds direct reference comparisons across context lengths, BF16/FP8 and CUDA graph replay, so prior DeepSeek-V4.1 or FlashInfer receipts cannot be inherited."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, DeepSeek-V4.1 model/config, FlashInfer version, DSpark configuration, SM capability and dtype.",
+        "Run the known-bad predecessor and candidate against an independent dense/reference oracle for causal and non-causal sparse windows across short, boundary and long contexts.",
+        "Exercise BF16 and FP8, multiple head counts, padded decode slots, CUDA graph capture/replay and changing Q/KV/visibility without recapture; require output parity within declared tolerances.",
+        "Preserve incumbent serving rollback; missing SM100/required runtime is UNAVAILABLE, not PASS."
+      ]
+    },
+    {
+      "id": "vllm-rocm-glm53-logical-topk-readiness",
+      "priority": "P0",
+      "category": "rocm-sparse-attention-availability-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "e0050f287aae8b3ddbe2947a5af1c5dd23db2781",
+      "upstreamPullRequest": 57252,
+      "observedMergedAt": "2026-09-17T22:34:56Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "GLM-5.3-Flash could fail during ROCm AITER sparse-MLA initialization because ROCMAiterMLASparseImpl lacked the logical-topk readiness hook expected by the shared sparse-attention interface.",
+        "The repair intentionally supplies a no-op hook because this implementation shares the top-k indices buffer but does not participate in sparse-MLA index groups; that lifecycle assumption must be measured, not inferred."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, GLM-5.3-Flash artifact, ROCm/AITER versions, accelerator and sparse-attention configuration.",
+        "Reproduce the predecessor boot/initialization failure on the affected path and prove the candidate reaches ready state without bypassing another admission check.",
+        "Exercise repeated initialization, warm restart, worker restart and representative prompt/decode traffic while asserting the shared top-k buffer lifecycle and absence of stale index-group synchronization.",
+        "Keep unsupported hardware/runtime UNAVAILABLE and preserve rollback to the incumbent qualified backend."
+      ]
+    },
+    {
+      "id": "vllm-rocm-aiter-mxfp8-enable-gate",
+      "priority": "P0_P1",
+      "category": "quantized-moe-backend-admission",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "213c379fcafe5ac3bdc235a480e13140ee13c7b5",
+      "upstreamPullRequest": 57426,
+      "observedMergedAt": "2026-09-18T00:06:05Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "MXFP8 MoE backend selection on ROCm must respect the actual AITER fused-MoE enable state rather than treating package/device presence as sufficient admission.",
+        "Selecting an AITER path while its runtime gate is disabled is a backend-contract violation, not a routine performance choice."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, ROCm/AITER/FlyDSL versions, gfx target, model quantization metadata and TP/EP topology.",
+        "Use AITER-enabled and AITER-disabled controls for both auto-selection and explicit backend requests; disabled state must never silently select AITER.",
+        "Compare candidate output/logits against the qualified native fallback on representative MXFP8 MoE inputs and exercise TP plus EP expert-mask paths.",
+        "Require explicit failure for unsupported forced selection, record rollback, and keep unexecuted gfx/topology combinations UNQUALIFIED."
+      ]
+    },
+    {
+      "id": "vllm-diffusiongemma-commit-step-logprob-correctness",
+      "priority": "P0_P1",
+      "category": "diffusion-generation-logprob-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "2c88fb131c7ae0be01907cd8c276911db5e7aad4",
+      "upstreamPullRequest": 57414,
+      "observedMergedAt": "2026-09-18T00:24:58Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "DiffusionGemma could hand out stashed logprobs for a request that merely had decode logits rather than for the request that was actually committing its step.",
+        "Mis-associating pending logprobs across diffusion commit state is an output-integrity defect that can corrupt downstream scoring/evaluation evidence."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, DiffusionGemma model/config, sampler/logprob settings and request identities.",
+        "Reproduce the predecessor with mixed committing and non-committing requests, then require the candidate to pop and attach pending logprobs only for committing slots.",
+        "Exercise multi-request batching, slot reuse, logprobs enabled/disabled, cancellation before commit, retry/restart and repeated diffusion steps; assert no stale logprob crosses request identity.",
+        "Bind emitted token/logprob receipts to the exact request/commit step and preserve rollback; no evaluation score may be promoted from ambiguous predecessor output."
+      ]
+    },
+    {
+      "id": "sglang-dsv4-rocm-aiter-fp4-dequant-correctness",
+      "priority": "P0",
+      "category": "quantization-dequant-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "4f52a2756328df5c27c9c6b76011805f7f40e8f8",
+      "upstreamPullRequest": 35123,
+      "observedMergedAt": "2026-09-17T20:51:22Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "On ROCm AITER, requesting DeepSeek-V4 FP4-to-FP8 dequantization could be silently ignored because the native FP4 expert path returned before the dequant branch.",
+        "The repair converts routed expert weights/scales, normalizes e4m3fn to native FNUZ where required and avoids AITER shuffling for a Triton runner; wrong-runner shuffling can corrupt output."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/image, DeepSeek-V4 checkpoint identity, ROCm/AITER versions, accelerator, dequant environment and selected MoE runner.",
+        "Known-bad predecessor must show the requested dequant path is a no-op; candidate must prove FP4 expert weights/scales become the intended block-FP8 representation.",
+        "Exercise FNUZ and non-FNUZ hardware paths plus AITER and Triton runners; assert shuffle occurs only for the compatible AITER runner and compare logits to a trusted reference.",
+        "Record memory/performance only after numerical parity; preserve native FP4 rollback and mark absent hardware UNAVAILABLE."
+      ]
+    },
+    {
+      "id": "sglang-pd-runtime-role-switch-lifecycle",
+      "priority": "P1",
+      "category": "prefill-decode-deployment-lifecycle",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "1f60ddef5dc2ae3bbfbe0c5cea45690c4b60a251",
+      "upstreamPullRequest": 28403,
+      "observedMergedAt": "2026-09-17T17:45:12Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "SGLang now exposes opt-in runtime switching between prefill and decode roles, including transfer-backend teardown and lifecycle reconstruction rather than a restart-only topology change.",
+        "The source explicitly rejects DP attention, EP, MoE all-to-all, PP, DP, DCP and speculative decoding because role-specific state is not rebuilt for those combinations; promotion therefore requires lifecycle evidence, not feature discovery."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/image, transfer backend, network/bootstrap configuration, model, accelerator topology and role-switch flag; keep the flag off by default.",
+        "Run repeated P->D->P cycles with quiescent and in-flight workloads; prove request drain/cancellation, heartbeat thread shutdown, transfer-resource teardown/recreation and KV ownership without leak or duplication.",
+        "Inject teardown, registration, transfer and restart failures; require deterministic recovery or fail-closed service state with no mixed-role acceptance.",
+        "Assert every source-declared unsupported combination hard-fails before service admission; no success on the supported subset may qualify DP/EP/PP/DCP/speculative combinations."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active serving owner",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "observedA11oySourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "sourceRuntimeProductIdentity": "OBSERVED_EQUAL_NOT_WHOLE_CHAIN_CLOSED",
+    "proofCapturedAt": "2026-09-12T01:25:04Z",
+    "proofCounts": {"models": 46, "datasets": 35, "spaces": 21},
+    "note": "Fresh HF runtime and a-11-oy.com reads still report the protected A11oy SHA; a11oy.net proof remains dated. Different observation windows are not combined into a whole-chain PASS."
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}

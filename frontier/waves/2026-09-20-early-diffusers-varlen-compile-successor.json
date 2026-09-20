@@ -1,0 +1,72 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-20-early-diffusers-varlen-compile-successor",
+  "priority": "P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "4f40cdf2f0bb218f75f43e03e7246f67fb24583f",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-19-late-flashmla-ragged-decode-successors",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "diffusers-flash-sage-varlen-dynamic-compile-shape-integrity",
+      "priority": "P1",
+      "category": "multimodal-diffusion-attention-compile-shape-integrity",
+      "upstreamRepository": "huggingface/diffusers",
+      "upstreamRevision": "80c7ed262aeffbeb43ef13ae04baeb9b84515a69",
+      "upstreamPullRequest": 14568,
+      "primarySourceUrl": "https://github.com/huggingface/diffusers/pull/14568",
+      "observedCommitAt": "2026-09-20T05:51:20Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "signatureVerification": "GITHUB_VERIFIED_VALID",
+      "upstreamLicenseObserved": "Apache-2.0",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Shared FlashAttention and SageAttention varlen preparation could fail under torch.compile with dynamic shapes because Inductor rewrites cumsum-of-symbolic-constant lengths into an unsupported FakeTensor/Node multiplication, while the no-mask path also forced a GPU-to-CPU .item() graph break.",
+        "The successor replaces uniform-length cumsum construction with arange, removes the no-mask .item() path, adds explicit zero-length offset handling and an upstream dynamic compile regression, making this a shared compiled-attention execution boundary rather than a cosmetic optimization."
+      ],
+      "disconfirmingEvidence": [
+        "Upstream reports exact eager parity and successful dynamic fullgraph compilation for real flash-attn 2.8.3 on one H200, but that is an upstream measurement and not an SZL runtime receipt.",
+        "The masked key-length path remains data-dependent and retains a necessary .item(); upstream verification cited the real FlashAttention backend, not independent SageAttention hardware/runtime closure, and the self-review notes no direct CPU unit test for the helpers."
+      ],
+      "boundedResources": {
+        "sourceFixtures": "CPU/helper shape arithmetic plus existing source CI; no checkpoint or model download is required",
+        "acceleratorClosure": "one bounded existing-owner run only on already available hardware/backends actually consumed by SZL; no paid job is authorized",
+        "weights": "use only an already-admitted local fixture or tiny synthetic attention harness unless a separately governed exact checkpoint is already available; do not mirror weights for this wave"
+      },
+      "requiredEvidence": [
+        "Bind exact Diffusers commit/wheel or image, Torch/Inductor, Python, attention backend and kernel package identities; bind exact model/checkpoint only if a full pipeline is actually exercised.",
+        "Preserve the immediate predecessor or equivalent known-bad dynamic-shape fixture that reproduces the symbolic cumsum failure and the no-mask graph-break behavior; include zero-length, batch-one, changing batch, changing sequence and masked/unmasked controls.",
+        "Require helper offset and max-length equality against an independent reference across the declared dynamic-shape matrix, including zero-length sequences and malformed/inconsistent masks that must fail explicitly rather than silently reshape.",
+        "For every backend SZL actually consumes, compare eager versus compiled outputs under fixed inputs and declared tolerances; FlashAttention evidence does not automatically qualify SageAttention, and source tests do not qualify an unavailable accelerator backend.",
+        "Exercise compile cache warm/cold behavior, shape changes, cancellation/error propagation and restart where the owning runtime supports them; retain raw compiler/runtime failures and do not convert graph breaks into PASS.",
+        "Preserve eager/uncompiled attention or the previously qualified backend as rollback, and do not change a production compile/backend default until exact owner-level evidence passes."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active importing owner",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "currentWholeChainClosureClaim": false
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "paidExecutionAuthorized": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
