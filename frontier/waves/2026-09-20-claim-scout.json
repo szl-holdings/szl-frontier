@@ -1,0 +1,85 @@
+{
+  "schema": "szl.frontier.wave/v1",
+  "id": "2026-09-20-claim-scout",
+  "observedAt": "2026-09-20T00:50:00Z",
+  "disposition": "EVALUATION_HOLD",
+  "evaluationOnly": true,
+  "productionAuthorized": false,
+  "automaticPromotionAuthorized": false,
+  "allWorkPackagesComplete": false,
+  "lambdaStatus": "CONJECTURE_1",
+  "lockedFormulas": ["F1", "F4", "F7", "F11", "F12", "F18", "F19", "F22"],
+  "candidate": {
+    "publisher": "SZL Holdings",
+    "repository": "szl-holdings/szl-frontier",
+    "note": "Claim-Scout / Counterfactual World Projector. Turns a public Hugging Face paper, model, Space, kernel, or GitHub harness claim into a named world that would have to be true before LIVE, then refuses that world. Not a model admission and not a LIVE stamp."
+  },
+  "authorityChain": {
+    "githubSource": "szl-frontier 32b2173062dde7098cb881b9264d612324317b4c (#183 source/runtime drift detector merged; production HOLD; promotion NONE)",
+    "huggingFaceProjection": "no Hub write from this wave",
+    "productRuntime": "scout only; Space RUNNING is not LIVE",
+    "proofEvidence": "likes, stars, paper acceptance, and analog citations cannot move a LIVE posterior"
+  },
+  "headsObserved": {
+    "szl-frontier": "32b2173062dde7098cb881b9264d612324317b4c",
+    "a11oy": "a2244bde",
+    "szl-forge": "7a5b1d428631ec41b9162081eaabf32069610f06",
+    "a11oy-net": "6899094a",
+    "lyte-services": "9ce4e6b5"
+  },
+  "landedPredecessors": [
+    "szl-frontier#183 source/runtime drift detector merged 2026-09-20T00:25Z",
+    "szl-frontier#179 Hub 1.32 convergence",
+    "a11oy#2124 NX02 pagination / alias conflict / vertical opt-in",
+    "szl-forge#347 nano loader contracts (Hub unpublished)"
+  ],
+  "implements": ["NX08-scout"],
+  "doesNotImplement": [
+    "WP06 kernel consumer load on hardware",
+    "WP08 Tau sandbox benchmark",
+    "WP09 Ghlore retrieval benchmark",
+    "WP14 AsyncGRPO GPU",
+    "WP23 seven-viewport product UX",
+    "LIVE stamp",
+    "OPERATIONAL=8"
+  ],
+  "scout": {
+    "schema": "szl.frontier.claim-scout/v1",
+    "engine": "scripts/szl_claim_scout.mjs",
+    "worldSchema": "szl.frontier.counterfactual-world/v1",
+    "inheritsQualification": false,
+    "likesAreNotEvidence": true,
+    "paperStatusIsNotQualification": true,
+    "spaceRunningIsNotLive": true,
+    "webgpuKernelIsNotProductRuntime": true,
+    "sandboxEscapeIsNotAdmission": true,
+    "analogCascadeHasCeiling": true,
+    "productionAuthorizationFromThisTool": false
+  },
+  "remainingHolds": [
+    "Frontier #184 NX08 rehearsal draft — Claim-Scout additive candidate",
+    "Frontier #185 zero-bandaid draft",
+    "Frontier #186 T28 live-watch draft",
+    "Frontier #181 integrity successors draft",
+    "Forge #347 Hub loaders unpublished",
+    "WP06/WP08/WP09/WP14/WP23 hardware and viewport evidence still absent"
+  ],
+  "policy": {
+    "hubPublicationAuthorized": false,
+    "providerWriteAuthorized": false,
+    "productionRouteChangeAuthorized": false,
+    "weightRehostingAuthorized": false,
+    "branchProtectionMutationAuthorized": false
+  },
+  "deduplication": {
+    "doNotRecreate": [
+      "szl-frontier#183",
+      "szl-frontier#181",
+      "szl-frontier#184",
+      "szl-frontier#185",
+      "a11oy#2124",
+      "a11oy#2205",
+      "szl-forge#347"
+    ]
+  }
+}
