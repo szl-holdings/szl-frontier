@@ -1,4 +1,5 @@
 import type { ActionDef, ActionKind, Purpose } from "@/lib/covenant/types";
+import type { Paint } from "@/lib/ouroboros/paint";
 
 export const ACTIONS: ActionDef[] = [
   {
@@ -49,6 +50,7 @@ export function evaluateAction(input: {
   kind: ActionKind;
   purpose: Purpose;
   approval: "none" | "pending" | "approved" | "denied";
+  organPaint?: Paint;
 }): { allowed: boolean; reason: string; hard: boolean } {
   const def = ACTIONS.find((a) => a.id === input.kind);
   if (!def) return { allowed: false, reason: "unknown action", hard: true };
@@ -56,6 +58,13 @@ export function evaluateAction(input: {
     return {
       allowed: false,
       reason: `${def.id} is hard-denied — approval cannot lift this`,
+      hard: true,
+    };
+  }
+  if (input.organPaint === "DENY") {
+    return {
+      allowed: false,
+      reason: "organ cycle DENY — the UI cannot lift HARD_DENY or LAMBDA_VETO",
       hard: true,
     };
   }
