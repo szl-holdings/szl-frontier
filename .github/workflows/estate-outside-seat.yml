@@ -28,8 +28,7 @@ jobs:
           python-version: "3.12"
       - name: Verify offline receipt, transport and provenance controls first
         run: |
-          python -m unittest discover -s tools -p 'test_estate_outside_seat.py' -v
-          python -m unittest discover -s tools -p 'test_outside_seat_previous.py' -v
+          python -m unittest discover -s tools -p 'test_*.py' -v
       - name: Retrieve the preceding completed main workflow receipt
         id: previous
         env:

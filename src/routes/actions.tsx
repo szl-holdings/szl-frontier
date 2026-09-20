@@ -13,7 +13,9 @@ function ActionsPage() {
   const items = useOrchestrator((s) => s.actions);
   const requestAction = useOrchestrator((s) => s.requestAction);
   const decideAction = useOrchestrator((s) => s.decideAction);
+  const organPaint = useOrchestrator((s) => s.organPaint);
   const [busy, setBusy] = useState<string | null>(null);
+  const organDenies = organPaint === "DENY";
 
   async function request(kind: (typeof ACTIONS)[number]["id"]) {
     setBusy(kind);
@@ -58,7 +60,7 @@ function ActionsPage() {
               className="mt-4"
               size="sm"
               variant={a.class === "hard-deny" ? "deny" : "secondary"}
-              disabled={!!busy}
+              disabled={!!busy || organDenies}
               onClick={() => request(a.id)}
             >
               Request
@@ -96,7 +98,11 @@ function ActionsPage() {
             <p className="mt-2 text-sm text-muted">{a.reason}</p>
             {a.status === "pending" ? (
               <div className="mt-3 flex flex-wrap gap-2">
-                <Button size="sm" disabled={!!busy} onClick={() => void decide(a.id, true)}>
+                <Button
+                  size="sm"
+                  disabled={!!busy || organDenies}
+                  onClick={() => void decide(a.id, true)}
+                >
                   Approve
                 </Button>
                 <Button size="sm" variant="deny" disabled={!!busy} onClick={() => void decide(a.id, false)}>
