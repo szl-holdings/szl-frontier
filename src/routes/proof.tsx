@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatClock, shortId } from "@/lib/utils";
+import { paintLabel, paintTone } from "@/lib/ouroboros/paint";
 import { useOrchestrator } from "@/stores/orchestrator";
 import type { ReceiptKind } from "@/lib/covenant/types";
 
@@ -28,6 +29,8 @@ const KINDS: Array<ReceiptKind | "all"> = [
 function ProofPage() {
   const receipts = useOrchestrator((s) => s.receipts);
   const genesis = useOrchestrator((s) => s.genesisHash);
+  const organPaint = useOrchestrator((s) => s.organPaint);
+  const organCycle = useOrchestrator((s) => s.organCycle);
   const [kind, setKind] = useState<(typeof KINDS)[number]>("all");
   const [broken, setBroken] = useState<number | null | undefined>(undefined);
 
@@ -47,7 +50,7 @@ function ProofPage() {
       <PageHeader
         kicker="Proof chain"
         title="Exact-effect receipts"
-        description="Each sealed receipt hashes its body and the previous hash. Denied operations still emit a receipt — they must not mutate the index."
+        description="Each sealed receipt hashes its body and the previous hash. Denied operations still emit a receipt — they must not mutate the index. Organ ALLOW chrome is bound to the ouroboros cycle, not this in-plane chain."
         action={
           <Button
             variant="secondary"
@@ -57,6 +60,15 @@ function ProofPage() {
           </Button>
         }
       />
+
+      <div className="flex flex-wrap items-center gap-3 rounded-xl bg-bg-elevated px-5 py-4 shadow-[inset_0_0_0_1px_var(--color-border)]">
+        <Badge tone={paintTone(organPaint)}>
+          organ {paintLabel(organPaint, organCycle?.verdict)}
+        </Badge>
+        <span className="font-mono text-xs text-muted">
+          productionPromotion={String(organCycle?.productionPromotion ?? false)} · Λ=CONJECTURE_1
+        </span>
+      </div>
 
       <div className="rounded-xl bg-bg-elevated p-5 shadow-[inset_0_0_0_1px_var(--color-border)]">
         <div className="text-[10px] uppercase tracking-[0.16em] text-subtle">Genesis</div>
