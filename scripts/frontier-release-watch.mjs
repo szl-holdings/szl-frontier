@@ -97,3 +97,34 @@ export function parseHuggingFaceFeed(xml) {
     };
   }).filter((item) => item.title && item.primarySource.startsWith(`${HF_ORIGIN}/blog/`));
 }
+
+export function editorialMateriality(item, cursor = FRONTIER_CATALOG_EVALUATED_AT) {
+  const haystack = `${item.title} ${item.description}`.toLowerCase();
+  let score = 20;
+  const reasons = ["primary Hugging Face article"];
+  if (TRUSTED_AUTHORS.has(String(item.author).toLowerCase())) {
+    score += 20;
+    reasons.push("trusted publisher");
+  }
+  if (RELEASE_WORDS.some((word) => haystack.includes(word))) {
+    score += 20;
+    reasons.push("release or availability signal");
+  }
+  const matchedFrontier = FRONTIER_WORDS.filter((word) => haystack.includes(word));
+  if (matchedFrontier.length) {
+    score += Math.min(35, 15 + matchedFrontier.length * 4);
+    reasons.push(`frontier domains: ${matchedFrontier.slice(0, 5).join(", ")}`);
+  }
+  if (LOW_SIGNAL_WORDS.some((word) => haystack.includes(word))) {
+    score -= 25;
+    reasons.push("low-signal editorial/event penalty");
+  }
+  const published = Date.parse(item.publishedAt);
+  const cutoff = Date.parse(cursor);
+  const recent = Number.isFinite(published) && Number.isFinite(cutoff) && published > cutoff;
+  if (recent) {
+    score += 10;
+    reasons.push("newer than admitted cursor");
+  }
+  return { score: Math.max(0, Math.min(100, score)), recent, reasons };
+}
