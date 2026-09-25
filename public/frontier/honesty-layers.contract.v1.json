@@ -1,0 +1,14 @@
+{
+  "schema": "szl.frontier.honesty-layers/v1",
+  "production_authorization": false,
+  "layers": {
+    "membership": "MEASURED_OR_UNAVAILABLE",
+    "tree": "NOT_PERFORMED",
+    "content": "NOT_PERFORMED",
+    "qualification": "NOT_CLAIMED"
+  },
+  "unknown_as_zero": false,
+  "file_audit_complete": false,
+  "source_content_files_read": 0,
+  "note": "Membership is not tree hashing. Tree hashing is not content review. Content review is not qualification."
+}

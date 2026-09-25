@@ -68,6 +68,20 @@ function CommandCenter() {
         }
       />
 
+      <div className="rounded-xl bg-bg-elevated px-5 py-4 shadow-[inset_0_0_0_1px_var(--color-border)]">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-subtle">Production disposition</div>
+            <p className="mt-1 text-sm text-muted">
+              HOLD. Software plane is live. Automatic promotion is false. Λ remains Conjecture 1.
+            </p>
+          </div>
+          <Button asChild variant="secondary">
+            <Link to="/frontier">Open operational intake</Link>
+          </Button>
+        </div>
+      </div>
+
       <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-3">
         {SEQUENCE.map((s) => (
           <Link
