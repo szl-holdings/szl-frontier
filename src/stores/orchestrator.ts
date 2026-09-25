@@ -35,6 +35,8 @@ import { EMBED_REVISION } from "@/lib/covenant/index-engine";
 import { ACTIONS, evaluateAction } from "@/lib/actions/adapter";
 import { runScenario as execScenario, SCENARIOS } from "@/lib/adversary/campaign";
 import { CURRICULUM, fetchPublicCorpus, SecondBrainIndex } from "@/lib/brain";
+import { loadPublishedCycle } from "@/lib/ouroboros/cycle-client";
+import { paintFromCycle, type CyclePaintSource, type Paint } from "@/lib/ouroboros/paint";
 
 export type Session = Omit<Identity, "runId">;
 
@@ -65,6 +67,8 @@ interface OrchestratorState {
   lastBrainPlan: { query: string; decision: "NAVIGATE" | "ABSTAIN"; reason: string; handles: { nodeId: string; note: string }[] } | null;
   genesisHash: string;
   policyBundleSha256: string;
+  organCycle: CyclePaintSource | null;
+  organPaint: Paint;
   hydrate: () => Promise<void>;
   setSession: (patch: Partial<Session>) => void;
   writeMemory: (input: {
@@ -187,8 +191,12 @@ export const useOrchestrator = create<OrchestratorState>()(
       lastBrainPlan: null,
       genesisHash: "0".repeat(64),
       policyBundleSha256: "",
+      organCycle: null,
+      organPaint: "UNAVAILABLE",
 
       hydrate: async () => {
+        const cycle = await loadPublishedCycle();
+        set({ organCycle: cycle, organPaint: paintFromCycle(cycle) });
         if (engine) {
           set({ ready: true });
           void get().bootBrain();
@@ -590,6 +598,7 @@ export const useOrchestrator = create<OrchestratorState>()(
           kind: current.kind,
           purpose: "action-execute",
           approval: "approved",
+          organPaint: get().organPaint,
         });
         if (!gate.allowed) {
           const denied: ActionRequest = {

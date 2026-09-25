@@ -58,7 +58,23 @@ each response. Private resources are outside this public observation scope.
 
 Provider runtime stage is recorded separately from source age. A provider stage
 such as `RUNNING` still does not prove the application's readiness or business
-contract. The card check detects the specific contradiction between a card
+contract. Every Space observation also records `sourceRevision` from `sha`,
+`runtimeRevision` from `runtime.sha`, and `providerRevisionParity`:
+
+- `MATCH`: valid source and runtime revisions are equal in the metadata for the
+  expected Space. Source age, runtime stage and other metadata checks still apply.
+- `MISMATCH`: valid revisions differ. This is a finding even during
+  `RUNNING_BUILDING`, when the previous build may still be serving.
+- `UNAVAILABLE`: the expected identity or either revision cannot be established.
+  Missing or malformed runtime revision evidence keeps the observation incomplete.
+
+Revision equality is a provider metadata observation. It does not bind the
+deployment to a GitHub commit or prove which code served an application request.
+The original source-age threshold and production HOLD remain in force. Existing
+v2 receipts remain readable; these additional row fields are included in each
+new receipt's digest and its retained response evidence.
+
+The card check detects the specific contradiction between a card
 claiming "no application backend" and a repository containing root `server.py`.
 The check traverses the paginated root tree at the same revision as the README;
 it is not a general semantic audit of every claim or a recursive source audit.
