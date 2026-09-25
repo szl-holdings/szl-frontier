@@ -3,14 +3,17 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   catalogCandidate,
+  classifiedWatchDelta,
   editorialMateriality,
   feedCandidate,
   hasCompleteSourceCoverage,
   parseHuggingFaceFeed,
+  readClassifiedLedgerSync,
   snapshotHuggingFaceBlog,
   snapshotHubAsset,
   stableStringify,
 } from "./frontier-release-watch.mjs";
+import { FIRST_OBSERVATION, NO_MATERIAL, SUBSTANTIVE_CHANGE } from "../src/lib/frontier/watch-materiality.js";
 import { productionDisposition } from "../src/lib/frontier/release-catalog.js";
 
 describe("frontier release watch", () => {
@@ -55,6 +58,7 @@ describe("frontier release watch", () => {
     assert.equal(snapshot.revision, "abc123");
     assert.equal(snapshot.license, "apache-2.0");
     assert.match(snapshot.artifactFingerprint, /^[a-f0-9]{64}$/);
+    assert.equal(typeof snapshot.classifiedFingerprints.substantive, "string");
   });
 
   it("fingerprints a bounded official blog page without executing its content", () => {
@@ -139,6 +143,63 @@ describe("frontier release watch", () => {
         },
       }),
       "PROMOTE",
+    );
+  });
+
+  it("does not treat first Hub observation or card churn as a material model release", () => {
+    const release = {
+      id: "granite-watch",
+      title: "Granite PatchTST",
+      publisher: "IBM",
+      category: "time-series",
+      primarySource: "https://huggingface.co/ibm-granite/granite-timeseries-patchtst-fm-r2",
+      artifactSource: "https://huggingface.co/ibm-granite/granite-timeseries-patchtst-fm-r2",
+      targetOrgans: ["szl-frontier"],
+      whyItMatters: "Optional Lyte challenger",
+      operationalTarget: "Review only",
+      maturity: "released",
+      license: "apache-2.0",
+      licensePosture: "clear",
+      posture: "EVALUATION",
+      signals: { impact: 25, estateFit: 25, evidenceQuality: 20, integrationReadiness: 15, riskPenalty: 0 },
+      gates: [{ scope: "production", state: "pending" }],
+      watch: { kind: "model", repoId: "ibm-granite/granite-timeseries-patchtst-fm-r2" },
+    };
+    const payload = (readmeOid, weightOid) => ({
+      sha: "a".repeat(40),
+      lastModified: "2026-09-24T00:00:00Z",
+      private: false,
+      gated: false,
+      disabled: false,
+      cardData: { license: "apache-2.0" },
+      siblings: [
+        { rfilename: "README.md", size: 30, blobId: readmeOid },
+        { rfilename: "LICENSE", size: 31, blobId: "c".repeat(40) },
+        { rfilename: "config.json", size: 32, blobId: "d".repeat(40) },
+        { rfilename: "model.safetensors", size: 100, lfs: { oid: weightOid, size: 100 } },
+      ],
+    });
+    const first = snapshotHubAsset("model", release.watch.repoId, payload("b".repeat(40), "e".repeat(64)));
+    assert.equal(classifiedWatchDelta(release, first), FIRST_OBSERVATION);
+    assert.equal(catalogCandidate(release, first, "2026-09-01T00:00:00Z").material, false);
+
+    const seeded = {
+      ...release,
+      watch: { ...release.watch, classifiedFingerprints: first.classifiedFingerprints },
+    };
+    const cardChurn = snapshotHubAsset("model", release.watch.repoId, payload("f".repeat(40), "e".repeat(64)));
+    assert.equal(classifiedWatchDelta(seeded, cardChurn), NO_MATERIAL);
+    assert.equal(catalogCandidate(seeded, cardChurn, "2026-09-01T00:00:00Z").material, false);
+
+    const weights = snapshotHubAsset("model", release.watch.repoId, payload("b".repeat(40), "f".repeat(64)));
+    assert.equal(classifiedWatchDelta(seeded, weights), SUBSTANTIVE_CHANGE);
+    assert.equal(catalogCandidate(seeded, weights, "2026-09-01T00:00:00Z").material, true);
+  });
+
+  it("rejects a production-promoting classified ledger", () => {
+    assert.throws(
+      () => readClassifiedLedgerSync({ schema: "szl.frontier.watch-classified-ledger.v1", productionPromotion: true, assets: {} }),
+      /cannot authorize production/,
     );
   });
 });
