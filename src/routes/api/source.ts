@@ -12,6 +12,7 @@ export const Route = createFileRoute("/api/source")({
             "cache-control": "no-store",
             "x-szl-kind": "source-identity",
             "x-szl-production-authorization": "false",
+            "x-szl-file-audit-complete": "false",
           },
         }),
     },
