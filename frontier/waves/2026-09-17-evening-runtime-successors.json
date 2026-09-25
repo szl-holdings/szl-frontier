@@ -1,0 +1,173 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-17-evening-runtime-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "469dbc1aeba92e1e9158f15dd47abc74859ec16e",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "szl-holdings/szl-frontier#178",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-hisparse-nixl-full-block-tail-correctness",
+      "priority": "P0",
+      "category": "kv-cache-transfer-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "67e5b0acc9988afc50d019db64ad9da0dadaa15e",
+      "upstreamPullRequest": 57049,
+      "observedMergedAt": "2026-09-17T19:26:10Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "A fully imported remote HiSparse/NIXL prefix still needs a writable final resident page for last-token replay; treating every imported full block as host-only can expose missing or uninitialized GPU state on decode continuation.",
+        "The upstream repair explicitly restores the tail page, tracks pending restore lifetime and exercises exact full/partial block boundaries, aborts and refcounts."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM/NIXL source, image, block size, connector configuration, model/tokenizer and accelerator topology.",
+        "Run the known-bad predecessor and candidate at token counts 1, 15, 16, 17, 31, 32, 33 and 127; prove final-page restore, last-token replay and prefix-cache visibility semantics.",
+        "Exercise abort during pending restore, transfer failure, request cancellation, restart and refcount cleanup; missing hardware is UNAVAILABLE, not PASS.",
+        "Preserve rollback to the incumbent exact serving path and require output/logit parity before performance claims."
+      ]
+    },
+    {
+      "id": "sglang-dp-idle-rank-zero-token-logits-correctness",
+      "priority": "P0",
+      "category": "distributed-serving-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "a98d921658b2cb78ca1257a4d72a6a3969620456",
+      "upstreamPullRequest": 39899,
+      "observedMergedAt": "2026-09-17T16:21:09Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "MLP synchronization can represent an originally IDLE DP rank as a dummy zero-token EXTEND batch; logits pruning must retain the original idle semantic or it can index a nonexistent last token and crash.",
+        "This is a distributed serving correctness/availability boundary rather than routine batching cleanup."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/image, DP/TP topology, model and MLP-sync configuration.",
+        "Use a known-bad zero-token idle-rank fixture and candidate fixture; require zero logits rows on the idle rank while padded execution state remains valid for attention/MLP synchronization.",
+        "Exercise mixed idle/active ranks, logprob on/off, speculative modes, repeated empty batches, cancellation and worker restart with no cross-rank output contamination.",
+        "Keep every unexercised topology UNQUALIFIED and preserve rollback."
+      ]
+    },
+    {
+      "id": "sglang-exact-token-tensor-image-preprocessing",
+      "priority": "P0_P1",
+      "category": "multimodal-preprocessing-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "25c9f724d4785eaa6921690d1634d20a3faac57b",
+      "upstreamPullRequest": 30368,
+      "observedMergedAt": "2026-09-17T16:20:21Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Exact-token preprocessing assumed PIL image height/width attributes even when CUDA decoding yields CHW tensors, causing a valid multimodal input path to fail before token accounting.",
+        "Token-count drift at the processor boundary can change context accounting and therefore must be qualified independently of model quality."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/image, model/processor, decoder backend and input image bytes.",
+        "Run the predecessor and candidate on equivalent PIL and tensor-backed JPEG/image inputs; require identical intended dimensions, image-token counts and model-visible prompt structure.",
+        "Exercise grayscale/RGB, non-square dimensions, malformed tensors, CPU/CUDA decode availability and fallback without silently re-encoding unsupported inputs.",
+        "Measure latency only after preprocessing and output parity pass; preserve incumbent fallback."
+      ]
+    },
+    {
+      "id": "transformers-vllm-backend-video-token-accounting-part1",
+      "priority": "P0",
+      "category": "multimodal-video-token-accounting",
+      "upstreamRepository": "huggingface/transformers",
+      "upstreamRevision": "770e4c40d0436082a52dc380f07a9d3f389c99d4",
+      "upstreamPullRequest": 48894,
+      "observedMergedAt": "2026-09-17T15:13:44Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "The Transformers backend used by vLLM could compute video token counts through the wrong patch-count API and merge-size path across multiple VLM processors.",
+        "The upstream change is explicitly Part 1, so it is a bounded token-accounting correction and not evidence of complete video support."
+      ],
+      "requiredEvidence": [
+        "Bind exact Transformers/vLLM source, model, processor, video processor, decoder, sampled video bytes and generation configuration.",
+        "Use a known-bad predecessor plus candidate to compare processor-declared video tokens against independently derived frame/patch/merge calculations for representative durations, resolutions and merge_size overrides.",
+        "Exercise truncation/context limits, multiple videos, malformed metadata, decoder fallback and server restart; prove prompt-token accounting matches actual model input.",
+        "Keep all models/processors not explicitly exercised UNQUALIFIED and do not claim Part 2 or complete video parity."
+      ]
+    },
+    {
+      "id": "huggingface-hub-eval-results-invalid-entry-isolation",
+      "priority": "P0_P1",
+      "category": "evaluation-proof-ingestion-correctness",
+      "upstreamRepository": "huggingface/huggingface_hub",
+      "upstreamRevision": "77b6b2b32972d54f5afef920414d15b510507c46",
+      "upstreamPullRequest": 4924,
+      "observedMergedAt": "2026-09-17T14:55:31Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "A single server-invalid .eval_results YAML placeholder could raise in the Hub parser and discard every otherwise valid evaluation entry in the repository.",
+        "SZL treats evaluation and proof records as evidence-bearing inputs, so fault isolation must preserve valid entries without converting the invalid entry into success by omission."
+      ],
+      "requiredEvidence": [
+        "Bind exact huggingface_hub source/wheel and the exact eval-result response fixture consumed by SZL tooling.",
+        "Known-bad control: one valid entry plus one server error placeholder must demonstrate predecessor all-entry loss; candidate must retain the valid entry and surface the invalid filename/error as a non-success diagnostic.",
+        "Exercise multiple invalid entries, malformed valid-looking entries, empty response and ordering; downstream proof aggregation must preserve unknown/invalid status and may never compute a complete PASS from the surviving subset alone.",
+        "Route measured proof changes through the existing a11oy-net owner only after exact-source qualification; preserve v1.32 rollback and PR #179 boundaries."
+      ]
+    },
+    {
+      "id": "trl-asyncgrpo-sync-threadpool-async-tools",
+      "priority": "P1",
+      "category": "agent-training-tool-concurrency",
+      "upstreamRepository": "huggingface/trl",
+      "upstreamRevision": "28884e7f8139e752b476de28474e7cf75e1e1cd5",
+      "upstreamPullRequest": 7175,
+      "observedMergedAt": "2026-09-17T14:25:02Z",
+      "sourceVerification": "GITHUB_VERIFIED_SIGNATURE",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "relatedGovernanceIssue": "szl-holdings/szl-frontier#76",
+      "materiality": [
+        "AsyncGRPO now executes synchronous tools in a bounded thread pool and accepts asynchronous tools, preventing a slow synchronous tool from blocking unrelated in-flight generation.",
+        "The concurrency change introduces explicit thread-safety, shared-state, cancellation and side-effect ordering obligations that are not covered by #76's earlier adapter-sync scope."
+      ],
+      "requiredEvidence": [
+        "Bind exact TRL source/environment, AsyncGRPO configuration, vLLM runtime and synthetic non-secret tool implementations.",
+        "Exercise synchronous, asynchronous, slow, failing and missing tools; require model-emitted per-turn result order, bounded max_inflight_tasks concurrency and responsive event-loop progress.",
+        "Use shared-state race fixtures plus cancellation, timeout, rollout restart, trainer stop/backpressure and retry scenarios; assert no duplicate consequential side effects and no orphan executor work crosses rollout identity.",
+        "Retain #76 adapter-version/staleness/shared-path gates independently; no tool-concurrency success transfers adapter-sync qualification or authorizes production effectors."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "asyncGrpoGovernance": "szl-holdings/szl-frontier#76",
+    "servingIntegrationAfterQualification": "active serving owner",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "observedA11oySourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "sourceRuntimeProductIdentity": "OBSERVED_EQUAL_NOT_WHOLE_CHAIN_CLOSED",
+    "proofCapturedAt": "2026-09-12T01:25:04Z",
+    "proofCounts": {"models": 46, "datasets": 35, "spaces": 21},
+    "note": "Fresh HF runtime and product reads report the protected A11oy SHA, while proof remains dated. Different observation windows are not combined into a whole-chain PASS."
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}

@@ -1,0 +1,104 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-19-late-flashmla-ragged-decode-successors",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "32b2173062dde7098cb881b9264d612324317b4c",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-19-afternoon-speech-rocm-cache-successors",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-fp8-ds-mla-writer-reader-scale-contract",
+      "priority": "P0",
+      "category": "kv-cache-quantization-writer-reader-numerical-integrity",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "a7fda4c88bfc421d31e33acc5e01e86ebe467ad8",
+      "upstreamPullRequest": 49435,
+      "primarySourceUrl": "https://github.com/vllm-project/vllm/pull/49435",
+      "observedCommitAt": "2026-09-20T00:15:07Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "signatureVerification": "GITHUB_VERIFIED_VALID",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "The fp8_ds_mla cache writer previously stored arbitrary FP32 per-tile scales even though SM90 and SM100 FlashMLA readers quantize those scale fields through different reduced representations; the writer and reader can therefore disagree about the effective quantization scale for the same cached bytes.",
+        "The successor changes all three known writers—native CUDA, fused DeepSeek-V3.2 Triton, and Kimi-K3 shared prefill/decode—to a power-of-two scale contract, making this a cross-backend KV-cache correctness boundary rather than a throughput-only kernel change."
+      ],
+      "disconfirmingEvidence": [
+        "Upstream reported one candidate serving run slower than its control and explicitly made no performance claim.",
+        "The PR description states that a full SM90 model evaluation was still outstanding; source/kernel tests and GB300/SM103 evidence must not be treated as SM90 model qualification."
+      ],
+      "boundedResources": {
+        "sourceFixtures": "CPU/source-level scale and byte-layout fixtures only",
+        "acceleratorClosure": "one bounded existing-owner GPU evaluation per actually available architecture; no paid job is authorized",
+        "weights": "use only already-admitted locally available checkpoints where rights and exact identities are proven; do not mirror weights for inventory"
+      },
+      "requiredEvidence": [
+        "Bind exact vLLM commit/build or image, CUDA/driver/Torch/Triton/FlashMLA identities, device architecture, cache dtype/layout, and exact model/checkpoint/tokenizer for every executed full-model lane.",
+        "Preserve an immediate predecessor or equivalent known-bad fixture using non-power-of-two and boundary scales that demonstrates writer/reader effective-scale divergence, plus all-zero, near-1e-4 and FP8 saturation-edge controls.",
+        "Compare native CUDA, DeepSeek-V3.2 Triton and Kimi-K3 writer bytes/scales against an independent reference and the actual reader conversion contract; require deterministic cache-hit versus cache-disabled logits/output parity before any speed claim.",
+        "Qualify SM90 and SM100/SM103 separately. Missing SM90 full-model evidence remains UNAVAILABLE/UNQUALIFIED even if SM100/SM103 passes; exercise warm/cold cache, prefix replay, cancellation and restart without stale or foreign KV reuse.",
+        "Preserve the incumbent cache implementation or cache-disable/non-FP8 path as rollback, and do not change a production default from this source qualification."
+      ]
+    },
+    {
+      "id": "vllm-sparse-indexer-ragged-decode-padded-path",
+      "priority": "P0",
+      "category": "sparse-attention-ragged-decode-shape-and-memory-safety",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "133b71e0beec3c7bcaae5b0839a03e7e88d20bc7",
+      "upstreamPullRequest": 52500,
+      "primarySourceUrl": "https://github.com/vllm-project/vllm/pull/52500",
+      "observedCommitAt": "2026-09-19T20:14:30Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "signatureVerification": "GITHUB_VERIFIED_VALID",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "A ragged mixed/warmup decode batch can report requires_padding=false and then enter a uniform reshape even when num_decode_tokens is not divisible by the number of decode sequences, producing a serving crash; the observed upstream failure was eight decode tokens over six requests on SM120/GB10 TP2.",
+        "The successor couples pack and unpack selection to a shared padded-path predicate, making batch-shape interpretation a runtime correctness and availability boundary for sparse-indexer serving."
+      ],
+      "disconfirmingEvidence": [
+        "The upstream source comment explicitly says token-count divisibility is necessary but not sufficient to prove a uniform batch; a divisible ragged shape such as decode_lens=[1,2,3] still depends on requires_padding being correct.",
+        "Upstream end-to-end evidence is specific to 2x DGX Spark/GB10 TP2 and does not qualify other architectures, topologies, speculative modes or every ragged shape."
+      ],
+      "boundedResources": {
+        "sourceFixtures": "CPU/shape predicate fixtures plus existing CI; no model download required for the adversarial shape matrix",
+        "acceleratorClosure": "bounded existing-owner run on already available affected hardware only; no paid hardware job is authorized",
+        "weights": "no new weight acquisition from this wave"
+      },
+      "requiredEvidence": [
+        "Bind exact vLLM build/image, sparse-indexer backend, model/checkpoint/tokenizer, device, TP/DP topology, graph mode and speculative configuration for every full-runtime execution.",
+        "Preserve the immediate predecessor known-bad 8-token/6-request or equivalent non-divisible ragged control, then test divisible ragged patterns such as [1,2,3] and [1,1,4] to prove requires_padding covers cases the new modulo proxy cannot detect; any reachable false-negative remains HOLD and requires a separate successor rather than a weakened test.",
+        "Exercise zero-token, single-request, uniform divisible, non-divisible ragged, mixed prefill/decode, warmup, CUDA-graph capture/replay, cancellation and restart; require pack/unpack path agreement and no reshape/OOB/stale-index failure.",
+        "Compare top-k indices, logits and deterministic outputs against an independently correct padded/reference path for every exercised ragged class before throughput or stability claims.",
+        "Preserve the incumbent/reference padded route as rollback and do not promote a serving default while any supported ragged class is UNQUALIFIED."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active serving owner",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "currentWholeChainClosureClaim": false
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "paidExecutionAuthorized": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
