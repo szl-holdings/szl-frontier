@@ -1,6 +1,6 @@
 // Copyright 2026 SZL Holdings — SPDX-License-Identifier: Apache-2.0
 import { createHash } from "node:crypto";
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import {
   FRONTIER_CATALOG_EVALUATED_AT,
@@ -10,6 +10,11 @@ import {
   materialityScore,
   productionDisposition,
 } from "../src/lib/frontier/release-catalog.js";
+import {
+  ALERTABLE,
+  classifyHubFiles,
+  materialArtifactDelta,
+} from "../src/lib/frontier/watch-materiality.js";
 
 const HF_ORIGIN = "https://huggingface.co";
 const DEFAULT_TIMEOUT_MS = 20_000;
@@ -146,7 +151,8 @@ function artifactRows(payload) {
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 
-export function snapshotHubAsset(kind, repoId, payload) {
+export function snapshotHubAsset(kind, repoId, payload, sha = sha256) {
+  const classified = classifyHubFiles(payload?.siblings, sha);
   return {
     kind,
     repoId,
@@ -162,6 +168,9 @@ export function snapshotHubAsset(kind, repoId, payload) {
     libraryName: payload?.library_name ?? null,
     license: payload?.cardData?.license ?? null,
     artifactFingerprint: sha256(artifactRows(payload)),
+    classifiedFingerprints: classified.fingerprints,
+    inventoryComplete: classified.inventoryComplete,
+    classifiedFileCount: classified.fileCount,
   };
 }
 
@@ -190,6 +199,102 @@ export function snapshotHuggingFaceBlog(release, html, metadata = {}) {
   };
 }
 
+export const CLASSIFIED_LEDGER_SCHEMA = "szl.frontier.watch-classified-ledger.v1";
+
+export function emptyClassifiedLedger() {
+  return {
+    schema: CLASSIFIED_LEDGER_SCHEMA,
+    productionPromotion: false,
+    assets: {},
+  };
+}
+
+export function readClassifiedLedgerSync(value) {
+  if (value == null) return emptyClassifiedLedger();
+  if (typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("classified ledger must be an object");
+  }
+  if (value.schema !== CLASSIFIED_LEDGER_SCHEMA) {
+    throw new Error("classified ledger schema mismatch");
+  }
+  if (value.productionPromotion === true) {
+    throw new Error("classified ledger cannot authorize production");
+  }
+  const assets = value.assets && typeof value.assets === "object" && !Array.isArray(value.assets)
+    ? value.assets
+    : {};
+  return { ...emptyClassifiedLedger(), assets };
+}
+
+function previousClassifiedSnapshot(release, snapshot) {
+  const previousFp = release.watch?.classifiedFingerprints;
+  if (!previousFp || typeof previousFp !== "object") return null;
+  return {
+    id: snapshot.repoId ?? release.watch.repoId,
+    kind: snapshot.kind,
+    inventoryComplete: ["rights", "presentation", "substantive"].every(
+      (key) => typeof previousFp[key] === "string" && /^[a-f0-9]{64}$/.test(previousFp[key]),
+    ),
+    fingerprints: previousFp,
+    accessFlags: release.watch.classifiedAccessFlags ?? {
+      private: Boolean(snapshot.private),
+      gated: Boolean(snapshot.gated),
+      disabled: Boolean(snapshot.disabled),
+    },
+    licenseMetadata: release.watch.classifiedLicense ?? snapshot.license ?? release.license ?? null,
+  };
+}
+
+export function classifiedWatchDelta(release, snapshot) {
+  if (!snapshot?.classifiedFingerprints) return null;
+  const current = {
+    id: snapshot.repoId ?? release.watch?.repoId,
+    kind: snapshot.kind,
+    inventoryComplete: snapshot.inventoryComplete === true,
+    fingerprints: snapshot.classifiedFingerprints,
+    accessFlags: {
+      private: Boolean(snapshot.private),
+      gated: Boolean(snapshot.gated),
+      disabled: Boolean(snapshot.disabled),
+    },
+    licenseMetadata: snapshot.license ?? release.license ?? null,
+  };
+  return materialArtifactDelta(previousClassifiedSnapshot(release, snapshot), current);
+}
+
+function seedReleaseFromLedger(release, ledger) {
+  const row = ledger?.assets?.[release.id];
+  if (!row?.classifiedFingerprints) return release;
+  return {
+    ...release,
+    watch: {
+      ...release.watch,
+      classifiedFingerprints: row.classifiedFingerprints,
+      classifiedAccessFlags: row.accessFlags ?? release.watch?.classifiedAccessFlags,
+      classifiedLicense: row.licenseMetadata ?? release.watch?.classifiedLicense,
+    },
+  };
+}
+
+function ledgerRowFromSnapshot(release, snapshot, observedAt) {
+  if (!snapshot?.classifiedFingerprints) return null;
+  return {
+    id: release.id,
+    repoId: snapshot.repoId ?? release.watch?.repoId ?? null,
+    kind: snapshot.kind,
+    classifiedFingerprints: snapshot.classifiedFingerprints,
+    inventoryComplete: snapshot.inventoryComplete === true,
+    accessFlags: {
+      private: Boolean(snapshot.private),
+      gated: Boolean(snapshot.gated),
+      disabled: Boolean(snapshot.disabled),
+    },
+    licenseMetadata: snapshot.license ?? release.license ?? null,
+    observedAt,
+    productionAdmitted: false,
+  };
+}
+
 function changedAfterCursor(snapshot, cursor) {
   const modified = Date.parse(snapshot.lastModified ?? snapshot.createdAt ?? "");
   const cutoff = Date.parse(cursor);
@@ -206,6 +311,12 @@ export function catalogCandidate(release, sourceSnapshot, cursor = FRONTIER_CATA
     sourceSnapshot.artifactFingerprint !== release.watch.baselineFingerprint;
   const changed = inventoryExpanded || blogContentChanged || changedAfterCursor(sourceSnapshot, cursor);
   const score = materialityScore(release);
+  const classifiedHub = release.watch?.kind === "model" || release.watch?.kind === "dataset";
+  const classifiedDelta = classifiedHub ? classifiedWatchDelta(release, sourceSnapshot) : null;
+  const classifiedBlocks =
+    classifiedHub && classifiedDelta !== null && !ALERTABLE.has(classifiedDelta);
+  const material =
+    isMaterialRelease(release) && publicAndUsable && changed && !classifiedBlocks;
   const candidate = {
     id: release.id,
     title: release.title,
@@ -223,8 +334,9 @@ export function catalogCandidate(release, sourceSnapshot, cursor = FRONTIER_CATA
     productionDisposition: productionDisposition(release),
     materialityScore: score,
     sourceSnapshot,
+    classifiedDelta,
     observedKey: `${sourceSnapshot.revision ?? "none"}:${sourceSnapshot.artifactFingerprint ?? "none"}:${sourceSnapshot.inventoryCount ?? "none"}`,
-    material: isMaterialRelease(release) && publicAndUsable && changed,
+    material,
     reasons: [
       `catalog score ${score}/100`,
       blogContentChanged
@@ -233,6 +345,13 @@ export function catalogCandidate(release, sourceSnapshot, cursor = FRONTIER_CATA
           ? "upstream source changed after the admitted cursor"
           : "no upstream change after the admitted cursor",
       publicAndUsable ? "source is public and ungated" : "source is private, gated, disabled, or unavailable",
+      ...(classifiedDelta
+        ? [
+            ALERTABLE.has(classifiedDelta)
+              ? `classified Hub delta ${classifiedDelta}`
+              : `classified Hub delta ${classifiedDelta} stays off the material-alert channel`,
+          ]
+        : []),
     ],
   };
   return { ...candidate, fingerprint: fingerprintCandidate(candidate) };
@@ -368,25 +487,36 @@ export function feedCandidate(item, cursor = FRONTIER_CATALOG_EVALUATED_AT) {
   return { ...candidate, fingerprint: fingerprintCandidate(candidate) };
 }
 
-export async function runWatch({ fetchImpl = fetch, live = false } = {}) {
+export async function runWatch({
+  fetchImpl = fetch,
+  live = false,
+  classifiedLedger = emptyClassifiedLedger(),
+} = {}) {
   const evaluatedThrough = new Date().toISOString();
   const sourceResults = [];
   const errors = [];
   const candidates = [];
+  const nextLedger = emptyClassifiedLedger();
+  const ledger = readClassifiedLedgerSync(classifiedLedger);
+  nextLedger.assets = { ...ledger.assets };
 
   for (const release of FRONTIER_RELEASES) {
     if (!live) {
       sourceResults.push({ id: release.id, status: "dry", source: release.artifactSource });
       continue;
     }
+    const seeded = seedReleaseFromLedger(release, ledger);
     try {
-      const snapshot = await probeRelease(release, fetchImpl);
-      const candidate = catalogCandidate(release, snapshot);
+      const snapshot = await probeRelease(seeded, fetchImpl);
+      const candidate = catalogCandidate(seeded, snapshot);
+      const row = ledgerRowFromSnapshot(seeded, snapshot, evaluatedThrough);
+      if (row) nextLedger.assets[release.id] = row;
       sourceResults.push({
         id: release.id,
         status: "ok",
         source: release.artifactSource,
         snapshot,
+        classifiedDelta: candidate.classifiedDelta ?? null,
       });
       if (candidate.material) candidates.push(candidate);
     } catch (error) {
@@ -441,6 +571,7 @@ export async function runWatch({ fetchImpl = fetch, live = false } = {}) {
     materialCandidates,
     sourceResults,
     errors,
+    classifiedLedger: nextLedger,
     productionPromotion: false,
   };
 }
@@ -464,14 +595,34 @@ function argumentValue(name, fallback) {
 async function main() {
   const live = process.argv.includes("--live");
   const output = argumentValue("--output", "frontier-watch-output.json");
-  const report = await runWatch({ live });
+  const ledgerPath = argumentValue("--classified-ledger", "frontier/watch-classified-ledger.v1.json");
+  const ledgerOut = argumentValue("--classified-ledger-out", ledgerPath);
+  let classifiedLedger = emptyClassifiedLedger();
+  try {
+    classifiedLedger = readClassifiedLedgerSync(JSON.parse(await readFile(ledgerPath, "utf8")));
+  } catch (error) {
+    if (live) {
+      console.warn(
+        JSON.stringify({
+          warning: "classified ledger missing or unreadable; first observations will not alert",
+          ledgerPath,
+          error: error instanceof Error ? error.message : String(error),
+        }),
+      );
+    }
+  }
+  const report = await runWatch({ live, classifiedLedger });
   await writeFile(output, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  if (process.argv.includes("--record-classified")) {
+    await writeFile(ledgerOut, `${JSON.stringify(report.classifiedLedger, null, 2)}\n`, "utf8");
+  }
   console.log(
     JSON.stringify({
       output,
       live,
       materialCandidates: report.materialCandidates.length,
       errors: report.errors.length,
+      classifiedAssets: Object.keys(report.classifiedLedger.assets).length,
     }),
   );
   if (live && !hasCompleteSourceCoverage(report)) process.exitCode = 1;

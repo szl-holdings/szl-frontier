@@ -287,6 +287,8 @@ class SourceSnapshot:
     artifact_fingerprint: str | None = None
     content_bytes: int | None = None
     inventory_count: int | None = None
+    classified_fingerprints: dict[str, str | None] | None = None
+    inventory_complete: bool | None = None
     observed_at: datetime = field(
         default_factory=lambda: datetime.now(timezone.utc), compare=False
     )
@@ -313,6 +315,8 @@ class SourceSnapshot:
             "artifactFingerprint": self.artifact_fingerprint,
             "contentBytes": self.content_bytes,
             "inventoryCount": self.inventory_count,
+            "classifiedFingerprints": self.classified_fingerprints,
+            "inventoryComplete": self.inventory_complete,
             "observedAt": self.observed_at.isoformat(),
         }
 

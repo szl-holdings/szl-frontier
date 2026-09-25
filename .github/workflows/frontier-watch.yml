@@ -15,6 +15,7 @@ on:
 permissions:
   contents: read
   issues: write
+  actions: read
 
 concurrency:
   group: hugging-face-frontier-watch
@@ -38,6 +39,8 @@ jobs:
         run: >-
           node --test
           scripts/frontier-release-watch.test.mjs
+          scripts/frontier-classified-live-watch.test.mjs
+          scripts/frontier-watch-materiality.test.mjs
           scripts/filter-frontier-candidates.test.mjs
           scripts/open-frontier-alerts.test.mjs
 
@@ -50,10 +53,21 @@ jobs:
           python3 -m unittest discover -s python/tests -v
           python3 -m szl_frontier list --min-score 70 > python-frontier-catalog.json
 
+      - name: Restore previous classified fingerprints when a prior watch exists
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 .github/scripts/previous_classified_ledger.py work/frontier-watch-previous/watch-classified-ledger.v1.json
+
       - name: Scan primary Hugging Face sources
         id: scan
         continue-on-error: true
-        run: node scripts/frontier-release-watch.mjs --live --output frontier-watch-output.json
+        run: >-
+          node scripts/frontier-release-watch.mjs
+          --live
+          --output frontier-watch-output.json
+          --classified-ledger work/frontier-watch-previous/watch-classified-ledger.v1.json
+          --record-classified
+          --classified-ledger-out watch-classified-ledger.v1.json
 
       - name: Scan Python-curated Hugging Face admissions
         id: python_scan
@@ -64,6 +78,8 @@ jobs:
           python3 -m szl_frontier watch
           --origin python-admission
           --output python-frontier-watch-output.json
+          --classified-ledger watch-classified-ledger.v1.json
+          --record-classified
           --require-complete
 
       - name: Compare substantive edge-model and training-data artifacts
@@ -133,6 +149,8 @@ jobs:
             edge-frontier-watch-output.json
             combined-frontier-watch-output.json
             python-frontier-catalog.json
+            watch-classified-ledger.v1.json
+            frontier/watch-classified-ledger.v1.json
           if-no-files-found: error
           retention-days: 30
 
