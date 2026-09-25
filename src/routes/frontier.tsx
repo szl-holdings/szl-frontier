@@ -17,12 +17,12 @@ import {
   WORKSTREAM_STATUSES,
   WORKSTREAMS,
   filterWorkstreams,
-  workstreamSummary,
   workstreamTone,
   type Workstream,
 } from "@/lib/frontier/workstreams";
 import { PROJECTS, useOrchestrator } from "@/stores/orchestrator";
-import { KernelsPanel, LeasesPanel, TriadPanel } from "@/components/frontier/hold-panels";
+import { KernelsPanel, LeasesPanel } from "@/components/frontier/hold-panels";
+import { CodexPanel, HoldStrip as EvalHoldStrip, PinPanel, TriadPanel as EvalTriadPanel } from "@/components/frontier/eval-panels";
 import {
   admitOptionalEvaluation,
   defaultOptionalEvaluation,
@@ -31,7 +31,7 @@ import {
   type OptionalEvaluation,
 } from "@/lib/frontier/optional-eval";
 
-const TABS = ["workstreams", "cycle", "estate", "triad", "kernels", "leases", "optional", "journeys", "lab"] as const;
+const TABS = ["workstreams", "cycle", "estate", "triad", "pin", "codex", "kernels", "leases", "optional", "journeys", "lab"] as const;
 type Tab = (typeof TABS)[number];
 
 type EstateObservation = Awaited<ReturnType<typeof observeEstate>>;
@@ -58,6 +58,23 @@ function FrontierPage() {
   const family = search.family ?? "all";
   const status = search.status ?? "all";
   const navigate = Route.useNavigate();
+  const [optedIn, setOptedIn] = useState(() => {
+    try {
+      return parseStoredOptionalEval(localStorage.getItem("szl-frontier-optional-eval"));
+    } catch {
+      return false;
+    }
+  });
+
+  function setOptionalEval(next: boolean) {
+    const admitted = admitOptionalEvaluation(next);
+    setOptedIn(admitted.optedIn);
+    try {
+      localStorage.setItem("szl-frontier-optional-eval", JSON.stringify(admitted));
+    } catch {
+      /* private browsing */
+    }
+  }
 
   function setTab(next: Tab) {
     void navigate({ search: (prev) => ({ ...prev, tab: next }) });
@@ -81,7 +98,7 @@ function FrontierPage() {
         }
       />
 
-      <HoldStrip />
+      <EvalHoldStrip optedIn={optedIn} onOptedIn={setOptionalEval} />
 
       <div role="tablist" aria-label="Frontier surfaces" className="flex flex-wrap gap-1">
         {TABS.map((id) => (
@@ -103,7 +120,9 @@ function FrontierPage() {
       {tab === "workstreams" ? <WorkstreamsPanel q={q} family={family} status={status} /> : null}
       {tab === "cycle" ? <CyclePanel /> : null}
       {tab === "estate" ? <EstatePanel /> : null}
-      {tab === "triad" ? <TriadPanel /> : null}
+      {tab === "triad" ? <EvalTriadPanel optedIn={optedIn} /> : null}
+      {tab === "pin" ? <PinPanel optedIn={optedIn} /> : null}
+      {tab === "codex" ? <CodexPanel optedIn={optedIn} /> : null}
       {tab === "kernels" ? <KernelsPanel /> : null}
       {tab === "leases" ? <LeasesPanel /> : null}
       {tab === "optional" ? <OptionalEvalPanel /> : null}
@@ -169,21 +188,6 @@ function OptionalEvalPanel() {
         Scopes: {state.admittedScopes.length ? state.admittedScopes.join(", ") : "none"}.
       </p>
     </div>
-  );
-}
-
-function HoldStrip() {
-  const summary = workstreamSummary();
-  return (
-    <section
-      aria-label="Production disposition"
-      className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
-    >
-      <Stat k="Disposition" v="HOLD" h="automatic promotion false" />
-      <Stat k="Reconciled head" v={SOURCE.reconciledHead.slice(0, 8)} h={SOURCE.repository} />
-      <Stat k="Workstreams" v={`${summary.selectedForRelease}/${summary.total}`} h="selected for eval, not production" />
-      <Stat k="Λ" v="Conjecture 1" h="never a theorem" />
-    </section>
   );
 }
 
