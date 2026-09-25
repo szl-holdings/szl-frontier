@@ -1,0 +1,35 @@
+{
+  "schema": "szl.frontier.wave5-tab-bind-receipt/v1",
+  "complete": false,
+  "productionAuthorization": false,
+  "observed_at": "2026-09-25T19:02:00Z",
+  "organ": "szl-holdings/szl-frontier",
+  "branch": "frontier/optional-eval-ui-tabs-20260925",
+  "base": "main@9f45feaecd6ba7d2824663120260560bf72bd85b",
+  "disposition": "HOLD",
+  "evidenceClass": "EVALUATION",
+  "landed": [
+    "src/routes/frontier.tsx wires triad/kernels/leases/optional tabs",
+    "hold-panels TriadPanel KernelsPanel LeasesPanel bound",
+    "optional evaluation UI cannot lift HOLD or execute HANDOFF",
+    "14-vs-15 kernel conflict kept visible",
+    "publisher.deploy remains REVOKED"
+  ],
+  "forbidden": [
+    "LIVE",
+    "PRODUCTION",
+    "TRAINED",
+    "second publisher",
+    "collapse conflicts",
+    "merge to main this wave",
+    "a-11-oy.com publish"
+  ],
+  "still_open": [
+    "G-LIVE-BADGE SOURCE_CLOSED_DOMAIN_OPEN a11oy#2189",
+    "G-SHA-BIND INCOMPLETE",
+    "G-SPACES CONFLICT 21-vs-22",
+    "G-KERNEL-MEMBERSHIP CONFLICT 14-vs-15",
+    "G-FILES PARTIAL",
+    "protected main merge requires signed checks"
+  ]
+}
