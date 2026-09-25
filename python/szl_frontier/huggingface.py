@@ -19,6 +19,7 @@ from urllib.parse import quote, urlencode, urlparse
 from urllib.request import Request, urlopen
 
 from .domain import FrontierError, FrontierRelease, HF_ORIGIN, SourceSnapshot
+from .watch_materiality import WatchError, hub_snapshot
 
 DEFAULT_TIMEOUT_SECONDS = 20.0
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
@@ -162,6 +163,15 @@ class HuggingFaceClient:
         if not isinstance(payload, dict):
             raise TransportError(f"expected object response from {url}")
         card_data = payload.get("cardData") if isinstance(payload.get("cardData"), dict) else {}
+        classified_fingerprints = None
+        inventory_complete = None
+        try:
+            classified = hub_snapshot(payload, repo_id, kind)
+            classified_fingerprints = classified.get("fingerprints")
+            inventory_complete = classified.get("inventory_complete_for_change_detection")
+        except WatchError:
+            classified_fingerprints = None
+            inventory_complete = None
         return SourceSnapshot(
             kind=kind,
             source=response.url,
@@ -178,6 +188,8 @@ class HuggingFaceClient:
             license=card_data.get("license"),
             artifact_fingerprint=_stable_sha256(_artifact_rows(payload)),
             content_bytes=len(response.body),
+            classified_fingerprints=classified_fingerprints,
+            inventory_complete=inventory_complete,
         )
 
     def _snapshot_blog(self, source: str) -> SourceSnapshot:

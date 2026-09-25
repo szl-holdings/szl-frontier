@@ -20,6 +20,71 @@ from .ouroboros import (
     save_cycle_ledger,
 )
 from .state import NotificationLedger
+from .watch_materiality import ALERTABLE, WatchError, material_delta
+
+CLASSIFIED_LEDGER_SCHEMA = "szl.frontier.watch-classified-ledger.v1"
+
+
+def _empty_classified_ledger() -> dict[str, Any]:
+    return {
+        "schema": CLASSIFIED_LEDGER_SCHEMA,
+        "productionPromotion": False,
+        "assets": {},
+    }
+
+
+def load_classified_ledger(path: Path | None) -> dict[str, Any]:
+    if path is None or not path.is_file():
+        return _empty_classified_ledger()
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise FrontierError("classified ledger must be an object")
+    if payload.get("schema") != CLASSIFIED_LEDGER_SCHEMA:
+        raise FrontierError("classified ledger schema mismatch")
+    if payload.get("productionPromotion") is True:
+        raise FrontierError("classified ledger cannot authorize production")
+    assets = payload.get("assets")
+    if not isinstance(assets, dict):
+        assets = {}
+    return {**_empty_classified_ledger(), "assets": assets}
+
+
+def save_classified_ledger(path: Path, ledger: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(ledger, sort_keys=True, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _classified_current(release: Any, snapshot: Any) -> dict[str, Any] | None:
+    if snapshot is None or not snapshot.classified_fingerprints:
+        return None
+    return {
+        "id": release.watch.repo_id,
+        "kind": snapshot.kind,
+        "inventory_complete_for_change_detection": snapshot.inventory_complete is True,
+        "fingerprints": snapshot.classified_fingerprints,
+        "access_flags": {
+            "private": snapshot.private,
+            "gated": snapshot.gated,
+            "disabled": snapshot.disabled,
+        },
+        "license_metadata": snapshot.license,
+    }
+
+
+def _classified_previous(row: dict[str, Any] | None, current: dict[str, Any]) -> dict[str, Any] | None:
+    if not row or not isinstance(row.get("classifiedFingerprints"), dict):
+        return None
+    return {
+        "id": row.get("repoId") or current["id"],
+        "kind": row.get("kind") or current["kind"],
+        "inventory_complete_for_change_detection": row.get("inventoryComplete") is True,
+        "fingerprints": row["classifiedFingerprints"],
+        "access_flags": row.get("accessFlags") or current["access_flags"],
+        "license_metadata": row.get("licenseMetadata"),
+    }
 
 
 def _emit(value: Any, *, pretty: bool = True) -> None:
@@ -91,6 +156,17 @@ def _parser() -> argparse.ArgumentParser:
         "--require-complete",
         action="store_true",
         help="exit non-zero when any selected primary source cannot be probed",
+    )
+    watch_cmd.add_argument(
+        "--classified-ledger",
+        type=Path,
+        default=Path("frontier/watch-classified-ledger.v1.json"),
+        help="persisted rights/presentation/substantive fingerprints from the prior watch",
+    )
+    watch_cmd.add_argument(
+        "--record-classified",
+        action="store_true",
+        help="write updated classified fingerprints to --classified-ledger",
     )
 
     cycle_cmd = sub.add_parser(
@@ -186,6 +262,11 @@ def run(argv: Sequence[str] | None = None) -> int:
             if args.state_file is not None
             else NotificationLedger()
         )
+        classified_ledger = load_classified_ledger(args.classified_ledger)
+        next_classified = {
+            **_empty_classified_ledger(),
+            "assets": dict(classified_ledger.get("assets") or {}),
+        }
         selected = [
             release
             for release in catalog.releases
@@ -220,11 +301,48 @@ def run(argv: Sequence[str] | None = None) -> int:
                     ),
                 }
             )
+            current = _classified_current(assessment.release, assessment.snapshot)
+            previous_classified = (
+                _classified_previous(
+                    classified_ledger.get("assets", {}).get(assessment.release.id),
+                    current,
+                )
+                if current is not None
+                else None
+            )
+            if current is not None:
+                next_classified["assets"][assessment.release.id] = {
+                    "id": assessment.release.id,
+                    "repoId": assessment.release.watch.repo_id,
+                    "kind": current["kind"],
+                    "classifiedFingerprints": current["fingerprints"],
+                    "inventoryComplete": current["inventory_complete_for_change_detection"],
+                    "accessFlags": current["access_flags"],
+                    "licenseMetadata": current["license_metadata"],
+                    "observedAt": datetime.now(timezone.utc).isoformat(),
+                    "productionAdmitted": False,
+                }
             if assessment.materiality_score < engine.policy.threshold:
                 continue
             # A private/gated/disabled source is an explicit HOLD, not a candidate.
             if not engine.is_new_observation(assessment):
                 continue
+            current = _classified_current(assessment.release, assessment.snapshot)
+            classified_delta = None
+            if current is not None:
+                try:
+                    classified_delta = material_delta(previous_classified, current)
+                except WatchError as exc:
+                    errors.append(
+                        {
+                            "id": assessment.release.id,
+                            "source": assessment.release.artifact_source,
+                            "error": str(exc),
+                        }
+                    )
+                    continue
+                if classified_delta not in ALERTABLE:
+                    continue
             fingerprint = engine.notification_fingerprint(assessment)
             if not ledger.changed(assessment.release.id, fingerprint):
                 continue
@@ -254,6 +372,8 @@ def run(argv: Sequence[str] | None = None) -> int:
                 ledger.record(assessment.release.id, fingerprint)
         if args.record and args.state_file is not None:
             ledger.save(args.state_file)
+        if args.record_classified:
+            save_classified_ledger(args.classified_ledger, next_classified)
         report = {
             "schema": "szl.frontier.python-watch-output.v1",
             "live": True,
@@ -265,6 +385,7 @@ def run(argv: Sequence[str] | None = None) -> int:
             "sourceResults": source_results,
             "errors": errors,
             "materialCandidates": emitted,
+            "classifiedLedger": next_classified,
             "productionPromotion": False,
         }
         if args.output is not None:
