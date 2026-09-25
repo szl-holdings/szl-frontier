@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   HonestyError,
   displayUnknown,
+  honestyContract,
   honestyLayers,
   refuseUnknownAsZero,
 } from "./honesty.ts";
@@ -41,4 +42,17 @@ test("membership measured does not qualify runtime or content", () => {
   assert.equal(layers.layers.qualification, "NOT_CLAIMED");
   assert.equal(layers.productionAuthorization, false);
   assert.equal(layers.runtimeVerified, false);
+});
+
+test("honesty contract is four layers and never authorizes", () => {
+  const contract = honestyContract();
+  assert.equal(contract.schema, "szl.frontier.honesty-layers/v1");
+  assert.equal(contract.productionAuthorization, false);
+  assert.equal(contract.layers.length, 4);
+  assert.deepEqual(
+    contract.layers.map((layer) => layer.id),
+    ["membership", "tree", "content", "qualification"],
+  );
+  assert.ok(contract.invariants.includes("UNKNOWN != 0"));
+  assert.ok(contract.invariants.includes("envelope authority NONE"));
 });

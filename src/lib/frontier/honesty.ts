@@ -56,3 +56,26 @@ export function honestyLayers(opts: {
     note: "Membership is not tree. Tree is not content. Content is not qualification. UNKNOWN is not 0.",
   };
 }
+
+export const HONESTY_LAYER_ROWS = [
+  { id: "membership", claim: "public ids observed", not: "qualification" },
+  { id: "tree", claim: "root listing only", not: "recursive tree hash" },
+  { id: "content", claim: "source_content_files_read=0", not: "file audit" },
+  { id: "qualification", claim: "HOLD", not: "production authorization" },
+] as const;
+
+export function honestyContract() {
+  return {
+    schema: HONESTY_SCHEMA,
+    productionAuthorization: false as const,
+    layers: HONESTY_LAYER_ROWS,
+    invariants: [
+      "UNKNOWN != 0",
+      "kernels != models",
+      "health != ready != source",
+      "RUNNING != runtime-verified",
+      "envelope authority NONE",
+    ],
+    note: "Four layers. None skipped. None authorize production.",
+  };
+}
