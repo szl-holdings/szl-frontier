@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { SzlMark } from "@/components/mark";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { paintLabel, paintTone } from "@/lib/ouroboros/paint";
 import { useOrchestrator } from "@/stores/orchestrator";
 
 const NAV = [
@@ -145,17 +146,27 @@ function PlaneStatus() {
   const receipts = useOrchestrator((s) => s.receipts.length);
   const brainN = useOrchestrator((s) => s.brainCorpusN);
   const alive = useOrchestrator((s) => s.brainAlive);
+  const organPaint = useOrchestrator((s) => s.organPaint);
+  const organCycle = useOrchestrator((s) => s.organCycle);
+  const tone = paintTone(organPaint);
+  const chip =
+    tone === "allow" ? "bg-allow" : tone === "deny" ? "bg-deny" : "bg-pending";
   return (
     <div className="mt-auto border-t border-border px-5 py-5">
       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-muted">
         <span className={`size-1.5 rounded-full ${alive ? "bg-allow" : "bg-subtle"}`} />
         {alive ? "Yachay live" : "Yachay paused"}
       </div>
+      <div className="mt-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-muted">
+        <span className={`size-1.5 rounded-full ${chip}`} />
+        Λ {paintLabel(organPaint, organCycle?.verdict)}
+      </div>
       <div className="mt-3 space-y-1 font-mono text-[11px] text-subtle tabular">
         <div>mem {memories}</div>
         <div>rcpt {receipts}</div>
         <div>brain {brainN || "—"}</div>
         <div>deny-by-default</div>
+        <div>conjecture 1</div>
       </div>
     </div>
   );

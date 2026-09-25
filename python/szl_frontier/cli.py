@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,6 +13,12 @@ from typing import Any, Sequence
 from .catalog import CatalogLoader, DEFAULT_MANIFEST
 from .domain import FrontierError
 from .engine import FrontierEngine
+from .ouroboros import (
+    github_token_from_env,
+    load_previous,
+    run_cycle,
+    save_cycle_ledger,
+)
 from .state import NotificationLedger
 
 
@@ -84,6 +91,44 @@ def _parser() -> argparse.ArgumentParser:
         "--require-complete",
         action="store_true",
         help="exit non-zero when any selected primary source cannot be probed",
+    )
+
+    cycle_cmd = sub.add_parser(
+        "cycle",
+        help="run a bounded ouroboros invariant cycle (proposal-only, always terminates)",
+    )
+    cycle_cmd.add_argument(
+        "--live",
+        action="store_true",
+        help="require a live GitHub observation of szl-holdings/szl-frontier",
+    )
+    cycle_cmd.add_argument(
+        "--dashboard",
+        action="store_true",
+        help="also fetch the top-10 OSS agent dashboard (failures stay UNAVAILABLE)",
+    )
+    cycle_cmd.add_argument(
+        "--action-class",
+        choices=("READ_ONLY", "REVERSIBLE_WRITE", "IRREVERSIBLE_WRITE"),
+        default="READ_ONLY",
+        help="action class; writes fail closed without human approval",
+    )
+    cycle_cmd.add_argument(
+        "--state-file",
+        type=Path,
+        default=None,
+        help="JSON ledger holding the previous cycle receipt (receipts.in)",
+    )
+    cycle_cmd.add_argument(
+        "--record",
+        action="store_true",
+        help="persist this cycle's head receipt to --state-file",
+    )
+    cycle_cmd.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="write the cycle report to a file instead of stdout",
     )
     return parser
 
@@ -231,6 +276,39 @@ def run(argv: Sequence[str] | None = None) -> int:
         else:
             _emit(report)
         return 3 if args.require_complete and errors else 0
+
+    if args.command == "cycle":
+        if args.record and args.state_file is None:
+            raise FrontierError("--record requires --state-file")
+        hmac_raw = os.environ.get("SZL_FRONTIER_HMAC_KEY")
+        hmac_key = hmac_raw.encode("utf-8") if hmac_raw else None
+        previous = (
+            load_previous(args.state_file, hmac_key=hmac_key)
+            if args.state_file is not None
+            else None
+        )
+        report = run_cycle(
+            catalog_ok=True,
+            action_class=args.action_class,
+            live=args.live,
+            previous=previous,
+            include_dashboard=args.dashboard,
+            github_token=github_token_from_env() if args.live else None,
+            hmac_key=hmac_key,
+        )
+        if args.record and args.state_file is not None:
+            save_cycle_ledger(args.state_file, report)
+        if args.output is not None:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(
+                json.dumps(report, sort_keys=True, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+        else:
+            _emit(report)
+        if report["exit"] == "converged" and report["invariantsOk"]:
+            return 0
+        return 3
 
     raise AssertionError(f"unhandled command: {args.command}")
 

@@ -68,6 +68,24 @@ def write_source_identity(root: Path, source_sha: str) -> Path:
     return path
 
 
+def write_ouroboros_cycle(root: Path) -> Path:
+    """Seal a SOFTWARE organ cycle into the Space so the UI can bind ALLOW chrome."""
+
+    python_root = root / "python"
+    if str(python_root) not in sys.path:
+        sys.path.insert(0, str(python_root))
+    from szl_frontier.ouroboros import run_cycle
+
+    report = run_cycle(catalog_ok=True, live=False, root=root)
+    path = root / "public" / "frontier" / "ouroboros-cycle.v1.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(report, sort_keys=True, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    return path
+
+
 def main() -> int:
     token = os.environ.get("HF_TOKEN") or os.environ.get("HF_ORG_TOKEN")
     if not token:
@@ -77,6 +95,7 @@ def main() -> int:
     root = Path(os.environ.get("GITHUB_WORKSPACE") or ".").resolve()
     source_sha = exact_source_revision(root)
     identity_path = write_source_identity(root, source_sha)
+    cycle_path = write_ouroboros_cycle(root)
     api = HfApi(token=token)
 
     space = api.create_repo(
