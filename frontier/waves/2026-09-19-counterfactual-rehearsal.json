@@ -1,0 +1,114 @@
+{
+  "schema": "szl.frontier.wave/v1",
+  "id": "2026-09-19-counterfactual-rehearsal",
+  "observedAt": "2026-09-20T00:20:00Z",
+  "disposition": "EVALUATION_HOLD",
+  "evaluationOnly": true,
+  "productionAuthorized": false,
+  "automaticPromotionAuthorized": false,
+  "allWorkPackagesComplete": false,
+  "lambdaStatus": "CONJECTURE_1",
+  "lockedFormulas": ["F1", "F4", "F7", "F11", "F12", "F18", "F19", "F22"],
+  "candidate": {
+    "publisher": "SZL Holdings",
+    "repository": "szl-holdings/szl-frontier",
+    "note": "NX07 evidence-impact graph and NX08 counterfactual release rehearsal v1.1. Adds DECISION/POLICY/SIGNAL/ARTIFACT nodes, CITATION_ONLY analog catalog, refusal receipts, and a named dream register. Not a model admission and not a LIVE stamp."
+  },
+  "authorityChain": {
+    "githubSource": "szl-frontier 10d88c01f174acddefaa0bf5f10c0ef8c9ffd63e Hub 1.32 convergence #179; a11oy main moved through #2124 observer contracts then later Sep 19 product repairs",
+    "huggingFaceProjection": "no Hub write from this wave",
+    "productRuntime": "rehearsal only; HTTP 200 is not LIVE",
+    "proofEvidence": "static health documents stay STATIC_DOCUMENT; Pages deployments need a separate run identity"
+  },
+  "headsObserved": {
+    "szl-frontier": "10d88c01f174acddefaa0bf5f10c0ef8c9ffd63e",
+    "a11oy": "a2244bde (killinchu stale-observation #2201 on 2026-09-19)",
+    "szl-forge": "97fc7416 live-mesh Lyte exporter text validation #343",
+    "a11oy-net": "6899094a dated estate observations fail-closed on stale proof #194",
+    "lyte-services": "9ce4e6b5 #25 fixture hashes 2026-09-11"
+  },
+  "landedPredecessors": [
+    "a11oy#2124 NX02 pagination / alias conflict / vertical opt-in merged",
+    "szl-forge#239 live-mesh incomplete-identity repair merged, later superseded by #247 then #343",
+    "szl-frontier#179 Hub 1.32 stable convergence under EVALUATION_HOLD"
+  ],
+  "implements": ["NX07", "NX08"],
+  "doesNotImplement": [
+    "WP06 kernel consumer load on hardware",
+    "WP08 Tau sandbox benchmark",
+    "WP09 Ghlore retrieval benchmark",
+    "WP14 AsyncGRPO GPU",
+    "WP23 seven-viewport product UX",
+    "LIVE stamp",
+    "OPERATIONAL=8"
+  ],
+  "rehearsal": {
+    "schema": "szl.frontier.counterfactual-rehearsal/v1",
+    "engine": "scripts/szl_counterfactual_rehearsal.mjs",
+    "graphSchema": "szl.frontier.evidence-graph/v1",
+    "analogSchema": "szl.frontier.analog-catalog/v1",
+    "receiptSchema": "szl.frontier.refusal-receipt/v1",
+    "nodeKinds": ["DECISION", "POLICY", "SIGNAL", "ARTIFACT"],
+    "agiWishWithoutEvidence": "HOLD",
+    "http200IsNotLive": true,
+    "notRequestedIsNotPass": true,
+    "productRepairDoesNotImplyVerticals": true,
+    "productionAuthorizationFromThisTool": false,
+    "inheritsQualification": false,
+    "analogCitationIsNotQualification": true,
+    "hostedCiGreenIsNotPublish": true,
+    "unshippedDreamIsNamedNotAdmitted": true
+  },
+  "remainingHolds": [
+    "Forge #347 nano loader contracts ready-for-review; hosted CI observed green 2026-09-19T22:47Z; HF publication has not occurred; do not merge from this wave",
+    "Forge #344 evidence-lab draft; live inference is not this wave",
+    "Forge #346 operator JSON redaction draft",
+    "Frontier #183 source/runtime drift detector draft",
+    "Frontier #181 Sep 17-19 integrity successors draft",
+    "a11oy#2205 dream-gate draft; deduplicated against frontier#184 analog/dream register",
+    "WP06/WP08/WP09/WP14/WP23 hardware and viewport evidence still absent"
+  ],
+  "analogCatalog": {
+    "schema": "szl.frontier.analog-catalog/v1",
+    "observedAt": "2026-09-20T00:20:00Z",
+    "inheritsQualification": false,
+    "citationOnly": true,
+    "entries": [
+      "evidence-gate/evidence-gate-action",
+      "LalaSkye/fail-closed-ai",
+      "Proof-or-Stop arXiv:2607.14890",
+      "Refuse-Decompose-Refresh arXiv:2609.20538",
+      "ProofAgent-ai/proofagent-harness",
+      "CFC Evidence-Bound Closure Control",
+      "2akouwu/reverify",
+      "AniketVashishtha/Executable_Counterfactuals",
+      "OpenShift pj-rehearse",
+      "ReleaseGate",
+      "UK AISI Inspect",
+      "SLSA + in-toto + Sigstore",
+      "kimjune01/AGI null-result harness"
+    ]
+  },
+  "policy": {
+    "hubPublicationAuthorized": false,
+    "providerWriteAuthorized": false,
+    "productionRouteChangeAuthorized": false,
+    "weightRehostingAuthorized": false,
+    "branchProtectionMutationAuthorized": false,
+    "preserveLicensing": true,
+    "preserveProvenance": true,
+    "preserveRollback": true,
+    "preserveReceipts": true
+  },
+  "deduplication": {
+    "canonicalPredecessor": "frontier/waves/2026-09-11-command-readout.json",
+    "doNotRecreate": [
+      "a11oy#2124",
+      "szl-forge#239",
+      "szl-frontier#179",
+      "szl-frontier#181",
+      "szl-frontier#183",
+      "a11oy#2205"
+    ]
+  }
+}

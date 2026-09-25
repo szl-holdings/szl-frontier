@@ -1,0 +1,131 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-20-midmorning-glm-kpool-offload-integrity-successors",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "b3aee6443b484768d1de107449918a050fe8528d",
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-20-early-diffusers-varlen-compile-successor",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "paidExecutionAuthorized": false,
+  "authorityChain": [
+    "GitHub",
+    "Hugging Face",
+    "a-11-oy.com",
+    "a11oy.net"
+  ],
+  "candidates": [
+    {
+      "id": "vllm-glm53-kpool-padded-stride-cache-integrity",
+      "priority": "P0",
+      "category": "serving/cache-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "db1bfdd4fb0dd7b8226402ee00abc7a987561b7c",
+      "upstreamPullRequest": 57477,
+      "primarySourceUrl": "https://github.com/vllm-project/vllm/pull/57477",
+      "originalObservationTime": "2026-09-20T10:15:04Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "signatureVerification": "GITHUB_VERIFIED_VALID",
+      "upstreamLicenseObserved": "Apache-2.0",
+      "taskHardwareFit": "GLM-5.3-Flash NVIDIA Kpool prefill tail seed; affected path requires NVIDIA accelerator evidence for runtime qualification; AMD is a regression control only",
+      "materiality": [
+        "The NVIDIA prefill seed kernel addressed an aliased Kpool tail view using a dense block stride even though the tail shares the indexer's padded block stride.",
+        "A wrong write can leave the request tail unseeded while overwriting bytes in another request's persistent sparse-indexer cache, making this a silent cross-request cache-integrity defect rather than performance churn.",
+        "Upstream reproduced progressive corruption of a long-lived prefix-cached GLM-5.3-Flash prompt and repaired the kernel to use the runtime tensor strides."
+      ],
+      "deduplication": [
+        "Distinct from Wave C vLLM PR #57317, which governed long-position KpoolTail slot mapping / out-of-bounds behavior rather than padded-stride prefill writes.",
+        "No qualification transfers from earlier GLM, KpoolTail, sparse-indexer, prefix-cache, or hardware receipts."
+      ],
+      "authorsClaims": [
+        "Upstream reports a kernel-level sentinel reproduction on SM103, a known-bad predecessor failure, and corrected strided writes after the patch.",
+        "Upstream reports GLM-5.3-Flash TP4/GB300 end-to-end cache-corruption reproduction and request-level recovery after the patch."
+      ],
+      "szlMeasurements": [],
+      "disconfirmingEvidence": [
+        "The reported GB300/SM103 results are upstream measurements, not SZL runtime receipts.",
+        "The affected behavior depends on an aliased, padded runtime cache layout and cannot be qualified by a dense synthetic tensor alone.",
+        "AMD already used stride-aware addressing, so an AMD pass does not qualify the NVIDIA defect path."
+      ],
+      "baseline": "Exact predecessor source before db1bfdd4fb0dd7b8226402ee00abc7a987561b7c on the affected NVIDIA Kpool prefill-seed path, with prefix cache enabled and the real padded tail/indexer view.",
+      "requiredEvidence": [
+        "Bind the exact vLLM source/build/container plus CUDA, Triton/compile stack and NVIDIA device identity actually exercised.",
+        "Bind the exact GLM-5.3-Flash checkpoint/config/tokenizer bytes if full-model execution is performed; do not acquire or mirror weights merely for this wave.",
+        "Reproduce the known-bad predecessor with sentinel-filled aliased indexer/tail storage and prove that the predecessor writes outside the intended tail block while the candidate does not.",
+        "Exercise multiple tail block ids, low/high pool positions, multiple requests, prefix-cache hits, prefill-to-decode transition, cancellation, cache reset and worker restart.",
+        "Prove byte-level isolation: the selected tail block receives the exact K/score payload and no neighboring or foreign indexer/tail block changes unexpectedly.",
+        "When an already-available affected model/runtime exists, compare deterministic logits/outputs against an independent correct or cache-disabled reference before any throughput claim.",
+        "Use AMD only as a non-regression/control lane; never transfer AMD evidence into NVIDIA qualification.",
+        "Preserve rollback to the incumbent qualified backend or a configuration that disables the candidate Kpool path."
+      ],
+      "boundedResources": "Start with no-weight deterministic kernel/cache fixtures in Forge; use already-available affected NVIDIA hardware through GPU Bridge only if present. New paid spend is zero.",
+      "rollback": "Retain the incumbent qualified serving/backend configuration and disable the candidate Kpool path if byte isolation or output parity fails.",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD"
+    },
+    {
+      "id": "vllm-simple-cpu-offload-noncacheable-group-isolation",
+      "priority": "P0",
+      "category": "serving/cache-offload-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "f648eed23dc48fcc8ba64be0c4182f8e775b5bfa",
+      "upstreamPullRequest": 56810,
+      "primarySourceUrl": "https://github.com/vllm-project/vllm/pull/56810",
+      "originalObservationTime": "2026-09-20T10:58:55Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "signatureVerification": "GITHUB_VERIFIED_VALID",
+      "upstreamLicenseObserved": "Apache-2.0",
+      "taskHardwareFit": "SimpleCPUOffload scheduling/event metadata for hybrid KV layouts containing prefix-cacheable attention groups plus non-prefix-cacheable Kpool/QSA scratch groups",
+      "materiality": [
+        "SimpleCPUOffload treated every KV group as offloadable even though GLM-5.3-Flash Kpool tail and QSA/circular-buffer scratch groups are explicitly non-prefix-cacheable.",
+        "Resolving request hashes at a scratch group's incompatible block size can trip a divisibility assertion and kill the engine on the first prefill store when KV cache events are enabled.",
+        "The repair excludes non-prefix-cacheable groups from store/load/hash/event metadata while preserving cacheable attention-group offload and BlockStored evidence."
+      ],
+      "deduplication": [
+        "Distinct from Wave C vLLM PR #57160, which governed ROCm CPU-offload mmap/pinned-memory startup behavior rather than cache-group eligibility and hash/event semantics.",
+        "Distinct from this wave's PR #57477 padded-stride corruption; one concerns whether a scratch group participates in offload/hash metadata and the other concerns where NVIDIA Kpool seed bytes are written.",
+        "No qualification transfers from other offload, GLM, Kpool, QSA, cache-event, or accelerator receipts."
+      ],
+      "authorsClaims": [
+        "Upstream reports deterministic scheduler/event tests for prefix-cacheable plus scratch groups and an end-to-end GLM-5.3-Flash TP4/EP store/load run on 4x GB300.",
+        "Upstream reports that CPU-hit output deltas were within the fresh-recompute/GPU-hit variability observed in its test setup."
+      ],
+      "szlMeasurements": [],
+      "disconfirmingEvidence": [
+        "The 4x GB300 model run and accuracy table are upstream measurements, not SZL runtime or model-quality receipts.",
+        "A successful source-level scheduler fixture cannot establish full-model accelerator correctness, provider publication, or production readiness.",
+        "Non-prefix-cacheable scratch groups intentionally have no durable hash identity; silently inventing one would violate the fix's contract."
+      ],
+      "baseline": "Exact predecessor SimpleCPUOffload scheduler before f648eed23dc48fcc8ba64be0c4182f8e775b5bfa with a cacheable attention group plus an incompatible non-prefix-cacheable scratch group and KV events enabled.",
+      "requiredEvidence": [
+        "Bind the exact vLLM source/build used by every executed scheduler or model fixture.",
+        "Reproduce the known-bad predecessor divisibility/assertion failure using a FullAttention group plus Kpool/QSA-like non-prefix-cacheable scratch group whose block size is incompatible with the hash block size.",
+        "Prove scratch blocks never enter prefix-cache store/load pairs, request hash resolution, durable cache-hit accounting, or BlockStored/Removed event claims.",
+        "Prove cacheable attention groups still store, load and emit exact event metadata with events enabled and disabled, including first prefill, hit, miss, eviction/reset and restart cases.",
+        "Exercise eager and any admitted lazy offload mode separately; unexercised modes remain UNQUALIFIED.",
+        "Use deterministic store/load byte identity and token/block accounting before interpreting output parity or performance.",
+        "If an already-available GLM-5.3-Flash runtime is used, bind exact checkpoint/runtime/hardware identities and compare cache-disabled, GPU-hit and CPU-hit behavior under predeclared tolerances; otherwise keep model-level runtime evidence UNAVAILABLE.",
+        "Preserve rollback by disabling SimpleCPUOffload or reverting to the incumbent qualified connector/runtime path."
+      ],
+      "boundedResources": "Forge can execute no-weight scheduler/event fixtures locally; real-model accelerator closure is optional and only on already-available hardware through GPU Bridge. New paid spend is zero.",
+      "rollback": "Disable SimpleCPUOffload or retain the incumbent qualified cache connector if eligibility, event integrity, or output evidence fails.",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD"
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active importing owner",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "currentWholeChainClosureClaim": false
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}

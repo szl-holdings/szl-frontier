@@ -1,0 +1,74 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-20-ternary-bonsai-2-27b",
+  "priority": "P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "candidate": {
+    "publisher": "Prism ML",
+    "category": "on-device-ternary-multimodal",
+    "huggingFaceRepository": "prism-ml/Ternary-Bonsai-2-27B-gguf",
+    "weightBearingRevision": "6ed5e12bf84b7a63069882c91dd9e9218647d17b",
+    "companionRepositories": ["prism-ml/Ternary-Bonsai-2-27B-mlx-2bit", "prism-ml/Ternary-Bonsai-2-27B-gguf-dev"],
+    "webgpuDemoSpace": "webml-community/ternary-bonsai-2-webgpu-kernels",
+    "webgpuDemoRevision": "94320c9da2b7aeac5b5807c9e61d696a3c09edb5",
+    "architecture": "qwen3.8-27B-hybrid-attention-ternary-g128",
+    "parameterCountApprox": "27.36B",
+    "license": "Apache-2.0",
+    "observedAt": "2026-09-17T18:44:01Z",
+    "productionDisposition": "HOLD"
+  },
+  "upstreamClaimsAreEvidence": false,
+  "materiality": [
+    "first 27B-class ternary packing that retains claimed 98.2 percent of Qwen3.8-27B FP16 thinking-suite score at 5.9 GB",
+    "custom PTQ1_0 and PQ2_0 kernels require a Walsh-Hadamard runtime that stock llama.cpp does not provide",
+    "WebGPU demo Space is adjacent to the existing @huggingface/kernels watch but is a different artifact class",
+    "card or README churn must stay off the material-alert channel; GGUF or mmproj identity change is substantive"
+  ],
+  "deduplication": {
+    "canonicalBonsaiEntryPreviouslyFound": false,
+    "qwen38FlashNextIsDifferentCandidate": true,
+    "huggingfaceKernelsInventoryDoesNotQualifyThisPacking": true,
+    "inheritsQualification": false
+  },
+  "t28Watch": {
+    "seeded": true,
+    "firstObservation": "FIRST_OBSERVATION_NOT_PROOF_OF_NEW_RELEASE",
+    "cardOnlyChurn": "NO_MATERIAL_ARTIFACT_CHANGE",
+    "incompleteSiblingOids": "UNKNOWN_INCOMPLETE_ARTIFACT_IDENTITIES",
+    "substantiveFiles": ["PTQ1_0", "PQ2_0", "mmproj"],
+    "alertableDeltas": ["ACCESS_CHANGE_REVIEW", "RIGHTS_CHANGE_REVIEW", "SUBSTANTIVE_ARTIFACT_CHANGE_REVIEW"]
+  },
+  "requiredEvidence": [
+    "Bind evaluation to Hub revision 6ed5e12bf84b7a63069882c91dd9e9218647d17b or open a successor wave for any later exact revision.",
+    "Do not download the 5.9 GB or 7.2 GB GGUF merely for inventory; local execution without a capacity-checked lane is UNAVAILABLE.",
+    "Record that stock llama.cpp cannot run PTQ1_0 or PQ2_0 until the Walsh-Hadamard transform is upstream; treat the PrismML fork as a separate runtime identity.",
+    "Do not treat webml-community/ternary-bonsai-2-webgpu-kernels@94320c9da2b7aeac5b5807c9e61d696a3c09edb5 as production admission of @huggingface/kernels or of this GGUF.",
+    "Do not inherit qualification from Qwen3.8-27B FP16, Qwen3.8-Flash-Next, or earlier Bonsai 27B 1-bit / 1.58-bit packs.",
+    "If Hub sibling OIDs are incomplete, stamp UNKNOWN_INCOMPLETE_ARTIFACT_IDENTITIES rather than unchanged.",
+    "Vendor 20-benchmark retention figures remain upstream claims until reproduced on a pinned SZL fixture.",
+    "Record license Apache-2.0, cost, rollback, and no-rehost receipts before any route or product claim."
+  ],
+  "evaluationOwners": {
+    "canonicalAdmission": "szl-holdings/szl-frontier",
+    "runtimeAndKernelEvaluation": "szl-holdings/szl-forge",
+    "browserWebgpuPreflight": "szl-holdings/szl-kernels",
+    "product": "szl-holdings/a11oy",
+    "proof": "szl-holdings/a11oy-net"
+  },
+  "projection": {
+    "huggingFace": "NO_SZL_REHOST_OR_RUNTIME_PROJECTION_FROM_INTAKE",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "MEASURED_EXACT_SOURCE_RECEIPTS_ONLY_AFTER_EVALUATION"
+  },
+  "nearbyUnpromoted": [
+    {"id": "Agnes-AI/Agnes-3.0-Flash", "note": "Apache-2.0 33B preview checkpoint is not the 1M-context production API model"},
+    {"id": "inclusionAI/Ling-3.0-flash-VL", "note": "124B/5.5B VL successor recorded only; no qualification inherited"},
+    {"id": "cua-ai/cua-s1-forms", "note": "MIT System-1 specialist UNASSESSED follow-up; does not generate tokens"},
+    {"id": "Qwen3.8-Omni-Flash", "note": "hosted proprietary; no open weights; skipped"}
+  ],
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}

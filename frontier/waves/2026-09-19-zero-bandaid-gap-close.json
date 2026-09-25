@@ -1,0 +1,144 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-19-zero-bandaid-gap-close",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "10d88c01f174acddefaa0bf5f10c0ef8c9ffd63e",
+  "productSourceRevisionObserved": "a2244bde2a79fb9a831b537d8d2d096400516a7f",
+  "observedAt": "2026-09-20T00:12:00Z",
+  "authorityChain": [
+    "GitHub szl-holdings/a11oy",
+    "Hugging Face szlholdings-a11oy.hf.space",
+    "https://a-11-oy.com",
+    "https://a11oy.net"
+  ],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "related": [
+    "szl-holdings/szl-frontier#181",
+    "szl-holdings/szl-frontier#183",
+    "szl-holdings/szl-frontier#184",
+    "szl-holdings/a11oy#1282",
+    "szl-holdings/a11oy#1357",
+    "szl-holdings/.github#684",
+    "szl-holdings/.github#649"
+  ],
+  "candidate": {
+    "id": "zero-bandaid-gap-close-2026-09-19",
+    "kind": "public-contract-gap-classification",
+    "priority": "P0",
+    "productionDisposition": "HOLD"
+  },
+  "observations": {
+    "githubProtectedSource": {
+      "state": "OBSERVED",
+      "repo": "szl-holdings/a11oy",
+      "sha": "a2244bde2a79fb9a831b537d8d2d096400516a7f"
+    },
+    "huggingFaceCanonicalRuntime": {
+      "state": "OBSERVED",
+      "space": "szlholdings-a11oy.hf.space",
+      "revision": "a2244bde2a79fb9a831b537d8d2d096400516a7f",
+      "revisionSource": "env:SZL_GIT_SHA"
+    },
+    "productRuntime": {
+      "state": "OBSERVED",
+      "apexHonest": "200",
+      "apexBuildInfo": "200",
+      "identityAgree": true,
+      "spectral": {
+        "path": "/spectral",
+        "http": 404,
+        "body": {
+          "status": "NOT_FOUND",
+          "reason": "undeclared path refused SPA fallback"
+        }
+      },
+      "controller": {
+        "path": "/controller",
+        "http": 404,
+        "body": {
+          "status": "NOT_FOUND",
+          "reason": "undeclared path refused SPA fallback"
+        }
+      },
+      "holographic": {
+        "path": "/holographic",
+        "state": "DECLARED_SURFACE",
+        "note": "UI served; WebGL/WebGPU may be unavailable on some clients"
+      },
+      "healthzSigner": {
+        "status": "ABSENT",
+        "signingAvailable": false,
+        "scheme": "UNAVAILABLE"
+      },
+      "dsseLive": {
+        "status": "DSSE-LIVE",
+        "signingAvailable": true,
+        "scheme": "DSSEv1 / ECDSA-P256",
+        "note": "Label conflict with healthz signer ABSENT. Not production authorization."
+      }
+    },
+    "publicHfMembership": {
+      "state": "OPEN_RECONCILIATION_REQUIRED",
+      "issues": ["a11oy#1282", "a11oy#1357"]
+    },
+    "proofSurface": {
+      "modelsRecord": {
+        "state": "PARTIAL",
+        "url": "https://a11oy.net/record.json",
+        "liveChain": "UNAVAILABLE"
+      },
+      "publicInventoryRecord": {
+        "state": "OPEN"
+      }
+    }
+  },
+  "classification": {
+    "spectralController404": "ORIGIN_UNDECLARED_PATH",
+    "not": [
+      "DNS_BROKEN",
+      "WORKER_BROKEN_FROM_SINGLE_SAMPLE",
+      "IDENTITY_DRIFT"
+    ],
+    "identity": "apex == hf.space == github a11oy main == a2244bde",
+    "workerAlias": "V3 payload mapped /spectral and /controller; origin allowlist does not declare them. /holographic is the live declared holographic surface. Repair through existing A11oy production workflow only after x-szl-edge confirmation. No second Cloudflare writer."
+  },
+  "advancement": {
+    "protectedSourceMovedSincePriorObservation": false,
+    "canonicalHfRuntimeSourceDrift": "ALIGNED_a2244bde",
+    "productDomainSourceDrift": "ALIGNED_a2244bde",
+    "currentSourceLegsAligned": true,
+    "publicMembershipDeclarationDrift": "OPEN_FRESH_RECONCILIATION_REQUIRED",
+    "proofSnapshotDrift": "OPEN",
+    "historicalClosurePreserved": true,
+    "aliasContract": "OPEN"
+  },
+  "repairContract": [
+    "Do not stamp PRODUCTION_AUTHORIZED, ALL_DONE, AGI, or PILOT_READY.",
+    "Do not admin-merge drafts #181 #183 #184 or a11oy #2204 #2202.",
+    "Do not mutate Cloudflare DNS, rulesets, or add a second Worker.",
+    "Reproduce /spectral and /controller 404 from a second network and capture x-szl-edge presence or absence.",
+    "If Worker source still maps the aliases, repair the origin allowlist (or confirm Worker rewrite) through the existing A11oy production workflow only.",
+    "Keep /holographic as the declared holographic surface until aliases verify live.",
+    "Treat healthz signer ABSENT and dsse_live signing_available=true as a label conflict, not as live persistent signing.",
+    "Leave .github#684 deadman and .github#649 exact-head OPEN until those controls pass.",
+    "Lambda remains Conjecture 1. Trust ceiling 0.97."
+  ],
+  "owners": {
+    "governance": "szl-holdings/.github#684",
+    "sourceAndPublisher": "szl-holdings/a11oy",
+    "estateReconciliation": "szl-holdings/szl-frontier#151",
+    "productProjection": "szl-holdings/a11oy",
+    "proofProjection": "szl-holdings/a11oy-net"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "evaluationOnly": true,
+  "mutationPerformed": false,
+  "cloudflareApply": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false,
+  "lambda": "Conjecture 1",
+  "doctrine": "v11 LOCKED",
+  "kernel": "c7c0ba17"
+}

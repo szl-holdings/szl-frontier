@@ -1,0 +1,85 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-19-afternoon-speech-rocm-cache-successors",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "10d88c01f174acddefaa0bf5f10c0ef8c9ffd63e",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-19-morning-serving-model-offload-successors",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-omni-higgsaudio-v2-reference-audio-cache-salt",
+      "priority": "P0",
+      "category": "speech-conditioning-prefix-cache-identity-and-cross-request-isolation",
+      "upstreamRepository": "vllm-project/vllm-omni",
+      "upstreamRevision": "f9f53f2bd8ddf7c7990b167d448108daa50f992a",
+      "upstreamPullRequest": 7826,
+      "observedCommitAt": "2026-09-19T16:19:14Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "modelReference": "bosonai/higgs-tts-2-3b-base",
+      "modelLicenseObserved": "other",
+      "licenseDisposition": "REVIEW_REQUIRED_BEFORE_REAL_MODEL_EXECUTION_OR_PROJECTION",
+      "materiality": [
+        "HiggsAudio v2 voice-clone requests can produce identical scheduler-visible placeholder token ids for different reference audios with the same encoded frame count, while the predecessor adapter discarded the content-aware reference-audio cache key.",
+        "Without a content-derived cache salt, prefix caching can therefore reuse KV state from a different speaker/reference recording; the successor preserves the resolved audio cache key and incorporates it into the request cache salt while leaving text-only prompts unchanged."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM-Omni/vLLM source and package or image identities plus the speech adapter configuration. Synthetic cache-key correctness may run without model weights; any real HiggsAudio checkpoint execution additionally requires exact model revision/file identity and completed license review because the observed Hugging Face model license is `other`.",
+        "Execute an immediate predecessor or equivalent known-bad control with two byte-distinct reference audios that produce the same placeholder token ids and shape; prove the predecessor produces the same prefix-cache identity while the candidate produces distinct salts without exposing raw reference audio in logs or receipts.",
+        "Exercise identical audio, different audio with equal duration/frame count, transcript changes, text-only requests, concurrent speakers, cancellation, restart and cache warm/cold transitions; verify identical admitted conditioning reuses cache and distinct conditioning never reuses another request's KV state.",
+        "Record only hashes/derived non-secret identities for synthetic audio fixtures, fail closed on missing or malformed reference-audio identity, preserve prefix-cache-disable as rollback, and do not publish, mirror or production-route the upstream voice model from this source qualification."
+      ]
+    },
+    {
+      "id": "sglang-dsv4-rocm-draft-compressed-kv-metadata-isolation",
+      "priority": "P0",
+      "category": "rocm-speculative-draft-cache-metadata-startup-and-memory-safety",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "2305242f514da95eba3c411de0517c4d79ffff94",
+      "upstreamPullRequest": 40205,
+      "observedCommitAt": "2026-09-19T19:13:49Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "On ROCm DeepSeek-V4 speculative serving, draft workers have compression ratio zero and no compressed-KV/indexer pool, but predecessor HIP radix metadata builders still requested compressed metadata unconditionally, causing startup assertion failure; the unified-KV path could then dereference absent compressed page data.",
+        "The successor derives the compression requirement from draft-worker identity, preserves target-worker behavior, uses empty compressed metadata for draft workers while retaining SWA verify-store streams, and therefore changes a startup/memory-safety boundary rather than a cosmetic performance path."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/build, ROCm/HIP/Torch/AITER or related backend identities, exact DeepSeek-V4 checkpoint/config/tokenizer identity, speculative algorithm, TP/DP topology, unified-KV backend setting and accelerator model. CUDA-only evidence cannot qualify this ROCm lane.",
+        "Preserve an immediate predecessor known-bad startup control showing the missing draft indexer/compressed metadata failure and, where applicable, the follow-on absent-page dereference; separately preserve any prerequisite successor such as the already-merged pool-sizing/device-tree fixes rather than attributing their effects to this commit.",
+        "Exercise DSpark and every actually supported EAGLE/MTP draft path, unified_kv_triton on/off, CUDA-graph capture/replay, target versus draft workers, empty compressed tails, SWA verify-store writes, cancellation and restart; require no OOB, NaN, stale cache state or accidental compressed-pool allocation on draft workers.",
+        "Compare deterministic outputs/accepted-token behavior against non-speculative or independently qualified reference serving on affected ROCm hardware before performance claims; if MI3xx-class hardware or exact model access is unavailable, emit UNAVAILABLE/HOLD and preserve non-speculative serving as rollback."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active serving owner",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "proofCapturedAt": "2026-09-12T01:25:04Z",
+    "proofCounts": {"models": 46, "datasets": 35, "spaces": 21},
+    "proofOperational": false,
+    "currentWholeChainClosureClaim": false
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}

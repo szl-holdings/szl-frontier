@@ -1,10 +1,47 @@
 {
-  "schema": "szl.frontier.membership-identity-pin/v1",
+  "schema": "szl.frontier.estate-pin.contract/v1",
+  "issued_at": "2026-09-20T15:30:00Z",
+  "owner": "szl-holdings/szl-frontier",
+  "delegates_head_pin_algorithm_to": "szl-holdings/szl-pin",
   "production_authorization": false,
+  "training_admission": false,
+  "paid_workload_budget_usd": 0,
+  "lambda": "CONJECTURE_1",
   "file_audit_complete": false,
-  "source_content_files_read": 0,
   "semantic_review_complete": false,
-  "head_sha_pin_without_revisions": "REFUSED",
-  "unknown_as_zero": false,
-  "note": "Membership identity pin of public ids. Not a tree hash and not a content audit."
+  "runtime_verified": false,
+  "source_content_files_read": 0,
+  "promotion_effect": "NONE",
+  "kinds": {
+    "HEAD_SHA_PIN": {
+      "schema": "szl.frontier.head-sha-pin/v1",
+      "algorithm": "sort entries by repo; canonical JSON {entries:[{head,repo}]} with sorted keys; SHA-256 UTF-8; head must be 40-char hex or INVALID",
+      "compatible_with": "szl-pin pin_estate",
+      "requires": "40-character hexadecimal git object ids",
+      "live_public_membership_sufficient": false
+    },
+    "MEMBERSHIP_IDENTITY_PIN": {
+      "schema": "szl.frontier.membership-identity-pin/v1",
+      "algorithm": "sort entries by family then id; canonical JSON {entries,unknownFamilies}; SHA-256 UTF-8",
+      "live_public_membership_sufficient": true,
+      "not_a_head_pin": true,
+      "unknown_families": "omitted from entries and listed separately; never stored as zero"
+    }
+  },
+  "honesty": [
+    "A pin is a snapshot of fact, not a claim of health.",
+    "health ≠ ready ≠ source",
+    "UNKNOWN ≠ 0",
+    "kernels ≠ models even when Hub IDs overlap",
+    "RUNNING ≠ runtime-verified",
+    "membership ≠ tree hash ≠ content review ≠ qualification",
+    "file_audit_complete cannot be true at source_content_files_read=0"
+  ],
+  "forbidden": [
+    "mint HEAD_SHA_PIN from membership IDs",
+    "treat a membership pin as a file audit",
+    "publish private repository names",
+    "lift HOLD",
+    "claim estate-wide qualification"
+  ]
 }

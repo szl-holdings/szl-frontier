@@ -28,6 +28,12 @@ import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiReadyRouteImport } from './routes/api/ready'
 import { Route as ApiSourceRouteImport } from './routes/api/source'
 import { Route as ApiWorkstreamsRouteImport } from './routes/api/workstreams'
+import { Route as ApiAgentStateRouteImport } from './routes/api/agent-state'
+import { Route as ApiCodexRouteImport } from './routes/api/codex'
+import { Route as ApiKernelsRouteImport } from './routes/api/kernels'
+import { Route as ApiLeasesRouteImport } from './routes/api/leases'
+import { Route as ApiPinRouteImport } from './routes/api/pin'
+import { Route as ApiTriadRouteImport } from './routes/api/triad'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -124,6 +130,36 @@ const ApiWorkstreamsRoute = ApiWorkstreamsRouteImport.update({
   path: '/api/workstreams',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAgentStateRoute = ApiAgentStateRouteImport.update({
+  id: '/api/agent-state',
+  path: '/api/agent-state',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCodexRoute = ApiCodexRouteImport.update({
+  id: '/api/codex',
+  path: '/api/codex',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiKernelsRoute = ApiKernelsRouteImport.update({
+  id: '/api/kernels',
+  path: '/api/kernels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLeasesRoute = ApiLeasesRouteImport.update({
+  id: '/api/leases',
+  path: '/api/leases',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPinRoute = ApiPinRouteImport.update({
+  id: '/api/pin',
+  path: '/api/pin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTriadRoute = ApiTriadRouteImport.update({
+  id: '/api/triad',
+  path: '/api/triad',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -145,6 +181,12 @@ export interface FileRoutesByFullPath {
   '/api/ready': typeof ApiReadyRoute
   '/api/source': typeof ApiSourceRoute
   '/api/workstreams': typeof ApiWorkstreamsRoute
+  '/api/agent-state': typeof ApiAgentStateRoute
+  '/api/codex': typeof ApiCodexRoute
+  '/api/kernels': typeof ApiKernelsRoute
+  '/api/leases': typeof ApiLeasesRoute
+  '/api/pin': typeof ApiPinRoute
+  '/api/triad': typeof ApiTriadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -166,6 +208,12 @@ export interface FileRoutesByTo {
   '/api/ready': typeof ApiReadyRoute
   '/api/source': typeof ApiSourceRoute
   '/api/workstreams': typeof ApiWorkstreamsRoute
+  '/api/agent-state': typeof ApiAgentStateRoute
+  '/api/codex': typeof ApiCodexRoute
+  '/api/kernels': typeof ApiKernelsRoute
+  '/api/leases': typeof ApiLeasesRoute
+  '/api/pin': typeof ApiPinRoute
+  '/api/triad': typeof ApiTriadRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -188,6 +236,12 @@ export interface FileRoutesById {
   '/api/ready': typeof ApiReadyRoute
   '/api/source': typeof ApiSourceRoute
   '/api/workstreams': typeof ApiWorkstreamsRoute
+  '/api/agent-state': typeof ApiAgentStateRoute
+  '/api/codex': typeof ApiCodexRoute
+  '/api/kernels': typeof ApiKernelsRoute
+  '/api/leases': typeof ApiLeasesRoute
+  '/api/pin': typeof ApiPinRoute
+  '/api/triad': typeof ApiTriadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -211,6 +265,12 @@ export interface FileRouteTypes {
     | '/api/ready'
     | '/api/source'
     | '/api/workstreams'
+    | '/api/agent-state'
+    | '/api/codex'
+    | '/api/kernels'
+    | '/api/leases'
+    | '/api/pin'
+    | '/api/triad'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -232,6 +292,12 @@ export interface FileRouteTypes {
     | '/api/ready'
     | '/api/source'
     | '/api/workstreams'
+    | '/api/agent-state'
+    | '/api/codex'
+    | '/api/kernels'
+    | '/api/leases'
+    | '/api/pin'
+    | '/api/triad'
   id:
     | '__root__'
     | '/'
@@ -253,6 +319,12 @@ export interface FileRouteTypes {
     | '/api/ready'
     | '/api/source'
     | '/api/workstreams'
+    | '/api/agent-state'
+    | '/api/codex'
+    | '/api/kernels'
+    | '/api/leases'
+    | '/api/pin'
+    | '/api/triad'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -275,6 +347,12 @@ export interface RootRouteChildren {
   ApiReadyRoute: typeof ApiReadyRoute
   ApiSourceRoute: typeof ApiSourceRoute
   ApiWorkstreamsRoute: typeof ApiWorkstreamsRoute
+  ApiAgentStateRoute: typeof ApiAgentStateRoute
+  ApiCodexRoute: typeof ApiCodexRoute
+  ApiKernelsRoute: typeof ApiKernelsRoute
+  ApiLeasesRoute: typeof ApiLeasesRoute
+  ApiPinRoute: typeof ApiPinRoute
+  ApiTriadRoute: typeof ApiTriadRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -412,6 +490,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWorkstreamsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/agent-state': {
+      id: '/api/agent-state'
+      path: '/api/agent-state'
+      fullPath: '/api/agent-state'
+      preLoaderRoute: typeof ApiAgentStateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/codex': {
+      id: '/api/codex'
+      path: '/api/codex'
+      fullPath: '/api/codex'
+      preLoaderRoute: typeof ApiCodexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/kernels': {
+      id: '/api/kernels'
+      path: '/api/kernels'
+      fullPath: '/api/kernels'
+      preLoaderRoute: typeof ApiKernelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/leases': {
+      id: '/api/leases'
+      path: '/api/leases'
+      fullPath: '/api/leases'
+      preLoaderRoute: typeof ApiLeasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/pin': {
+      id: '/api/pin'
+      path: '/api/pin'
+      fullPath: '/api/pin'
+      preLoaderRoute: typeof ApiPinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/triad': {
+      id: '/api/triad'
+      path: '/api/triad'
+      fullPath: '/api/triad'
+      preLoaderRoute: typeof ApiTriadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -435,6 +555,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiReadyRoute: ApiReadyRoute,
   ApiSourceRoute: ApiSourceRoute,
   ApiWorkstreamsRoute: ApiWorkstreamsRoute,
+  ApiAgentStateRoute: ApiAgentStateRoute,
+  ApiCodexRoute: ApiCodexRoute,
+  ApiKernelsRoute: ApiKernelsRoute,
+  ApiLeasesRoute: ApiLeasesRoute,
+  ApiPinRoute: ApiPinRoute,
+  ApiTriadRoute: ApiTriadRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
