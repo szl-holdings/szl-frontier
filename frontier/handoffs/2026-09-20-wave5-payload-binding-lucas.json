@@ -1,0 +1,57 @@
+{
+  "schema": "szl.frontier-payload-binding/v1",
+  "wave": "payload-F1-F7-binding-2026-09-20",
+  "priority": "evaluation",
+  "disposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "productionAuthorized": false,
+  "trainingAdmission": false,
+  "gpu": "UNAVAILABLE",
+  "energy": "UNAVAILABLE",
+  "lambda": "Conjecture 1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "b3aee6443b484768d1de107449918a050fe8528d",
+  "bindingBranch": "frontier/wave5-payload-binding-20260920-lucas",
+  "doesNotTouch": ["#181", "#184", "#185", "#186", "#187", "#190"],
+  "owners": {
+    "F1": "szl-holdings/vertical-services#37 stacked on #36 1d68e7be623770155f7d9f72ea0d223c2085deea",
+    "F2": "szl-holdings/a11oy#2213 first-paint BIND/CONNECTING",
+    "F3": "szl-holdings/szl-frontier#184 NX08",
+    "F4": "szl-forge frontier-bench + CPU baseline; GPU UNAVAILABLE",
+    "F5": "szl-holdings/szl-frontier#181 Wave M; GPU evidence UNAVAILABLE",
+    "F6": "BLOCKED owner pause / rights / hardware / budget",
+    "F7": "szl-holdings/szl-frontier#190 runSoftwareCycle MAX_ROUNDS=2"
+  },
+  "observedLeads": [
+    {"repo": "szl-holdings/szl-frontier", "number": 190, "head": "1e9751f893d4d725f972486fe50f4405a2a99085", "draft": true, "state": "open", "mergeable_state": "blocked"},
+    {"repo": "szl-holdings/szl-frontier", "number": 184, "head": "ff7a9a7bc11e214e2f453b5fe6e21257d332a9e6", "draft": true, "state": "open"},
+    {"repo": "szl-holdings/szl-frontier", "number": 181, "head": "c92bbbf7c74cd6865fba9096d71d0abc1ca1f28d", "draft": true, "state": "open"},
+    {"repo": "szl-holdings/szl-frontier", "number": 186, "head": "8fd365acc3cec033b53d56d8db368e0e05a700a1", "draft": true, "state": "open"},
+    {"repo": "szl-holdings/szl-frontier", "number": 185, "head": "c85b4aa3a096958809ed275619fb56458729fc97", "draft": true, "state": "open"},
+    {"repo": "szl-holdings/szl-frontier", "number": 187, "head": "33ac30df4f42d8c6b6b37127f48863c0c05bb63e", "draft": true, "state": "open"},
+    {"repo": "szl-holdings/a11oy", "number": 2152, "head": "fedc629", "draft": true, "state": "open"},
+    {"repo": "szl-holdings/vertical-services", "number": 37, "head": "dc0c163", "draft": true, "state": "open"},
+    {"repo": "szl-holdings/.github", "number": 746, "head": null, "draft": false, "state": "closed"}
+  ],
+  "fixtureResults": {
+    "F1_aware_false_valid": 0,
+    "F1_naive_false_valid_at_least": 1,
+    "F3_parent_aligned_running_child": "INCOMPLETE",
+    "F7_adaptive_fixture_accept": "4/4",
+    "tests": "12 methods OK under python and python -O",
+    "scope": "FIXTURE_NOT_PRODUCT_QUALIFICATION"
+  },
+  "projection": {
+    "huggingFace": "not published by this branch",
+    "a-11-oy.com": "unchanged",
+    "a11oy.net": "unchanged"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false,
+  "source_content_files_read": 0,
+  "semantic_review_complete": false,
+  "runtime_verified": false,
+  "authoritative_organization_population": null,
+  "kernels_count": null
+}

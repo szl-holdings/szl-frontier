@@ -11,7 +11,7 @@ export const Route = createFileRoute("/api/ready")({
           engineHydratable: true,
         });
         return new Response(JSON.stringify(body), {
-          status: body.ready && body.productionReady === false ? 200 : body.ready ? 200 : 503,
+          status: body.ready && body.productionReady === false ? 200 : 503,
           headers: {
             "content-type": "application/json; charset=utf-8",
             "cache-control": "no-store",

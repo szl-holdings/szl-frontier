@@ -53,12 +53,13 @@ function runtimeStage(row: Record<string, unknown>): string | null {
 
 export async function observePublicEstate() {
   const started = new Date().toISOString();
-  const [gh1, gh2, models, datasets, spaces] = await Promise.all([
+  const [gh1, gh2, models, datasets, spaces, kernels] = await Promise.all([
     boundedGet("https://api.github.com/orgs/szl-holdings/repos?per_page=100&page=1&type=public&sort=full_name"),
     boundedGet("https://api.github.com/orgs/szl-holdings/repos?per_page=100&page=2&type=public&sort=full_name"),
     boundedGet("https://huggingface.co/api/models?author=SZLHOLDINGS&limit=100"),
     boundedGet("https://huggingface.co/api/datasets?author=SZLHOLDINGS&limit=100"),
     boundedGet("https://huggingface.co/api/spaces?author=SZLHOLDINGS&limit=100"),
+    boundedGet("https://huggingface.co/api/kernels?author=SZLHOLDINGS&limit=100"),
   ]);
 
   const ghOk = gh1.status === "MEASURED";
@@ -82,7 +83,7 @@ export async function observePublicEstate() {
   };
 
   function hfFamily(
-    name: "models" | "datasets" | "spaces",
+    name: "models" | "datasets" | "spaces" | "kernels",
     probe: Awaited<ReturnType<typeof boundedGet>>,
   ) {
     const ok = probe.status === "MEASURED";
@@ -103,22 +104,25 @@ export async function observePublicEstate() {
       note:
         name === "spaces"
           ? "RUNNING is not runtime-verified and is not production-ready."
-          : "Membership is not qualification.",
+          : name === "kernels"
+            ? "Hub kernels membership is not model qualification and is not executable-kernel qualification. Overlapping ids stay in both families."
+            : "Membership is not qualification.",
     };
   }
 
+  const modelFamily = hfFamily("models", models);
+  const kernelFamily = hfFamily("kernels", kernels);
+  const modelIds = new Set(modelFamily.items.map((i) => i.id));
+  const overlapWithModels = kernelFamily.items.map((i) => i.id).filter((id) => id && modelIds.has(id)).sort();
+
   const huggingface = {
-    models: hfFamily("models", models),
+    models: modelFamily,
     datasets: hfFamily("datasets", datasets),
     spaces: hfFamily("spaces", spaces),
     kernels: {
-      family: "kernels" as const,
-      status: "UNAVAILABLE" as const,
-      itemsObserved: null,
-      paginationComplete: false,
-      error: "NO_PUBLIC_KERNELS_MEMBERSHIP_API",
-      items: [],
-      note: "Kernels family is UNKNOWN, not zero.",
+      ...kernelFamily,
+      overlapWithModels,
+      overlapCount: kernelFamily.status === "MEASURED" ? overlapWithModels.length : undefined,
     },
   };
 
@@ -148,7 +152,7 @@ export async function observePublicEstate() {
           defaultBranch: null as string | null,
           error: github.error ?? "FRONTIER_REPO_NOT_IN_PAGE",
         },
-    note: "Public metadata only. Tree hashing, LFS, private assets, and semantic review were not performed.",
+    note: "Public metadata only. Tree hashing, LFS, private assets, and semantic review were not performed. Kernels membership is not executable-kernel qualification.",
   };
 }
 

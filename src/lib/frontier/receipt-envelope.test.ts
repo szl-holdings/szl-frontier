@@ -44,7 +44,7 @@ test("mutating authority after seal is detected", async () => {
   });
   const smuggled = { ...envelope, authority: "PRODUCTION" as const };
   assert.throws(
-    () => assertEnvelopeHolds(smuggled as typeof envelope),
+    () => assertEnvelopeHolds(smuggled as unknown as typeof envelope),
     (err: unknown) => err instanceof EnvelopeError && err.code === "AUTHORITY_NOT_NONE",
   );
 });

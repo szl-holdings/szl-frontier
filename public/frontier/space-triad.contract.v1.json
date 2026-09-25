@@ -1,0 +1,13 @@
+{
+  "schema": "szl.frontier.space-triad-contract/v1",
+  "production_authorization": false,
+  "runtime_verified": false,
+  "source_content_files_read": 0,
+  "expected_endpoints": ["/health", "/ready", "/source"],
+  "invariants": [
+    "health != ready != source",
+    "RUNNING != runtime-verified",
+    "health.ok does not imply productionReady"
+  ],
+  "note": "Contract inventory for existing Spaces. List membership is not a live probe."
+}

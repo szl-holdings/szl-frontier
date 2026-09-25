@@ -1,0 +1,24 @@
+{
+  "schema": "szl.frontier.codex-upgrade-program/v1",
+  "issued_at": "2026-09-20T19:30:00Z",
+  "production_authorization": false,
+  "training_admission": false,
+  "paid_workload_budget_usd": 0,
+  "lambda": "CONJECTURE_1",
+  "file_audit_complete": false,
+  "source_content_files_read": 0,
+  "semantic_review_complete": false,
+  "runtime_verified": false,
+  "promotion_effect": "NONE",
+  "execution": {
+    "isolated_worktrees": true,
+    "draft_prs_only": true,
+    "merge_protected_main": false,
+    "recreate_flagship": false,
+    "reset_owner_dirs": false,
+    "force_push": false,
+    "private_names_published": false
+  },
+  "this_organ_lanes": ["FE-03", "FE-06", "DR-01", "DR-03", "DR-05", "DR-06", "DR-07", "DR-08", "DR-10"],
+  "note": "26 lanes live in src/lib/frontier/codex-program.ts. This organ executes THIS_ORGAN only."
+}

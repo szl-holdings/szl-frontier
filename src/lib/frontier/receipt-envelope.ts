@@ -23,9 +23,11 @@ export interface ReceiptEnvelope<T = unknown> {
 }
 
 export class EnvelopeError extends Error {
-  constructor(readonly code: string) {
+  code: string;
+  constructor(code: string) {
     super(code);
     this.name = "EnvelopeError";
+    this.code = code;
   }
 }
 
@@ -81,4 +83,8 @@ export function assertEnvelopeHolds(envelope: ReceiptEnvelope): void {
   if (envelope.schema !== RECEIPT_ENVELOPE_SCHEMA) throw new EnvelopeError("ENVELOPE_SCHEMA");
   if (envelope.productionAuthorization !== false) throw new EnvelopeError("PRODUCTION_AUTHORIZATION_FORBIDDEN");
   if (envelope.authority !== "NONE") throw new EnvelopeError("AUTHORITY_NOT_NONE");
+}
+
+export function envelopeGrantsAuthority(_envelope: ReceiptEnvelope): false {
+  return false;
 }

@@ -1,14 +1,16 @@
 /** Fail-closed health ≠ ready ≠ source. Running is not ready. Health is not success. */
-import { healthPayload, readyPayload, sourcePayload } from "./source";
-import { sealReceipt, type ReceiptEnvelope } from "./receipt-envelope";
+import { healthPayload, readyPayload, sourcePayload } from "./source.ts";
+import { sealReceipt, type ReceiptEnvelope } from "./receipt-envelope.ts";
 
 export const TRIAD_SCHEMA = "szl.frontier.triad/v1";
 export const SPACE_TRIAD_CONTRACT = "szl.frontier.space-triad-contract/v1";
 
 export class TriadError extends Error {
-  constructor(readonly code: string) {
+  code: string;
+  constructor(code: string) {
     super(code);
     this.name = "TriadError";
+    this.code = code;
   }
 }
 
@@ -48,9 +50,8 @@ export function assertTriadDistinct(
   if (ready.productionAuthorization !== false) throw new TriadError("READY_AUTHORIZATION");
   if (source.productionAuthorization !== false) throw new TriadError("SOURCE_AUTHORIZATION");
   if (ready.productionReady !== false) throw new TriadError("PRODUCTION_READY_OVERCLAIM");
-  if (health.ok === true && ready.productionReady === true) {
-    throw new TriadError("HEALTH_IMPLIES_PRODUCTION_READY");
-  }
+  // productionReady is pinned false, so health.ok cannot imply it.
+  // The previous guard is the executable check; a === true comparison does not typecheck.
   if (source.semanticReviewComplete !== false) throw new TriadError("SOURCE_REVIEW_OVERCLAIM");
   if (source.sourceContentFilesRead !== 0) throw new TriadError("SOURCE_FILES_OVERCLAIM");
   if (source.fileAuditComplete !== false) throw new TriadError("FILE_AUDIT_OVERCLAIM");
