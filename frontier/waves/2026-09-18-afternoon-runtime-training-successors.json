@@ -1,0 +1,170 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-18-afternoon-runtime-training-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "10d88c01f174acddefaa0bf5f10c0ef8c9ffd63e",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-18-kimi-k3-routed-expert-quant-successor",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-rocm-dsv4-sparse-indexer-logits-layout",
+      "priority": "P0",
+      "category": "rocm-sparse-attention-logit-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "71fc70d3ae1df53300a23ec69f6d97b7207a109f",
+      "upstreamPullRequest": 50455,
+      "observedCommitAt": "2026-09-18T16:57:44Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "The ROCm DeepSeek-V4 sparse indexer can route incompatible KV-cache layouts through the wrong logits path on gfx950/gfx942, collapsing sparse-indexer logits instead of preserving the model's retrieval distribution.",
+        "The successor distinguishes block-flat C4A from 16x16 shuffle layouts and adds Triton-versus-eager reference checks, but upstream parity is not an SZL qualification receipt."
+      ],
+      "requiredEvidence": [
+        "Bind the exact vLLM source/container, exact admitted DeepSeek-V4/V4.1 artifact and config, ROCm/HIP/AITER/Triton/Torch versions, gfx942 or gfx950 accelerator identity, page/block size, compression ratio and TP/EP topology.",
+        "Run the immediate predecessor as a known-bad control on an affected accelerator and preserve the failing logits/top-k receipt; if affected hardware is unavailable, record UNAVAILABLE rather than substituting CUDA or CPU evidence.",
+        "Exercise compression ratios 1, 2 and 4, block-flat versus shuffle cache layouts, page boundaries, short and long sequence lengths and graph/eager paths; compare valid-position logits and resulting top-k against an independently executed eager reference.",
+        "Require finite logits, no silent layout coercion, deterministic rollback to the incumbent backend and failure/cancellation cleanup before any throughput claim."
+      ]
+    },
+    {
+      "id": "sglang-triton-speculative-runtime-token-width",
+      "priority": "P0",
+      "category": "speculative-decoding-attention-metadata-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "248c202b46d4a44ad46a3f09d48661b0d9ce6257",
+      "upstreamPullRequest": 39859,
+      "observedCommitAt": "2026-09-18T18:07:55Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Triton speculative verification previously derived attention widths from configured draft counts even when the runtime verification width differed, so qo-indptr, masks, KV extents and sliding-window metadata could disagree with the actual verification step.",
+        "The successor resolves num_tokens_per_req from runtime SpecInput metadata and carries that width through eager and CUDA-graph verification metadata."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/image, model and speculative algorithm, draft model/revision, tokenizer, Triton/CUDA or supported accelerator stack, capture width, runtime num_tokens_per_req and draft_token_num.",
+        "Use predecessor negative controls where configured and runtime widths differ, including gamma versus gamma+1 verification, then prove candidate qo-indptr, mask-indptr, max-extend and KV-index extents match the executed token count.",
+        "Exercise EAGLE-family verification, custom-mask present/absent, sliding-window attention, eager and CUDA-graph replay, variable batch sizes, cancellation/restart and invalid/nonpositive runtime-width fallback.",
+        "Compare accepted-token/output parity with a non-speculative or independently qualified reference before latency or acceptance-rate claims; preserve an opt-out rollback."
+      ]
+    },
+    {
+      "id": "vllm-kv-offload-backpressure-remediation",
+      "priority": "P1",
+      "category": "kv-offload-backpressure-data-integrity",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "23e26e058839fb2a3e77c78fbf2184f563593227",
+      "upstreamPullRequest": 50045,
+      "observedCommitAt": "2026-09-18T18:47:48Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Tiered KV offloading now adds latency-derived back-pressure detection, drop/throttle policies, idle recovery and per-tier configuration inheritance; these controls directly affect whether cache stores are retained, deferred or dropped under sustained pressure.",
+        "The successor explicitly rejects the generic latency detector for P2P because that signal cannot safely fail fast there, so backend-specific refusal is part of the correctness contract rather than an optional optimization."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, offload tier type and locality, KV block geometry, transport, storage endpoint, detector/policy configuration, host memory, accelerator and concurrency settings.",
+        "Run deterministic slow-tier pressure, burst, idle-decay and recovery scenarios with known block identities; prove no dropped store is later advertised as durable/available and no load returns stale or foreign KV data.",
+        "Exercise field-by-field configuration inheritance, high/low watermark hysteresis, warmup, accounting-only and drop/throttle policies, queue drain, cancellation, restart and process failure; record all drop decisions and recovery transitions.",
+        "Require P2P to refuse unsupported detector configuration exactly as designed; retain the existing offload path as rollback and measure performance only after cache correctness."
+      ]
+    },
+    {
+      "id": "sglang-router-backpressure-breaker-semantics",
+      "priority": "P0_P1",
+      "category": "router-circuit-breaker-backpressure-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "4e0b56c8119a2673d0bf3bd748b8d9a895af79cb",
+      "upstreamPullRequest": 39464,
+      "observedCommitAt": "2026-09-18T16:46:29Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "The router now distinguishes upstream 429/503 capacity backpressure from genuine breaker faults, preventing a saturated but responsive worker from opening the circuit and fleet-wide false shedding.",
+        "The upstream contract intentionally does not detect a worker that returns 503 indefinitely, so chronic backpressure must remain visible to a separate health signal instead of being silently treated as healthy forever."
+      ],
+      "requiredEvidence": [
+        "Bind exact router source/image and worker source, routing policy, breaker threshold/cooldown, stream/non-stream endpoint, replica count and load profile.",
+        "Use deterministic sequences mixing 2xx, 429, 503, 500, 502, 504, transport timeout and mid-stream body failure; prove only genuine faults advance the breaker while 429/503 resolve half-open probes without erasing a closed-state real-failure streak.",
+        "Add a chronic-429/503 control proving a separate higher-level health/pressure signal surfaces and can demote or alarm on a persistently unavailable worker; do not reinterpret neutral breaker accounting as worker health.",
+        "Exercise concurrent late completions, half-open probe races, streaming cancellation/restart and single-worker/fleet routing; preserve incumbent breaker semantics as rollback until failure-injection receipts pass."
+      ]
+    },
+    {
+      "id": "trl-grpo-streamed-logprob-projection",
+      "priority": "P1",
+      "category": "post-training-logprob-memory-correctness",
+      "upstreamRepository": "huggingface/trl",
+      "upstreamRevision": "a98fa6a4428f9aae58dfb26d729d7437f662f27a",
+      "upstreamPullRequest": 7077,
+      "observedCommitAt": "2026-09-18T18:23:31Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "TRL replaces full-logit materialization in GRPO/KTO scoring with a streamed selective log-probability projection designed to bound peak [tokens,vocab] memory while preserving loss inputs.",
+        "The new path directly executes the backbone and therefore carries explicit mixed-precision, gradient, all-masked and chunk-boundary correctness obligations that cannot inherit from earlier AsyncGRPO or KTO-Liger waves."
+      ],
+      "requiredEvidence": [
+        "Bind exact TRL/Transformers/PEFT/Torch/Liger revisions, model and tokenizer artifact digests, dtype/autocast mode, optimizer, batch/sequence/vocab sizes and accelerator topology.",
+        "Compare streamed versus full-logit per-token log-probabilities, entropies, losses, gradients and optimizer updates on deterministic fixtures across at least one token-chunk boundary; preserve full-logit output as the reference receipt.",
+        "Exercise BF16/FP16 autocast, sequence/token importance sampling, masked and fully masked completions, empty-valid-row differentiability, gradient accumulation, DDP/FSDP where actually supported and cancellation/restart/checkpoint-resume.",
+        "Measure peak memory and throughput only after numerical/training parity is within declared tolerances; no quality improvement claim and no training-default promotion from memory savings alone."
+      ]
+    },
+    {
+      "id": "transformers-composite-special-token-alignment",
+      "priority": "P1",
+      "category": "multimodal-training-config-correctness",
+      "upstreamRepository": "huggingface/transformers",
+      "upstreamRevision": "ea31b0c6ab0d1368130b0482aee7293a014c3a38",
+      "upstreamPullRequest": 48847,
+      "observedCommitAt": "2026-09-18T16:07:52Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Trainer special-token alignment read and wrote the top-level config even for composite multimodal models whose BOS/EOS/PAD identities live on the text sub-config, causing false mismatch warnings and writing token IDs onto the wrong configuration surface.",
+        "The successor routes alignment through get_text_config(), retaining text-only behavior while making composite-model token identity explicit."
+      ],
+      "requiredEvidence": [
+        "Bind exact Transformers source, composite model/revision, processor/tokenizer/revision and generation config; include at least one Llava-like image-text model plus a text-only control.",
+        "Run the predecessor as a negative control and demonstrate the false top-level mismatch/write without mutating production artifacts; then prove the candidate updates or preserves BOS/EOS/PAD only on the canonical text config and expected generation config.",
+        "Exercise unchanged-token and changed-token cases, multiple EOS handling, save/reload round trips, generation after alignment and processor/tokenizer mismatch cases; fail closed on ambiguous composite text configuration.",
+        "Do not infer multimodal model quality from configuration alignment and do not publish a new checkpoint merely to inventory the fix."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active serving owner",
+    "trainingPostTrainingEvaluation": "szl-holdings/szl-forge",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "observedA11oySourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "proofCapturedAt": "2026-09-12T01:25:04Z",
+    "proofCounts": {"models": 46, "datasets": 35, "spaces": 21}
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}

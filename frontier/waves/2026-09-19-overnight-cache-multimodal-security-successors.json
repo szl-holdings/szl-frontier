@@ -1,0 +1,152 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-19-overnight-cache-multimodal-security-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "10d88c01f174acddefaa0bf5f10c0ef8c9ffd63e",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-18-evening-model-serving-integrity-successors",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-multimodal-hash-framing-cache-isolation",
+      "priority": "P0",
+      "category": "multimodal-cache-identity-and-cross-request-isolation",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "a8d1aa9c99b8698a2a78b611b7a10c30e6b3995b",
+      "upstreamPullRequest": 54283,
+      "observedCommitAt": "2026-09-19T04:06:48Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "MultiModalHasher previously hashed an unframed byte stream in which distinct caller-controlled mm_processor_kwargs shapes could collide across key/value boundaries, nested-versus-dotted keys, sequence-versus-mapping shapes, None-versus-empty values and empty-versus-omitted containers.",
+        "The resulting mm_hash identifies the multimodal processor cache and is also included in prefix-cache block hashing, so a collision can silently associate a request with processed multimodal features or KV blocks derived from a different request."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM source/image, model/tokenizer/processor revisions, hash algorithm, media-byte hashes, mm_processor_kwargs canonical input and prefix-cache configuration.",
+        "Run the upstream predecessor against all documented collision pairs and preserve exact equal-digest evidence; prove the candidate produces distinct digests for each pair while preserving deterministic same-input identity.",
+        "Exercise processor-cache and prefix-cache hits/misses, nested/flat mappings, lists/maps, None/empty/omitted values, multiple modalities, concurrent tenants/requests and restart boundaries; prove no cache entry created for one request is returned for a distinct framed input.",
+        "Measure preprocessing overhead only after cache-isolation correctness; retain cache-disable as rollback and do not infer cryptographic collision resistance beyond the framed serialization contract."
+      ]
+    },
+    {
+      "id": "vllm-aria-expert-weight-name-layout",
+      "priority": "P0",
+      "category": "multimodal-moe-weight-loading-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "01c7bf88135458940d89584c05ae47404aac77cb",
+      "upstreamPullRequest": 57487,
+      "observedCommitAt": "2026-09-19T04:06:30Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Aria expert checkpoints could not load because name conversion left an extra .weight suffix and HF/vLLM expert tensors use different layouts; correcting only the name still produced shape failures.",
+        "The successor fixes Aria-specific mapping and transpose behavior while preserving quantization mapper names; upstream CPU parity passed but full-model GPU qualification was not run."
+      ],
+      "requiredEvidence": [
+        "Resolve and bind the exact Aria checkpoint/config/tokenizer/processor revision and file identities together with exact vLLM/Transformers/Torch runtime and quantization configuration.",
+        "Run the immediate predecessor as a known-bad load control and preserve missing-name/shape-failure evidence; prove the candidate consumes every expected expert/shared-expert tensor exactly once with expected post-transform shapes and no unexpected leftovers.",
+        "Compare deterministic HF-reference and vLLM MoE outputs/logits across FP32/BF16, top-k 1/2, multiple token counts and applicable quantized paths; require full-model accelerator inference before any serving qualification.",
+        "Exercise save/load/startup failure, partial or malformed checkpoint controls, quantization mapper names and rollback to the previously qualified Aria path; no model artifact is mirrored for inventory."
+      ]
+    },
+    {
+      "id": "sglang-safe-unpickler-nested-storage-successor",
+      "priority": "P0",
+      "category": "deserialization-security-and-weight-cache-integrity",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "5b42d10edfa4b626b1e37026577eb5706e89b69a",
+      "upstreamPullRequest": 40259,
+      "observedCommitAt": "2026-09-19T05:38:11Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "predecessorGovernedRevision": "882577451e764a515df2a386a055012e8f075a16",
+      "materiality": [
+        "This is an additive successor to the already governed SafeUnpickler exact-allowlist boundary: module-prefix trust still admitted callable helpers, and torch.storage._load_from_bytes invoked a nested deserializer outside the outer allowlist.",
+        "The successor replaces remaining code-module prefixes with exact module/name entries and routes nested storage bytes through torch.load(weights_only=True) with storage-result validation."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang/Python/Torch source and the serialization/weight-cache protocol version; record the previously governed SafeUnpickler revision separately and do not inherit its qualification.",
+        "Construct deterministic malicious/negative payloads covering rejected callable globals, nested torch.storage bytes, unexpected object types and disallowed reconstruction helpers; prove the predecessor admits the targeted boundary where reproducible and the candidate rejects it fail-closed.",
+        "Run legitimate tensor/storage/encoder metadata/weight-cache protocol round-trips including nested storage on CPU and supported accelerator/server paths; missing accelerator coverage remains UNQUALIFIED, not PASS.",
+        "Preserve weights_only nested loading, exact allowlists, no remote-code execution, rollback and existing artifact/provenance checks; never weaken deserialization policy to preserve compatibility."
+      ]
+    },
+    {
+      "id": "sglang-glm-ocr-mtp-multimodal-mrope",
+      "priority": "P0",
+      "category": "multimodal-speculative-decoding-memory-and-position-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "929230a6f015dcc4042ef8d06ef10c0c81f17327",
+      "upstreamPullRequest": 39088,
+      "observedCommitAt": "2026-09-19T04:10:05Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "GLM-OCR with EAGLE/MTP on image inputs could hit CUDA out-of-bounds memory access when the draft model attempted to look up image placeholder IDs in the vocabulary rather than reuse target-model multimodal embeddings.",
+        "The successor also carries MRoPE positions through speculative steps and into draft CUDA-graph buffers, making embedding ownership and positional state part of the verification contract."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/image, GLM-OCR target/draft checkpoint and processor revisions, MTP/EAGLE settings, multimodal input hashes, CUDA/Torch stack and CUDA-graph mode.",
+        "Run the predecessor known-bad image/MTP path under memory checking where feasible and preserve the CUDA OOB or equivalent failure; prove candidate target embeddings are reused without vocabulary lookup of image placeholders.",
+        "Compare greedy outputs against a non-MTP baseline with CUDA graphs enabled and disabled, single and concurrent requests, multiple image sizes/counts and repeated speculative steps; record MRoPE positions and prove monotonic/correct advancement into graph replay buffers.",
+        "Exercise cancellation/restart, graph recapture, text-only controls and malformed multimodal inputs; require no OOB/NaN and preserve non-MTP as rollback before throughput claims."
+      ]
+    },
+    {
+      "id": "sglang-runtime-context-published-rank-placement",
+      "priority": "P1",
+      "category": "distributed-topology-and-speculative-scope-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "3a5f52e14419b7f1d25d7a3833ebaecf10d484b4",
+      "upstreamPullRequest": 40071,
+      "observedCommitAt": "2026-09-19T06:52:38Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "SGLang process placement/rank reads previously depended on process-group state and a parallel runner record, allowing runtime context and frozen records to disagree, including pipeline swaps and several speculative draft-worker scopes.",
+        "The successor records launcher-known placement at publish time, derives attention ranks through one arithmetic path and explicitly refuses to record moe_dp_rank in the topology where launcher and group semantics differ."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang source/image, launcher mode, TP/PP/DP/CP/EP widths and rank bundle, speculative mode, scheduler entrypoint, distributed backend and accelerator topology.",
+        "Cross-check published ranks against process-group-derived ranks over a topology matrix including tp2, tp2+pp2, dp attention and missing/None rank fields; assert the explicit moe_dp_rank fallthrough case instead of coercing conflicting semantics.",
+        "Exercise pipeline-group swaps, all six speculative worker construction/backend-init/graph-capture scopes and state retained after scope exit; prove target/draft context cannot leak topology across workers or lifecycle transitions.",
+        "PP plus speculative decoding remains UNQUALIFIED unless an executable supported checkpoint/path produces independent runtime evidence; upstream unit coverage or non-spec token parity must not close that gate."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active serving owner",
+    "securityEvaluation": "szl-holdings/szl-forge",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "observedA11oySourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "observedHfRuntimeSourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "observedProductRuntimeSourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "proofCapturedAt": "2026-09-12T01:25:04Z",
+    "proofCounts": {"models": 46, "datasets": 35, "spaces": 21},
+    "proofOperational": false
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}

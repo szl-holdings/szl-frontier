@@ -15,8 +15,11 @@ from szl_frontier.lambda_gate import (
 )
 
 
+FROZEN = datetime(2026, 9, 20, tzinfo=timezone.utc)
+
+
 def axis(name: str, value: float | None, status: str = "MEASURED", **kwargs) -> AxisEvidence:
-    now = kwargs.pop("now", datetime(2026, 9, 20, tzinfo=timezone.utc))
+    now = kwargs.pop("now", FROZEN)
     expiry = kwargs.pop("expiry_at", (now + timedelta(days=1)).isoformat())
     return AxisEvidence(
         name=name,
@@ -94,7 +97,7 @@ class GeometricMeanProperties(unittest.TestCase):
 class FailClosedGate(unittest.TestCase):
     def test_allow_when_all_required_axes_are_high(self) -> None:
         axes = [axis(f"a{i}", 0.9) for i in range(5)]
-        gate = evaluate_lambda_gate(axes, threshold=0.7)
+        gate = evaluate_lambda_gate(axes, threshold=0.7, now=FROZEN)
         self.assertEqual(gate.verdict, "ALLOW")
         self.assertTrue(scores_match(gate.lambda_score, 0.9))
         self.assertFalse(gate.divergent)
@@ -104,7 +107,7 @@ class FailClosedGate(unittest.TestCase):
             axis("ok", 0.9),
             axis("human_approval", None, status="BLOCKED"),
         ]
-        gate = evaluate_lambda_gate(axes)
+        gate = evaluate_lambda_gate(axes, now=FROZEN)
         self.assertEqual(gate.verdict, "HARD_DENY")
         self.assertIsNone(gate.lambda_score)
         self.assertIn("MISSING_AXIS:human_approval", gate.reason_codes)
@@ -132,7 +135,7 @@ class FailClosedGate(unittest.TestCase):
             axis("d", 0.95),
             axis("provenance_integrity", 0.0),
         ]
-        gate = evaluate_lambda_gate(axes, threshold=0.7)
+        gate = evaluate_lambda_gate(axes, threshold=0.7, now=FROZEN)
         self.assertEqual(gate.verdict, "LAMBDA_VETO")
         self.assertEqual(gate.lambda_score, 0.0)
         self.assertGreater(gate.arithmetic_score or 0.0, 0.7)
@@ -144,5 +147,5 @@ class FailClosedGate(unittest.TestCase):
             axis("required", 0.9),
             axis("human_approval", None, status="UNAVAILABLE", required=False),
         ]
-        gate = evaluate_lambda_gate(axes)
+        gate = evaluate_lambda_gate(axes, now=FROZEN)
         self.assertEqual(gate.verdict, "ALLOW")
