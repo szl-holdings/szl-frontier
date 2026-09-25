@@ -1,0 +1,36 @@
+{
+  "schema": "szl.frontier.wave5-tab-bind-receipt/v1",
+  "complete": false,
+  "productionAuthorization": false,
+  "observed_at": "2026-09-25T19:05:00Z",
+  "organ": "szl-holdings/szl-frontier",
+  "pr": 196,
+  "branch": "frontier/optional-eval-ui-tabs-20260925",
+  "head": "e880e5cc9563523574b88ab55ed6062db4053e5a",
+  "base": "main@9f45feaecd6ba7d2824663120260560bf72bd85b",
+  "disposition": "HOLD",
+  "evidenceClass": "EVALUATION",
+  "landed": [
+    "frontier.tsx wires triad/pin/codex/kernels/leases/optional",
+    "eval-panels HoldStrip Triad Pin Codex bound to optional-eval",
+    "hold-panels kernels/leases bound",
+    "optional evaluation cannot lift HOLD or execute HANDOFF",
+    "14-vs-15 kernel conflict kept",
+    "publisher.deploy REVOKED"
+  ],
+  "remeasured": {
+    "hf_spaces_api_slugs": 22,
+    "hf_spaces_includes_staging": "SZLHOLDINGS/szl-constellation-staging",
+    "healthz_commit": "c7c0ba17",
+    "healthz_signer": "ABSENT"
+  },
+  "forbidden": [
+    "LIVE",
+    "PRODUCTION",
+    "TRAINED",
+    "second publisher",
+    "collapse conflicts",
+    "treat staging Space as production",
+    "merge to main this wave"
+  ]
+}

@@ -17,13 +17,21 @@ import {
   WORKSTREAM_STATUSES,
   WORKSTREAMS,
   filterWorkstreams,
-  workstreamSummary,
   workstreamTone,
   type Workstream,
 } from "@/lib/frontier/workstreams";
 import { PROJECTS, useOrchestrator } from "@/stores/orchestrator";
+import { KernelsPanel, LeasesPanel } from "@/components/frontier/hold-panels";
+import { CodexPanel, HoldStrip as EvalHoldStrip, PinPanel, TriadPanel as EvalTriadPanel } from "@/components/frontier/eval-panels";
+import {
+  admitOptionalEvaluation,
+  defaultOptionalEvaluation,
+  parseStoredOptionalEval,
+  refuseHandoffFromThisOrgan,
+  type OptionalEvaluation,
+} from "@/lib/frontier/optional-eval";
 
-const TABS = ["workstreams", "cycle", "estate", "journeys", "lab"] as const;
+const TABS = ["workstreams", "cycle", "estate", "triad", "pin", "codex", "kernels", "leases", "optional", "journeys", "lab"] as const;
 type Tab = (typeof TABS)[number];
 
 type EstateObservation = Awaited<ReturnType<typeof observeEstate>>;
@@ -50,6 +58,23 @@ function FrontierPage() {
   const family = search.family ?? "all";
   const status = search.status ?? "all";
   const navigate = Route.useNavigate();
+  const [optedIn, setOptedIn] = useState(() => {
+    try {
+      return parseStoredOptionalEval(localStorage.getItem("szl-frontier-optional-eval"));
+    } catch {
+      return false;
+    }
+  });
+
+  function setOptionalEval(next: boolean) {
+    const admitted = admitOptionalEvaluation(next);
+    setOptedIn(admitted.optedIn);
+    try {
+      localStorage.setItem("szl-frontier-optional-eval", JSON.stringify(admitted));
+    } catch {
+      /* private browsing */
+    }
+  }
 
   function setTab(next: Tab) {
     void navigate({ search: (prev) => ({ ...prev, tab: next }) });
@@ -73,7 +98,7 @@ function FrontierPage() {
         }
       />
 
-      <HoldStrip />
+      <EvalHoldStrip optedIn={optedIn} onOptedIn={setOptionalEval} />
 
       <div role="tablist" aria-label="Frontier surfaces" className="flex flex-wrap gap-1">
         {TABS.map((id) => (
@@ -95,24 +120,74 @@ function FrontierPage() {
       {tab === "workstreams" ? <WorkstreamsPanel q={q} family={family} status={status} /> : null}
       {tab === "cycle" ? <CyclePanel /> : null}
       {tab === "estate" ? <EstatePanel /> : null}
+      {tab === "triad" ? <EvalTriadPanel optedIn={optedIn} /> : null}
+      {tab === "pin" ? <PinPanel optedIn={optedIn} /> : null}
+      {tab === "codex" ? <CodexPanel optedIn={optedIn} /> : null}
+      {tab === "kernels" ? <KernelsPanel /> : null}
+      {tab === "leases" ? <LeasesPanel /> : null}
+      {tab === "optional" ? <OptionalEvalPanel /> : null}
       {tab === "journeys" ? <JourneysPanel /> : null}
       {tab === "lab" ? <LabPanel /> : null}
     </div>
   );
 }
 
-function HoldStrip() {
-  const summary = workstreamSummary();
+
+function OptionalEvalPanel() {
+  const [state, setState] = useState<OptionalEvaluation>(() => {
+    try {
+      return admitOptionalEvaluation(parseStoredOptionalEval(localStorage.getItem("szl-frontier-optional-eval")));
+    } catch {
+      return defaultOptionalEvaluation();
+    }
+  });
+
+  function persist(next: OptionalEvaluation) {
+    setState(next);
+    try {
+      localStorage.setItem("szl-frontier-optional-eval", JSON.stringify(next));
+    } catch {
+      /* private browsing */
+    }
+  }
+
+  function toggle(optedIn: boolean) {
+    persist(admitOptionalEvaluation(optedIn));
+  }
+
+  let handoff = "HANDOFF_NOT_EXECUTABLE_HERE";
+  try {
+    refuseHandoffFromThisOrgan("HANDOFF");
+    handoff = "UNEXPECTED_ALLOW";
+  } catch (err) {
+    handoff = err instanceof Error ? err.message : "HANDOFF_NOT_EXECUTABLE_HERE";
+  }
+
   return (
-    <section
-      aria-label="Production disposition"
-      className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
-    >
-      <Stat k="Disposition" v="HOLD" h="automatic promotion false" />
-      <Stat k="Reconciled head" v={SOURCE.reconciledHead.slice(0, 8)} h={SOURCE.repository} />
-      <Stat k="Workstreams" v={`${summary.selectedForRelease}/${summary.total}`} h="selected for eval, not production" />
-      <Stat k="Λ" v="Conjecture 1" h="never a theorem" />
-    </section>
+    <div className="space-y-4">
+      <p className="max-w-2xl text-sm leading-relaxed text-muted">
+        Optional evaluation is off by default. Opting in admits THIS_ORGAN only. It cannot
+        lift HOLD, execute HANDOFF, or authorize production.
+      </p>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat k="Opted in" v={String(state.optedIn)} h={state.note} />
+        <Stat k="Authorization" v={String(state.productionAuthorization)} h="always false" />
+        <Stat k="Promotion" v={state.promotionEffect} h="cannot promote" />
+        <Stat k="Handoff" v="REFUSED" h={handoff} />
+      </div>
+      <label className="flex h-10 items-center gap-3 text-sm">
+        <input
+          type="checkbox"
+          checked={state.optedIn}
+          onChange={(e) => toggle(e.target.checked)}
+          className="size-4 accent-accent"
+        />
+        Admit optional evaluation for this organ
+      </label>
+      <p className="text-xs text-muted">
+        Scopes: {state.admittedScopes.length ? state.admittedScopes.join(", ") : "none"}.
+      </p>
+    </div>
   );
 }
 
