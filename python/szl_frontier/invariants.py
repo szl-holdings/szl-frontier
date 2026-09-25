@@ -9,6 +9,7 @@ recomputed gate, non-executable arithmetic shadow, deny monotonicity.
 from __future__ import annotations
 
 import re
+from datetime import datetime, timezone
 from typing import Any, Mapping
 
 from .lambda_gate import (
@@ -158,6 +159,21 @@ def check_receipt(
     }
 
 
+def _receipt_clock(receipt: EvidenceReceipt) -> datetime | None:
+    """Recompute the gate at the receipt instant, not whenever CI happens to run."""
+
+    raw = receipt.created_at
+    if not raw:
+        return None
+    try:
+        clock = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if clock.tzinfo is None:
+        clock = clock.replace(tzinfo=timezone.utc)
+    return clock
+
+
 def _add_cycle_binds(
     results: list[dict[str, Any]],
     receipt: EvidenceReceipt,
@@ -167,7 +183,9 @@ def _add_cycle_binds(
     try:
         axes = [AxisEvidence.from_mapping(row) for row in payload.get("axes") or []]
         threshold = float(payload.get("threshold") or 0.7)
-        recomputed = evaluate_lambda_gate(axes, threshold=threshold)
+        recomputed = evaluate_lambda_gate(
+            axes, threshold=threshold, now=_receipt_clock(receipt)
+        )
         bind_ok = (
             recomputed.verdict == payload.get("verdict")
             and scores_match(payload.get("lambdaScore"), recomputed.lambda_score)
