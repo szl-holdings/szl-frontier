@@ -1,0 +1,129 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-19-morning-serving-model-offload-successors",
+  "priority": "P0_P1",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "10d88c01f174acddefaa0bf5f10c0ef8c9ffd63e",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-19-overnight-cache-multimodal-security-successors",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "candidates": [
+    {
+      "id": "vllm-mimo-v25-fused-fp8-qkv-sharding",
+      "priority": "P0",
+      "category": "model-weight-sharding-quantization-and-speculative-correctness",
+      "upstreamRepository": "vllm-project/vllm",
+      "upstreamRevision": "211e252d0b4f8429f9b15fc52bdfed07782c7f70",
+      "upstreamPullRequest": 57508,
+      "observedCommitAt": "2026-09-19T13:05:01Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "XiaomiMiMo/MiMo-V2.5 could not load on the predecessor at any tested tensor-parallel size because fused FP8 qkv checkpoint chunks were pre-sharded by checkpoint TP while the loader inferred one chunk per KV head; SWA layers therefore paired weight rows with the wrong scale geometry.",
+        "The same assumption also affected the MTP draft loader, where scale chunks could be assigned to neighboring blocks or fail shape loading; the successor derives chunk geometry from the layer and checkpoint pre-shard count and explicitly handles TP greater than KV heads."
+      ],
+      "requiredEvidence": [
+        "Bind exact XiaomiMiMo/MiMo-V2.5 checkpoint/config/tokenizer revision and file identities together with exact vLLM/Torch/CUDA or ROCm runtime, FP8 format and TP/EP/MTP settings.",
+        "Execute the immediate predecessor as a known-bad control and preserve its weight/scale mismatch or load failure; prove the candidate consumes and maps every fused Q/K/V weight and scale row exactly once for GA, SWA and MTP layers.",
+        "Exercise TP 1/2/4/8, TP greater than KV heads, MTP on/off and EP where supported; compare dequantized tensors and deterministic logits or outputs against an independently derived reference and a qualified HF path rather than accepting server startup alone.",
+        "Run full-model accelerator inference before serving qualification, cover malformed scale geometry and partial checkpoint failure, retain the previously qualified model path as rollback, and never mirror the checkpoint merely for inventory."
+      ]
+    },
+    {
+      "id": "sglang-non-v4-compiled-moe-mhc-context-isolation",
+      "priority": "P0",
+      "category": "compiled-moe-runtime-context-and-model-family-isolation",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "76f9213a411018547f4fd6a75f36feaa4d6bed58",
+      "upstreamPullRequest": 40353,
+      "observedCommitAt": "2026-09-19T13:41:52Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "DeepSeek-R1 compiled prefill could fail during startup because mHC ContextVar lookups introduced for DeepSeek-V4 were reached by non-V4 models through the shared DeepseekV2MoE implementation even though those models never install an mHC context.",
+        "The successor gates mHC context access on the existing is_deepseek_v4 model-family flag in normal and dual-stream forwards, preserving non-V4 all-reduce semantics while retaining V4 mHC scheduling."
+      ],
+      "requiredEvidence": [
+        "Bind exact SGLang/Torch compiler/runtime source, DeepSeek-R1 and DeepSeek-V4 checkpoint identities, TP width, compiled-prefill/CUDA-graph backend, dual-stream setting and accelerator topology.",
+        "Preserve a predecessor torch.compile/fullgraph or real compiled-prefill failure for non-V4 TP4/TP8 including empty and non-empty batches; require the candidate to eliminate the ContextVar trace failure without adding a blanket graph break or disabling compilation.",
+        "Exercise TP1/4/8, normal and dual-stream MoE, empty/non-empty batches, eager versus compiled prefill and real accelerator execution; prove non-V4 outputs retain baseline parity while V4 still schedules and consumes its mHC context callbacks.",
+        "Retain eager/non-compiled execution as rollback, require no newly skipped checks or reduced graph coverage, and keep unsupported model/topology combinations UNQUALIFIED rather than inferring parity from CPU-only compiler tests."
+      ]
+    },
+    {
+      "id": "vllm-omni-prefix-cache-manager-controller-state-machine",
+      "priority": "P0",
+      "category": "multimodal-prefix-cache-state-async-output-and-backpressure-integrity",
+      "upstreamRepository": "vllm-project/vllm-omni",
+      "upstreamRevision": "470ec60848fa98e030298706cceff88ae8f691a8",
+      "upstreamPullRequest": 6654,
+      "observedCommitAt": "2026-09-19T13:24:00Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "The Omni prefix cache was split into an occupancy/hit manager and a device-to-host staging/write controller with explicit exactly-once step-id consumption, bounded staging backpressure and an explicit write-task state machine so asynchronous output materialization can overlap the next engine step without cache state races.",
+        "The successor also changes correctness boundaries: a failed write behind a published hidden-state hash must raise, missing multimodal rows may intentionally read zeros, abort still writes once a hash is published, and prefix caching is refused for KV-consumer and pooling stages where hit provenance cannot be distinguished safely."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM-Omni and vLLM runtime/image, model and deploy-config identities, stage roles, cache keys, accelerator devices, async-output setting and prefix-cache configuration.",
+        "Run a predecessor or equivalent known-bad negative control that forces duplicate or forgotten step-id consumption, published-hash write failure, abort/restart interleaving, or staging exhaustion; preserve the exact expected failure boundary before accepting candidate state-machine behavior.",
+        "Exercise every WriteTask state transition plus failure, exactly-once materialize XOR discard_step consumption, duplicate/forgotten step ids, abort, restart, concurrent requests, cold/hot hits and failed writes behind published hashes; prove no stale or foreign hidden state can be returned.",
+        "Force staging-slot exhaustion and stuck-write/leaked-step scenarios to validate bounded backpressure and timeout diagnostics; independently verify hidden-key strictness, multimodal-key zero semantics, KV-consumer refusal and pooling-stage refusal.",
+        "Run text and audio multimodal paths with async output plus prefix cache on real hardware, compare output bytes or deterministic semantic reference against cache-disabled execution, and measure latency/throughput only after integrity; cache-disable remains rollback."
+      ]
+    },
+    {
+      "id": "vllm-omni-distributed-layerwise-offload-plan-topology",
+      "priority": "P1",
+      "category": "diffusion-offload-topology-residency-and-fail-before-mutation-correctness",
+      "upstreamRepository": "vllm-project/vllm-omni",
+      "upstreamRevision": "ea84055507971c4a7f31d4efdba1488f50c264ae",
+      "upstreamPullRequest": 7326,
+      "observedCommitAt": "2026-09-19T11:05:19Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD",
+      "materiality": [
+        "Distributed layerwise diffusion offload previously interpreted model topology inside the backend by scanning conventional block attributes, applying its own size rule and loading mmap weights from raw discovery, allowing topology decisions to diverge from the shared resolved offload plan.",
+        "The successor resolves staged or streamed child components centrally, rejects unstageable declared or large submodules before earlier components are mutated, and tracks resident non-block state by block identity so a submodule's own parameters and buffers are not silently skipped."
+      ],
+      "requiredEvidence": [
+        "Bind exact vLLM-Omni/vLLM runtime, diffusion checkpoint and file identities, OffloadConfig, resolved plan, mmap source, accelerator/host memory topology and transfer mode.",
+        "Construct a predecessor control where an unstageable later submodule is discovered only after an earlier component is staged or hooked; prove the candidate rejects during plan resolution before any placement, hook or resident-state mutation.",
+        "Verify streamed/staged component identities, block rings, submodule-owned parameters and buffers, mmap weight mapping and residency across nested DiT/text-encoder structures; fail on missing, duplicate or policy/topology ambiguity.",
+        "Run the real engine/checkpoint paths omitted from local-only testing, include cancellation/restart and memory-pressure controls, keep transfer policy separate from topology resolution, and retain no-offload or previously qualified offload mode as rollback."
+      ]
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active serving owner",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "state": "INDEPENDENT_HOLD",
+    "observedA11oySourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "observedHfRuntimeSourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "observedProductRuntimeSourceRevision": "43058398fb8ea346a7bd977f1a35391aeec1bf1a",
+    "proofCapturedAt": "2026-09-12T01:25:04Z",
+    "proofCounts": {"models": 46, "datasets": 35, "spaces": 21},
+    "proofOperational": false
+  },
+  "projection": {
+    "huggingFace": "NO_NEW_SZL_ARTIFACT_OR_RUNTIME_PROJECTION_UNTIL_QUALIFIED",
+    "a-11-oy.com": "NO_CAPABILITY_CHANGE_FROM_DISCOVERY",
+    "a11oy.net": "EXACT_MEASURED_RECEIPTS_ONLY_AFTER_QUALIFICATION"
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}

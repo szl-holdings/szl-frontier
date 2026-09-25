@@ -1,0 +1,80 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-20-afternoon-sglang-dcp-pack-capacity-successor",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "d24d7a224d1e608f5df6ab6bfc896875d78bfb47",
+  "canonicalIssue": "szl-holdings/szl-frontier#180",
+  "predecessorWave": "2026-09-20-midmorning-glm-kpool-offload-integrity-successors",
+  "disposition": "EVALUATION_HOLD",
+  "automaticProductionPromotion": false,
+  "paidExecutionAuthorized": false,
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "candidates": [
+    {
+      "id": "sglang-pd-cached-prefix-dcp-pack-capacity-isolation",
+      "priority": "P0",
+      "category": "serving/disaggregated-kv-transfer-correctness",
+      "upstreamRepository": "sgl-project/sglang",
+      "upstreamRevision": "b3e4d198af5e74e5070e541475fd767302342be9",
+      "upstreamPullRequest": 40376,
+      "primarySourceUrl": "https://github.com/sgl-project/sglang/pull/40376",
+      "originalObservationTime": "2026-09-20T17:17:16Z",
+      "sourceVerification": "EXACT_GITHUB_COMMIT_OBSERVED",
+      "signatureVerification": "GITHUB_VERIFIED_VALID",
+      "upstreamLicenseObserved": "Apache-2.0",
+      "taskHardwareFit": "SGLang prefill/decode disaggregation where a long cached prefix must be packed for DCP relayout; correctness depends on scheduler segmentation, page offsets, per-DCP-rank region capacity, and backend-specific transfer behavior.",
+      "materiality": [
+        "A radix-cache hit can leave little prefill compute while the decode worker still needs a very long KV prefix, so the transfer can exceed pack buffers sized from the compute-chunk bound.",
+        "The predecessor can bypass bounded DCP packing for this cached-prefix case and fall back to per-token transfer; more importantly, the gather path previously checked total allocation without proving that one DCP rank could not overwrite an adjacent rank's packed region.",
+        "The successor publishes the page-aligned one-send capacity only for DCP-relayout peers, splits oversized sends while preserving offsets/final metadata, and adds a per-rank NIXL region-capacity check."
+      ],
+      "deduplication": [
+        "No exact upstream revision or PR #40376 appears in the existing szl-frontier catalog, Waves A-M, or issue/PR search performed in this observation window.",
+        "Distinct from prior vLLM KV-offload/backpressure waves: this boundary is SGLang P/D disaggregation pack segmentation and per-DCP-rank transfer-region isolation.",
+        "Distinct from prior SGLang runtime role-switch governance: this does not qualify dynamic prefill/decode role switching or unsupported topologies."
+      ],
+      "authorsClaims": [
+        "Upstream reports 75 CPU tests plus 11 subtests on the latest revision covering packing, NIXL basics, Mooncake batching and staging draft KV slots.",
+        "Upstream reports six NIXL Kimi Linear GPU acceptance tests and six Mooncake-over-TCP acceptance tests including a 65,536-token cached-prefix case.",
+        "Upstream reports large cached-prefix TTFT/throughput improvements on an 8x B200 NIXL setup after bounded segmentation."
+      ],
+      "szlMeasurements": [],
+      "disconfirmingEvidence": [
+        "The latest peer-scoping/test changes were validated with CPU tests; upstream explicitly says the GPU matrix was not rerun after those final changes.",
+        "The Mooncake RDMA run hit transport retry-counter failures and was interrupted, so Mooncake-over-RDMA is not qualified by upstream evidence.",
+        "The reported performance and model accuracy use Kimi Linear 48B-A3B on 8x B200 and are upstream measurements, not SZL receipts or evidence for other models, page sizes, DCP widths, transports, or hardware."
+      ],
+      "baseline": "Exact predecessor source parent 80da4432d085ed4d6166ef643d9fd2b829dbb0c5 with a warm prefill radix hit whose missing decode KV prefix exceeds the DCP pack capacity, including a case that crosses a per-rank packed-region boundary.",
+      "requiredEvidence": [
+        "Bind the exact SGLang source/build/container and the exact NIXL or Mooncake backend revision actually exercised; transport families qualify independently.",
+        "Create a no-weight deterministic predecessor control where cached-prefix transfer length exceeds one DCP pack allocation and prove candidate segmentation never requests a segment above the published page-aligned limit.",
+        "Add a sentinel-backed per-rank packed-region fixture proving an oversized gather cannot modify the adjacent DCP rank's region; the predecessor or equivalent negative control must fail this boundary.",
+        "Exercise exact page boundaries, one-token-over-capacity, multiple segments, partial final pages, token/page offsets, cancellation, timeout, worker restart and final-segment-only state/metadata delivery.",
+        "Exercise mixed peers: DCP-relayout sends must be bounded while ordinary TP peers on the same prefill worker remain unsplit unless their own contract requires segmentation.",
+        "Verify scheduler send accounting and decode-prefix length are conserved across segmentation; no dropped, duplicated, reordered or stale KV page may be accepted.",
+        "Qualify NIXL and Mooncake TCP separately if already available; keep Mooncake RDMA UNQUALIFIED until a complete non-interrupted run proves correctness and cleanup on actual RDMA hardware.",
+        "If an already-available model/runtime is exercised, bind checkpoint/tokenizer/config/hardware identities and compare generated tokens/logprobs against a monolithic or otherwise independent reference before interpreting throughput.",
+        "Preserve the incumbent non-DCP or previously qualified transfer configuration as rollback; disable the candidate DCP path if region isolation, accounting or output parity fails."
+      ],
+      "boundedResources": "Start with no-weight scheduler/pack/region fixtures in szl-forge. Use szl-gpu-bridge only for already-available accelerator/transport closure. New paid spend is zero.",
+      "rollback": "Retain the incumbent qualified transfer topology/backend and disable DCP relayout or the candidate packed path if segmentation, region isolation, cleanup or output evidence fails.",
+      "inheritsQualification": false,
+      "productionDisposition": "HOLD"
+    }
+  ],
+  "owners": {
+    "canonicalGovernance": "szl-holdings/szl-frontier#180",
+    "deterministicEvaluation": "szl-holdings/szl-forge",
+    "acceleratorClosure": "szl-holdings/szl-gpu-bridge",
+    "servingIntegrationAfterQualification": "active importing owner",
+    "productProjectionAfterQualification": "szl-holdings/a11oy",
+    "proofProjectionAfterMeasuredReceipts": "szl-holdings/a11oy-net"
+  },
+  "alignmentDependency": {
+    "canonicalResidualAlignmentIssue": "szl-holdings/szl-frontier#151",
+    "currentWholeChainClosureClaim": false
+  },
+  "weightsRehosted": false,
+  "productionDefaultsChanged": false,
+  "policyOrProtectionWeakened": false
+}
