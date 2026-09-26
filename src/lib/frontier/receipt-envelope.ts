@@ -10,7 +10,8 @@ export type ReceiptKind =
   | "estate"
   | "cycle"
   | "codex"
-  | "pin";
+  | "pin"
+  | "completion";
 
 export interface ReceiptEnvelope<T = unknown> {
   schema: typeof RECEIPT_ENVELOPE_SCHEMA;

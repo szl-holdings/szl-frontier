@@ -1,12 +1,13 @@
 import type { ModelDef } from "@/lib/covenant/types";
 import { EMBED_REVISION } from "@/lib/covenant/index-engine";
+import { GROK_MODEL_ID } from "@/lib/ai/grok-model";
 
 export const MODELS: ModelDef[] = [
   {
-    id: "grok-4.5",
+    id: GROK_MODEL_ID,
     name: "Grok 4.5",
     kind: "reasoner",
-    revision: "grok-4.5",
+    revision: GROK_MODEL_ID,
     status: "active",
     mandate: "Frontier idea compilation and RFC expansion. User-initiated only.",
   },
