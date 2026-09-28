@@ -1,15 +1,23 @@
 import type { ModelDef } from "@/lib/covenant/types";
 import { EMBED_REVISION } from "@/lib/covenant/index-engine";
-import { GROK_MODEL_ID } from "@/lib/ai/grok-model";
+import { GROK_MODEL_ID, GROK_MODEL_LABEL } from "@/lib/ai/grok-model";
 
 export const MODELS: ModelDef[] = [
   {
     id: GROK_MODEL_ID,
-    name: "Grok 4.5",
+    name: GROK_MODEL_LABEL,
     kind: "reasoner",
     revision: GROK_MODEL_ID,
     status: "active",
     mandate: "Frontier idea compilation and RFC expansion. User-initiated only.",
+  },
+  {
+    id: "grok-4.5",
+    name: "Grok 4.5 (retired)",
+    kind: "reasoner",
+    revision: "grok-4.5",
+    status: "retired",
+    mandate: "Prior Grok pin. Must not serve; kept so older receipts and routes resolve.",
   },
   {
     id: "lexhash-v1",

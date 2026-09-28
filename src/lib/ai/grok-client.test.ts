@@ -13,6 +13,7 @@ import {
   type GrokDeps,
   type GrokRequest,
 } from "./grok-client.ts";
+import { GROK_MODEL_LABEL } from "./grok-model.ts";
 import { assertEnvelopeHolds, sha256Hex } from "../frontier/receipt-envelope.ts";
 
 const KEY = "xai-test-key-never-echoed";
@@ -78,13 +79,29 @@ const networkError: Step = () => {
 };
 
 test("the model pin is the single configured id", async () => {
-  assert.equal(GROK_MODEL_ID, "grok-4.5");
+  assert.equal(GROK_MODEL_ID, "grok-4.7");
+  assert.equal(GROK_MODEL_LABEL, "Grok 4.7");
   const h = harness([ok()]);
   await completeGrok(REQUEST, h.deps);
   const sent = JSON.parse(String(h.calls[0].init.body));
   assert.equal(sent.model, GROK_MODEL_ID);
   assert.equal(sent.stream, false);
   assert.equal(h.calls[0].url, XAI_CHAT_COMPLETIONS_URL);
+});
+
+test("the request never carries parameters xAI rejects on reasoning models", async () => {
+  // xAI documents that stop, presence_penalty and frequency_penalty return an
+  // error on reasoning models, so the body is locked to exactly these keys.
+  const h = harness([ok()]);
+  await completeGrok(REQUEST, h.deps);
+  const sent = JSON.parse(String(h.calls[0].init.body));
+  assert.deepEqual(Object.keys(sent).sort(), [
+    "max_tokens",
+    "messages",
+    "model",
+    "stream",
+    "temperature",
+  ]);
 });
 
 test("missing or blank key fails closed without calling the provider", async () => {
