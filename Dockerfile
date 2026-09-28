@@ -1,5 +1,5 @@
 # Copyright 2026 SZL Holdings — SPDX-License-Identifier: Apache-2.0
-FROM node:22-alpine
+FROM node:26-alpine
 
 WORKDIR /app
 
