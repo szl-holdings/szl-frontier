@@ -613,7 +613,7 @@ def run_cycle(
         previous_receipt_digest=parent_digest,
         created_at=clock,
     )
-    checks1 = check_receipt(round1, incoming=previous, hmac_key=verify_key)
+    checks1 = check_receipt(round1, incoming=previous, hmac_key=verify_key, now=clock)
 
     if not checks1["ok"]:
         return _report(
@@ -645,7 +645,7 @@ def run_cycle(
         previous_receipt_digest=round1.digest,
         created_at=clock + timedelta(milliseconds=1),
     )
-    checks2 = check_receipt(round2, incoming=round1, hmac_key=verify_key)
+    checks2 = check_receipt(round2, incoming=round1, hmac_key=verify_key, now=clock)
     exit_state = "converged" if checks2["ok"] else "aborted"
     return _report(
         exit_state=exit_state,

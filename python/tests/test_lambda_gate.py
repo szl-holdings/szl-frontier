@@ -149,3 +149,14 @@ class FailClosedGate(unittest.TestCase):
         ]
         gate = evaluate_lambda_gate(axes, now=FROZEN)
         self.assertEqual(gate.verdict, "ALLOW")
+
+    def test_expiry_boundary_remains_fail_closed(self) -> None:
+        expiry = FROZEN + timedelta(days=1)
+        axes = [axis("freshness", 0.9, expiry_at=expiry.isoformat())]
+        before = evaluate_lambda_gate(axes, now=expiry - timedelta(microseconds=1))
+        self.assertEqual(before.verdict, "ALLOW")
+        for clock in (expiry, expiry + timedelta(microseconds=1)):
+            with self.subTest(now=clock):
+                gate = evaluate_lambda_gate(axes, now=clock)
+                self.assertEqual(gate.verdict, "DENY_DEFAULT")
+                self.assertIn("STALE_AXIS:freshness", gate.reason_codes)
