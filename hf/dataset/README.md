@@ -10,6 +10,9 @@ tags:
   - a11oy
   - memory-covenant
   - frontier-evaluation
+szl:
+  source_repo: szl-holdings/szl-frontier
+  proof_url: https://github.com/szl-holdings/szl-frontier
 ---
 
 # SZL Frontier — Memory Covenant v0.3
@@ -26,6 +29,11 @@ This is **not** a training corpus of classified or operational intelligence. Int
 | `gates.jsonl` | Software release gates for the Memory Covenant |
 | `posture.json` | Honest claim table |
 | `frontier-top-choices.v1.jsonl` | Five primary-source frontier integration records: K2-Horizon, NeoMME, Funes, WebGPU kernels, and Vaani |
+| `brain-neomme-1.4.1.json` | `szl.brain.neomme-execution-observation/v1` record ([docs/BRAIN_NEOMME_1_4_1.md](https://github.com/szl-holdings/szl-frontier/blob/main/docs/BRAIN_NEOMME_1_4_1.md)) |
+| `frontier-edge-agent.v1.json` | `szl.frontier.edge-lane-plan.v1` record ([docs/CODEX_MINICPM5_EDGE_LANE.md](https://github.com/szl-holdings/szl-frontier/blob/main/docs/CODEX_MINICPM5_EDGE_LANE.md)) |
+| `kimi-hy4-spark-intake.v1.json` | `szl.frontier.integration-wave.v1` intake record |
+| `minicpm5-matched-evidence.v1.json` | `szl.frontier.measured-followup.v1` record |
+| `neomme-smoke.v1.json` | `szl.forge.neomme-smoke/v1` record ([docs/NEOMME_MEASURED_SMOKE.md](https://github.com/szl-holdings/szl-frontier/blob/main/docs/NEOMME_MEASURED_SMOKE.md)) |
 
 ## Frontier intake contract
 

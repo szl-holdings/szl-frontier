@@ -58,3 +58,40 @@ jobs:
 
       - name: Require unchanged tracked source after qualification
         run: git diff --exit-code
+
+  # Both Hugging Face cards (the Space card README.md and the covenant dataset
+  # card hf/dataset/README.md) against the org card contract: szl-holdings/.github
+  # hf-card/schema.json front matter and the D10 claim rule (no MEASURED label or
+  # benchmark-style number without a commit-pinned receipt link). The toolkit is
+  # the same reviewed .github commit whose publisher lock hf-sync.yml installs.
+  hf-cards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SZL_DOT_GITHUB_SHA: cdc158abf7f6aaef265698bcf27b1ddea693eb13
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Check out the pinned hf-card toolkit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: szl-holdings/.github
+          ref: ${{ env.SZL_DOT_GITHUB_SHA }}
+          path: .hf-card-toolkit
+          sparse-checkout: hf-card
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+      - name: Install the hash-locked hf-card closure
+        run: >-
+          python -m pip install --disable-pip-version-check
+          --require-hashes --only-binary=:all:
+          -r .hf-card-toolkit/hf-card/requirements.txt
+      - name: Lint the Space and dataset cards
+        run: |
+          set -euo pipefail
+          test "$(git -C .hf-card-toolkit rev-parse HEAD)" = "$SZL_DOT_GITHUB_SHA"
+          python .hf-card-toolkit/hf-card/lint.py README.md --type space
+          python .hf-card-toolkit/hf-card/lint.py hf/dataset/README.md --type dataset

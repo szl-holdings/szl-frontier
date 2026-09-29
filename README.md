@@ -16,6 +16,9 @@ tags:
   - memory-covenant
   - apache-2.0
 ecosystem-stage: "operational"
+szl:
+  source_repo: szl-holdings/szl-frontier
+  proof_url: https://github.com/szl-holdings/szl-frontier
 ---
 
 > **SZL Holdings** · Doctrine v11 · Λ = Conjecture 1 (never a theorem) · canonical [a-11-oy.com](https://a-11-oy.com)
@@ -107,7 +110,7 @@ Hugging Face Space builds this tree with the root `Dockerfile` on port **7860**.
 |---|---|
 | Product origin | [a-11-oy.com](https://a-11-oy.com) |
 | Proof registry | [a11oy.net](https://a11oy.net) |
-| Source | this repository |
+| Source | [szl-holdings/szl-frontier](https://github.com/szl-holdings/szl-frontier) (writes this Space and the covenant dataset) |
 | Doctrine | v11 LOCKED |
 | Λ | Conjecture 1 (OPEN) |
 | Kernel | `c7c0ba17` (lutar-lean; not re-proven here) |
@@ -122,7 +125,7 @@ Its offline controls run in required CI; its nightly observer preserves receipts
 and raw response evidence even when estate findings fail the run. Observation
 does not change the production HOLD.
 
-[a11oy](https://github.com/szl-holdings/a11oy) · [immune](https://github.com/szl-holdings/immune) · [lutar-lean](https://github.com/szl-holdings/lutar-lean) · [🤗 SZLHOLDINGS](https://huggingface.co/SZLHOLDINGS)
+Source: [szl-holdings/szl-frontier](https://github.com/szl-holdings/szl-frontier) · [a11oy](https://github.com/szl-holdings/a11oy) · [immune](https://github.com/szl-holdings/immune) · [lutar-lean](https://github.com/szl-holdings/lutar-lean) · [🤗 SZLHOLDINGS](https://huggingface.co/SZLHOLDINGS)
 
 ---
 
