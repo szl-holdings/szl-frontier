@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import ast
+import fnmatch
 import importlib.util
 import json
 import re
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -60,6 +63,15 @@ def _clock():
         now[0] += seconds
 
     return monotonic, sleep
+
+
+def _upload_filter(items, *, ignore_patterns):
+    """huggingface_hub.utils.filter_repo_objects on the Linux runner: fnmatch, '*' crosses '/'."""
+    return [i for i in items if not any(fnmatch.fnmatchcase(i, p) for p in ignore_patterns)]
+
+
+def _space_publishes(path: str) -> bool:
+    return bool(_upload_filter([path], ignore_patterns=list(publish_frontier.SPACE_EXCLUDE)))
 
 
 GOOD_IDENT = {
@@ -209,10 +221,13 @@ class FrontierHfSourceWitnessTests(unittest.TestCase):
         self.assertRegex(dockerfile, r"HEALTHCHECK [^\n]*\\\n\s+CMD [^\n]*127\.0\.0\.1:7860/healthz")
 
     def test_cards_name_this_repository_as_source(self) -> None:
+        # szl-holdings/.github hf-card/schema.json requires szl.source_repo and
+        # szl.proof_url; CI also runs that linter on both cards at a pinned commit.
         for card in (SPACE_CARD, DATASET_DIR / "README.md"):
             self.assertRegex(
                 _front_matter(card),
-                r"(?m)^szl:\n  source_repo: szl-holdings/szl-frontier$",
+                r"(?m)^szl:\n  source_repo: szl-holdings/szl-frontier\n"
+                r"  proof_url: https://github\.com/szl-holdings/szl-frontier$",
                 card,
             )
         self.assertIn(
@@ -225,6 +240,110 @@ class FrontierHfSourceWitnessTests(unittest.TestCase):
         listed = set(re.findall(r"(?m)^\| `([^`]+)` \|", card))
         published = {p.name for p in DATASET_DIR.iterdir() if p.is_file() and p.name != "README.md"}
         self.assertEqual(listed, published)
+
+    def test_card_linter_and_publisher_pin_one_dot_github_commit(self) -> None:
+        ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+        publisher = re.search(r"SHARED_PUBLISHER_SHA: ([0-9a-f]{40})\n", WORKFLOW.read_text(encoding="utf-8"))
+        linter = re.search(r"SZL_DOT_GITHUB_SHA: ([0-9a-f]{40})\r?\n", ci)
+        self.assertIsNotNone(publisher)
+        self.assertIsNotNone(linter)
+        self.assertEqual(publisher.group(1), linter.group(1))
+        for token in (
+            "repository: szl-holdings/.github",
+            "ref: ${{ env.SZL_DOT_GITHUB_SHA }}",
+            "--require-hashes --only-binary=:all:",
+            "hf-card/lint.py README.md --type space",
+            "hf-card/lint.py hf/dataset/README.md --type dataset",
+        ):
+            self.assertIn(token, ci)
+
+    def test_space_exclusions_cover_whole_directories(self) -> None:
+        # Regression: bare names (".github", "dist") only match a file of that
+        # exact name under fnmatch, so .github/ and __pycache__/ reached the Space.
+        for name in publish_frontier.EXCLUDED_DIRS:
+            self.assertFalse(_space_publishes(f"{name}/deep/file.txt"), name)
+        for path in (
+            ".github/workflows/hf-sync.yml",
+            ".github/scripts/publish_frontier.py",
+            "python/szl_frontier/__pycache__/engine.cpython-312.pyc",
+            "__pycache__/x.pyc",
+            "AGENTS.md",
+        ):
+            self.assertFalse(_space_publishes(path), path)
+        for path in (
+            "Dockerfile",
+            "README.md",
+            ".gitattributes",
+            "package.json",
+            "src/routes/healthz.ts",
+            "public/deployment.json",
+            "public/frontier/ouroboros-cycle.v1.json",
+            "public/__grok/install/manifest.json",
+            "hf/dataset/README.md",
+        ):
+            self.assertTrue(_space_publishes(path), path)
+
+    def test_only_github_tracked_files_are_kept_off_the_space(self) -> None:
+        listing = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, check=True)
+        tracked = [path for path in listing.stdout.decode("utf-8").split("\0") if path]
+        self.assertIn("Dockerfile", tracked)
+        dropped = {path for path in tracked if not _space_publishes(path)}
+        self.assertEqual(dropped, {path for path in tracked if path.startswith(".github/")})
+
+    def test_publish_set_is_the_upload_walk(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for rel in ("Dockerfile", "src/a.ts", ".github/w.yml", "python/p/__pycache__/m.pyc"):
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                (root / rel).write_text("x", encoding="utf-8")
+            (root / "empty-dir").mkdir()
+            self.assertEqual(
+                publish_frontier.publish_set(root, publish_frontier.SPACE_EXCLUDE, _upload_filter),
+                {"Dockerfile", "src/a.ts"},
+            )
+
+    def test_every_write_is_an_exact_mirror_on_an_expected_parent(self) -> None:
+        self.assertEqual(publish_frontier.MIRROR_DELETE, ("*",))
+        self.assertEqual(publish_frontier.HUB_MANAGED, frozenset({".gitattributes"}))
+        tree = ast.parse(PUBLISHER.read_text(encoding="utf-8"))
+        uploads = [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "upload_folder"
+        ]
+        self.assertEqual(len(uploads), 1)
+        keywords = {kw.arg for kw in uploads[0].keywords}
+        self.assertLessEqual({"ignore_patterns", "delete_patterns", "parent_commit"}, keywords)
+
+    def test_ouroboros_seal_never_writes_bytecode_into_the_upload(self) -> None:
+        text = PUBLISHER.read_text(encoding="utf-8")
+        self.assertLess(
+            text.index("sys.dont_write_bytecode = True"),
+            text.index("from szl_frontier.ouroboros import run_cycle"),
+        )
+
+    def test_tree_readback_requires_exactly_the_publish_set(self) -> None:
+        expected = {"README.md", "posture.json"}
+
+        def api(files: list[str]) -> SimpleNamespace:
+            return SimpleNamespace(list_repo_files=lambda **_: list(files))
+
+        ok = publish_frontier.read_back_tree(
+            api(["README.md", "posture.json", ".gitattributes"]),
+            publish_frontier.DATASET_ID,
+            "dataset",
+            CREATED,
+            expected,
+        )
+        self.assertEqual(ok["published"], 2)
+        self.assertEqual(ok["hub_managed"], [".gitattributes"])
+        for files in (["README.md"], ["README.md", "posture.json", "stale.json"]):
+            with self.assertRaisesRegex(publish_frontier.PublishError, "tree differs"):
+                publish_frontier.read_back_tree(
+                    api(files), publish_frontier.DATASET_ID, "dataset", CREATED, expected
+                )
 
 
 if __name__ == "__main__":

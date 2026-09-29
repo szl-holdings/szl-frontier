@@ -6,9 +6,11 @@ name: Sync Hugging Face Space
 # its canonical lock hf-write/<type>/SZLHOLDINGS/<id>, so two runs can never
 # interleave writes to the same asset. The Hub client is the organization's
 # hash-locked publisher closure from szl-holdings/.github at a pinned commit.
-# Each job fails closed and uploads a receipt: the Hub head must equal the
-# commit the job created, and the Space must be RUNNING on that commit and
-# serve /healthz and /deployment.json for this repository and revision.
+# Each job fails closed and uploads a receipt: each asset is an exact mirror of
+# its publish set, the Hub head must equal the commit the job created, the file
+# list at that commit must equal the publish set, and the Space must be RUNNING
+# on that commit and serve /healthz and /deployment.json for this repository
+# and revision.
 #
 # This stays an in-repo writer for now: the Space payload carries deploy-time
 # generated files (public/deployment.json and the sealed
@@ -26,7 +28,7 @@ permissions:
 
 env:
   SHARED_PUBLISHER_REPOSITORY: szl-holdings/.github
-  SHARED_PUBLISHER_SHA: 1b3255219cd1d5fa7ac850195b18fc907cac2cbf
+  SHARED_PUBLISHER_SHA: cdc158abf7f6aaef265698bcf27b1ddea693eb13
   SHARED_LOCK_BLOB: 9cc19359ddd5e77556740b66201096b812ef48d9
   PUBLISHER_PYTHON_VERSION: "3.12.10"
 

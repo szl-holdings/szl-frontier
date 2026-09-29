@@ -7,8 +7,12 @@ each workflow job holds exactly one per-asset write lock
 
 * the target repo must already exist (creating a Hub repo, or changing its
   visibility, is an owner decision, never a side effect of a deploy);
+* each asset is an exact mirror of its declared publish set: files the source
+  no longer publishes are deleted in the same commit (``.gitattributes`` is
+  Hub-managed and always kept);
 * after the upload the Hub head is read back and must equal the commit this
-  run created (``hub_oid == created_oid``);
+  run created (``hub_oid == created_oid``), and the file list at that commit
+  must equal the publish set;
 * for the Space, the runtime must then report RUNNING on that exact commit and
   the live app must answer ``/healthz`` and serve ``/deployment.json`` naming
   this repository and the exact source revision.
@@ -29,7 +33,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
 
 SPACE_ID = "SZLHOLDINGS/szl-frontier"
 DATASET_ID = "SZLHOLDINGS/szl-frontier-covenant"
@@ -42,21 +46,34 @@ TARGETS = {
     "space": {"repo_id": SPACE_ID, "repo_type": "space"},
     "dataset": {"repo_id": DATASET_ID, "repo_type": "dataset"},
 }
-IGNORE = [
-    ".git",
+# Paths the Space never receives. huggingface_hub matches ignore and delete
+# patterns with fnmatch against repo-relative paths, so a bare directory name
+# ("dist") matches only a file literally named "dist": each directory needs its
+# "<dir>/*" form. The bare names this list used to hold published .github/ and
+# the __pycache__ written by the ouroboros seal to the Space.
+EXCLUDED_DIRS = (
     ".github",
     "node_modules",
     "artifacts",
     "screenshots",
     "attachments",
     ".grok",
-    "AGENTS.md",
     "dist",
     ".output",
     ".vercel",
     ".tanstack",
     ".nitro",
-]
+)
+SPACE_EXCLUDE = (
+    *(f"{name}/*" for name in EXCLUDED_DIRS),
+    "AGENTS.md",
+    "__pycache__/*",
+    "*/__pycache__/*",
+    "*.pyc",
+)
+# Every remote file outside the publish set is deleted in the same commit.
+MIRROR_DELETE = ("*",)
+HUB_MANAGED = frozenset({".gitattributes"})
 
 
 class PublishError(RuntimeError):
@@ -110,6 +127,8 @@ def write_ouroboros_cycle(root: Path) -> Path:
     python_root = root / "python"
     if str(python_root) not in sys.path:
         sys.path.insert(0, str(python_root))
+    # The workspace is the Space upload: importing must not leave __pycache__ in it.
+    sys.dont_write_bytecode = True
     from szl_frontier.ouroboros import run_cycle
 
     report = run_cycle(catalog_ok=True, live=False, root=root)
@@ -144,6 +163,37 @@ def read_back_head(api: Any, repo_id: str, repo_type: str, created_oid: str) -> 
             f"{repo_type}/{repo_id} head {hub_oid!r} is not the created commit {created_oid!r}"
         )
     return hub_oid
+
+
+def publish_set(
+    folder: Path,
+    ignore_patterns: Iterable[str],
+    filter_objects: Callable[..., Iterable[str]],
+) -> set[str]:
+    """Repo-relative paths ``upload_folder`` sends from ``folder``.
+
+    ``filter_objects`` is ``huggingface_hub.utils.filter_repo_objects`` at run
+    time, so the expected tree uses the exact walk and matcher of the upload.
+    """
+
+    relpaths = sorted(p.relative_to(folder).as_posix() for p in folder.glob("**/*") if p.is_file())
+    return set(filter_objects(relpaths, ignore_patterns=list(ignore_patterns)))
+
+
+def read_back_tree(
+    api: Any, repo_id: str, repo_type: str, created_oid: str, expected: set[str]
+) -> dict[str, Any]:
+    """The file list at the created commit must be exactly the publish set."""
+
+    hub = set(api.list_repo_files(repo_id=repo_id, repo_type=repo_type, revision=created_oid))
+    extra = sorted(hub - expected - HUB_MANAGED)
+    missing = sorted(expected - hub)
+    if extra or missing:
+        raise PublishError(
+            f"{repo_type}/{repo_id}@{created_oid} tree differs from the publish set: "
+            f"extra={extra[:20]} missing={missing[:20]}"
+        )
+    return {"files": len(hub), "published": len(expected), "hub_managed": sorted(hub & HUB_MANAGED)}
 
 
 def _get(url: str, timeout: float = 20.0) -> tuple[int, bytes]:
@@ -219,6 +269,8 @@ def attest_space_runtime(
 
 
 def publish(api: Any, target: str, root: Path, source_sha: str, receipt: dict[str, Any]) -> None:
+    from huggingface_hub.utils import DEFAULT_IGNORE_PATTERNS, filter_repo_objects
+
     spec = TARGETS[target]
     repo_id, repo_type = spec["repo_id"], spec["repo_type"]
     receipt["parent_oid"] = require_existing_repo(api, repo_id, repo_type)
@@ -229,14 +281,16 @@ def publish(api: Any, target: str, root: Path, source_sha: str, receipt: dict[st
         receipt["identity_path"] = str(identity_path.relative_to(root)).replace("\\", "/")
         folder = root
         message = f"deploy: exact Frontier source {source_sha[:12]}"
-        ignore: list[str] | None = IGNORE
+        exclude: tuple[str, ...] = SPACE_EXCLUDE
     else:
         folder = root / "hf" / "dataset"
         if not (folder / "README.md").is_file():
             raise PublishError(f"dataset source {folder} has no README.md card")
         message = f"Covenant source-bound to {source_sha[:12]}"
-        ignore = None
+        exclude = ()
 
+    expected = publish_set(folder, [*exclude, *DEFAULT_IGNORE_PATTERNS], filter_repo_objects)
+    receipt["exclude_patterns"] = list(exclude)
     commit = api.upload_folder(
         repo_id=repo_id,
         repo_type=repo_type,
@@ -245,7 +299,11 @@ def publish(api: Any, target: str, root: Path, source_sha: str, receipt: dict[st
         commit_description=(
             f"source_repository={SOURCE_REPOSITORY}\nsource_revision={source_sha}"
         ),
-        ignore_patterns=ignore,
+        # Fresh lists: upload_folder appends its defaults to ignore_patterns in place.
+        ignore_patterns=list(exclude),
+        delete_patterns=list(MIRROR_DELETE),
+        # Optimistic lock across repositories: a concurrent Hub writer fails this commit.
+        parent_commit=receipt["parent_oid"],
     )
     created_oid = str(getattr(commit, "oid", "") or "")
     if not re.fullmatch(r"[0-9a-f]{40}", created_oid):
@@ -254,6 +312,7 @@ def publish(api: Any, target: str, root: Path, source_sha: str, receipt: dict[st
     receipt["new_commit"] = created_oid != receipt["parent_oid"]
     receipt["commit_message"] = message if receipt["new_commit"] else None
     receipt["hub_oid"] = read_back_head(api, repo_id, repo_type, created_oid)
+    receipt["tree"] = read_back_tree(api, repo_id, repo_type, created_oid, expected)
 
     if target == "space":
         receipt["runtime"] = attest_space_runtime(created_oid, source_sha)

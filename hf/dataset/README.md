@@ -12,6 +12,7 @@ tags:
   - frontier-evaluation
 szl:
   source_repo: szl-holdings/szl-frontier
+  proof_url: https://github.com/szl-holdings/szl-frontier
 ---
 
 # SZL Frontier — Memory Covenant v0.3

@@ -18,6 +18,7 @@ tags:
 ecosystem-stage: "operational"
 szl:
   source_repo: szl-holdings/szl-frontier
+  proof_url: https://github.com/szl-holdings/szl-frontier
 ---
 
 > **SZL Holdings** · Doctrine v11 · Λ = Conjecture 1 (never a theorem) · canonical [a-11-oy.com](https://a-11-oy.com)
