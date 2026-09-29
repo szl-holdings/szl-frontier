@@ -9,7 +9,7 @@ recomputed gate, non-executable arithmetic shadow, deny monotonicity.
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Mapping
 
 from .lambda_gate import (
@@ -45,7 +45,12 @@ def check_receipt(
     *,
     incoming: EvidenceReceipt | None = None,
     hmac_key: bytes | None = None,
+    now: datetime | None = None,
 ) -> dict[str, Any]:
+    """Recompute at a trusted caller's evaluation time; default to real time.
+
+    Never derive the evaluation clock from the receipt's own timestamp.
+    """
     results: list[dict[str, Any]] = []
     payload = dict(receipt.payload)
 
@@ -141,7 +146,7 @@ def check_receipt(
         "no joule invented on this organ",
     )
 
-    _add_cycle_binds(results, receipt, incoming, payload)
+    _add_cycle_binds(results, receipt, incoming, payload, now=now)
 
     failed = [row for row in results if not row["ok"]]
     catalog_ok = [row for row in results if row["id"].startswith("I") and row["ok"]]
@@ -159,32 +164,19 @@ def check_receipt(
     }
 
 
-def _receipt_clock(receipt: EvidenceReceipt) -> datetime | None:
-    """Recompute the gate at the receipt instant, not whenever CI happens to run."""
-
-    raw = receipt.created_at
-    if not raw:
-        return None
-    try:
-        clock = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
-    except ValueError:
-        return None
-    if clock.tzinfo is None:
-        clock = clock.replace(tzinfo=timezone.utc)
-    return clock
-
-
 def _add_cycle_binds(
     results: list[dict[str, Any]],
     receipt: EvidenceReceipt,
     incoming: EvidenceReceipt | None,
     payload: Mapping[str, Any],
+    *,
+    now: datetime | None = None,
 ) -> None:
     try:
         axes = [AxisEvidence.from_mapping(row) for row in payload.get("axes") or []]
         threshold = float(payload.get("threshold") or 0.7)
         recomputed = evaluate_lambda_gate(
-            axes, threshold=threshold, now=_receipt_clock(receipt)
+            axes, threshold=threshold, now=now
         )
         bind_ok = (
             recomputed.verdict == payload.get("verdict")
