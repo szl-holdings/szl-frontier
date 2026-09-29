@@ -67,12 +67,31 @@ const status =
   (code: number, headers: Record<string, string> = {}): Step =>
   () =>
     new Response(`{"error":"provider said ${KEY}"}`, { status: code, headers });
-/** Never answers; only the request's own timeout signal can end it. */
+/**
+ * Never answers; only the request's own timeout signal can end it.
+ *
+ * A real in-flight fetch holds an open socket, and that keeps the event loop
+ * alive until the request's AbortSignal.timeout fires. The timer behind that
+ * signal is unref'd, so without a handle of its own this double leaves the
+ * loop idle, and Node 22's test runner then cancels the test ("Promise
+ * resolution is still pending but the event loop has already resolved")
+ * before the timeout can abort anything. `socket` stands in for that open
+ * socket and is released on abort. If the abort never comes, the calling
+ * test's own 10 s timeout still fails it, and the handle lapses after 60 s.
+ */
 const hang: Step = (init) =>
   new Promise<Response>((_, reject) => {
     const signal = init.signal;
     if (!signal) return reject(new Error("request carried no timeout signal"));
-    signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+    const socket = setTimeout(() => undefined, 60_000);
+    signal.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(socket);
+        reject(signal.reason);
+      },
+      { once: true },
+    );
   });
 const networkError: Step = () => {
   throw new TypeError("fetch failed");
