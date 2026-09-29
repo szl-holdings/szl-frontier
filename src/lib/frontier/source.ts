@@ -36,6 +36,23 @@ export function healthPayload() {
   };
 }
 
+/**
+ * Liveness response shared by `/api/health` and the `/healthz` probe route that
+ * the Hugging Face Space and the container HEALTHCHECK call. Liveness only.
+ */
+export function healthResponse(): Response {
+  return new Response(JSON.stringify(healthPayload()), {
+    status: 200,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store",
+      "x-szl-kind": "health",
+      "x-szl-disposition": "HOLD",
+      "x-szl-production-authorization": "false",
+    },
+  });
+}
+
 export function readyPayload(opts: { catalogLoaded: boolean; engineHydratable: boolean }) {
   const operatorHydratable = opts.catalogLoaded && opts.engineHydratable;
   const blockers: string[] = [];

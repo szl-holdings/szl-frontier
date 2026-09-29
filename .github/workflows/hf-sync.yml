@@ -1,6 +1,23 @@
 # Copyright 2026 SZL Holdings — SPDX-License-Identifier: Apache-2.0
 name: Sync Hugging Face Space
 
+# The only writer of the Space SZLHOLDINGS/szl-frontier and the dataset
+# SZLHOLDINGS/szl-frontier-covenant. One matrix job per Hub asset, each under
+# its canonical lock hf-write/<type>/SZLHOLDINGS/<id>, so two runs can never
+# interleave writes to the same asset. The Hub client is the organization's
+# hash-locked publisher closure from szl-holdings/.github at a pinned commit.
+# Each job fails closed and uploads a receipt: each asset is an exact mirror of
+# its publish set, the Hub head must equal the commit the job created, the file
+# list at that commit must equal the publish set, and the Space must be RUNNING
+# on that commit and serve /healthz and /deployment.json for this repository
+# and revision.
+#
+# This stays an in-repo writer for now: the Space payload carries deploy-time
+# generated files (public/deployment.json and the sealed
+# public/frontier/ouroboros-cycle.v1.json that a11oy, killinchu and szl-router
+# read) that reusable-hf-deploy.yml cannot produce, and reusable-hf-mirror.yml
+# does not exist yet.
+
 on:
   workflow_dispatch:
   push:
@@ -9,14 +26,28 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: hf-sync-szl-frontier
-  cancel-in-progress: false
+env:
+  SHARED_PUBLISHER_REPOSITORY: szl-holdings/.github
+  SHARED_PUBLISHER_SHA: cdc158abf7f6aaef265698bcf27b1ddea693eb13
+  SHARED_LOCK_BLOB: 9cc19359ddd5e77556740b66201096b812ef48d9
+  PUBLISHER_PYTHON_VERSION: "3.12.10"
 
 jobs:
-  sync:
+  publish:
+    name: Publish ${{ matrix.target }} and verify the Hub
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: space
+            lock: hf-write/space/SZLHOLDINGS/szl-frontier
+          - target: dataset
+            lock: hf-write/dataset/SZLHOLDINGS/szl-frontier-covenant
+    concurrency:
+      group: ${{ matrix.lock }}
+      cancel-in-progress: false
     env:
       HF_TOKEN: ${{ secrets.HF_ORG_TOKEN || secrets.HF_TOKEN }}
     steps:
@@ -29,21 +60,37 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.12"
+          python-version: ${{ env.PUBLISHER_PYTHON_VERSION }}
 
-      - name: Install Hugging Face client
-        run: >-
-          python -m pip install --disable-pip-version-check
-          "huggingface_hub==1.23.0"
+      - name: Install the hash-locked Hugging Face client
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The lock is fetched outside the workspace (the Space upload is the
+          # workspace) and accepted only if its git blob id is the pinned one.
+          LOCK="$RUNNER_TEMP/hf-publisher.lock"
+          curl --fail --silent --show-error --location --max-time 60 \
+            "https://raw.githubusercontent.com/$SHARED_PUBLISHER_REPOSITORY/$SHARED_PUBLISHER_SHA/requirements/hf-publisher.lock" \
+            --output "$LOCK"
+          test "$(git hash-object "$LOCK")" = "$SHARED_LOCK_BLOB"
+          VENV="$RUNNER_TEMP/hf-publisher-venv"
+          test ! -e "$VENV"
+          python -I -m venv "$VENV"
+          test "$("$VENV/bin/python" -I -c 'import platform; print(platform.python_version())')" = "$PUBLISHER_PYTHON_VERSION"
+          "$VENV/bin/python" -I -m pip install \
+            --disable-pip-version-check --require-hashes --only-binary=:all: \
+            --ignore-installed -r "$LOCK"
+          echo "HF_PUBLISHER_PYTHON=$VENV/bin/python" >> "$GITHUB_ENV"
 
       - name: Require write-scoped token
+        shell: bash
         run: |
           set -euo pipefail
           test -n "${HF_TOKEN:-}" || {
             echo "::error::HF_TOKEN/HF_ORG_TOKEN is not set"
             exit 1
           }
-          python3 - <<'PYEOF'
+          "$HF_PUBLISHER_PYTHON" -I - <<'PYEOF'
           import os
           from huggingface_hub import HfApi
           who = HfApi(token=os.environ["HF_TOKEN"]).whoami()
@@ -53,43 +100,21 @@ jobs:
           print("Authenticated Hugging Face publisher:", who.get("name", "<unknown>"))
           PYEOF
 
-      - name: Publish Space and covenant dataset
-        run: python3 .github/scripts/publish_frontier.py
-
-      - name: Verify running exact-source identity
+      - name: Publish and verify the Hub asset
+        shell: bash
+        env:
+          TARGET: ${{ matrix.target }}
         run: |
           set -euo pipefail
-          python3 - <<'PYEOF'
-          import json
-          import os
-          import time
-          import urllib.error
-          import urllib.request
+          "$HF_PUBLISHER_PYTHON" -I .github/scripts/publish_frontier.py \
+            --target "$TARGET" \
+            --receipt "$RUNNER_TEMP/hf-write-receipt/$TARGET.json"
 
-          expected = os.environ["GITHUB_SHA"]
-          url = "https://szlholdings-szl-frontier.hf.space/deployment.json"
-          deadline = time.monotonic() + 900
-          last = "not attempted"
-          while time.monotonic() < deadline:
-              try:
-                  request = urllib.request.Request(
-                      url,
-                      headers={
-                          "Cache-Control": "no-cache",
-                          "User-Agent": "SZL-Frontier-source-proof/1",
-                      },
-                  )
-                  with urllib.request.urlopen(request, timeout=20) as response:
-                      payload = json.loads(response.read().decode("utf-8"))
-                  repository = payload.get("source_repository")
-                  revision = payload.get("source_revision")
-                  if repository == "szl-holdings/szl-frontier" and revision == expected:
-                      print(json.dumps(payload, sort_keys=True))
-                      break
-                  last = f"observed repository={repository!r} revision={revision!r}"
-              except (OSError, ValueError, urllib.error.URLError) as exc:
-                  last = f"{type(exc).__name__}: {exc}"
-              time.sleep(15)
-          else:
-              raise SystemExit(f"Frontier exact-source witness did not converge: {last}")
-          PYEOF
+      - name: Upload the write receipt
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: hf-write-receipt-${{ matrix.target }}
+          path: ${{ runner.temp }}/hf-write-receipt/${{ matrix.target }}.json
+          if-no-files-found: warn
+          retention-days: 90
