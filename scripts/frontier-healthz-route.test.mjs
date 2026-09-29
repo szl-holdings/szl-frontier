@@ -27,7 +27,7 @@ describe("/healthz liveness route", () => {
       ["../src/routes/api/health.ts", "/api/health"],
     ]) {
       const source = read(file);
-      assert.match(source, new RegExp(`createFileRoute\\("${path.replace(/\//g, "\\/")}"\\)`));
+      assert.ok(source.includes(`createFileRoute("${path}")`), `${file} registers ${path}`);
       assert.match(source, /GET: async \(\) => healthResponse\(\)/);
     }
   });

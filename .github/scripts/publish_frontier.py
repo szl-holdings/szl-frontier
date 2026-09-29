@@ -224,7 +224,6 @@ def attest_space_runtime(
     """
 
     deadline = monotonic() + timeout_s
-    last = "not attempted"
     while True:
         try:
             status, body = get(f"{HF_API}/spaces/{SPACE_ID}")
