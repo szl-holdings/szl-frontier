@@ -29,6 +29,13 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
 
+      # The src/**/*.test.ts suites (including the Grok timeout/retry/receipt
+      # ceilings and the model-registry pin) were only reachable via `npm test`
+      # locally; run exactly the files listed in package.json's "test:ts"
+      # script so CI cannot skip them.
+      - name: Verify TypeScript unit tests (node --test, strip-types)
+        run: npm run test:ts
+
       # Never regenerate first: that hid the seven-record checked-in projection
       # while the canonical source already contained the ten-record intake.
       - name: Verify committed frontier manifest without rewriting it
