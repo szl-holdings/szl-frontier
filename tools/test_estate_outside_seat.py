@@ -328,14 +328,44 @@ class WitnessFixtureTests(unittest.TestCase):
             "SZLHOLDINGS", 30, self.client, expected=["alpha"], creators=[], now=NOW, **kwargs
         )
 
-    def test_stale_source_revision_is_reported(self):
+    def test_stale_source_with_revision_mismatch_is_drift(self):
+        # Age alone is not drift; age plus a runtime that differs from the
+        # observed source revision is. Zero-Bandaid: age-with-parity is a
+        # property of "unchanged Space", not evidence of staleness.
         metadata = space_metadata()
         metadata["lastModified"] = "2026-09-01T00:00:00Z"
+        metadata["runtime"] = {"stage": "RUNNING", "sha": OTHER_SHA}
         self.transport.add("/api/spaces", [metadata])
         self.transport.add(f"/api/spaces/{SPACE}", metadata)
         rows, findings = self.freshness()
         self.assertTrue(findings)
         self.assertGreater(rows[0]["ageHours"], 30)
+        self.assertEqual(rows[0]["providerRevisionParity"], "MISMATCH")
+
+    def test_stale_source_with_matching_revision_is_not_drift(self):
+        metadata = space_metadata()
+        metadata["lastModified"] = "2026-09-01T00:00:00Z"
+        self.transport.add("/api/spaces", [metadata])
+        self.transport.add(f"/api/spaces/{SPACE}", metadata)
+        rows, findings = self.freshness()
+        self.assertFalse(findings, findings)
+        self.assertGreater(rows[0]["ageHours"], 30)
+        self.assertEqual(rows[0]["providerRevisionParity"], "MATCH")
+        self.assertEqual(rows[0]["status"], "VERIFIED")
+
+    def test_static_space_without_runtime_revision_is_structural(self):
+        # Static Spaces serve files verbatim from the source revision;
+        # the Hub exposes no runtime revision. That is structural parity,
+        # not missing evidence.
+        metadata = space_metadata()
+        metadata["sdk"] = "static"
+        metadata["runtime"] = {"stage": "RUNNING"}
+        self.transport.add("/api/spaces", [metadata])
+        self.transport.add(f"/api/spaces/{SPACE}", metadata)
+        rows, findings = self.freshness()
+        self.assertEqual(rows[0]["providerRevisionParity"], "NOT_APPLICABLE_STATIC")
+        self.assertFalse(any("runtime revision unavailable" in f for f in findings), findings)
+        self.assertEqual(rows[0]["status"], "VERIFIED")
 
     def test_missing_malformed_naive_and_future_timestamps_fail(self):
         for stamp in (None, "not-a-date", "2026-09-08T11:00:00", "2026-09-09T11:00:00Z", 123):
@@ -367,6 +397,7 @@ class WitnessFixtureTests(unittest.TestCase):
         creator = "betterwithage/anatomy"
         metadata = space_metadata(creator)
         metadata["lastModified"] = "2026-09-01T00:00:00Z"
+        metadata["runtime"] = {"stage": "RUNNING", "sha": OTHER_SHA}
         self.transport.add(f"/api/spaces/{creator}", metadata)
         rows, findings = estate.check_spaces_freshness(
             "SZLHOLDINGS", 30, self.client, expected=["alpha"], creators=[creator], now=NOW

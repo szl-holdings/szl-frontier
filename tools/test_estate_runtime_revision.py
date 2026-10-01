@@ -194,11 +194,23 @@ class SpaceRuntimeRevisionTests(unittest.TestCase):
                 self.assert_revision_row(row, "INCOMPLETE", None, None, "UNAVAILABLE")
                 self.assertTrue(findings)
 
-    def test_matching_revisions_preserve_stale_source_finding(self):
+    def test_matching_revisions_do_not_flag_source_age(self):
+        # Age with parity MATCH is "unchanged Space", not drift. The stale-age
+        # finding is retained when the runtime diverges (see mismatch tests).
         metadata = self.metadata()
         metadata["lastModified"] = "2026-09-01T00:00:00Z"
         row, findings = self.check(metadata)
-        self.assert_revision_row(row, "FINDING", SHA, SHA, "MATCH")
+        self.assert_revision_row(row, "VERIFIED", SHA, SHA, "MATCH")
+        self.assertGreater(row["ageHours"], 30)
+        self.assertFalse(any("source metadata age" in note for note in row["findings"]))
+        self.assertFalse(findings, findings)
+
+    def test_mismatched_revisions_with_stale_source_raise_drift(self):
+        metadata = self.metadata()
+        metadata["lastModified"] = "2026-09-01T00:00:00Z"
+        metadata["runtime"]["sha"] = "b" * 40
+        row, findings = self.check(metadata)
+        self.assert_revision_row(row, "FINDING", SHA, "b" * 40, "MISMATCH")
         self.assertGreater(row["ageHours"], 30)
         self.assertTrue(any("source metadata age" in note for note in row["findings"]))
         self.assertTrue(findings)
@@ -213,6 +225,7 @@ class SpaceRuntimeRevisionTests(unittest.TestCase):
         self.assert_revision_row(row, "INCOMPLETE", SHA, None, "UNAVAILABLE")
         self.assertEqual(row["runtimeStage"], "RUNNING")
         self.assertGreater(row["ageHours"], 30)
+        # Parity UNAVAILABLE (missing runtime revision) keeps the age drift note.
         age_findings = [note for note in row["findings"] if "source metadata age" in note]
         self.assertTrue(age_findings, row)
         self.assertGreater(len(row["findings"]), len(age_findings), row)
@@ -250,13 +263,15 @@ class SpaceRuntimeRevisionTests(unittest.TestCase):
         profile_rows = [row for row in rows if row["space"] == profile]
         self.assertEqual(len(profile_rows), 1, rows)
         row = profile_rows[0]
-        self.assert_revision_row(row, "INCOMPLETE", SHA, None, "UNAVAILABLE")
+        # Static sdk: structural parity — no runtime revision to compare and
+        # no age drift. Not INCOMPLETE.
+        self.assert_revision_row(row, "VERIFIED", SHA, None, "NOT_APPLICABLE_STATIC")
         self.assertEqual(row["inventory"], "organization-profile")
         self.assertEqual(row["runtimeStage"], "RUNNING")
         self.assertGreater(row["ageHours"], 30)
         age_findings = [note for note in row["findings"] if "source metadata age" in note]
-        self.assertTrue(age_findings, row)
-        self.assertGreater(len(row["findings"]), len(age_findings), row)
+        # Static Spaces bind runtime to source structurally; age is not drift.
+        self.assertFalse(age_findings, row)
         for note in row["findings"]:
             self.assertIn(f"{profile}: {note}", findings)
 

@@ -582,14 +582,22 @@ def check_spaces_freshness(org, stale_hours, client, expected=None, creators=Non
                 row["ageHours"] = round(raw_age, 3)
             except (ValueError, TypeError, OverflowError):
                 pass
+            sdk = (meta.get("sdk") or (meta.get("cardData") or {}).get("sdk")) if isinstance(meta, dict) else None
+            is_static = sdk == "static"
             runtime = meta.get("runtime")
             if not isinstance(runtime, dict) or not isinstance(runtime.get("stage"), str) or not runtime["stage"].strip():
                 notes.append("runtime stage unavailable or malformed")
             else:
                 row["runtimeStage"] = runtime["stage"]
+            row["sdk"] = sdk
             runtime_revision = runtime.get("sha") if isinstance(runtime, dict) else None
             if isinstance(runtime_revision, str) and SHA.fullmatch(runtime_revision):
                 row["runtimeRevision"] = runtime_revision
+            elif is_static:
+                # Static Spaces ship files verbatim from the source revision; the Hub
+                # exposes no separate runtime revision. Parity is structural, not
+                # measurable — record it explicitly instead of flagging INCOMPLETE.
+                row["providerRevisionParity"] = "NOT_APPLICABLE_STATIC"
             else:
                 notes.append("runtime revision unavailable or malformed")
             if (meta.get("id", meta.get("modelId")) == sid
@@ -600,8 +608,13 @@ def check_spaces_freshness(org, stale_hours, client, expected=None, creators=Non
         incomplete = bool(notes)
         if row["providerRevisionParity"] == "MISMATCH":
             notes.append("provider runtime revision differs from the observed source revision")
-        if raw_age is not None and raw_age > stale_hours:
-            notes.append(f"source metadata age {row['ageHours']}h exceeds {stale_hours}h; this is not an uptime measurement")
+        if (raw_age is not None and raw_age > stale_hours
+                and row["providerRevisionParity"] != "MATCH" and row.get("sdk") != "static"):
+            # Source age only matters as drift evidence. When the provider runtime
+            # matches the observed source revision (or is structural for static
+            # Spaces, which serve source files verbatim), an old lastModified is
+            # simply an unchanged Space, not stale deployment.
+            notes.append(f"source metadata age {row['ageHours']}h exceeds {stale_hours}h while parity is {row['providerRevisionParity']}; this is not an uptime measurement")
         if row["runtimeStage"] is not None and row["runtimeStage"] not in ("RUNNING", "RUNNING_BUILDING"):
             notes.append(f"provider runtime stage is {row['runtimeStage']}; application availability not verified")
         row["status"] = "INCOMPLETE" if incomplete else "FINDING" if notes else "VERIFIED"
