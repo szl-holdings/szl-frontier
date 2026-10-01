@@ -15,8 +15,18 @@ dependencies = []
 [project.scripts]
 szl-frontier = "szl_frontier.cli:main"
 
+[project.urls]
+Homepage = "https://github.com/szl-holdings/szl-frontier"
+Source = "https://github.com/szl-holdings/szl-frontier"
+Issues = "https://github.com/szl-holdings/szl-frontier/issues"
+Changelog = "https://github.com/szl-holdings/szl-frontier/releases"
+
 [tool.setuptools]
 package-dir = { "" = "python" }
 
 [tool.setuptools.packages.find]
 where = ["python"]
+exclude = ["tests*", "payload*", "wave5*"]
+
+[tool.szl.release]
+import_names = ["szl_frontier"] # wheel top-level import names; the release gate fails if the built wheel differs
