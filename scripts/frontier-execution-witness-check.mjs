@@ -6,7 +6,7 @@
  * VERIFIED is STRUCTURE_ONLY, not executional satisfaction or authorization.
  * Concrete wire choices and their limits are recorded in this PR's wave.
  */
-import { closeSync, constants, fstatSync, lstatSync, openSync, readSync } from "node:fs";
+import { closeSync, constants, fstatSync, openSync, readSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -201,7 +201,8 @@ export function parseWitnessJson(input) {
 }
 
 function readBundle(file) {
-  if (lstatSync(file).isSymbolicLink()) throw new Error("regular file required");
+  // O_NOFOLLOW makes the kernel refuse a symlink at open time, so there is no separate lstat
+  // check to race against; the descriptor's fstat below is the only identity we trust.
   const fd = openSync(file, constants.O_RDONLY | (constants.O_NONBLOCK || 0) | (constants.O_NOFOLLOW || 0));
   try {
     const before = fstatSync(fd, { bigint: true });

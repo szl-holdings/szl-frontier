@@ -60,15 +60,14 @@ export function sha256(value) {
   return createHash("sha256").update(typeof value === "string" ? value : stableStringify(value)).digest("hex");
 }
 
+const XML_ENTITIES = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&apos;": "'" };
+
 function decodeXml(value) {
+  // Single-pass entity decoding: a literal "&amp;lt;" in the feed decodes to "&lt;", never to "<".
   return value
     .replaceAll("<![CDATA[", "")
     .replaceAll("]]>", "")
-    .replaceAll("&amp;", "&")
-    .replaceAll("&lt;", "<")
-    .replaceAll("&gt;", ">")
-    .replaceAll("&quot;", '"')
-    .replaceAll("&#39;", "'")
+    .replace(/&(?:amp|lt|gt|quot|#39|apos);/g, (entity) => XML_ENTITIES[entity])
     .trim();
 }
 
