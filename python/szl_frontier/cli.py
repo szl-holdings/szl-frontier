@@ -13,6 +13,7 @@ from typing import Any, Sequence
 from .catalog import CatalogLoader, DEFAULT_MANIFEST
 from .domain import FrontierError
 from .engine import FrontierEngine
+from .flotation import main as flotation_main
 from .ouroboros import (
     github_token_from_env,
     load_previous,
@@ -206,6 +207,14 @@ def _parser() -> argparse.ArgumentParser:
         default=None,
         help="write the cycle report to a file instead of stdout",
     )
+
+    flot = sub.add_parser(
+        "flotation",
+        help="MODELED flotation rank; abstains on recovery percent",
+    )
+    flot.add_argument("--table", type=Path, required=True)
+    flot.add_argument("--bench", type=Path, default=None)
+    flot.add_argument("--score-column", default=None)
     return parser
 
 
@@ -227,6 +236,14 @@ def _release_summary(engine: FrontierEngine, release_id: str) -> dict[str, Any]:
 
 def run(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if args.command == "flotation":
+        forwarded: list[str] = ["--table", str(args.table)]
+        if args.bench is not None:
+            forwarded.extend(["--bench", str(args.bench)])
+        if args.score_column is not None:
+            forwarded.extend(["--score-column", args.score_column])
+        return flotation_main(forwarded)
+
     catalog = CatalogLoader(args.manifest).load()
     engine = FrontierEngine(catalog)
 
