@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -158,3 +160,29 @@ class FlotationReceiptTests(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertEqual(receipt["directive"], "BLOCK")
         self.assertIsNone(receipt["recoveryPercent"])
+
+    def test_skill_runner_is_portable(self) -> None:
+        rank = (
+            Path(__file__).resolve().parents[2]
+            / "docs"
+            / "skills"
+            / "flotation-selectivity-before-bench"
+            / "rank.py"
+        )
+        source = rank.read_text(encoding="utf-8")
+        self.assertNotIn("szl_frontier", source)
+        with tempfile.TemporaryDirectory() as directory:
+            table = Path(directory) / "reagents.csv"
+            table.write_text("id,public_score\na,1\n", encoding="utf-8")
+            proc = subprocess.run(
+                [sys.executable, str(rank), "--table", str(table)],
+                check=False,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+            )
+        receipt = json.loads(proc.stdout)
+        self.assertEqual(proc.returncode, 0)
+        self.assertEqual(receipt["directive"], "DEFER")
+        self.assertIsNone(receipt["recoveryPercent"])
+        self.assertEqual(receipt["energyClass"], "UNAVAILABLE")
