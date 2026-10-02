@@ -269,6 +269,24 @@ class SelectivityPriorTests(unittest.TestCase):
         self.assertEqual(out["state"], "ABSTAIN")
         self.assertEqual(out["missing"], ["homo_lumo_gap_eV"])
 
+    def test_nonfinite_feature_abstains(self) -> None:
+        features = dict(COMPLETE)
+        features["pH"] = float("nan")
+        out = selectivity_prior(features, STRONG)
+        self.assertEqual(out["state"], "ABSTAIN")
+        self.assertIsNone(out["S"])
+        self.assertEqual(out["S_class"], "UNAVAILABLE")
+        self.assertIn("pH", out["missing"])
+        self.assertNotIn("recoveryPercent", out)
+
+    def test_infinite_weight_abstains(self) -> None:
+        weights = dict(STRONG)
+        weights["dipole_D"] = float("inf")
+        out = selectivity_prior(COMPLETE, weights)
+        self.assertEqual(out["state"], "ABSTAIN")
+        self.assertIsNone(out["S"])
+        self.assertEqual(out["S_class"], "UNAVAILABLE")
+
     def test_receipt_attaches_prior_without_inventing_recovery(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
