@@ -29,7 +29,19 @@ DEFAULT_THRESHOLD = 0.7
 
 
 class GateError(FrontierError):
-    """Raised when axis evidence cannot be aggregated fail-closed."""
+    """Raised when axis evidence cannot be aggregated fail-closed.
+
+    ``code`` is the szl.lambda/v1 error code when the failure maps to one
+    (``LAMBDA_EMPTY``, ``LAMBDA_LENGTH_MISMATCH``, ``LAMBDA_TYPE_INVALID``,
+    ``LAMBDA_NONFINITE_AXIS``, ``LAMBDA_AXIS_OUT_OF_RANGE``,
+    ``LAMBDA_NONFINITE_WEIGHT``, ``LAMBDA_WEIGHT_NONPOSITIVE``), else None.
+    A machine-readable code lets a receipt say *why* a gate refused instead of
+    carrying prose.
+    """
+
+    def __init__(self, message: str, code: str | None = None) -> None:
+        super().__init__(message)
+        self.code = code
 
 
 def _parse_iso(value: str) -> datetime:
@@ -143,27 +155,47 @@ class GateResult:
         }
 
 
+def _is_real(value: object) -> bool:
+    # bool is an int subclass; the contract says it is not a number.
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
 def weighted_geometric_mean(
     values: Sequence[float], weights: Sequence[float]
 ) -> float:
-    """Weighted geometric mean. Any non-positive input is a zero veto.
+    """General weighted geometric mean. A zero value is the veto: exactly 0.0.
 
-    G(x,w) = exp(sum w_i log x_i / sum w_i) for x_i > 0, w_i > 0.
-    This is homogeneous of degree 1: G(c x) = c G(x) for c > 0.
+    G(x,w) = exp(fsum(w_i log x_i) / fsum(w)) for x_i > 0, w_i > 0.
+    Homogeneous of degree 1: G(c x) = c G(x) for c > 0.
+
+    This is deliberately *wider* than szl.lambda/v1: values above 1 are allowed
+    (homogeneity) and weights are normalised by their sum. The contract's
+    domain (0 <= x <= 1, |sum w - 1| <= 1e-12) is enforced upstream by
+    ``AxisEvidence`` for the governance gate, so ``evaluate_lambda_gate``'s Λ
+    agrees with the szl.lambda/v1 reference within 1e-12 on its domain. Every
+    refusal carries the contract's error code; a NaN or a bool is never read
+    as a veto. Checks run in contract order so the code does not depend on
+    which fault comes first in the sequence.
     """
 
-    if len(values) == 0 or len(values) != len(weights):
-        raise GateError("geometric mean requires matching non-empty values and weights")
+    if len(values) == 0 or len(weights) == 0:
+        raise GateError("geometric mean requires non-empty values and weights", "LAMBDA_EMPTY")
+    if len(values) != len(weights):
+        raise GateError("geometric mean requires matching values and weights", "LAMBDA_LENGTH_MISMATCH")
+    if any(not _is_real(v) for v in values) or any(not _is_real(w) for w in weights):
+        raise GateError("geometric mean requires real numbers (bool is not a number)", "LAMBDA_TYPE_INVALID")
     if any(not math.isfinite(v) for v in values):
-        raise GateError("geometric mean rejects non-finite values")
+        raise GateError("geometric mean rejects non-finite values", "LAMBDA_NONFINITE_AXIS")
     if any(v < 0 for v in values):
-        raise GateError("geometric mean rejects negative values")
-    if any(not math.isfinite(w) or w <= 0 for w in weights):
-        raise GateError("geometric mean requires finite positive weights")
+        raise GateError("geometric mean rejects negative values", "LAMBDA_AXIS_OUT_OF_RANGE")
+    if any(not math.isfinite(w) for w in weights):
+        raise GateError("geometric mean rejects non-finite weights", "LAMBDA_NONFINITE_WEIGHT")
+    if any(w <= 0 for w in weights):
+        raise GateError("geometric mean requires positive weights", "LAMBDA_WEIGHT_NONPOSITIVE")
     if any(v == 0 for v in values):
         return 0.0
-    total = sum(weights)
-    log_sum = sum(w * math.log(v) for v, w in zip(values, weights))
+    total = math.fsum(weights)
+    log_sum = math.fsum(w * math.log(v) for v, w in zip(values, weights))
     return math.exp(log_sum / total)
 
 

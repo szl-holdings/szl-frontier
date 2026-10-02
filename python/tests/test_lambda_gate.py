@@ -31,6 +31,50 @@ def axis(name: str, value: float | None, status: str = "MEASURED", **kwargs) -> 
     )
 
 
+class GeometricMeanContractCodes(unittest.TestCase):
+    """Refusals carry szl.lambda/v1 codes; invalid input is never read as a veto."""
+
+    def _code(self, values, weights) -> str | None:
+        with self.assertRaises(GateError) as ctx:
+            weighted_geometric_mean(values, weights)
+        return ctx.exception.code
+
+    def test_codes_in_contract_precedence(self) -> None:
+        self.assertEqual(self._code([], []), "LAMBDA_EMPTY")
+        self.assertEqual(self._code([0.5, 0.5], [1.0]), "LAMBDA_LENGTH_MISMATCH")
+        self.assertEqual(self._code([True, 0.5], [1.0, 1.0]), "LAMBDA_TYPE_INVALID")
+        self.assertEqual(self._code([0.5, "0.5"], [1.0, 1.0]), "LAMBDA_TYPE_INVALID")
+        self.assertEqual(self._code([float("nan"), 0.5], [1.0, 1.0]), "LAMBDA_NONFINITE_AXIS")
+        self.assertEqual(self._code([-0.1, 0.5], [1.0, 1.0]), "LAMBDA_AXIS_OUT_OF_RANGE")
+        self.assertEqual(self._code([0.5, 0.5], [float("inf"), 1.0]), "LAMBDA_NONFINITE_WEIGHT")
+        self.assertEqual(self._code([0.5, 0.5], [0.0, 1.0]), "LAMBDA_WEIGHT_NONPOSITIVE")
+
+    def test_zero_does_not_mask_invalid(self) -> None:
+        # A zero axis beside an invalid one must report the invalid one, not veto.
+        self.assertEqual(self._code([0.0, float("nan")], [1.0, 1.0]), "LAMBDA_NONFINITE_AXIS")
+        self.assertEqual(self._code([0.0, True], [1.0, 1.0]), "LAMBDA_TYPE_INVALID")
+        self.assertEqual(self._code([0.0, -1.0], [1.0, 1.0]), "LAMBDA_AXIS_OUT_OF_RANGE")
+
+    def test_bool_is_not_one(self) -> None:
+        # Before: True counted as 1.0 and silently passed. Now it is rejected.
+        with self.assertRaises(GateError):
+            weighted_geometric_mean([True, True], [1.0, 1.0])
+
+    def test_gate_path_matches_v1_reference_nominal_vector(self) -> None:
+        # szl.lambda/v1 golden vector "nominal": axes [0.95, 0.92, 0.88, 0.9],
+        # equal weights, expected value_f64 3fed3035e27f23fe (value_tol 1e-12
+        # for non-reference implementations). The gate normalises weights by
+        # their sum, so [1,1,1,1] is the contract's [0.25]*4.
+        import struct
+
+        expected = struct.unpack(">d", bytes.fromhex("3fed3035e27f23fe"))[0]
+        got = weighted_geometric_mean([0.95, 0.92, 0.88, 0.9], [1.0, 1.0, 1.0, 1.0])
+        self.assertLessEqual(abs(got - expected), 1e-12)
+        axes = [axis("a", 0.95), axis("b", 0.92), axis("c", 0.88), axis("d", 0.9)]
+        result = evaluate_lambda_gate(axes, threshold=0.8, now=FROZEN)
+        self.assertLessEqual(abs(result.lambda_score - expected), 1e-12)
+
+
 class GeometricMeanProperties(unittest.TestCase):
     def test_zero_veto(self) -> None:
         self.assertEqual(
