@@ -129,7 +129,9 @@ export function assertThreadAuditHold(): void {
   if (THREAD_AUDIT_HOLD.mergeProtectedMain !== false) {
     throw new ThreadAuditError("HOLD_MERGE");
   }
-  if (MODELED_CENSUS.hfKernels === MODELED_CENSUS.hfModels) {
+  const kernelCount: number = MODELED_CENSUS.hfKernels;
+  const modelCount: number = MODELED_CENSUS.hfModels;
+  if (Number(kernelCount) === Number(modelCount)) {
     throw new ThreadAuditError("KERNELS_EQ_MODELS");
   }
   if (THIS_ORGAN_LANES.length !== 9) throw new ThreadAuditError("THIS_ORGAN_COUNT");

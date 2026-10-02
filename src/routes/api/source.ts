@@ -12,7 +12,8 @@ async function deploymentSourceRevision(request: Request): Promise<string | null
     const body: unknown = await response.json();
     if (!body || typeof body !== "object") return null;
     const sha = (body as { source_revision?: unknown }).source_revision;
-    return classifySha(typeof sha === "string" ? sha : null) ? sha : null;
+    if (typeof sha === "string" && classifySha(sha)) return sha;
+    return null;
   } catch {
     return null;
   }
