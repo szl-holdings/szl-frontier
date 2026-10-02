@@ -7,6 +7,7 @@ import { observeEstate } from "@/lib/frontier/estate-observe";
 import { mintMembershipIdentityPin } from "@/lib/frontier/estate-pin";
 import { SOURCE, healthPayload, readyPayload, sourcePayload } from "@/lib/frontier/source";
 import { composeTriad, spaceTriadContract } from "@/lib/frontier/triad";
+import { threadAuditContract } from "@/lib/frontier/thread-audit";
 import { WORKSTREAMS, workstreamSummary } from "@/lib/frontier/workstreams";
 
 export function HoldStrip({ optedIn, onOptedIn }: { optedIn: boolean; onOptedIn: (next: boolean) => void }) {
@@ -15,7 +16,7 @@ export function HoldStrip({ optedIn, onOptedIn }: { optedIn: boolean; onOptedIn:
     <section className="space-y-3" aria-label="Production disposition">
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         <Stat k="Disposition" v="HOLD" h="automatic promotion false" />
-        <Stat k="Reconciled head" v={SOURCE.reconciledHead.slice(0, 8)} h={SOURCE.repository} />
+        <Stat k="Inspected head" v={SOURCE.reconciledHead.slice(0, 8)} h={`${SOURCE.reconciledHeadClass} · ${SOURCE.reconciledAt}`} />
         <Stat k="Workstreams" v={`${summary.selectedForRelease}/${summary.total}`} h="selected for eval, not production" />
         <Stat k="Λ" v="Conjecture 1" h="never a theorem" />
       </div>
@@ -208,6 +209,41 @@ export function CodexPanel({ optedIn }: { optedIn: boolean }) {
         </CardBody>
       </Card>
       <p className="text-xs text-muted">{summary.note} Optional evaluation {optedIn ? "admitted for THIS_ORGAN" : "off"}. Promotion cannot lift HOLD.</p>
+    </div>
+  );
+}
+
+export function ThreadAuditPanel() {
+  const doc = threadAuditContract();
+  const source = sourcePayload();
+  return (
+    <div className="space-y-4">
+      <p className="max-w-2xl text-sm leading-relaxed text-muted">
+        Encoded thread T01–T10. Live GitHub HEAD stays UNAVAILABLE in this payload. HTTP 200 is REACHABLE.
+        Optional evaluation does not lift HOLD. Envelope authority NONE.
+      </p>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat k="Disposition" v="HOLD" h="productionAuthorization=false" />
+        <Stat k="Inspected head" v={source.reconciledHead.slice(0, 8)} h={source.reconciledHeadClass} />
+        <Stat k="Deploy revision" v={source.deploymentSourceRevision?.slice(0, 8) ?? "UNAVAILABLE"} h={source.deploymentSourceRevisionClass} />
+        <Stat k="Head match" v={source.headMatch} h="MODELED pin vs REACHABLE deploy" />
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Encoded gaps</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <EstateTable
+            heads={["Gap", "State", "Item"]}
+            rows={doc.gaps.map((row) => [row.id, row.encoded, row.item])}
+            empty="No gaps."
+          />
+        </CardBody>
+      </Card>
+      <p className="text-xs text-muted">
+        Census is membership only: GH {doc.census.githubRepos} / models {doc.census.hfModels} / datasets {doc.census.hfDatasets} / spaces {doc.census.hfSpaces} / kernels {doc.census.hfKernels}.
+        files_read={doc.census.filesRead}. fileAuditComplete=false. <a className="underline" href="/api/thread-audit">/api/thread-audit</a>
+      </p>
     </div>
   );
 }
