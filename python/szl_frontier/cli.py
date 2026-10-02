@@ -211,11 +211,14 @@ def _parser() -> argparse.ArgumentParser:
 
     flot = sub.add_parser(
         "flotation",
-        help="MODELED flotation rank; abstains on recovery percent",
+        help="MODELED flotation rank and abstaining selectivity prior; never recovery",
     )
-    flot.add_argument("--table", type=Path, required=True)
+    flot.add_argument("--table", type=Path, default=None)
     flot.add_argument("--bench", type=Path, default=None)
     flot.add_argument("--score-column", default=None)
+    flot.add_argument("--features", type=Path, default=None)
+    flot.add_argument("--weights", type=Path, default=None)
+    flot.add_argument("--tau", type=float, default=0.15)
 
     research = sub.add_parser(
         "research-register",
@@ -250,11 +253,17 @@ def _release_summary(engine: FrontierEngine, release_id: str) -> dict[str, Any]:
 def run(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "flotation":
-        forwarded: list[str] = ["--table", str(args.table)]
+        forwarded: list[str] = ["--tau", str(args.tau)]
+        if args.table is not None:
+            forwarded.extend(["--table", str(args.table)])
         if args.bench is not None:
             forwarded.extend(["--bench", str(args.bench)])
         if args.score_column is not None:
             forwarded.extend(["--score-column", args.score_column])
+        if args.features is not None:
+            forwarded.extend(["--features", str(args.features)])
+        if args.weights is not None:
+            forwarded.extend(["--weights", str(args.weights)])
         return flotation_main(forwarded)
 
     if args.command == "research-register":

@@ -27,6 +27,7 @@ import { Route as ApiAgentStateRouteImport } from './routes/api/agent-state'
 import { Route as ApiCodexRouteImport } from './routes/api/codex'
 import { Route as ApiCycleRouteImport } from './routes/api/cycle'
 import { Route as ApiEstateRouteImport } from './routes/api/estate'
+import { Route as ApiFlotationRouteImport } from './routes/api/flotation'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiKernelsRouteImport } from './routes/api/kernels'
 import { Route as ApiLeasesRouteImport } from './routes/api/leases'
@@ -126,6 +127,11 @@ const ApiEstateRoute = ApiEstateRouteImport.update({
   path: '/api/estate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiFlotationRoute = ApiFlotationRouteImport.update({
+  id: '/api/flotation',
+  path: '/api/flotation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
@@ -186,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/api/codex': typeof ApiCodexRoute
   '/api/cycle': typeof ApiCycleRoute
   '/api/estate': typeof ApiEstateRoute
+  '/api/flotation': typeof ApiFlotationRoute
   '/api/health': typeof ApiHealthRoute
   '/api/kernels': typeof ApiKernelsRoute
   '/api/leases': typeof ApiLeasesRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/api/codex': typeof ApiCodexRoute
   '/api/cycle': typeof ApiCycleRoute
   '/api/estate': typeof ApiEstateRoute
+  '/api/flotation': typeof ApiFlotationRoute
   '/api/health': typeof ApiHealthRoute
   '/api/kernels': typeof ApiKernelsRoute
   '/api/leases': typeof ApiLeasesRoute
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   '/api/codex': typeof ApiCodexRoute
   '/api/cycle': typeof ApiCycleRoute
   '/api/estate': typeof ApiEstateRoute
+  '/api/flotation': typeof ApiFlotationRoute
   '/api/health': typeof ApiHealthRoute
   '/api/kernels': typeof ApiKernelsRoute
   '/api/leases': typeof ApiLeasesRoute
@@ -273,6 +282,7 @@ export interface FileRouteTypes {
     | '/api/codex'
     | '/api/cycle'
     | '/api/estate'
+    | '/api/flotation'
     | '/api/health'
     | '/api/kernels'
     | '/api/leases'
@@ -301,6 +311,7 @@ export interface FileRouteTypes {
     | '/api/codex'
     | '/api/cycle'
     | '/api/estate'
+    | '/api/flotation'
     | '/api/health'
     | '/api/kernels'
     | '/api/leases'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/api/codex'
     | '/api/cycle'
     | '/api/estate'
+    | '/api/flotation'
     | '/api/health'
     | '/api/kernels'
     | '/api/leases'
@@ -358,6 +370,7 @@ export interface RootRouteChildren {
   ApiCodexRoute: typeof ApiCodexRoute
   ApiCycleRoute: typeof ApiCycleRoute
   ApiEstateRoute: typeof ApiEstateRoute
+  ApiFlotationRoute: typeof ApiFlotationRoute
   ApiHealthRoute: typeof ApiHealthRoute
   ApiKernelsRoute: typeof ApiKernelsRoute
   ApiLeasesRoute: typeof ApiLeasesRoute
@@ -496,6 +509,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEstateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/flotation': {
+      id: '/api/flotation'
+      path: '/api/flotation'
+      fullPath: '/api/flotation'
+      preLoaderRoute: typeof ApiFlotationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/health': {
       id: '/api/health'
       path: '/api/health'
@@ -574,6 +594,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCodexRoute: ApiCodexRoute,
   ApiCycleRoute: ApiCycleRoute,
   ApiEstateRoute: ApiEstateRoute,
+  ApiFlotationRoute: ApiFlotationRoute,
   ApiHealthRoute: ApiHealthRoute,
   ApiKernelsRoute: ApiKernelsRoute,
   ApiLeasesRoute: ApiLeasesRoute,

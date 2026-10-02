@@ -1,7 +1,7 @@
 """Package entry for the portable flotation skill.
 
 The runnable source is docs/skills/flotation-selectivity-before-bench/rank.py
-so the public skill folder does not depend on this package.
+and prior.py so the public skill folder does not depend on this package.
 """
 
 from __future__ import annotations
@@ -32,6 +32,7 @@ def _load():
 
 _rank = _load()
 build_receipt = _rank.build_receipt
+selectivity_prior = _rank.selectivity_prior
 
 
 class FlotationError(FrontierError):
