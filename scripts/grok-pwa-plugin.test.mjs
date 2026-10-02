@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync as createTemporaryDirectory, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import test from "node:test";
+import test, { after } from "node:test";
 import {
   appNameFromHost,
-  createHeadInjector,
+  createHeadInjector as createHeadInjectorFromWorkspace,
   grokXCreatorHeadTags,
-  injectGrokPwaHead,
+  injectGrokPwaHead as injectGrokPwaHeadFromWorkspace,
   isDocumentPath,
   isInstallQuery,
   publicAppHost,
@@ -20,6 +20,46 @@ import {
 import { renderInstallPage } from "./grok-pwa-plugin.mjs";
 
 const TEMPLATE_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+// Generic template assertions must not inherit this portfolio's real title,
+// card or banner. Production intentionally defaults to the workspace; tests
+// explicitly supply an empty workspace unless a case declares its own one.
+const FIXTURE_ROOT = createTemporaryDirectory(join(tmpdir(), "szl-frontier-pwa-"));
+const EMPTY_WORKSPACE = join(FIXTURE_ROOT, "empty");
+mkdirSync(EMPTY_WORKSPACE);
+after(() => rmSync(FIXTURE_ROOT, { recursive: true, force: true }));
+
+function mkdtempSync(prefix) {
+  return createTemporaryDirectory(join(FIXTURE_ROOT, basename(prefix)));
+}
+
+function injectGrokPwaHead(html, ctx = {}) {
+  return injectGrokPwaHeadFromWorkspace(html, { cwd: EMPTY_WORKSPACE, ...ctx });
+}
+
+function createHeadInjector(ctx = {}) {
+  return createHeadInjectorFromWorkspace({ cwd: EMPTY_WORKSPACE, ...ctx });
+}
+
+test("generic head fixtures do not inherit portfolio identity or card assets", () => {
+  assert.deepEqual(snapshotOgIdentity(EMPTY_WORKSPACE), { site: {} });
+  assert.equal(resolveOgCardAsset({}, EMPTY_WORKSPACE), "");
+  const out = injectGrokPwaHead("<html><head><title>Fixture Title</title></head></html>");
+  assert.match(out, /property="og:title" content="Fixture Title"/);
+  assert.doesNotMatch(out, /property="og:image"/);
+
+  // Explicit workspace overrides still exercise the real filesystem path.
+  const custom = mkdtempSync("grok-fixture-override-");
+  mkdirSync(join(custom, "src/lib/og"), { recursive: true });
+  mkdirSync(join(custom, "public"));
+  writeFileSync(join(custom, "src/lib/og/site.json"), JSON.stringify({ title: "Fixture Portfolio" }));
+  writeFileSync(join(custom, "public/og.jpg"), "fixture image");
+  const customOut = injectGrokPwaHead("<html><head></head></html>", {
+    cwd: custom,
+    host: "fixture.example.com",
+  });
+  assert.match(customOut, /property="og:title" content="Fixture Portfolio"/);
+  assert.match(customOut, /property="og:image" content="https:\/\/fixture\.example\.com\/og\.jpg"/);
+});
 
 test("injects before </head>", () => {
   const out = injectGrokPwaHead("<html><head><title>x</title></head><body></body></html>");

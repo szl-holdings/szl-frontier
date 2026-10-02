@@ -53,6 +53,9 @@ jobs:
       - name: Verify all frontier controls, wave pins, and actual JS/Python parity
         run: node --test scripts/frontier-*.test.mjs
 
+      - name: Verify browser baseline and isolated PWA head contracts
+        run: node --test scripts/browser-smoke-verdict.test.mjs scripts/grok-pwa-plugin.test.mjs
+
       - name: Verify outside-seat evidence and nightly chain controls
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
 
