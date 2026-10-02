@@ -19,8 +19,9 @@ Given a public reagent table plus an optional local bench CSV, emit a rank band
 and a receipt.
 
 ```text
+python rank.py --table reagents.csv
+python rank.py --table reagents.csv --bench bench.csv
 python -m szl_frontier flotation --table reagents.csv
-python -m szl_frontier flotation --table reagents.csv --bench bench.csv
 ```
 
 The rank is a sort of one declared column, `public_score` or `screen_score`.
