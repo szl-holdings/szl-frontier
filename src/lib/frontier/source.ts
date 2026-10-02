@@ -1,4 +1,10 @@
 /** Reconciled owner identity. Not a live Git observation by itself. */
+
+export type HeadClass = "MODELED" | "REACHABLE" | "UNAVAILABLE";
+export type HeadMatch = "MATCH" | "DRIFT" | "UNAVAILABLE";
+
+const SHA1 = /^[0-9a-f]{40}$/;
+
 export const SOURCE = {
   product: "szl-frontier",
   organization: "szl-holdings",
@@ -9,14 +15,19 @@ export const SOURCE = {
   doctrine: "v11 LOCKED",
   lambda: "CONJECTURE_1",
   license: "Apache-2.0",
-  /** Exact main head inspected at session start. */
+  /** Frozen inspection pin from operator-plane open (PR #190). MODELED, not live HEAD. */
   reconciledHead: "b3aee6443b484768d1de107449918a050fe8528d",
   reconciledAt: "2026-09-20T11:26:13Z",
+  reconciledHeadClass: "MODELED" as HeadClass,
   productionAuthorization: false,
   productionDisposition: "HOLD",
   trainingAdmission: false,
   paidWorkloadBudgetUsd: 0,
 } as const;
+
+export function classifySha(value: string | null | undefined): value is string {
+  return typeof value === "string" && SHA1.test(value);
+}
 
 export type HealthStatus = "ok" | "degraded";
 export type ReadyStatus = "ready" | "not_ready";
@@ -76,15 +87,28 @@ export function readyPayload(opts: { catalogLoaded: boolean; engineHydratable: b
   };
 }
 
-export function sourcePayload() {
+export function sourcePayload(opts?: { deploymentSourceRevision?: string | null }) {
+  const deployRaw = opts?.deploymentSourceRevision ?? null;
+  const deploymentSourceRevision = classifySha(deployRaw) ? deployRaw : null;
+  const deploymentSourceRevisionClass: HeadClass = deploymentSourceRevision ? "REACHABLE" : "UNAVAILABLE";
+  const headMatch: HeadMatch = deploymentSourceRevision
+    ? deploymentSourceRevision === SOURCE.reconciledHead
+      ? "MATCH"
+      : "DRIFT"
+    : "UNAVAILABLE";
   return {
     schema: "szl.frontier.source-identity/v1",
     ...SOURCE,
+    liveGitHubHead: null as string | null,
+    liveGitHubHeadClass: "UNAVAILABLE" as HeadClass,
+    deploymentSourceRevision,
+    deploymentSourceRevisionClass,
+    headMatch,
     semanticReviewComplete: false,
     sourceContentFilesRead: 0,
     fileAuditComplete: false,
     runtimeVerified: false,
     checkedAt: new Date().toISOString(),
-    note: "Source identity is not a live GitHub-to-deployment provenance proof.",
+    note: "reconciledHead is a MODELED inspection pin. deploymentSourceRevision is REACHABLE when /deployment.json is present. live GitHub HEAD stays UNAVAILABLE in this payload. Identity is not qualification.",
   };
 }

@@ -22,7 +22,7 @@ import {
 } from "@/lib/frontier/workstreams";
 import { PROJECTS, useOrchestrator } from "@/stores/orchestrator";
 import { KernelsPanel, LeasesPanel } from "@/components/frontier/hold-panels";
-import { CodexPanel, HoldStrip as EvalHoldStrip, PinPanel, TriadPanel as EvalTriadPanel } from "@/components/frontier/eval-panels";
+import { CodexPanel, HoldStrip as EvalHoldStrip, PinPanel, ThreadAuditPanel, TriadPanel as EvalTriadPanel } from "@/components/frontier/eval-panels";
 import {
   admitOptionalEvaluation,
   defaultOptionalEvaluation,
@@ -31,7 +31,7 @@ import {
   type OptionalEvaluation,
 } from "@/lib/frontier/optional-eval";
 
-const TABS = ["workstreams", "cycle", "flotation", "estate", "triad", "pin", "codex", "kernels", "leases", "optional", "journeys", "lab"] as const;
+const TABS = ["workstreams", "cycle", "flotation", "estate", "triad", "pin", "codex", "kernels", "leases", "optional", "audit", "journeys", "lab"] as const;
 type Tab = (typeof TABS)[number];
 
 type EstateObservation = Awaited<ReturnType<typeof observeEstate>>;
@@ -127,6 +127,7 @@ function FrontierPage() {
       {tab === "kernels" ? <KernelsPanel /> : null}
       {tab === "leases" ? <LeasesPanel /> : null}
       {tab === "optional" ? <OptionalEvalPanel /> : null}
+      {tab === "audit" ? <ThreadAuditPanel /> : null}
       {tab === "journeys" ? <JourneysPanel /> : null}
       {tab === "lab" ? <LabPanel /> : null}
     </div>

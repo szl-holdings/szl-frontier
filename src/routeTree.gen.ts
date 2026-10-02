@@ -34,6 +34,7 @@ import { Route as ApiLeasesRouteImport } from './routes/api/leases'
 import { Route as ApiPinRouteImport } from './routes/api/pin'
 import { Route as ApiReadyRouteImport } from './routes/api/ready'
 import { Route as ApiSourceRouteImport } from './routes/api/source'
+import { Route as ApiThreadAuditRouteImport } from './routes/api/thread-audit'
 import { Route as ApiTriadRouteImport } from './routes/api/triad'
 import { Route as ApiWorkstreamsRouteImport } from './routes/api/workstreams'
 
@@ -162,6 +163,11 @@ const ApiSourceRoute = ApiSourceRouteImport.update({
   path: '/api/source',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiThreadAuditRoute = ApiThreadAuditRouteImport.update({
+  id: '/api/thread-audit',
+  path: '/api/thread-audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTriadRoute = ApiTriadRouteImport.update({
   id: '/api/triad',
   path: '/api/triad',
@@ -199,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/api/pin': typeof ApiPinRoute
   '/api/ready': typeof ApiReadyRoute
   '/api/source': typeof ApiSourceRoute
+  '/api/thread-audit': typeof ApiThreadAuditRoute
   '/api/triad': typeof ApiTriadRoute
   '/api/workstreams': typeof ApiWorkstreamsRoute
 }
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/api/pin': typeof ApiPinRoute
   '/api/ready': typeof ApiReadyRoute
   '/api/source': typeof ApiSourceRoute
+  '/api/thread-audit': typeof ApiThreadAuditRoute
   '/api/triad': typeof ApiTriadRoute
   '/api/workstreams': typeof ApiWorkstreamsRoute
 }
@@ -258,6 +266,7 @@ export interface FileRoutesById {
   '/api/pin': typeof ApiPinRoute
   '/api/ready': typeof ApiReadyRoute
   '/api/source': typeof ApiSourceRoute
+  '/api/thread-audit': typeof ApiThreadAuditRoute
   '/api/triad': typeof ApiTriadRoute
   '/api/workstreams': typeof ApiWorkstreamsRoute
 }
@@ -289,6 +298,7 @@ export interface FileRouteTypes {
     | '/api/pin'
     | '/api/ready'
     | '/api/source'
+    | '/api/thread-audit'
     | '/api/triad'
     | '/api/workstreams'
   fileRoutesByTo: FileRoutesByTo
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/api/pin'
     | '/api/ready'
     | '/api/source'
+    | '/api/thread-audit'
     | '/api/triad'
     | '/api/workstreams'
   id:
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/api/pin'
     | '/api/ready'
     | '/api/source'
+    | '/api/thread-audit'
     | '/api/triad'
     | '/api/workstreams'
   fileRoutesById: FileRoutesById
@@ -377,6 +389,7 @@ export interface RootRouteChildren {
   ApiPinRoute: typeof ApiPinRoute
   ApiReadyRoute: typeof ApiReadyRoute
   ApiSourceRoute: typeof ApiSourceRoute
+  ApiThreadAuditRoute: typeof ApiThreadAuditRoute
   ApiTriadRoute: typeof ApiTriadRoute
   ApiWorkstreamsRoute: typeof ApiWorkstreamsRoute
 }
@@ -558,6 +571,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSourceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/thread-audit': {
+      id: '/api/thread-audit'
+      path: '/api/thread-audit'
+      fullPath: '/api/thread-audit'
+      preLoaderRoute: typeof ApiThreadAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/triad': {
       id: '/api/triad'
       path: '/api/triad'
@@ -601,6 +621,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPinRoute: ApiPinRoute,
   ApiReadyRoute: ApiReadyRoute,
   ApiSourceRoute: ApiSourceRoute,
+  ApiThreadAuditRoute: ApiThreadAuditRoute,
   ApiTriadRoute: ApiTriadRoute,
   ApiWorkstreamsRoute: ApiWorkstreamsRoute,
 }

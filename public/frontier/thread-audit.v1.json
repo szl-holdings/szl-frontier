@@ -1,0 +1,905 @@
+{
+  "apis": [
+    "/api/health",
+    "/api/ready",
+    "/api/source",
+    "/api/triad",
+    "/api/pin",
+    "/api/codex",
+    "/api/estate",
+    "/api/cycle",
+    "/api/workstreams",
+    "/api/agent-state",
+    "/api/kernels",
+    "/api/leases"
+  ],
+  "census": {
+    "counts": {
+      "githubRepos": 117,
+      "hfDatasets": 35,
+      "hfKernels": 14,
+      "hfModels": 47,
+      "hfSpaces": 21
+    },
+    "fileAuditComplete": false,
+    "filesRead": 0,
+    "githubOrg": "szl-holdings",
+    "hfOrg": "SZLHOLDINGS",
+    "kind": "PUBLIC_MEMBERSHIP_SNAPSHOT",
+    "note": "Membership observed. Tree, content, and qualification were not completed.",
+    "observedAt": "2026-09-20",
+    "qualification": "HOLD",
+    "schema": "szl.frontier.estate-observation/v1",
+    "unknownIsNotZero": true
+  },
+  "contracts": [
+    "szl.frontier.health/v1",
+    "szl.frontier.readiness/v1",
+    "szl.frontier.source-identity/v1",
+    "szl.frontier.triad/v1",
+    "szl.frontier.head-sha-pin/v1",
+    "szl.frontier.membership-identity-pin/v1",
+    "szl.frontier.receipt-envelope/v1",
+    "szl.frontier.estate-observation/v1",
+    "szl.frontier.codex-upgrade-program/v1",
+    "szl.frontier.honesty-layers/v1",
+    "szl.frontier.optional-evaluation/v1",
+    "szl.frontier.space-triad-contract/v1"
+  ],
+  "digest": "cbeb7a40eae87ff8d12b05f98d91e4c810c828903dd27791da1a261f3309b99d",
+  "execution": {
+    "draftPrsOnly": true,
+    "forcePush": false,
+    "isolatedWorktrees": true,
+    "mergeProtectedMain": false,
+    "networkInThisPayload": false,
+    "recreateFlagship": false,
+    "training": false
+  },
+  "forbidden": [
+    "merge protected main from this payload",
+    "mint szl-frontier-2 or a second Space",
+    "train or download weights",
+    "set fileAuditComplete true",
+    "display UNKNOWN as 0",
+    "treat kernel count as model count",
+    "treat health as ready or ready as source",
+    "treat RUNNING as runtime-verified",
+    "give envelope authority",
+    "claim FedRAMP or ATO",
+    "publish the private 9464-node graph",
+    "relabel software gates as Lean proofs",
+    "park this organ on a-11-oy.com"
+  ],
+  "gaps": [
+    {
+      "detail": "At 2026-09-25 closeout the 63-line tab wiring was local, not confirmed on #196 head a03ae47. PowerShell closer can patch draft branch only.",
+      "id": "G01",
+      "item": "frontier.tsx 10-tab optional-eval wiring",
+      "state": "OPEN"
+    },
+    {
+      "detail": "Draft. mergeable_state=blocked. Human command may be printed. This payload does not merge.",
+      "id": "G02",
+      "item": "merge #196 to protected main",
+      "state": "REFUSED"
+    },
+    {
+      "detail": "117 repos observed as membership. files_read=0. fileAuditComplete forbidden.",
+      "id": "G03",
+      "item": "file-by-file GitHub org audit",
+      "state": "OPEN"
+    },
+    {
+      "detail": "Counts are membership. Weights not downloaded. Spaces not runtime-verified.",
+      "id": "G04",
+      "item": "HF content audit of models/datasets/spaces/kernels",
+      "state": "OPEN"
+    },
+    {
+      "detail": "17 HANDOFF lanes stay with their owners. This organ does not mutate them.",
+      "id": "G05",
+      "item": "HANDOFF lane execution",
+      "state": "NAMED_ONLY"
+    },
+    {
+      "detail": "Expected /health /ready /source. List membership is not a probe. RUNNING != runtime-verified.",
+      "id": "G06",
+      "item": "live triad probe of 21 Spaces",
+      "state": "CONTRACT_ONLY"
+    },
+    {
+      "detail": "trainingAdmission false. recreateFlagship false. promotionEffect NONE.",
+      "id": "G07",
+      "item": "training / second flagship / production promotion",
+      "state": "FORBIDDEN"
+    },
+    {
+      "detail": "9042439 is historical. 9f45fea was main at #196 open. Do not invent today's HEAD.",
+      "id": "G08",
+      "item": "current main SHA",
+      "state": "UNKNOWN"
+    }
+  ],
+  "handoffLanes": [
+    "FE-01",
+    "FE-02",
+    "FE-04",
+    "FE-05",
+    "FE-07",
+    "FE-08",
+    "BE-01",
+    "BE-02",
+    "BE-03",
+    "BE-04",
+    "BE-05",
+    "BE-06",
+    "BE-07",
+    "BE-08",
+    "DR-02",
+    "DR-04",
+    "DR-09"
+  ],
+  "historicalMain": {
+    "note": "fix(frontier): fail closed on complete source coverage (#8). Later main moved. Do not treat this as current HEAD.",
+    "sha": "9042439"
+  },
+  "hold": {
+    "envelopeAuthority": "NONE",
+    "fileAuditComplete": false,
+    "lambda": "CONJECTURE_1",
+    "mergeProtectedMain": false,
+    "optionalEvaluation": true,
+    "optionalEvaluationLiftsHold": false,
+    "paidWorkloadBudgetUsd": 0,
+    "productionAuthorization": false,
+    "promotionEffect": "NONE",
+    "recreateFlagship": false,
+    "runtimeVerified": false,
+    "semanticReviewComplete": false,
+    "sourceContentFilesRead": 0,
+    "trainingAdmission": false
+  },
+  "honestyLayers": [
+    {
+      "claim": "public ids observed",
+      "id": "membership",
+      "not": "qualification"
+    },
+    {
+      "claim": "root listing only",
+      "id": "tree",
+      "not": "recursive tree hash"
+    },
+    {
+      "claim": "source_content_files_read=0",
+      "id": "content",
+      "not": "file audit"
+    },
+    {
+      "claim": "HOLD",
+      "id": "qualification",
+      "not": "production authorization"
+    }
+  ],
+  "invariants": [
+    "UNKNOWN != 0",
+    "health != ready != source",
+    "kernels != models",
+    "RUNNING != runtime-verified",
+    "membership != qualification",
+    "membership != tree != content != qualification",
+    "envelope authority NONE",
+    "optional evaluation does not lift HOLD",
+    "promotion cannot lift HOLD",
+    "no second flagship",
+    "no training",
+    "draft PRs only unless a human explicitly merges",
+    "file_audit_complete is forbidden when files_read=0",
+    "isolated worktrees / draft PRs only"
+  ],
+  "issuedAt": "2026-10-02T16:20:00Z",
+  "lanes": [
+    {
+      "forbidden": "Do not clone a11oy or mint a second flagship.",
+      "id": "FE-01",
+      "owners": [
+        "szl-holdings/a11oy"
+      ],
+      "plane": "frontend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "a11oy product UI inside flagship"
+    },
+    {
+      "forbidden": "Do not turn proof into runtime authority.",
+      "id": "FE-02",
+      "owners": [
+        "szl-holdings/a11oy-net"
+      ],
+      "plane": "frontend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "a11oy-net proof origin"
+    },
+    {
+      "forbidden": "Do not promote HOLD. Do not recreate a11oy.",
+      "id": "FE-03",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "frontend",
+      "scope": "THIS_ORGAN",
+      "status": "ADMITTED_EVALUATION",
+      "title": "szl-frontier operator plane"
+    },
+    {
+      "forbidden": "Do not stand up a new site.",
+      "id": "FE-04",
+      "owners": [
+        "szl-holdings/szl-brand"
+      ],
+      "plane": "frontend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "szl-brand token river"
+    },
+    {
+      "forbidden": "Not a flagship. Not a product certificate.",
+      "id": "FE-05",
+      "owners": [
+        "szl-holdings/holographic-unify",
+        "szl-holdings/immune",
+        "szl-holdings/lyte-lattice",
+        "szl-holdings/szl-command-lab"
+      ],
+      "plane": "frontend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "Hologram TS surfaces"
+    },
+    {
+      "forbidden": "RUNNING != runtime-verified. Do not mutate Space repos from this organ.",
+      "id": "FE-06",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "frontend",
+      "scope": "THIS_ORGAN",
+      "status": "ADMITTED_EVALUATION",
+      "title": "HF Spaces frontends"
+    },
+    {
+      "forbidden": "Not product certificates.",
+      "id": "FE-07",
+      "owners": [
+        "szl-holdings/anatomy",
+        "szl-holdings/the-grid",
+        "szl-holdings/sda"
+      ],
+      "plane": "frontend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "Exhibit surfaces"
+    },
+    {
+      "forbidden": "Archive is not a live product.",
+      "id": "FE-08",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "frontend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "Archived docs holograms"
+    },
+    {
+      "forbidden": "Do not fork the product backend into this organ.",
+      "id": "BE-01",
+      "owners": [
+        "szl-holdings/a11oy"
+      ],
+      "plane": "backend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "a11oy product backend"
+    },
+    {
+      "forbidden": "Do not authorize serving from an evaluation note.",
+      "id": "BE-02",
+      "owners": [
+        "szl-holdings/szl-serve"
+      ],
+      "plane": "backend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "szl-serve profiles"
+    },
+    {
+      "forbidden": "Receipts are not production authorization.",
+      "id": "BE-03",
+      "owners": [
+        "szl-holdings/szl-router"
+      ],
+      "plane": "backend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "szl-router receipts"
+    },
+    {
+      "forbidden": "No training admission.",
+      "id": "BE-04",
+      "owners": [
+        "szl-holdings/szl-forge"
+      ],
+      "plane": "backend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "szl-forge eval only"
+    },
+    {
+      "forbidden": "Do not collapse organs into one backend.",
+      "id": "BE-05",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "backend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "Shared substrate"
+    },
+    {
+      "forbidden": "Governance text is not an ATO.",
+      "id": "BE-06",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "backend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "MCP + governance"
+    },
+    {
+      "forbidden": "Verticals cannot mint flagships.",
+      "id": "BE-07",
+      "owners": [
+        "szl-holdings/vertical-services"
+      ],
+      "plane": "backend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "Vertical FastAPI"
+    },
+    {
+      "forbidden": "Envelope authority stays NONE.",
+      "id": "BE-08",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "backend",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "Receipt primitives"
+    },
+    {
+      "forbidden": "A schema is not a sealed live receipt.",
+      "id": "DR-01",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "dream",
+      "scope": "THIS_ORGAN",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Receipt-carrying UI schema"
+    },
+    {
+      "forbidden": "Do not mint a token site.",
+      "id": "DR-02",
+      "owners": [
+        "szl-holdings/szl-brand"
+      ],
+      "plane": "dream",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "Cross-organ design tokens"
+    },
+    {
+      "forbidden": "Contract inventory is not a live probe.",
+      "id": "DR-03",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "dream",
+      "scope": "THIS_ORGAN",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Space triad on every Space"
+    },
+    {
+      "forbidden": "Do not claim FedRAMP or ATO.",
+      "id": "DR-04",
+      "owners": [
+        "szl-holdings/szl-router"
+      ],
+      "plane": "dream",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "Governed inference receipts"
+    },
+    {
+      "forbidden": "Private 9464-node graph stays unpublished. 0 admitted to gradients.",
+      "id": "DR-05",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "dream",
+      "scope": "THIS_ORGAN",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Memory covenant only memory plane"
+    },
+    {
+      "forbidden": "Kernels are not models. UNKNOWN family count stays null.",
+      "id": "DR-06",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "dream",
+      "scope": "THIS_ORGAN",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Kernel family live membership"
+    },
+    {
+      "forbidden": "Pin is identity, not qualification.",
+      "id": "DR-07",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "dream",
+      "scope": "THIS_ORGAN",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Estate pin heartbeat"
+    },
+    {
+      "forbidden": "Do not display UNKNOWN as 0.",
+      "id": "DR-08",
+      "owners": [
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "dream",
+      "scope": "THIS_ORGAN",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Four-layer honesty surface"
+    },
+    {
+      "forbidden": "Do not unify all frontends into one app.",
+      "id": "DR-09",
+      "owners": [
+        "szl-holdings/a11oy",
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "dream",
+      "scope": "HANDOFF",
+      "status": "HOLD",
+      "title": "Verticals cannot mint flagships"
+    },
+    {
+      "forbidden": "Geometric mean 0.97 is shadow only. Promotion cannot lift HOLD.",
+      "id": "DR-10",
+      "owners": [
+        "szl-holdings/lutar-lean",
+        "szl-holdings/szl-frontier"
+      ],
+      "plane": "dream",
+      "scope": "THIS_ORGAN",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Lambda remains Conjecture 1"
+    }
+  ],
+  "live": {
+    "brain": "https://github.com/szl-holdings/szl-second-brain",
+    "covenant": "https://huggingface.co/datasets/SZLHOLDINGS/szl-frontier-covenant",
+    "direct": "https://szlholdings-szl-frontier.hf.space",
+    "draftPr": "https://github.com/szl-holdings/szl-frontier/pull/196",
+    "productOrigin": "https://a-11-oy.com",
+    "proofRegistry": "https://a11oy.net",
+    "source": "https://github.com/szl-holdings/szl-frontier",
+    "space": "https://huggingface.co/spaces/SZLHOLDINGS/szl-frontier",
+    "tag": "https://github.com/szl-holdings/szl-frontier/releases/tag/v0.4.0"
+  },
+  "organ": "szl-holdings/szl-frontier",
+  "prs": [
+    {
+      "liftsHold": false,
+      "number": 185,
+      "role": "watch/fix class",
+      "state": "ON_MAIN_BEFORE_CLOSEOUT"
+    },
+    {
+      "liftsHold": false,
+      "number": 186,
+      "role": "watch/fix class",
+      "state": "ON_MAIN_BEFORE_CLOSEOUT"
+    },
+    {
+      "liftsHold": false,
+      "number": 187,
+      "role": "watch/fix class",
+      "state": "ON_MAIN_BEFORE_CLOSEOUT"
+    },
+    {
+      "liftsHold": false,
+      "number": 190,
+      "role": "operator plane",
+      "state": "ON_MAIN_BEFORE_CLOSEOUT"
+    },
+    {
+      "liftsHold": false,
+      "number": 193,
+      "role": "triad / receipt envelope",
+      "state": "ON_MAIN_BEFORE_CLOSEOUT"
+    },
+    {
+      "baseNote": "operator-plane, not a second flagship",
+      "liftsHold": false,
+      "number": 194,
+      "role": "evaluation stack absorbed via operator-plane then main",
+      "state": "ON_MAIN_BEFORE_CLOSEOUT"
+    },
+    {
+      "liftsHold": false,
+      "number": 195,
+      "role": "watch/fix class",
+      "state": "ON_MAIN_BEFORE_CLOSEOUT"
+    },
+    {
+      "base": "main",
+      "baseShaAtOpen": "9f45fea",
+      "branch": "frontier/optional-eval-ui-tabs-20260925",
+      "commits": [
+        "8f67af6 honestyContract + estate-pin/codex-program tests",
+        "ceb2ea9 package.json test union",
+        "a03ae47 eval-panels.tsx HoldStrip + triad/pin/codex"
+      ],
+      "headAtComment": "a03ae47",
+      "liftsHold": false,
+      "mergeableState": "blocked",
+      "number": 196,
+      "role": "optional-eval UI draft",
+      "state": "DRAFT",
+      "url": "https://github.com/szl-holdings/szl-frontier/pull/196"
+    }
+  ],
+  "schema": "szl.frontier.thread-audit-payload/v1",
+  "stack": {
+    "closeoutTests": "34/34 contract tests on modules present at closeout",
+    "earlierTests": "23/23 unit tests including triad, receipt-envelope, estate-pin, codex-program, optional-eval, honesty",
+    "optionalGate": "localStorage OPTIONAL_EVAL_KEY default off; evaluate=1 on APIs; smuggled productionAuthorization ignored",
+    "secondReader": "python/payload/szl_codex_upgrade.py ContractError strict_json FILE_AUDIT_OVERCLAIM",
+    "server": "createServerFn for /api/*",
+    "tests": "node --experimental-strip-types --test",
+    "ui": "TanStack Start/Router + React 19 + Vite"
+  },
+  "surfaces": [
+    "SZLHOLDINGS/a11oy",
+    "SZLHOLDINGS/killinchu",
+    "SZLHOLDINGS/counsel",
+    "SZLHOLDINGS/terra",
+    "SZLHOLDINGS/sentra",
+    "SZLHOLDINGS/finance",
+    "SZLHOLDINGS/lyte",
+    "SZLHOLDINGS/vertical-services",
+    "SZLHOLDINGS/szl-command-lab",
+    "SZLHOLDINGS/david-leads",
+    "SZLHOLDINGS/szl-constellation",
+    "SZLHOLDINGS/szl-frontier",
+    "SZLHOLDINGS/szl-model-inference-lab",
+    "SZLHOLDINGS/immune-lattice",
+    "SZLHOLDINGS/immune",
+    "SZLHOLDINGS/ayllu",
+    "SZLHOLDINGS/yarqa",
+    "SZLHOLDINGS/szl-atelier",
+    "SZLHOLDINGS/holographic-unify",
+    "SZLHOLDINGS/szl-khipu",
+    "SZLHOLDINGS/llm-router-live"
+  ],
+  "tabs": [
+    "workstreams",
+    "cycle",
+    "estate",
+    "triad",
+    "pin",
+    "kernels",
+    "leases",
+    "codex",
+    "journeys",
+    "lab"
+  ],
+  "thisOrganLanes": [
+    "FE-03",
+    "FE-06",
+    "DR-01",
+    "DR-03",
+    "DR-05",
+    "DR-06",
+    "DR-07",
+    "DR-08",
+    "DR-10"
+  ],
+  "turns": [
+    {
+      "ask": "Comprehensively audit the thread, GitHub org szl-holdings repo by repo and file by file, and Hugging Face SZLHOLDINGS models, spaces, verticals, kernels, datasets. Produce 1 MD + Python Codex payload upgrading frontend and backend of every ecosystem piece. Push the frontier.",
+      "did": "Public membership census encoded. Codex program of 26 lanes. Fail-closed Python second-reader. File-by-file audit not claimed.",
+      "disposition": "PARTIAL",
+      "id": "T01",
+      "miss": "files_read=0. Per-repo file audit remains OPEN. UNKNOWN stays UNKNOWN."
+    },
+    {
+      "ask": "Handle all recommendations and upgrades. Push the frontier.",
+      "did": "THIS_ORGAN lanes admitted as optional evaluation under HOLD. HANDOFF lanes named, not executed here.",
+      "disposition": "PARTIAL",
+      "id": "T02",
+      "miss": "HANDOFF owners were not upgraded in place by this organ."
+    },
+    {
+      "ask": "Handle all of the above. You are the CTO.",
+      "did": "CTO closeout 2026-09-25. Draft PR #196. Doctrine kept. No production authorization.",
+      "disposition": "PARTIAL",
+      "id": "T03",
+      "miss": "CTO role does not lift HOLD."
+    },
+    {
+      "ask": "Figure it out and push the barriers. Make me proud.",
+      "did": "Operator plane, triad, pin, receipt envelope, honesty layers, optional-eval gate.",
+      "disposition": "PARTIAL",
+      "id": "T04",
+      "miss": "Dream lanes that mint new flagships refused."
+    },
+    {
+      "ask": "Do all of the above. Make it optional. Push the frontier and upgrade everything.",
+      "did": "optional-eval localStorage switch. evaluate=1 API gate. productionAuthorization smuggle ignored.",
+      "disposition": "PARTIAL",
+      "id": "T05",
+      "miss": "Upgrade-everything cannot include HANDOFF mutation or protected-main merge."
+    },
+    {
+      "ask": "Handle all PRs and merges.",
+      "did": "Draft #196 opened. #190/#193/#194/#185/#186/#187/#195 recorded as already on main before the closeout. Those merges do not lift HOLD.",
+      "disposition": "REFUSED_AUTO_MERGE",
+      "id": "T06",
+      "miss": "Protected main merge of #196 not executed. mergeable_state was blocked."
+    },
+    {
+      "ask": "Keep pushing the frontier. Finish this off.",
+      "did": "eval-panels, honesty contract, package.json test union landed on draft #196.",
+      "disposition": "PARTIAL",
+      "id": "T07",
+      "miss": "frontier.tsx 10-tab wiring was still a local 63-line diff at closeout."
+    },
+    {
+      "ask": "Give a PowerShell 5.1 admin block for the whole thread.",
+      "did": "SZL-Frontier-Thread-Closer-5.1.ps1. Census, idempotent frontier.tsx patch, contract tests, draft push only.",
+      "disposition": "DELIVERED",
+      "id": "T08",
+      "miss": "Script prints a merge command. It does not execute it."
+    },
+    {
+      "ask": "Give the block in chat.",
+      "did": "Full 5.1 script pasted. HOLD banner. Both merge switches still refuse automatic merge.",
+      "disposition": "DELIVERED",
+      "id": "T09",
+      "miss": "None on delivery. Merge still human-only."
+    },
+    {
+      "ask": "Python payload for Grok in terminal, in code in chat, one large payload, audit the whole thread, miss nothing.",
+      "did": "This file. Self-audit fails closed if a required turn, lane, workstream, contract, PR, or gap is absent.",
+      "disposition": "THIS_PAYLOAD",
+      "id": "T10",
+      "miss": "Live re-probe of GitHub/HF is not this payload. Snapshot stays labeled."
+    }
+  ],
+  "workstreams": [
+    {
+      "family": "runtime",
+      "id": "F01",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Edge0 exact-route expert prefetch"
+    },
+    {
+      "family": "runtime",
+      "id": "F02",
+      "status": "WATCH",
+      "title": "Spark-X2.5 context-budget ladder"
+    },
+    {
+      "family": "model",
+      "id": "F03",
+      "status": "HOLD",
+      "title": "Bonsai packing + runtime"
+    },
+    {
+      "family": "serving",
+      "id": "F04",
+      "status": "ADMITTED_EVALUATION",
+      "title": "DeepSeek / DSpark serving boundary"
+    },
+    {
+      "family": "runtime",
+      "id": "F05",
+      "status": "WATCH",
+      "title": "Tencent SAS approximate attention"
+    },
+    {
+      "family": "eval",
+      "id": "F06",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Granite / Lyte forecast uncertainty"
+    },
+    {
+      "family": "quantization",
+      "id": "F07",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Per-tensor GGUF canaries"
+    },
+    {
+      "family": "quantization",
+      "id": "F08",
+      "status": "WATCH",
+      "title": "AutoRound export provenance"
+    },
+    {
+      "family": "runtime",
+      "id": "F09",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Kernel Hub typed revisions"
+    },
+    {
+      "family": "model",
+      "id": "F10",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Compact baselines"
+    },
+    {
+      "family": "eval",
+      "id": "F11",
+      "status": "WATCH",
+      "title": "Nex observation/action harness"
+    },
+    {
+      "family": "data",
+      "id": "F12",
+      "status": "WATCH",
+      "title": "UltraData rights + holdouts"
+    },
+    {
+      "family": "eval",
+      "id": "F13",
+      "status": "WATCH",
+      "title": "Open-SWE-Traces patch custody"
+    },
+    {
+      "family": "eval",
+      "id": "F14",
+      "status": "BLOCKED_EXTERNAL",
+      "title": "ScienceIDE executable tasks"
+    },
+    {
+      "family": "research",
+      "id": "F15",
+      "status": "WATCH",
+      "title": "ModularRSI isolated harness"
+    },
+    {
+      "family": "memory",
+      "id": "F16",
+      "status": "ADMITTED_EVALUATION",
+      "title": "SoL-Pi evidence-preserving compaction"
+    },
+    {
+      "family": "research",
+      "id": "F17",
+      "status": "HOLD",
+      "title": "Reef bounded learning candidates"
+    },
+    {
+      "family": "eval",
+      "id": "F18",
+      "status": "ADMITTED_EVALUATION",
+      "title": "ALTK consistency metrics"
+    },
+    {
+      "family": "eval",
+      "id": "F19",
+      "status": "WATCH",
+      "title": "Emergence World contamination tests"
+    },
+    {
+      "family": "research",
+      "id": "F20",
+      "status": "ADMITTED_EVALUATION",
+      "title": "OUI schema-bound interface proposals"
+    },
+    {
+      "family": "runtime",
+      "id": "F21",
+      "status": "ADMITTED_EVALUATION",
+      "title": "TRL / Transformers / Accelerate / PEFT"
+    },
+    {
+      "family": "runtime",
+      "id": "F22",
+      "status": "ADMITTED_EVALUATION",
+      "title": "ShadowPEFT attach/detach"
+    },
+    {
+      "family": "serving",
+      "id": "F23",
+      "status": "ADMITTED_EVALUATION",
+      "title": "vLLM / SGLang / Omni / TEI"
+    },
+    {
+      "family": "memory",
+      "id": "F24",
+      "status": "WATCH",
+      "title": "Agnes hybrid-memory isolation"
+    },
+    {
+      "family": "research",
+      "id": "F25",
+      "status": "ADMITTED_EVALUATION",
+      "title": "YARQA / RLT looped computation"
+    },
+    {
+      "family": "model",
+      "id": "F26",
+      "status": "ADMITTED_EVALUATION",
+      "title": "AuK consented speech"
+    },
+    {
+      "family": "runtime",
+      "id": "F27",
+      "status": "WATCH",
+      "title": "LACI localize/rollback"
+    },
+    {
+      "family": "eval",
+      "id": "F28",
+      "status": "HOLD",
+      "title": "VoiceTrace speaker-aware retrieval"
+    },
+    {
+      "family": "eval",
+      "id": "F29",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Zing simulated environments"
+    },
+    {
+      "family": "eval",
+      "id": "F30",
+      "status": "WATCH",
+      "title": "Nemotron math verifier lane"
+    },
+    {
+      "family": "eval",
+      "id": "F31",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Retrieval / reranking"
+    },
+    {
+      "family": "research",
+      "id": "F32",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Existing tooling reconciliation"
+    },
+    {
+      "family": "runtime",
+      "id": "F33",
+      "status": "WATCH",
+      "title": "Optimum-Intel / OpenVINO"
+    },
+    {
+      "family": "memory",
+      "id": "F34",
+      "status": "ADMITTED_EVALUATION",
+      "title": "Funes-style memory"
+    }
+  ]
+}
