@@ -11,7 +11,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 from szl_frontier.cli import run
-from szl_frontier.flotation import build_receipt, main
+from szl_frontier.flotation import build_receipt, main, selectivity_prior
 
 
 def _write(directory: Path, name: str, text: str) -> Path:
@@ -39,6 +39,8 @@ class FlotationReceiptTests(unittest.TestCase):
         self.assertIsNone(receipt["recoveryPercent"])
         self.assertIsNone(receipt["benchSha256"])
         self.assertEqual(receipt["energyClass"], "UNAVAILABLE")
+        self.assertFalse(receipt["exhibitOnApex"])
+        self.assertEqual(receipt["prior"]["state"], "UNAVAILABLE")
         self.assertFalse(receipt["ato"])
         self.assertEqual(receipt["lambda"], "OPEN")
         self.assertFalse(receipt["nexusOrgan"])
@@ -186,3 +188,156 @@ class FlotationReceiptTests(unittest.TestCase):
         self.assertEqual(receipt["directive"], "DEFER")
         self.assertIsNone(receipt["recoveryPercent"])
         self.assertEqual(receipt["energyClass"], "UNAVAILABLE")
+        self.assertEqual(receipt["prior"]["state"], "UNAVAILABLE")
+        prior = rank.with_name("prior.py")
+        self.assertTrue(prior.is_file())
+        self.assertNotIn("szl_frontier", prior.read_text(encoding="utf-8"))
+
+
+COMPLETE = {
+    "homo_lumo_gap_eV": 4.1,
+    "dipole_D": 1.2,
+    "surface_charge": -0.4,
+    "pH": 8.5,
+    "collector_mM": 0.05,
+}
+STRONG = {
+    "homo_lumo_gap_eV": 1.0,
+    "dipole_D": 1.0,
+    "surface_charge": 1.0,
+    "pH": 1.0,
+    "collector_mM": 1.0,
+}
+WEAK = {
+    "homo_lumo_gap_eV": 0.0,
+    "dipole_D": 0.0,
+    "surface_charge": 0.0,
+    "pH": 0.0,
+    "collector_mM": 0.0,
+}
+
+
+class SelectivityPriorTests(unittest.TestCase):
+    def test_missing_descriptor_abstains(self) -> None:
+        features = dict(COMPLETE)
+        features["homo_lumo_gap_eV"] = None
+        out = selectivity_prior(features, STRONG)
+        self.assertEqual(out["state"], "ABSTAIN")
+        self.assertIsNone(out["S"])
+        self.assertEqual(out["S_class"], "UNAVAILABLE")
+        self.assertIn("homo_lumo_gap_eV", out["missing"])
+        self.assertEqual(out["not"], "flotation recovery")
+
+    def test_unset_weights_abstains(self) -> None:
+        out = selectivity_prior(COMPLETE, None)
+        self.assertEqual(out["state"], "ABSTAIN")
+        self.assertIsNone(out["S"])
+        self.assertEqual(out["not"], "flotation recovery")
+
+    def test_empty_weights_abstains(self) -> None:
+        out = selectivity_prior(COMPLETE, {})
+        self.assertEqual(out["state"], "ABSTAIN")
+        self.assertIsNone(out["S"])
+
+    def test_low_margin_abstains(self) -> None:
+        out = selectivity_prior(COMPLETE, WEAK, tau=0.15)
+        self.assertEqual(out["state"], "ABSTAIN")
+        self.assertIn("|2S-1|", out["reason"])
+        self.assertIsNotNone(out["S"])
+        self.assertLess(abs(2 * out["S"] - 1), 0.15)
+        self.assertEqual(out["not"], "flotation recovery")
+
+    def test_prior_only_is_not_recovery(self) -> None:
+        out = selectivity_prior(COMPLETE, STRONG)
+        self.assertEqual(out["state"], "PRIOR_ONLY")
+        self.assertIsInstance(out["S"], float)
+        self.assertGreaterEqual(out["S"], 0.0)
+        self.assertLessEqual(out["S"], 1.0)
+        self.assertEqual(out["S_class"], "SIMULATED")
+        self.assertEqual(out["not"], "flotation recovery")
+        self.assertNotIn("recoveryPercent", out)
+
+    def test_payload_demo_matches_skill(self) -> None:
+        demo = {
+            "homo_lumo_gap_eV": None,
+            "dipole_D": 1.2,
+            "surface_charge": -0.4,
+            "pH": 8.5,
+            "collector_mM": 0.05,
+        }
+        out = selectivity_prior(demo, None)
+        self.assertEqual(out["state"], "ABSTAIN")
+        self.assertEqual(out["missing"], ["homo_lumo_gap_eV"])
+
+    def test_receipt_attaches_prior_without_inventing_recovery(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            table = _write(root, "reagents.csv", TABLE)
+            receipt = build_receipt(table, features=COMPLETE, weights=STRONG)
+
+        self.assertEqual(receipt["prior"]["state"], "PRIOR_ONLY")
+        self.assertIsNone(receipt["recoveryPercent"])
+        self.assertFalse(receipt["exhibitOnApex"])
+        self.assertEqual([row["id"] for row in receipt["rankBand"]], ["a", "c", "b"])
+
+    def test_prior_only_cli_abstains(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            features = _write(
+                root,
+                "features.json",
+                json.dumps(
+                    {
+                        "homo_lumo_gap_eV": None,
+                        "dipole_D": 1.2,
+                        "surface_charge": -0.4,
+                        "pH": 8.5,
+                        "collector_mM": 0.05,
+                    }
+                ),
+            )
+            output = io.StringIO()
+            with redirect_stdout(output):
+                code = run(
+                    [
+                        "--manifest",
+                        str(root / "missing-manifest.json"),
+                        "flotation",
+                        "--features",
+                        str(features),
+                    ]
+                )
+        receipt = json.loads(output.getvalue())
+        self.assertEqual(code, 0)
+        self.assertEqual(receipt["prior"]["state"], "ABSTAIN")
+        self.assertIsNone(receipt["rankBand"])
+        self.assertIsNone(receipt["recoveryPercent"])
+        self.assertFalse(receipt["exhibitOnApex"])
+
+    def test_cli_prior_only_with_weights_is_not_recovery(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            features = _write(root, "features.json", json.dumps(COMPLETE))
+            weights = _write(root, "weights.json", json.dumps(STRONG))
+            output = io.StringIO()
+            with redirect_stdout(output):
+                code = run(
+                    [
+                        "--manifest",
+                        str(root / "missing-manifest.json"),
+                        "flotation",
+                        "--features",
+                        str(features),
+                        "--weights",
+                        str(weights),
+                    ]
+                )
+        receipt = json.loads(output.getvalue())
+        self.assertEqual(code, 0)
+        self.assertEqual(receipt["prior"]["state"], "PRIOR_ONLY")
+        self.assertIsInstance(receipt["prior"]["S"], float)
+        self.assertIsNone(receipt["rankBand"])
+        self.assertIsNone(receipt["recoveryPercent"])
+        self.assertFalse(receipt["exhibitOnApex"])
+        self.assertEqual(receipt["energyClass"], "UNAVAILABLE")
+

@@ -31,7 +31,7 @@ import {
   type OptionalEvaluation,
 } from "@/lib/frontier/optional-eval";
 
-const TABS = ["workstreams", "cycle", "estate", "triad", "pin", "codex", "kernels", "leases", "optional", "journeys", "lab"] as const;
+const TABS = ["workstreams", "cycle", "flotation", "estate", "triad", "pin", "codex", "kernels", "leases", "optional", "journeys", "lab"] as const;
 type Tab = (typeof TABS)[number];
 
 type EstateObservation = Awaited<ReturnType<typeof observeEstate>>;
@@ -119,6 +119,7 @@ function FrontierPage() {
 
       {tab === "workstreams" ? <WorkstreamsPanel q={q} family={family} status={status} /> : null}
       {tab === "cycle" ? <CyclePanel /> : null}
+      {tab === "flotation" ? <FlotationPanel /> : null}
       {tab === "estate" ? <EstatePanel /> : null}
       {tab === "triad" ? <EvalTriadPanel optedIn={optedIn} /> : null}
       {tab === "pin" ? <PinPanel optedIn={optedIn} /> : null}
@@ -641,6 +642,199 @@ function JourneysPanel() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+const DEMO_PRIOR_FEATURES = `{
+  "homo_lumo_gap_eV": null,
+  "dipole_D": 1.2,
+  "surface_charge": -0.4,
+  "pH": 8.5,
+  "collector_mM": 0.05
+}`;
+
+function FlotationPanel() {
+  const [table, setTable] = useState("");
+  const [bench, setBench] = useState<string | null>(null);
+  const [featuresText, setFeaturesText] = useState(DEMO_PRIOR_FEATURES);
+  const [weightsText, setWeightsText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [receipt, setReceipt] = useState<Record<string, unknown> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function readCsv(file: File | undefined, target: "table" | "bench") {
+    if (!file) return;
+    const text = await file.text();
+    if (target === "table") setTable(text);
+    else setBench(text);
+  }
+
+  async function readJson(file: File | undefined, target: "features" | "weights") {
+    if (!file) return;
+    const text = await file.text();
+    if (target === "features") setFeaturesText(text);
+    else setWeightsText(text);
+  }
+
+  async function run() {
+    let features: Record<string, unknown> | null = null;
+    let weights: Record<string, unknown> | null = null;
+    if (featuresText.trim()) {
+      try {
+        const parsed = JSON.parse(featuresText) as unknown;
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          features = parsed as Record<string, unknown>;
+        } else {
+          setError("features must be a JSON object");
+          return;
+        }
+      } catch {
+        setError("features JSON is invalid");
+        return;
+      }
+    }
+    if (weightsText.trim()) {
+      try {
+        const parsed = JSON.parse(weightsText) as unknown;
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          weights = parsed as Record<string, unknown>;
+        } else {
+          setError("weights must be a JSON object");
+          return;
+        }
+      } catch {
+        setError("weights JSON is invalid");
+        return;
+      }
+    }
+    if (!table.trim() && features === null) {
+      setError("Reagent table CSV or descriptor features are required.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/flotation", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          table: table.trim() || undefined,
+          bench,
+          features,
+          weights,
+        }),
+      });
+      const body = (await res.json()) as Record<string, unknown>;
+      setReceipt(body);
+      if (body.recoveryPercent != null) {
+        setError("organ returned a recovery percent; that is a defect");
+      }
+      if (body.exhibitOnApex === true) {
+        setError("organ set exhibitOnApex; that is a defect");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "flotation request failed");
+      setReceipt(null);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const directive = typeof receipt?.directive === "string" ? receipt.directive : "UNAVAILABLE";
+  const energy = typeof receipt?.energyClass === "string" ? receipt.energyClass : "UNAVAILABLE";
+  const selectivity = typeof receipt?.selectivity === "string" ? receipt.selectivity : "MODELED";
+  const prior = receipt?.prior as { state?: string; S?: number | null; reason?: string } | undefined;
+  const priorState = typeof prior?.state === "string" ? prior.state : "UNAVAILABLE";
+  const priorHint =
+    typeof prior?.S === "number"
+      ? `S=${prior.S} unitless; not recovery`
+      : "ABSTAIN without descriptors or weights";
+  const canRun = Boolean(table.trim() || featuresText.trim());
+
+  return (
+    <div className="space-y-4">
+      <p className="max-w-2xl text-sm leading-relaxed text-muted">
+        MODELED rank of a declared public score column, plus an abstaining unitless
+        selectivity prior. Recovery, grade, and selectivity percent stay abstained.
+        Energy stays UNAVAILABLE. Lambda stays OPEN. exhibitOnApex stays false.
+        This tab does not mint a Space and is not hosted on a-11-oy.com.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="text-sm">
+          Reagent table CSV
+          <input
+            type="file"
+            accept=".csv,text/csv"
+            className="mt-2 block w-full text-sm"
+            onChange={(event) => void readCsv(event.target.files?.[0], "table")}
+          />
+        </label>
+        <label className="text-sm">
+          Optional bench CSV
+          <input
+            type="file"
+            accept=".csv,text/csv"
+            className="mt-2 block w-full text-sm"
+            onChange={(event) => void readCsv(event.target.files?.[0], "bench")}
+          />
+        </label>
+        <label className="text-sm">
+          Descriptor features JSON
+          <input
+            type="file"
+            accept="application/json,.json"
+            className="mt-2 block w-full text-sm"
+            onChange={(event) => void readJson(event.target.files?.[0], "features")}
+          />
+        </label>
+        <label className="text-sm">
+          Optional weights JSON
+          <input
+            type="file"
+            accept="application/json,.json"
+            className="mt-2 block w-full text-sm"
+            onChange={(event) => void readJson(event.target.files?.[0], "weights")}
+          />
+        </label>
+      </div>
+      <label className="block text-sm">
+        Features
+        <textarea
+          className="mt-2 min-h-32 w-full rounded-md bg-bg-subtle p-3 font-mono text-xs"
+          value={featuresText}
+          onChange={(event) => setFeaturesText(event.target.value)}
+          spellCheck={false}
+        />
+      </label>
+      <label className="block text-sm">
+        Weights (unset ABSTAINS)
+        <textarea
+          className="mt-2 min-h-32 w-full rounded-md bg-bg-subtle p-3 font-mono text-xs"
+          value={weightsText}
+          onChange={(event) => setWeightsText(event.target.value)}
+          spellCheck={false}
+          placeholder='{"homo_lumo_gap_eV": 1.0, "dipole_D": 1.0, "surface_charge": 1.0, "pH": 1.0, "collector_mM": 1.0}'
+        />
+      </label>
+      <Button type="button" disabled={busy || !canRun} onClick={() => void run()}>
+        {busy ? "Ranking…" : "Emit software receipt"}
+      </Button>
+      {error ? <p className="text-sm text-muted">{error}</p> : null}
+      {receipt ? (
+        <div className="space-y-3">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+            <Stat k="Directive" v={directive} h="RELEASE only with a hashed bench" />
+            <Stat k="Selectivity" v={selectivity} h="always MODELED here" />
+            <Stat k="Prior" v={priorState} h={priorHint} />
+            <Stat k="Energy" v={energy} h="joules stay UNAVAILABLE" />
+            <Stat k="Recovery" v="null" h="never invented" />
+          </div>
+          <pre className="overflow-auto rounded-md bg-bg-subtle p-3 text-xs">
+            {JSON.stringify(receipt, null, 2)}
+          </pre>
+        </div>
+      ) : null}
     </div>
   );
 }
