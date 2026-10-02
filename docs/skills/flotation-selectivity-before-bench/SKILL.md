@@ -16,13 +16,20 @@ mint SZLHOLDINGS/nexus.
 ## Job
 
 Given a public reagent table plus an optional local bench CSV, emit a rank band
-and a receipt.
+and a receipt. Given declared descriptors and weights, emit an abstaining
+unitless prior. S is not recovery.
 
 ```text
 python rank.py --table reagents.csv
 python rank.py --table reagents.csv --bench bench.csv
+python prior.py --features features.json --weights weights.json
 python -m szl_frontier flotation --table reagents.csv
+python -m szl_frontier flotation --features features.json --weights weights.json
 ```
+
+If any of homo_lumo_gap_eV, dipole_D, surface_charge, pH, collector_mM is
+missing, the prior is ABSTAIN. Unset weights ABSTAIN. |2S-1| below tau
+(default 0.15) ABSTAIN. S is SIMULATED software, not a measured selectivity.
 
 The rank is a sort of one declared column, `public_score` or `screen_score`.
 Bands are tertiles of that order (`high`, `mid`, `low`). Fewer than three rows
