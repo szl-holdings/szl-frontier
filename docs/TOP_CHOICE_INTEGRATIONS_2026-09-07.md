@@ -149,6 +149,9 @@ The five choices are machine-readable at:
 - `hf/dataset/frontier-top-choices.v1.jsonl` — Hugging Face covenant dataset records
 - `python/szl_frontier/admissions.py` — Python-only source admissions for K2 and Vaani; NeoMME, Funes and WebGPU remain in the JS catalog
 - `python/szl_frontier/evaluation.py` — category-specific evaluation plans
+- `public/frontier/competitive-research-register.v1.json` — vendor/docs/paper research register required before adopting external code; evaluation-only, productionPromotion false
+
+Validate the research register with `python -m szl_frontier research-register --check`. A register row is not admission.
 
 The existing `hf-sync.yml` publisher remains the deployment authority: a protected `main` revision is published to `SZLHOLDINGS/szl-frontier`, the `hf/dataset` directory is published to `SZLHOLDINGS/szl-frontier-covenant`, and live Space `deployment.json` must read back the exact GitHub SHA.
 

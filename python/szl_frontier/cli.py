@@ -14,6 +14,7 @@ from .catalog import CatalogLoader, DEFAULT_MANIFEST
 from .domain import FrontierError
 from .engine import FrontierEngine
 from .flotation import main as flotation_main
+from .research_register import main as research_register_main
 from .ouroboros import (
     github_token_from_env,
     load_previous,
@@ -215,6 +216,18 @@ def _parser() -> argparse.ArgumentParser:
     flot.add_argument("--table", type=Path, required=True)
     flot.add_argument("--bench", type=Path, default=None)
     flot.add_argument("--score-column", default=None)
+
+    research = sub.add_parser(
+        "research-register",
+        help="validate the competitive research register; never promotes",
+    )
+    research.add_argument(
+        "--path",
+        type=Path,
+        default=None,
+        help="register JSON; defaults to public/frontier/competitive-research-register.v1.json",
+    )
+    research.add_argument("--check", action="store_true")
     return parser
 
 
@@ -243,6 +256,12 @@ def run(argv: Sequence[str] | None = None) -> int:
         if args.score_column is not None:
             forwarded.extend(["--score-column", args.score_column])
         return flotation_main(forwarded)
+
+    if args.command == "research-register":
+        forwarded = ["--check"] if args.check else []
+        if args.path is not None:
+            forwarded.extend(["--path", str(args.path)])
+        return research_register_main(forwarded)
 
     catalog = CatalogLoader(args.manifest).load()
     engine = FrontierEngine(catalog)
