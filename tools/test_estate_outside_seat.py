@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import http.client
 import importlib.util
+import io
 import json
 import os
 import subprocess
@@ -354,9 +356,8 @@ class WitnessFixtureTests(unittest.TestCase):
         self.assertEqual(rows[0]["status"], "VERIFIED")
 
     def test_static_space_without_runtime_revision_is_structural(self):
-        # Static Spaces serve files verbatim from the source revision;
-        # the Hub exposes no runtime revision. That is structural parity,
-        # not missing evidence.
+        # The static SDK can omit runtime.sha; this exception does not measure
+        # deployed bytes or claim source/runtime revision parity.
         metadata = space_metadata()
         metadata["sdk"] = "static"
         metadata["runtime"] = {"stage": "RUNNING"}
@@ -366,6 +367,34 @@ class WitnessFixtureTests(unittest.TestCase):
         self.assertEqual(rows[0]["providerRevisionParity"], "NOT_APPLICABLE_STATIC")
         self.assertFalse(any("runtime revision unavailable" in f for f in findings), findings)
         self.assertEqual(rows[0]["status"], "VERIFIED")
+
+    def test_malformed_space_card_data_produces_incomplete_receipt(self):
+        for sdk in (None, "static"):
+            for card_data in (["static"], [], "static", 1):
+                with self.subTest(sdk=sdk, card_data=card_data):
+                    metadata = space_metadata()
+                    metadata.update(sdk=sdk, cardData=card_data)
+                    self.transport.add(f"/api/spaces/{SPACE}", metadata)
+                    receipt = self.run_fixture()
+                    self.assertEqual(receipt["exitCode"], 2)
+                    self.assertEqual(receipt["overallStatus"], "INCOMPLETE")
+                    self.assertEqual(receipt["configurationErrors"], [])
+                    row = receipt["spaces"]["rows"][0]
+                    self.assertEqual(row["status"], "INCOMPLETE")
+                    self.assertTrue(any("cardData" in note for note in row["findings"]))
+
+    def test_static_space_malformed_present_runtime_revision_is_incomplete(self):
+        for revision in (["invalid"], {}, "not-a-sha", "a" * 39, None):
+            with self.subTest(revision=revision):
+                metadata = space_metadata()
+                metadata.update(sdk="static", runtime={"stage": "RUNNING", "sha": revision})
+                self.transport.add(f"/api/spaces/{SPACE}", metadata)
+                receipt = self.run_fixture()
+                self.assertEqual(receipt["exitCode"], 2)
+                row = receipt["spaces"]["rows"][0]
+                self.assertEqual(row["status"], "INCOMPLETE")
+                self.assertEqual(row["providerRevisionParity"], "UNAVAILABLE")
+                self.assertIn("runtime revision unavailable or malformed", row["findings"])
 
     def test_missing_malformed_naive_and_future_timestamps_fail(self):
         for stamp in (None, "not-a-date", "2026-09-08T11:00:00", "2026-09-09T11:00:00Z", 123):
@@ -545,6 +574,49 @@ class WitnessFixtureTests(unittest.TestCase):
         proxy_handler = next(arg for arg in build.call_args.args
                              if isinstance(arg, estate.urllib.request.ProxyHandler))
         self.assertEqual(proxy_handler.proxies, {})
+
+    def test_premature_content_length_eof_preserves_bytes_and_fails_receipt(self):
+        body = json.dumps(model_metadata()).encode()
+        model_url = f"https://huggingface.co/api/models/{MODEL}/revision/{SHA}"
+
+        class Socket:
+            def __init__(self, length):
+                self.length = length
+
+            def makefile(self, *args, **kwargs):
+                headers = f"HTTP/1.1 200 OK\r\nContent-Length: {self.length}\r\n\r\n".encode()
+                return io.BytesIO(headers + body)
+
+        cases = [("complete", str(len(body)), None),
+                 ("early-eof", str(len(body) + 100), "before declared body length"),
+                 ("oversized-length", "9" * 5000, "invalid Content-Length")]
+        for label, declared_length, error_text in cases:
+            with self.subTest(case=label):
+                response = http.client.HTTPResponse(Socket(declared_length))
+                response.begin()
+                response.url = model_url
+                opener = mock.Mock()
+                opener.open.return_value = response
+
+                def transport(url):
+                    if url == model_url:
+                        return estate.http_get(url)
+                    return self.transport(url)
+
+                with mock.patch.object(estate.urllib.request, "build_opener", return_value=opener):
+                    receipt = self.run_fixture(transport=transport)
+                observation = next(o for o in receipt["observations"] if o["url"] == model_url)
+                self.assertEqual(observation["status"], 200)
+                self.assertEqual(observation["bytesRead"], len(body))
+                self.assertEqual((self.base / "evidence" / observation["evidencePath"]).read_bytes(), body)
+                if error_text:
+                    self.assertEqual(receipt["exitCode"], 2)
+                    self.assertEqual(receipt["overallStatus"], "INCOMPLETE")
+                    self.assertFalse(observation["bodyComplete"])
+                    self.assertIn(error_text, observation["error"])
+                else:
+                    self.assertEqual(receipt["exitCode"], 0)
+                    self.assertTrue(observation["bodyComplete"])
 
     def test_nonfinite_nonpositive_stale_window_is_config_error(self):
         for stale_hours in (float("nan"), float("inf"), float("-inf"), 0, -1):

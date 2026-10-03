@@ -172,8 +172,17 @@ def http_get(url, max_bytes=MAX_BYTES):
         except urllib.error.HTTPError as exc:
             response = exc  # Error and redirect bodies are evidence too.
         body = response.read(max_bytes + 1)
+        error = None
+        declared_length = response.headers.get("Content-Length")
+        if declared_length is not None and not response.headers.get("Transfer-Encoding"):
+            if len(declared_length.strip()) > 20 or not re.fullmatch(r"[0-9]+", declared_length.strip()):
+                error = "invalid Content-Length response header"
+            elif len(body) <= max_bytes and len(body) < int(declared_length):
+                # Bounded HTTPResponse.read(n) can return short without raising
+                # IncompleteRead. Retain the bytes, but never certify their completeness.
+                error = "response ended before declared body length"
         return HttpResponse(response.code, body, dict(response.headers), response.geturl(),
-                            truncated=len(body) > max_bytes)
+                            error=error, truncated=len(body) > max_bytes or error is not None)
     except http.client.IncompleteRead as exc:
         return HttpResponse(response.code, exc.partial, dict(response.headers), response.geturl(),
                             error="response ended before declared body length", truncated=True)
@@ -241,8 +250,10 @@ class EvidenceClient:
                 error = str(exc)
             if final_url != url:
                 error = "transport followed a redirect without recording its response"
-            if response.truncated or len(body) > self.max_bytes:
+            if len(body) > self.max_bytes:
                 error = "response byte bound exceeded; stored bytes are incomplete"
+            elif response.truncated:
+                error = response.error or "response body is incomplete"
             if not isinstance(response.headers, dict) or any(not isinstance(k, str) or not isinstance(v, str) for k, v in response.headers.items()):
                 error = "malformed HTTP response headers"
                 headers = {}
@@ -582,7 +593,14 @@ def check_spaces_freshness(org, stale_hours, client, expected=None, creators=Non
                 row["ageHours"] = round(raw_age, 3)
             except (ValueError, TypeError, OverflowError):
                 pass
-            sdk = (meta.get("sdk") or (meta.get("cardData") or {}).get("sdk")) if isinstance(meta, dict) else None
+            card_data = meta.get("cardData")
+            if card_data is not None and not isinstance(card_data, dict):
+                notes.append("cardData unavailable or malformed")
+            sdk = meta.get("sdk")
+            if sdk is None and isinstance(card_data, dict):
+                sdk = card_data.get("sdk")
+            if sdk is not None and (not isinstance(sdk, str) or not sdk.strip()):
+                notes.append("SDK metadata unavailable or malformed")
             is_static = sdk == "static"
             runtime = meta.get("runtime")
             if not isinstance(runtime, dict) or not isinstance(runtime.get("stage"), str) or not runtime["stage"].strip():
@@ -593,10 +611,9 @@ def check_spaces_freshness(org, stale_hours, client, expected=None, creators=Non
             runtime_revision = runtime.get("sha") if isinstance(runtime, dict) else None
             if isinstance(runtime_revision, str) and SHA.fullmatch(runtime_revision):
                 row["runtimeRevision"] = runtime_revision
-            elif is_static:
-                # Static Spaces ship files verbatim from the source revision; the Hub
-                # exposes no separate runtime revision. Parity is structural, not
-                # measurable — record it explicitly instead of flagging INCOMPLETE.
+            elif is_static and isinstance(runtime, dict) and "sha" not in runtime:
+                # The Hub may omit a separate runtime revision for static Spaces.
+                # That exception does not establish deployed-byte or revision parity.
                 row["providerRevisionParity"] = "NOT_APPLICABLE_STATIC"
             else:
                 notes.append("runtime revision unavailable or malformed")
@@ -611,9 +628,9 @@ def check_spaces_freshness(org, stale_hours, client, expected=None, creators=Non
         if (raw_age is not None and raw_age > stale_hours
                 and row["providerRevisionParity"] != "MATCH" and row.get("sdk") != "static"):
             # Source age only matters as drift evidence. When the provider runtime
-            # matches the observed source revision (or is structural for static
-            # Spaces, which serve source files verbatim), an old lastModified is
-            # simply an unchanged Space, not stale deployment.
+            # matches the observed source revision, an old lastModified is simply
+            # an unchanged Space. Static Spaces remain exempt from this age finding;
+            # their deployed bytes and revision parity are not measured here.
             notes.append(f"source metadata age {row['ageHours']}h exceeds {stale_hours}h while parity is {row['providerRevisionParity']}; this is not an uptime measurement")
         if row["runtimeStage"] is not None and row["runtimeStage"] not in ("RUNNING", "RUNNING_BUILDING"):
             notes.append(f"provider runtime stage is {row['runtimeStage']}; application availability not verified")
