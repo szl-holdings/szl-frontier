@@ -15,6 +15,7 @@ from .domain import FrontierError
 from .engine import FrontierEngine
 from .flotation import main as flotation_main
 from .research_register import main as research_register_main
+from .research import evaluate_research
 from .ouroboros import (
     github_token_from_env,
     load_previous,
@@ -231,6 +232,15 @@ def _parser() -> argparse.ArgumentParser:
         help="register JSON; defaults to public/frontier/competitive-research-register.v1.json",
     )
     research.add_argument("--check", action="store_true")
+
+    research_check = sub.add_parser(
+        "research",
+        help="check an offline evidence-bound proposal and optional measured result",
+    )
+    research_check.add_argument("--root", type=Path, required=True, help="local evidence directory")
+    research_check.add_argument("--source-root", type=Path, required=True, help="clean exact-revision source checkout")
+    research_check.add_argument("--proposal", required=True, help="proposal JSON path relative to --root")
+    research_check.add_argument("--result", default=None, help="result JSON path relative to --root")
     return parser
 
 
@@ -271,6 +281,11 @@ def run(argv: Sequence[str] | None = None) -> int:
         if args.path is not None:
             forwarded.extend(["--path", str(args.path)])
         return research_register_main(forwarded)
+
+    if args.command == "research":
+        report = evaluate_research(args.root, args.source_root, args.proposal, args.result)
+        _emit(report)
+        return 3 if report["status"] == "HOLD" else 0
 
     catalog = CatalogLoader(args.manifest).load()
     engine = FrontierEngine(catalog)

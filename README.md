@@ -104,6 +104,10 @@ npm run dev
 
 Hugging Face Space builds this tree with the root `Dockerfile` on port **7860**.
 
+The offline [`research` validator](docs/RESEARCH_VALIDATOR.md) checks model-proposed
+experiments against exact local evidence and a clean source revision. It emits
+evaluation-only results and never authorizes a release.
+
 ## Pins
 
 | Pin | Value |
