@@ -1,0 +1,53 @@
+{
+  "schema": "szl.source-card-presentation/v1",
+  "source_repository": "szl-holdings/szl-frontier",
+  "source_revision": "dc56c17ee45f9fab0de4603a3a9f21262db35a8f",
+  "cards": [
+    {
+      "kind": "spaces",
+      "repo_id": "SZLHOLDINGS/szl-frontier",
+      "source_path": "README.md",
+      "source_url": "https://github.com/szl-holdings/szl-frontier/blob/dc56c17ee45f9fab0de4603a3a9f21262db35a8f/README.md",
+      "observed_hub_revision": "0e05cb1404cb3cf3fab957edc2959fcd0932c471",
+      "observed_hub_card_sha256": "56f78f331c16096f4a1f1e7a3b72975825c878a4435089242c4875b35bf1f1ef",
+      "observed_at": "2026-10-04T16:11:23.884327+00:00",
+      "canonical_publisher": "https://github.com/szl-holdings/szl-frontier/blob/dc56c17ee45f9fab0de4603a3a9f21262db35a8f/.github/workflows/hf-sync.yml",
+      "publication_trigger": "PROTECTED_MAIN_PUSH",
+      "publication_state": "SOURCE_REVIEW_PENDING",
+      "artifact": "Memory and frontier orchestration application",
+      "stage": "Production HOLD",
+      "before_sha256": "56f78f331c16096f4a1f1e7a3b72975825c878a4435089242c4875b35bf1f1ef",
+      "after_sha256": "042ba1046196a39bdddd7b35178ede9e271a8eaf7ce84a866badf161fa12696a",
+      "front_matter_sha256": "9876a6a786a942ca803cbc1dce98c3cc991736724b502c1531dab1b91538de72",
+      "preserved_body_sha256": "8e373f8f3892911fe2b7219315b822d790fedabfb2dc057c7dd59b289e1f4b8e",
+      "bytes_before": 5420,
+      "bytes_after": 6655,
+      "front_matter_preserved": true,
+      "original_body_preserved": true,
+      "provider_or_runtime_promotion": false
+    },
+    {
+      "kind": "datasets",
+      "repo_id": "SZLHOLDINGS/szl-frontier-covenant",
+      "source_path": "hf/dataset/README.md",
+      "source_url": "https://github.com/szl-holdings/szl-frontier/blob/dc56c17ee45f9fab0de4603a3a9f21262db35a8f/hf/dataset/README.md",
+      "observed_hub_revision": "aa6a840231d72530e75adce3af4bdebbd179029a",
+      "observed_hub_card_sha256": "ab3697917f3728839252e65a75409a7afe172f56562e00514ef8484ce45df775",
+      "observed_at": "2026-10-04T16:10:16.577428+00:00",
+      "canonical_publisher": "https://github.com/szl-holdings/szl-frontier/blob/dc56c17ee45f9fab0de4603a3a9f21262db35a8f/.github/workflows/hf-sync.yml",
+      "publication_trigger": "PROTECTED_MAIN_PUSH",
+      "publication_state": "SOURCE_REVIEW_PENDING",
+      "artifact": "Software release and intake metadata",
+      "stage": "Production HOLD",
+      "before_sha256": "ab3697917f3728839252e65a75409a7afe172f56562e00514ef8484ce45df775",
+      "after_sha256": "15ab547edaee5b4b4a1419964092baf660407927d936518a3aaf9f372d2a30dc",
+      "front_matter_sha256": "15a206e3e9c22d84bc3f687e6873c6490356337b977a22879cc0f1b34f8386a9",
+      "preserved_body_sha256": "ab356251a5b0afa34c6ecabcdc8c924d9a687ec79512b97433be90ceb48a3fde",
+      "bytes_before": 2779,
+      "bytes_after": 4038,
+      "front_matter_preserved": true,
+      "original_body_preserved": true,
+      "provider_or_runtime_promotion": false
+    }
+  ]
+}
