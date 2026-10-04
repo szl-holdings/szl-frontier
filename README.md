@@ -21,6 +21,28 @@ szl:
   proof_url: https://github.com/szl-holdings/szl-frontier
 ---
 
+<p><a href="https://huggingface.co/spaces/SZLHOLDINGS/szl-command-lab"><img src="https://raw.githubusercontent.com/szl-holdings/.github/main/profile/assets/szl/logos/szl_mark_holographic.svg" alt="SZL Holdings" width="112" /></a></p>
+
+# SZL Frontier
+
+Explore a governed memory plane with explicit source, policy and receipt boundaries.
+
+**Artifact:** Memory and frontier orchestration application · **Stage:** Production HOLD
+
+[Explore in Command Lab](https://huggingface.co/spaces/SZLHOLDINGS/szl-command-lab) · [Build](https://github.com/szl-holdings/szl-frontier) · [Evidence](https://github.com/szl-holdings/szl-frontier/blob/dc56c17ee45f9fab0de4603a3a9f21262db35a8f/README.md)
+
+## Before you use it
+
+- The demo uses software gates and simulated read-only intel; those are not Lean proofs or operational intelligence.
+- Retrieval indexes are not model weights, and approval cannot lift a hard deny.
+
+<details>
+<summary>Technical details and original evidence</summary>
+
+The retained source below is exact and may contain historical observations. Its dates, use restrictions, licenses and evidence boundaries continue to apply.
+
+<!-- SZL-PRESERVED-TECHNICAL-BODY:START -->
+
 > **SZL Holdings** · Doctrine v11 · Λ = Conjecture 1 (never a theorem) · canonical [a-11-oy.com](https://a-11-oy.com)
 
 # SZL Frontier
@@ -134,3 +156,7 @@ Source: [szl-holdings/szl-frontier](https://github.com/szl-holdings/szl-frontier
 ---
 
 <sub>SZL Holdings · Doctrine v11 · Λ = Conjecture 1 · not a second flagship · no production ATO · trust never 100%</sub>
+
+<!-- SZL-PRESERVED-TECHNICAL-BODY:END -->
+
+</details>

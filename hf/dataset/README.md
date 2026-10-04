@@ -15,6 +15,28 @@ szl:
   proof_url: https://github.com/szl-holdings/szl-frontier
 ---
 
+<p><a href="https://huggingface.co/spaces/SZLHOLDINGS/szl-command-lab"><img src="https://raw.githubusercontent.com/szl-holdings/.github/main/profile/assets/szl/logos/szl_mark_holographic.svg" alt="SZL Holdings" width="112" /></a></p>
+
+# Frontier Memory Covenant
+
+Inspect memory-policy artifacts, software gates and review records for frontier evaluation intake.
+
+**Artifact:** Software release and intake metadata · **Stage:** Production HOLD
+
+[Explore in Command Lab](https://huggingface.co/spaces/SZLHOLDINGS/szl-command-lab) · [Build](https://github.com/szl-holdings/szl-frontier) · [Evidence](https://github.com/szl-holdings/szl-frontier/blob/dc56c17ee45f9fab0de4603a3a9f21262db35a8f/hf/dataset/README.md)
+
+## Before you use it
+
+- Intel examples are simulated; this is not classified or operational training data.
+- Upstream releases and sandbox results confer no production authority, and gated payloads are not mirrored.
+
+<details>
+<summary>Technical details and original evidence</summary>
+
+The retained source below is exact and may contain historical observations. Its dates, use restrictions, licenses and evidence boundaries continue to apply.
+
+<!-- SZL-PRESERVED-TECHNICAL-BODY:START -->
+
 # SZL Frontier — Memory Covenant v0.3
 
 Software release artifacts for the SZL Frontier orchestrator: policy formulas, software gates, honest posture labels, and governed frontier-evaluation intake records.
@@ -47,3 +69,7 @@ K2 and Vaani include exact Hub revision plus normalized artifact-inventory finge
 - Λ = Conjecture 1.
 - Upstream artifacts keep their upstream authorship, licenses, and provenance.
 - Source: [szl-holdings/szl-frontier](https://github.com/szl-holdings/szl-frontier)
+
+<!-- SZL-PRESERVED-TECHNICAL-BODY:END -->
+
+</details>
