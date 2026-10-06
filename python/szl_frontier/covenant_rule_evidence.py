@@ -1,7 +1,8 @@
-"""Existing formula IDs as evidence gates (T27).
+"""Memory Covenant software rules as evidence gates (T27).
 
-Does not invent formulas, prove Λ, or treat a memory write as training.
-Retrieved text remains untrusted. Opaque provider state is not public evidence.
+These are DECLARED application rules, not Doctrine v11 formulas or Lean proofs.
+They do not prove Λ or treat a memory write as training. Retrieved text remains
+untrusted. Opaque provider state is not public evidence.
 """
 
 from __future__ import annotations
@@ -12,7 +13,17 @@ import re
 from pathlib import Path
 from typing import Any
 
-REQUIRED_FORMULA_IDS = ("F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9")
+REQUIRED_COVENANT_RULE_IDS = (
+    "MC-R1",
+    "MC-R2",
+    "MC-R3",
+    "MC-R4",
+    "MC-R5",
+    "MC-R6",
+    "MC-R7",
+    "MC-R8",
+    "MC-R9",
+)
 WRITE_PURPOSES = frozenset({"evidence-write", "evaluation"})
 RECALL_PURPOSES = frozenset({"governed-recall", "policy-review"})
 INJECTION = re.compile(
@@ -21,22 +32,29 @@ INJECTION = re.compile(
 )
 SENSITIVITY_RANK = {"public": 0, "internal": 1, "confidential": 2}
 
-_FORMULAS_PATH = Path(__file__).resolve().parents[2] / "hf" / "dataset" / "formulas.jsonl"
+_RULES_PATH = Path(__file__).resolve().parents[2] / "hf" / "dataset" / "covenant-rules.jsonl"
 
 
-def load_formulas(path: Path | None = None) -> list[dict[str, str]]:
-    target = path or _FORMULAS_PATH
+def load_covenant_rules(path: Path | None = None) -> list[dict[str, str]]:
+    target = path or _RULES_PATH
     rows: list[dict[str, str]] = []
     for line in target.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         row = json.loads(line)
-        if not isinstance(row, dict) or row.get("id") not in REQUIRED_FORMULA_IDS:
-            raise ValueError("unexpected formula row")
-        rows.append({"id": row["id"], "name": row["name"], "rule": row["rule"], "maturity": "locked"})
+        if not isinstance(row, dict) or row.get("id") not in REQUIRED_COVENANT_RULE_IDS:
+            raise ValueError("unexpected covenant rule row")
+        rows.append(
+            {
+                "id": row["id"],
+                "name": row["name"],
+                "rule": row["rule"],
+                "evidence_class": "DECLARED",
+            }
+        )
     ids = tuple(row["id"] for row in rows)
-    if ids != REQUIRED_FORMULA_IDS:
-        raise ValueError(f"formula IDs drifted: {ids}")
+    if ids != REQUIRED_COVENANT_RULE_IDS:
+        raise ValueError(f"covenant rule IDs drifted: {ids}")
     return rows
 
 
@@ -55,7 +73,7 @@ def write_evidence(
         return {
             "allowed": False,
             "indexed": False,
-            "formula_ids": ["F3"],
+            "covenant_rule_ids": ["MC-R3"],
             "reason": "purpose ∉ write-set ⇒ deny mutation",
             "record": None,
         }
@@ -63,7 +81,7 @@ def write_evidence(
         return {
             "allowed": False,
             "indexed": False,
-            "formula_ids": ["F7"],
+            "covenant_rule_ids": ["MC-R7"],
             "reason": "override-covenant text ⇒ quarantine, never index",
             "record": {
                 "memory_class": "quarantine_memory",
@@ -76,7 +94,7 @@ def write_evidence(
         return {
             "allowed": False,
             "indexed": False,
-            "formula_ids": ["F4"],
+            "covenant_rule_ids": ["MC-R4"],
             "reason": "policy_memory ⇐ auditor only",
             "record": None,
         }
@@ -84,7 +102,7 @@ def write_evidence(
         return {
             "allowed": False,
             "indexed": False,
-            "formula_ids": ["F6"],
+            "covenant_rule_ids": ["MC-R6"],
             "reason": "evidence requires sourceRefs ∧ contentSha256",
             "record": None,
         }
@@ -92,14 +110,14 @@ def write_evidence(
         return {
             "allowed": False,
             "indexed": False,
-            "formula_ids": ["F6", "F9"],
+            "covenant_rule_ids": ["MC-R6", "MC-R9"],
             "reason": "opaque provider reasoning state is not public evidence",
             "record": None,
         }
     return {
         "allowed": True,
         "indexed": True,
-        "formula_ids": ["F3", "F6"],
+        "covenant_rule_ids": ["MC-R3", "MC-R6"],
         "reason": "Committed as evidence. Advisory only — not an execution token and not training admission.",
         "record": {
             "memory_class": memory_class,
@@ -121,7 +139,12 @@ def recall_evidence(
     query: str,
 ) -> dict[str, Any]:
     if purpose not in RECALL_PURPOSES:
-        return {"allowed": False, "hits": [], "formula_ids": ["F3"], "reason": "purpose cannot recall"}
+        return {
+            "allowed": False,
+            "hits": [],
+            "covenant_rule_ids": ["MC-R3"],
+            "reason": "purpose cannot recall",
+        }
     hits = []
     for record in records:
         if record.get("tenant") != tenant:
@@ -138,6 +161,6 @@ def recall_evidence(
     return {
         "allowed": True,
         "hits": hits,
-        "formula_ids": ["F1", "F5"],
+        "covenant_rule_ids": ["MC-R1", "MC-R5"],
         "reason": "Foreign tenants and quarantined rows excluded. Retrieval is not training admission.",
     }
