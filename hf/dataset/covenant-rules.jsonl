@@ -1,0 +1,9 @@
+{"id":"MC-R1","name":"Tenant isolation","rule":"identity.tenant ≠ record.tenant ⇒ deny","evidence_class":"DECLARED"}
+{"id":"MC-R2","name":"Domain isolation","rule":"identity.domain ≠ record.domain ∧ ¬auditor ⇒ deny","evidence_class":"DECLARED"}
+{"id":"MC-R3","name":"Purpose bind","rule":"purpose ∉ write-set ⇒ deny mutation","evidence_class":"DECLARED"}
+{"id":"MC-R4","name":"Class authority","rule":"policy_memory ⇐ auditor only","evidence_class":"DECLARED"}
+{"id":"MC-R5","name":"Clearance rank","rule":"sensitivity > clearance ⇒ deny recall","evidence_class":"DECLARED"}
+{"id":"MC-R6","name":"Provenance","rule":"evidence requires sourceRefs ∧ contentSha256","evidence_class":"DECLARED"}
+{"id":"MC-R7","name":"Injection","rule":"override-covenant text ⇒ quarantine, never index","evidence_class":"DECLARED"}
+{"id":"MC-R8","name":"Embed generation","rule":"revision ≠ current ⇒ cannot serve recall","evidence_class":"DECLARED"}
+{"id":"MC-R9","name":"Hard deny","rule":"approval ⇏ lift recon | foreign-write | weaponize","evidence_class":"DECLARED"}

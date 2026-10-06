@@ -23,7 +23,7 @@ def fixture_axes():
         live_required=False,
         git_head="1" * 40,
         git_commit_time=TEST_NOW.isoformat(),
-        formulas_ok=True,
+        covenant_rules_ok=True,
     )
 
 
