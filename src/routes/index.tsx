@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
-import { FORMULAS } from "@/lib/covenant/formulas";
+import { COVENANT_RULES } from "@/lib/covenant/rules";
 import { MEMORY_CLASSES, WRITE_STATES } from "@/lib/covenant/types";
 import { formatAgo, shortId } from "@/lib/utils";
 import { useOrchestrator } from "@/stores/orchestrator";
@@ -145,15 +145,17 @@ function CommandCenter() {
       ) : null}
 
       <div>
-        <h2 className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-subtle">Formulas</h2>
+        <h2 className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-subtle">
+          Covenant software rules · DECLARED
+        </h2>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {FORMULAS.map((f) => (
+          {COVENANT_RULES.map((f) => (
             <div
               key={f.id}
               className="rounded-lg bg-bg-elevated px-4 py-3 shadow-[inset_0_0_0_1px_var(--color-border)]"
             >
               <div className="font-mono text-[11px] text-subtle">
-                {f.id} · {f.name}
+                {f.id} · {f.name} · {f.evidenceClass}
               </div>
               <div className="mt-1 font-mono text-xs text-muted">{f.rule}</div>
             </div>
