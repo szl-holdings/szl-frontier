@@ -576,14 +576,29 @@ export async function runWatch({
 }
 
 export function hasCompleteSourceCoverage(report) {
-  if (!report?.live || !Number.isInteger(report.sourceCount) || report.sourceCount < 1) return false;
-  if (!Array.isArray(report.sourceResults) || !Array.isArray(report.errors)) return false;
-  const successfulSources = report.sourceResults.filter((item) => item.status === "ok").length;
-  return (
-    report.errors.length === 0 &&
-    successfulSources === report.sourceCount &&
-    report.successfulSources === report.sourceCount
-  );
+  if (!report || typeof report !== "object" || Array.isArray(report)) return false;
+  if (report.schema !== "szl.frontier.watch-output.v1" ||
+      report.live !== true || report.productionPromotion !== false) return false;
+  if (!Array.isArray(report.sourceResults) || !Array.isArray(report.errors) ||
+      report.errors.length !== 0) return false;
+
+  // Count equality alone permits duplicates to conceal a missing source.
+  // These expectations come from the admitted catalog, never the report.
+  const expected = new Map(FRONTIER_RELEASES.map(({ id, artifactSource }) => [id, artifactSource]));
+  expected.set("hugging-face-blog-feed", `${HF_ORIGIN}/blog/feed.xml`);
+  if (expected.size !== FRONTIER_RELEASES.length + 1 ||
+      report.sourceCount !== expected.size || report.successfulSources !== expected.size ||
+      report.sourceResults.length !== expected.size) return false;
+
+  const seen = new Set();
+  for (const row of report.sourceResults) {
+    if (!row || typeof row !== "object" || Array.isArray(row) ||
+        row.status !== "ok" || !expected.has(row.id) || seen.has(row.id) ||
+        row.source !== expected.get(row.id)) return false;
+    seen.add(row.id);
+  }
+  // This is coverage only, not authenticated provenance or release authority.
+  return seen.size === expected.size;
 }
 
 function argumentValue(name, fallback) {
