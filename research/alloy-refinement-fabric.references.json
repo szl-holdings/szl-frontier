@@ -1,0 +1,72 @@
+{
+  "schema": "szl.frontier.research-lineage/v1",
+  "subject": "ALLOY_REFINEMENT_FABRIC",
+  "observed_at": "2026-10-05T00:00:00Z",
+  "primary_source": {
+    "title": "Refining Over Resampling: Test-Time Self-Correction for LLM Reasoning",
+    "identifier": "arXiv:2608.05643v1",
+    "url": "https://arxiv.org/abs/2608.05643",
+    "submitted": "2026-08-06",
+    "method": "SAME_MODEL_ROLE_CONDITIONED_BREADTH_DEPTH_REFINEMENT",
+    "external_verifier": false,
+    "process_reward_model": false,
+    "additional_training": false
+  },
+  "source_corrections": [
+    {
+      "claim": "The paper pairs GPT-6 Astra and Claude Opus 5.5",
+      "state": "NOT_SUPPORTED_BY_PRIMARY_SOURCE"
+    },
+    {
+      "claim": "The paper reports 91.2% recovery and less than 1.8% regressions",
+      "state": "NOT_FOUND_IN_ARXIV_V1"
+    },
+    {
+      "claim": "The paper rewrites only one broken step",
+      "state": "NOT_THE_PRIMARY_PAPER_METHOD",
+      "note": "Step-local repair is an original SZL adaptation informed by fine-grained refinement literature."
+    }
+  ],
+  "reported_primary_results": [
+    {
+      "model": "Qwen2.5-1.5B",
+      "benchmark": "MATH500",
+      "greedy_accuracy_pct": 26.2,
+      "rm_at_8_accuracy_pct": 29.6,
+      "method_accuracy_pct": 58.0
+    },
+    {
+      "model": "Qwen2.5-1.5B",
+      "benchmark": "AMC",
+      "greedy_accuracy_pct": 25.0,
+      "rm_at_8_accuracy_pct": 25.0,
+      "method_accuracy_pct": 32.5
+    }
+  ],
+  "related_primary_sources": [
+    "https://arxiv.org/abs/2203.11171",
+    "https://arxiv.org/abs/2303.17651",
+    "https://arxiv.org/abs/2305.10601",
+    "https://arxiv.org/abs/2310.01798",
+    "https://arxiv.org/abs/2408.03314",
+    "https://arxiv.org/abs/2409.12147",
+    "https://arxiv.org/abs/2511.10621"
+  ],
+  "szl_original_extensions": [
+    "ADAPTIVE_BREADTH_SATURATION_STOP",
+    "OPTIONAL_HETEROGENEOUS_MODEL_PAIR",
+    "PUBLIC_VERIFIABLE_STEP_DAG",
+    "SINGLE_STEP_PATCH_INVARIANT",
+    "DEPENDENT_STEP_REAUDIT",
+    "UNCHANGED_STEP_HASH_REGRESSION_GUARD",
+    "HANDLES_ONLY_FAILURE_PATTERN_MEMORY",
+    "SOURCE_BOUND_READ_ONLY_ANATOMY_OBSERVATORY",
+    "RECOVERY_AND_REGRESSION_QUALIFICATION"
+  ],
+  "authority": {
+    "execution": "NONE",
+    "training": "NONE",
+    "promotion": "NONE",
+    "merge": "NONE"
+  }
+}
