@@ -12,8 +12,12 @@ from dataclasses import dataclass
 from typing import Any, Mapping, Protocol, Sequence
 
 from .refinement import (
+    AlloyRefinementEngine,
+    BranchOutcome,
     RefinementBoundaryError,
     RefinementResult,
+    RECEIPT_SCHEMA,
+    SolutionCandidate,
     canonical_bytes,
     normalize_answer,
     sha256_hex,
@@ -25,7 +29,8 @@ EVALUATION_SCHEMA = "szl.refinement.evaluation/v1"
 class Grader(Protocol):
     name: str
 
-    def correct(self, predicted: str, expected: str) -> bool: ...
+    def correct(self, predicted: str, expected: str) -> bool:
+        raise NotImplementedError
 
 
 @dataclass(frozen=True)
@@ -112,6 +117,53 @@ class RefinementEvaluator:
             body.pop("receipt_sha256", None)
             if receipt_digest != sha256_hex(canonical_bytes(body)):
                 raise RefinementBoundaryError("refinement receipt digest mismatch")
+            if receipt.get("schema") != RECEIPT_SCHEMA:
+                raise RefinementBoundaryError("unsupported refinement receipt schema")
+            if result.state != receipt.get("state") or result.state not in {
+                "PROPOSAL_READY", "REVIEW_REQUIRED"
+            }:
+                raise RefinementBoundaryError("refinement state differs from receipt")
+            consensus = receipt.get("consensus")
+            if not isinstance(consensus, Mapping) or consensus.get(
+                "normalized_answer_sha256"
+            ) != sha256_hex(normalize_answer(result.final_answer)):
+                raise RefinementBoundaryError("refinement answer differs from receipt")
+            # Bind the exact selected answer, not merely its normalization:
+            # custom graders may distinguish answers such as "us" and "US".
+            # Candidate digests already bind their raw answer and branch ID.
+            receipt_branches = receipt.get("branches")
+            if (
+                not isinstance(receipt_branches, list)
+                or not receipt_branches
+                or len(receipt_branches) != len(result.branches)
+            ):
+                raise RefinementBoundaryError("refinement branches differ from receipt")
+            final_candidates: list[SolutionCandidate] = []
+            branch_ids: set[str] = set()
+            for branch, branch_receipt in zip(result.branches, receipt_branches):
+                if not isinstance(branch, BranchOutcome) or not isinstance(
+                    branch_receipt, Mapping
+                ):
+                    raise RefinementBoundaryError("refinement branch is invalid")
+                candidate = branch.final_candidate
+                if (
+                    not isinstance(candidate, SolutionCandidate)
+                    or branch.branch_id in branch_ids
+                    or branch.branch_id != candidate.branch_id
+                    or branch_receipt.get("branch_id") != candidate.branch_id
+                    or branch_receipt.get("final_candidate_sha256") != candidate.digest
+                    or branch_receipt.get("final_answer_sha256") != sha256_hex(candidate.answer)
+                ):
+                    raise RefinementBoundaryError("refinement branch differs from receipt")
+                branch_ids.add(branch.branch_id)
+                final_candidates.append(candidate)
+            selected = AlloyRefinementEngine._vote(final_candidates)
+            if result.final_answer != selected["answer"]:
+                raise RefinementBoundaryError("refinement answer differs from receipt selection")
+            if dict(consensus) != {
+                key: value for key, value in selected.items() if key != "answer"
+            }:
+                raise RefinementBoundaryError("refinement consensus differs from receipt")
             compute = receipt.get("compute")
             if not isinstance(compute, Mapping):
                 raise RefinementBoundaryError("refinement compute receipt is missing")

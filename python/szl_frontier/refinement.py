@@ -19,7 +19,7 @@ import math
 import re
 from collections import Counter, defaultdict, deque
 from dataclasses import dataclass, field, replace
-from typing import Any, Iterable, Mapping, Protocol, Sequence
+from typing import Any, Mapping, Protocol, Sequence
 
 RECEIPT_SCHEMA = "szl.refinement.receipt/v1"
 RESULT_SCHEMA = "szl.refinement.result/v1"
@@ -274,16 +274,21 @@ class AuditFinding:
     evidence_refs: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
-        if not _STEP_ID.fullmatch(str(self.step_id)):
+        if type(self.step_id) is not str or not _STEP_ID.fullmatch(self.step_id):
             raise RefinementBoundaryError("audit step_id is invalid")
-        verdict = str(self.verdict).strip().upper()
+        if type(self.verdict) is not str:
+            raise RefinementBoundaryError("audit verdict is invalid")
+        verdict = self.verdict.strip().upper()
         if verdict not in VERDICTS:
             raise RefinementBoundaryError("audit verdict is invalid")
         object.__setattr__(self, "verdict", verdict)
-        code = str(self.error_code).strip().upper()
+        if type(self.error_code) is not str:
+            raise RefinementBoundaryError("error_code is invalid")
+        code = self.error_code.strip().upper()
         if verdict == "PASS":
-            code = "NONE"
-        elif not _ERROR_CODE.fullmatch(code):
+            if code != "NONE":
+                raise RefinementBoundaryError("PASS requires error_code NONE")
+        elif code == "NONE" or not _ERROR_CODE.fullmatch(code):
             raise RefinementBoundaryError("error_code is invalid")
         object.__setattr__(self, "error_code", code)
         object.__setattr__(
@@ -345,7 +350,8 @@ class ExplorerAdapter(Protocol):
 
     def explore(
         self, task: str, *, branch_index: int, seed: int
-    ) -> SolutionCandidate: ...
+    ) -> SolutionCandidate:
+        raise NotImplementedError
 
 
 class AuditorRepairerAdapter(Protocol):
@@ -358,7 +364,8 @@ class AuditorRepairerAdapter(Protocol):
         step: PublicStep,
         *,
         depth: int,
-    ) -> AuditFinding: ...
+    ) -> AuditFinding:
+        raise NotImplementedError
 
     def repair(
         self,
@@ -367,7 +374,8 @@ class AuditorRepairerAdapter(Protocol):
         finding: AuditFinding,
         *,
         depth: int,
-    ) -> RepairProposal: ...
+    ) -> RepairProposal:
+        raise NotImplementedError
 
 
 @dataclass(frozen=True)
@@ -663,6 +671,10 @@ class AlloyRefinementEngine:
                     task, repaired, proposal.step, depth=depth
                 )
                 calls[0] += 1
+                if verification.step_id != proposal.step.step_id:
+                    raise RefinementBoundaryError(
+                        "repair verification is bound to the wrong step"
+                    )
                 findings.append(verification)
                 verified = verification.verdict == "PASS"
                 patches.append(
@@ -698,6 +710,10 @@ class AlloyRefinementEngine:
                         task, candidate, dependent, depth=depth
                     )
                     calls[0] += 1
+                    if dependent_finding.step_id != dependent.step_id:
+                        raise RefinementBoundaryError(
+                            "dependent audit is bound to the wrong step"
+                        )
                     findings.append(dependent_finding)
                     if dependent_finding.verdict != "PASS":
                         unresolved.add(dependent_finding.error_code)
@@ -723,6 +739,8 @@ class AlloyRefinementEngine:
             ):
                 break
 
+        if not findings:
+            unresolved.add("AUDIT_NOT_PERFORMED")
         terminal_findings: dict[str, AuditFinding] = {}
         for item in findings:
             terminal_findings[item.step_id] = item
@@ -809,7 +827,6 @@ class AlloyRefinementEngine:
                 code
                 for item in outcomes
                 for code in item.unresolved
-                if code != "NONE"
             }
         )
         state = "PROPOSAL_READY" if not unresolved else "REVIEW_REQUIRED"
