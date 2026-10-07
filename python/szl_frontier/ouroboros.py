@@ -21,7 +21,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 from .domain import FrontierError
-from .formula_evidence import load_formulas
+from .covenant_rule_evidence import load_covenant_rules
 from .invariants import check_receipt
 from .lambda_gate import (
     DEFAULT_THRESHOLD,
@@ -171,6 +171,7 @@ def collect_local_axes(
     live_required: bool,
     git_head: str | None | object = ...,
     git_commit_time: str | None | object = ...,
+    covenant_rules_ok: bool | object = ...,
     formulas_ok: bool | object = ...,
 ) -> list[AxisEvidence]:
     if action_class not in REQUIRED_BY_ACTION:
@@ -183,12 +184,16 @@ def collect_local_axes(
         git_head = _git(root, "rev-parse", "HEAD")
     if git_commit_time is ...:
         git_commit_time = _git(root, "log", "-1", "--format=%cI")
-    if formulas_ok is ...:
+    if covenant_rules_ok is not ... and formulas_ok is not ... and covenant_rules_ok != formulas_ok:
+        raise CycleError("covenant_rules_ok and deprecated formulas_ok disagree")
+    if covenant_rules_ok is ... and formulas_ok is not ...:
+        covenant_rules_ok = formulas_ok
+    if covenant_rules_ok is ...:
         try:
-            load_formulas()
-            formulas_ok = True
+            load_covenant_rules()
+            covenant_rules_ok = True
         except Exception:
-            formulas_ok = False
+            covenant_rules_ok = False
 
     head = git_head if isinstance(git_head, str) else None
     commit_time = git_commit_time if isinstance(git_commit_time, str) else None
@@ -235,12 +240,12 @@ def collect_local_axes(
         ),
         "schema_validity": _axis(
             "schema_validity",
-            1.0 if formulas_ok and catalog_ok else None,
-            "MEASURED" if formulas_ok and catalog_ok else "UNAVAILABLE",
+            1.0 if covenant_rules_ok and catalog_ok else None,
+            "MEASURED" if covenant_rules_ok and catalog_ok else "UNAVAILABLE",
             required="schema_validity" in required,
             now=now,
-            source_ref="hf/dataset/formulas.jsonl",
-            note="F1–F9 load and catalog parse",
+            source_ref="hf/dataset/covenant-rules.jsonl",
+            note="MC-R1–MC-R9 covenant-rule load and catalog parse",
             ttl=durable,
         ),
         "tool_boundary_safety": _axis(

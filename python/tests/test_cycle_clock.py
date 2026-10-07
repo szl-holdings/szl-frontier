@@ -23,11 +23,26 @@ def fixture_axes():
         live_required=False,
         git_head="1" * 40,
         git_commit_time=TEST_NOW.isoformat(),
+        covenant_rules_ok=True,
+    )
+
+
+def legacy_fixture_axes():
+    return collect_local_axes(
+        now=TEST_NOW,
+        action_class="READ_ONLY",
+        catalog_ok=True,
+        live_required=False,
+        git_head="1" * 40,
+        git_commit_time=TEST_NOW.isoformat(),
         formulas_ok=True,
     )
 
 
 class CycleClockTests(unittest.TestCase):
+    def test_deprecated_formulas_ok_keyword_matches_covenant_keyword(self) -> None:
+        self.assertEqual(legacy_fixture_axes(), fixture_axes())
+
     def test_both_rounds_use_the_explicit_cycle_clock(self) -> None:
         with patch("szl_frontier.lambda_gate.datetime", wraps=datetime) as wall:
             wall.now.return_value = WALL_CLOCK

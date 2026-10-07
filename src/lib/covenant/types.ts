@@ -302,10 +302,11 @@ export interface BrainTrace {
   sealed: boolean;
 }
 
-export interface PolicyFormula {
+export interface CovenantRule {
   id: string;
   name: string;
   rule: string;
+  evidenceClass: "DECLARED";
 }
 
 export interface EngineSnapshot {
