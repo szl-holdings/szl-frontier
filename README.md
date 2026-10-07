@@ -15,10 +15,10 @@ tags:
   - a11oy
   - memory-covenant
   - apache-2.0
-ecosystem-stage: "operational"
 szl:
   source_repo: szl-holdings/szl-frontier
   proof_url: https://github.com/szl-holdings/szl-frontier
+  lifecycle: EVALUATION
 ---
 
 <p><a href="https://huggingface.co/spaces/SZLHOLDINGS/szl-command-lab"><img src="https://raw.githubusercontent.com/szl-holdings/.github/main/profile/assets/szl/logos/szl_mark_holographic.svg" alt="SZL Holdings" width="112" /></a></p>

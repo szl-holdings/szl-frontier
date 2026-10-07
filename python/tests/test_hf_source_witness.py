@@ -235,6 +235,13 @@ class FrontierHfSourceWitnessTests(unittest.TestCase):
             SPACE_CARD.read_text(encoding="utf-8"),
         )
 
+    def test_space_card_lifecycle_cannot_overclaim_runtime_posture(self) -> None:
+        front_matter = _front_matter(SPACE_CARD)
+        body = SPACE_CARD.read_text(encoding="utf-8")
+        self.assertNotRegex(front_matter, r"(?im)^ecosystem-stage:\s*[\"']?operational[\"']?\s*$")
+        self.assertRegex(front_matter, r"(?m)^  lifecycle: EVALUATION$")
+        self.assertIn("**Stage:** Production HOLD", body)
+
     def test_dataset_card_lists_every_published_file(self) -> None:
         card = (DATASET_DIR / "README.md").read_text(encoding="utf-8")
         listed = set(re.findall(r"(?m)^\| `([^`]+)` \|", card))
