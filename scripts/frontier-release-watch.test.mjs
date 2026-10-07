@@ -9,12 +9,27 @@ import {
   hasCompleteSourceCoverage,
   parseHuggingFaceFeed,
   readClassifiedLedgerSync,
+  runWatch,
   snapshotHuggingFaceBlog,
   snapshotHubAsset,
   stableStringify,
 } from "./frontier-release-watch.mjs";
 import { FIRST_OBSERVATION, NO_MATERIAL, SUBSTANTIVE_CHANGE } from "../src/lib/frontier/watch-materiality.js";
-import { productionDisposition } from "../src/lib/frontier/release-catalog.js";
+import { FRONTIER_RELEASES, productionDisposition } from "../src/lib/frontier/release-catalog.js";
+
+function completeCoverageReport() {
+  const rows = FRONTIER_RELEASES.map(({ id, artifactSource }) => ({ id, source: artifactSource, status: "ok" }));
+  rows.push({ id: "hugging-face-blog-feed", source: "https://huggingface.co/blog/feed.xml", status: "ok" });
+  return {
+    schema: "szl.frontier.watch-output.v1",
+    live: true,
+    productionPromotion: false,
+    sourceCount: rows.length,
+    successfulSources: rows.length,
+    sourceResults: rows,
+    errors: [],
+  };
+}
 
 describe("frontier release watch", () => {
   it("canonicalizes object keys deterministically", () => {
@@ -114,16 +129,109 @@ describe("frontier release watch", () => {
   });
 
   it("requires every declared source to succeed before the watch is complete", () => {
-    const complete = {
-      live: true,
-      sourceCount: 2,
-      successfulSources: 2,
-      sourceResults: [{ status: "ok" }, { status: "ok" }],
-      errors: [],
-    };
+    const complete = completeCoverageReport();
     assert.equal(hasCompleteSourceCoverage(complete), true);
     assert.equal(hasCompleteSourceCoverage({ ...complete, errors: [{ error: "upstream failed" }] }), false);
     assert.equal(hasCompleteSourceCoverage({ ...complete, successfulSources: 1 }), false);
+  });
+
+  it("rejects duplicate identities concealing a missing admitted source at equal counts", () => {
+    const report = completeCoverageReport();
+    report.sourceResults[1] = { ...report.sourceResults[0] };
+    assert.equal(hasCompleteSourceCoverage(report), false);
+  });
+
+  it("rejects equal-count substitution by an unknown source", () => {
+    const report = completeCoverageReport();
+    report.sourceResults[0] = { id: "unadmitted", source: "https://huggingface.co/unadmitted", status: "ok" };
+    assert.equal(hasCompleteSourceCoverage(report), false);
+  });
+
+  it("rejects a known identity paired with the wrong URL", () => {
+    const report = completeCoverageReport();
+    report.sourceResults[0].source = report.sourceResults[1].source;
+    assert.equal(hasCompleteSourceCoverage(report), false);
+  });
+
+  it("requires the feed identity and exact feed URL", () => {
+    for (const change of [{ id: "another-feed" }, { source: "https://example.invalid/feed.xml" }]) {
+      const report = completeCoverageReport();
+      Object.assign(report.sourceResults.at(-1), change);
+      assert.equal(hasCompleteSourceCoverage(report), false);
+    }
+  });
+
+  it("rejects missing and extra rows even when declared counts are adjusted", () => {
+    for (const add of [false, true]) {
+      const report = completeCoverageReport();
+      if (add) report.sourceResults.push({ ...report.sourceResults[0] });
+      else report.sourceResults.pop();
+      report.sourceCount = report.sourceResults.length;
+      report.successfulSources = report.sourceResults.length;
+      assert.equal(hasCompleteSourceCoverage(report), false);
+    }
+  });
+
+  it("rejects wrong schema, dry or non-boolean live state, and promotion", () => {
+    const report = completeCoverageReport();
+    for (const change of [
+      { schema: "szl.frontier.combined-watch-output.v1" },
+      { live: false }, { live: "true" }, { live: 1 },
+      { productionPromotion: true }, { productionPromotion: undefined },
+    ]) assert.equal(hasCompleteSourceCoverage({ ...report, ...change }), false);
+  });
+
+  it("rejects coerced counts and malformed report containers without throwing", () => {
+    const report = completeCoverageReport();
+    for (const change of [
+      { sourceCount: String(report.sourceCount) },
+      { successfulSources: String(report.successfulSources) },
+      { sourceCount: true }, { sourceCount: NaN },
+      { sourceResults: null }, { errors: null }, { errors: {} },
+    ]) assert.equal(hasCompleteSourceCoverage({ ...report, ...change }), false);
+    for (const malformed of [null, undefined, true, 1, "report", []]) {
+      assert.equal(hasCompleteSourceCoverage(malformed), false);
+    }
+  });
+
+  it("rejects malformed, identity-free, and unsuccessful source rows", () => {
+    for (const row of [null, [], {}, { status: "ok" }, { ...completeCoverageReport().sourceResults[0], status: "dry" }]) {
+      const report = completeCoverageReport();
+      report.sourceResults[0] = row;
+      assert.equal(hasCompleteSourceCoverage(report), false);
+    }
+  });
+
+  it("accepts reordered complete rows without altering evidence", () => {
+    const report = completeCoverageReport();
+    report.sourceResults.reverse();
+    const before = JSON.stringify(report);
+    assert.equal(hasCompleteSourceCoverage(report), true);
+    assert.equal(JSON.stringify(report), before);
+  });
+
+  it("accepts the real producer with offline simulated transport", async () => {
+    let calls = 0;
+    const fetchImpl = async (input) => {
+      calls += 1;
+      const url = new URL(input);
+      let body;
+      if (url.pathname === "/blog/feed.xml") body = "<rss><channel></channel></rss>";
+      else if (url.pathname.startsWith("/blog/")) body = "<html><main>synthetic article</main></html>";
+      else if (url.pathname === "/api/models") body = "[]";
+      else body = JSON.stringify({ sha: "a".repeat(40), siblings: [], cardData: { license: "apache-2.0" } });
+      return new Response(body, { status: 200 });
+    };
+    const report = await runWatch({ live: true, fetchImpl });
+    assert.equal(calls, FRONTIER_RELEASES.length + 1);
+    assert.equal(hasCompleteSourceCoverage(report), true);
+    assert.equal(report.productionPromotion, false);
+  });
+
+  it("keeps dry producer output incomplete", async () => {
+    const report = await runWatch({ fetchImpl: () => { throw new Error("unexpected transport"); } });
+    assert.equal(hasCompleteSourceCoverage(report), false);
+    assert.equal(report.productionPromotion, false);
   });
 
   it("requires a sealed production authorization receipt before promotion", () => {
