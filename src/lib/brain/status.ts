@@ -23,7 +23,7 @@ export function brainStatusPresentation({
   alive: boolean;
   error: string | null;
 }): BrainStatusPresentation {
-  if (error) {
+  if (error !== null) {
     return { label: "Yachay unavailable", evidence: "UNAVAILABLE", tone: "subtle" };
   }
 

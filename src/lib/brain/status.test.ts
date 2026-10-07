@@ -32,6 +32,14 @@ test("an error fails closed even if a stale ready flag remains set", () => {
   });
 });
 
+test("an empty error sentinel also fails closed", () => {
+  assert.deepEqual(brainStatusPresentation({ ready: true, alive: true, error: "" }), {
+    label: "Yachay unavailable",
+    evidence: "UNAVAILABLE",
+    tone: "subtle",
+  });
+});
+
 test("only a ready and enabled index receives the measured green state", () => {
   assert.deepEqual(brainStatusPresentation({ ready: true, alive: true, error: null }), {
     label: "Yachay index ready",
