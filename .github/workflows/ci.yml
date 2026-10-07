@@ -59,6 +59,9 @@ jobs:
       - name: Verify outside-seat evidence and nightly chain controls
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
 
+      - name: Verify offline estate auditor and sealed bundle contracts
+        run: python3 -B tools/frontier_auditor/szl_frontier_codex.py self-test
+
       - name: Require unchanged tracked source after qualification
         run: git diff --exit-code
 
