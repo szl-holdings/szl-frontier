@@ -3,9 +3,11 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from szl_frontier.cli import run
 from szl_frontier.research_register import (
@@ -13,6 +15,7 @@ from szl_frontier.research_register import (
     REGISTER_PATH,
     RegisterError,
     load_register,
+    loads,
     main,
     validate_register,
 )
@@ -141,6 +144,68 @@ class ResearchRegisterTests(unittest.TestCase):
         dumped = json.dumps(payload, sort_keys=True, allow_nan=False)
         self.assertIn("Conjecture 1", dumped)
         self.assertNotIn("NaN", dumped)
+
+    def test_exponent_overflow_is_refused_at_every_json_depth(self) -> None:
+        for number in ("1e309", "-1e309", "1e1000000", "-1e1000000"):
+            for raw in (
+                number,
+                '{"value":' + number + "}",
+                "[" + number + "]",
+                '{"outer":[{"inner":[' + number + "]}]}",
+            ):
+                with self.subTest(raw=raw), self.assertRaises(RegisterError):
+                    loads(raw.encode("ascii"))
+
+    def test_register_diagnostic_cannot_carry_exponent_overflow(self) -> None:
+        original = REGISTER_PATH.read_bytes()
+        raw = json.dumps(_payload(), allow_nan=False)[:-1]
+        raw += ',"syntheticDiagnostic":{"values":[1e309]}}'
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "register.json"
+            path.write_bytes(raw.encode("utf-8"))
+            with self.assertRaises(RegisterError):
+                load_register(path)
+        self.assertEqual(REGISTER_PATH.read_bytes(), original)
+
+    def test_literal_nonfinite_and_nested_duplicate_guards_remain(self) -> None:
+        for raw in (
+            b"NaN", b"Infinity", b"-Infinity",
+            b'{"value":[NaN]}', b'{"value":[Infinity]}',
+            b'{"value":[-Infinity]}', b'{"nested":{"value":1,"value":2}}',
+        ):
+            with self.subTest(raw=raw), self.assertRaises(RegisterError):
+                loads(raw)
+
+    def test_finite_float_values_and_signed_zero_are_preserved(self) -> None:
+        for number in (
+            "0.0", "-0.0", "1.25", "-1.25", "1e308", "-1e308",
+            "5e-324", "-5e-324", "1e-1000000", "-1e-1000000",
+        ):
+            with self.subTest(number=number):
+                result = loads(('{"value":' + number + "}").encode("ascii"))["value"]
+                self.assertIs(type(result), float)
+                self.assertTrue(math.isfinite(result))
+                self.assertEqual(result, float(number))
+                self.assertEqual(math.copysign(1.0, result),
+                                 math.copysign(1.0, float(number)))
+
+    def test_nonfloat_json_values_keep_their_types(self) -> None:
+        result = loads(b'{"values":[123,true,false,null,"1e309"]}')["values"]
+        self.assertEqual(result, [123, True, False, None, "1e309"])
+        self.assertEqual([type(value) for value in result],
+                         [int, bool, bool, type(None), str])
+
+    def test_json_byte_and_recursion_guards_remain(self) -> None:
+        maximum = 512 * 1024
+        self.assertEqual(loads(b"{}" + b" " * (maximum - 2)), {})
+        with self.assertRaises(RegisterError):
+            loads(b"{}" + b" " * (maximum - 1))
+        # Decoder recursion ceilings vary by interpreter; preserve only the
+        # existing error conversion, not an invented fixed nesting policy.
+        with patch("szl_frontier.research_register.json.loads",
+                   side_effect=RecursionError("synthetic decoder limit")):
+            with self.assertRaisesRegex(RegisterError, "invalid JSON evidence"):
+                loads(b"{}")
 
 
 if __name__ == "__main__":
