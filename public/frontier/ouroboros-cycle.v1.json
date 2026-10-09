@@ -1,0 +1,18 @@
+{
+  "authority": "PROPOSAL_ONLY",
+  "divergent": false,
+  "honesty": "Source builds ship this non-authorizing seed so the UI never fabricates or 404s a cycle. The governed publisher replaces it with an exact-source measured cycle receipt.",
+  "invariantsOk": false,
+  "kind": "SOFTWARE",
+  "lambda": "CONJECTURE_1",
+  "lambdaNeverATheorem": true,
+  "live": false,
+  "productionPromotion": false,
+  "reason": "PUBLISHER_MEASUREMENT_UNAVAILABLE",
+  "schema": "szl.frontier.ouroboros-cycle.v1",
+  "shadow": null,
+  "source": "checked-in-fail-closed-seed",
+  "state": "UNAVAILABLE",
+  "trainingAdmission": false,
+  "verdict": "UNAVAILABLE"
+}

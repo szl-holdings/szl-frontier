@@ -9,7 +9,7 @@
  * Offline; no network, provider, or inference calls.
  */
 import { readFileSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { basename, join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -41,7 +41,7 @@ test("deterministic self-merge is declared and bounded", () => {
   assert.equal(dm.strategy, "python-merge");
   assert.equal(dm.script, "scripts/wave-merge.py");
   assert.equal(dm.selfEnforcing, true);
-  const waveRel = "frontier/waves/" + wavePath.split("/").at(-1);
+  const waveRel = "frontier/waves/" + basename(wavePath);
   assert.ok(dm.touchedPaths.includes(waveRel));
   for (const f of dm.forbidden) {
     assert.ok(!dm.touchedPaths.includes(f));

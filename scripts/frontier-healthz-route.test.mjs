@@ -17,6 +17,9 @@ describe("/healthz liveness route", () => {
     assert.equal(body.schema, "szl.frontier.health/v1");
     assert.equal(body.ok, true);
     assert.equal(body.organ, "szl-holdings/szl-frontier");
+    assert.equal(body.operational, true);
+    assert.equal(body.softwareState, "OPERATIONAL");
+    assert.equal(body.productionDisposition, "HOLD");
     assert.equal(body.productionAuthorization, false);
     assert.equal(body.runtimeVerified, false);
   });

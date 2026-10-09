@@ -21,7 +21,14 @@ const verdict = (state, failureCode, detail) => ({ state, failureCode, ...(detai
 const fail = (code, detail) => verdict("UNVERIFIED", code, detail);
 const own = (value, key) => Object.hasOwn(value, key);
 const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
-const text = (v) => typeof v === "string" && v.length > 0 && v.length <= 2048 && v.trim() === v && !/[\u0000-\u001f\u007f]/u.test(v);
+function hasControlCharacters(value) {
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code <= 0x1f || code === 0x7f) return true;
+  }
+  return false;
+}
+const text = (v) => typeof v === "string" && v.length > 0 && v.length <= 2048 && v.trim() === v && !hasControlCharacters(v);
 const hex = (v, n) => typeof v === "string" && v.length === n && !/[^0-9a-f]/u.test(v);
 const sha256 = (v) => hex(v, 64);
 const sha40 = (v) => hex(v, 40);
@@ -153,6 +160,7 @@ export function parseWitnessJson(input) {
   let at = 0, nodes = 0;
   const space = () => { while (at < input.length && /[ \t\r\n]/u.test(input[at])) at++; };
   function string() {
+    // eslint-disable-next-line no-control-regex -- RFC 8259 forbids raw U+0000..U+001F in JSON strings.
     const pattern = /"(?:[^"\\\u0000-\u001f]|\\(?:["\\/bfnrt]|u[0-9a-fA-F]{4}))*"/y;
     pattern.lastIndex = at;
     const match = pattern.exec(input);

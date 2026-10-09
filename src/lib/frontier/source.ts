@@ -19,6 +19,7 @@ export const SOURCE = {
   reconciledHead: "b3aee6443b484768d1de107449918a050fe8528d",
   reconciledAt: "2026-09-20T11:26:13Z",
   reconciledHeadClass: "MODELED" as HeadClass,
+  softwareState: "OPERATIONAL",
   productionAuthorization: false,
   productionDisposition: "HOLD",
   trainingAdmission: false,
@@ -39,7 +40,10 @@ export function healthPayload() {
     ok: true,
     kind: "SOFTWARE",
     organ: SOURCE.repository,
+    operational: true,
+    softwareState: SOURCE.softwareState,
     disposition: "HOLD" as const,
+    productionDisposition: SOURCE.productionDisposition,
     productionAuthorization: false,
     runtimeVerified: false,
     checkedAt: new Date().toISOString(),
@@ -58,7 +62,9 @@ export function healthResponse(): Response {
       "content-type": "application/json; charset=utf-8",
       "cache-control": "no-store",
       "x-szl-kind": "health",
+      "x-szl-software-state": SOURCE.softwareState,
       "x-szl-disposition": "HOLD",
+      "x-szl-production-disposition": SOURCE.productionDisposition,
       "x-szl-production-authorization": "false",
     },
   });
@@ -66,18 +72,24 @@ export function healthResponse(): Response {
 
 export function readyPayload(opts: { catalogLoaded: boolean; engineHydratable: boolean }) {
   const operatorHydratable = opts.catalogLoaded && opts.engineHydratable;
-  const blockers: string[] = [];
-  if (!opts.catalogLoaded) blockers.push("CATALOG_NOT_LOADED");
-  if (!opts.engineHydratable) blockers.push("ENGINE_NOT_HYDRATABLE");
-  blockers.push("PRODUCTION_HOLD");
+  const operationalBlockers: string[] = [];
+  if (!opts.catalogLoaded) operationalBlockers.push("CATALOG_NOT_LOADED");
+  if (!opts.engineHydratable) operationalBlockers.push("ENGINE_NOT_HYDRATABLE");
+  const productionBlockers = ["PRODUCTION_HOLD"] as const;
+  const blockers = [...operationalBlockers, ...productionBlockers];
   return {
     schema: "szl.frontier.readiness/v1",
     status: (operatorHydratable ? "ready" : "not_ready") as ReadyStatus,
     ready: operatorHydratable,
+    operationalReady: operatorHydratable,
+    softwareState: SOURCE.softwareState,
     productionReady: false,
+    productionDisposition: SOURCE.productionDisposition,
     catalogLoaded: opts.catalogLoaded,
     engineHydratable: opts.engineHydratable,
     blockers,
+    operationalBlockers,
+    productionBlockers,
     reason: operatorHydratable
       ? "Operator plane hydratable. productionReady stays false."
       : blockers.join(","),
@@ -91,11 +103,14 @@ export function sourcePayload(opts?: { deploymentSourceRevision?: string | null 
   const deployRaw = opts?.deploymentSourceRevision ?? null;
   const deploymentSourceRevision = classifySha(deployRaw) ? deployRaw : null;
   const deploymentSourceRevisionClass: HeadClass = deploymentSourceRevision ? "REACHABLE" : "UNAVAILABLE";
-  const headMatch: HeadMatch = deploymentSourceRevision
+  const reconciledPinMatch: HeadMatch = deploymentSourceRevision
     ? deploymentSourceRevision === SOURCE.reconciledHead
       ? "MATCH"
       : "DRIFT"
     : "UNAVAILABLE";
+  // A MODELED inspection pin is not a live GitHub HEAD. Without a live HEAD,
+  // deployed-vs-current source parity is UNAVAILABLE rather than falsely DRIFT.
+  const headMatch: HeadMatch = "UNAVAILABLE";
   return {
     schema: "szl.frontier.source-identity/v1",
     ...SOURCE,
@@ -103,12 +118,15 @@ export function sourcePayload(opts?: { deploymentSourceRevision?: string | null 
     liveGitHubHeadClass: "UNAVAILABLE" as HeadClass,
     deploymentSourceRevision,
     deploymentSourceRevisionClass,
+    deploymentSourceBound: deploymentSourceRevision !== null,
+    reconciledPinMatch,
     headMatch,
+    softwareState: SOURCE.softwareState,
     semanticReviewComplete: false,
     sourceContentFilesRead: 0,
     fileAuditComplete: false,
     runtimeVerified: false,
     checkedAt: new Date().toISOString(),
-    note: "reconciledHead is a MODELED inspection pin. deploymentSourceRevision is REACHABLE when /deployment.json is present. live GitHub HEAD stays UNAVAILABLE in this payload. Identity is not qualification.",
+    note: "reconciledHead is a MODELED inspection pin, not live HEAD. deploymentSourceRevision is source-bound when /deployment.json is present. Current deployed-vs-GitHub parity stays UNAVAILABLE until liveGitHubHead is independently observed. Identity is not qualification.",
   };
 }

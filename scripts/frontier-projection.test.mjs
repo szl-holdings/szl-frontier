@@ -13,6 +13,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const MANIFEST = "public/frontier/release-evaluation-manifest.v1.json";
 const GENERATOR = "scripts/generate-frontier-release-manifest.mjs";
 const CATALOG = "src/lib/frontier/release-catalog.js";
+const PYTHON = process.env.PYTHON || (process.platform === "win32" ? "python" : "python3");
 
 function run(command, args, cwd = ROOT, env = process.env) {
   const result = spawnSync(command, args, { cwd, env, encoding: "utf8", timeout: 30000, maxBuffer: 2 * 1024 * 1024 });
@@ -47,7 +48,7 @@ test("the checked-in public bytes exactly equal the current canonical catalog", 
 });
 
 test("the actual Python CLI agrees with all JS-manifest policy summaries", () => {
-  const child = run(process.env.PYTHON || "python3", ["-m", "szl_frontier", "list", "--min-score", "0"], ROOT,
+  const child = run(PYTHON, ["-m", "szl_frontier", "list", "--min-score", "0"], ROOT,
     { ...process.env, PYTHONPATH: join(ROOT, "python"), PYTHONDONTWRITEBYTECODE: "1" });
   assert.equal(child.status, 0, child.stderr);
   const allPython = JSON.parse(child.stdout);

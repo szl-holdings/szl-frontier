@@ -2,8 +2,7 @@
 """Offline regressions for provider-reported Space source/runtime revisions."""
 from __future__ import annotations
 
-import unittest
-from unittest import mock
+from unittest import TestCase, mock
 
 if __package__:
     from . import test_estate_outside_seat as fixtures
@@ -40,7 +39,7 @@ INVALID_REVISIONS = (
 )
 
 
-class SpaceRuntimeRevisionTests(unittest.TestCase):
+class SpaceRuntimeRevisionTests(TestCase):
     # Borrow fixture plumbing, not the base class's discoverable test methods.
     run_fixture = fixtures.WitnessFixtureTests.run_fixture
 

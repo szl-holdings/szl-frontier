@@ -24,7 +24,6 @@ from .domain import FrontierError
 from .covenant_rule_evidence import load_covenant_rules
 from .invariants import check_receipt
 from .lambda_gate import (
-    DEFAULT_THRESHOLD,
     LAMBDA_POSTURE,
     AxisEvidence,
     GateResult,

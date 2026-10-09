@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { evaluateLambdaGate, weightedGeometricMean } from "./lambda-gate.ts";
 import { evaluateAction } from "../actions/adapter.ts";
@@ -41,6 +42,34 @@ describe("ouroboros paint bind", () => {
     assert.equal(allowChrome("UNAVAILABLE"), false);
     assert.equal(writeEnabled("UNAVAILABLE", "IRREVERSIBLE_WRITE"), false);
     assert.equal(writeEnabled("UNAVAILABLE", "REVERSIBLE_WRITE"), false);
+  });
+
+  it("checked-in source seed is explicitly unavailable and non-authorizing", () => {
+    const seed = JSON.parse(
+      readFileSync(
+        new URL("../../../public/frontier/ouroboros-cycle.v1.json", import.meta.url),
+        "utf8",
+      ),
+    );
+    assert.equal(seed.state, "UNAVAILABLE");
+    assert.equal(seed.productionPromotion, false);
+    const paint = paintFromCycle(seed);
+    assert.equal(paint, "UNAVAILABLE");
+    assert.equal(allowChrome(paint), false);
+    assert.equal(writeEnabled(paint, "REVERSIBLE_WRITE"), false);
+    assert.equal(writeEnabled(paint, "IRREVERSIBLE_WRITE"), false);
+  });
+
+  it("UNAVAILABLE cannot mask an unsafe production claim", () => {
+    const paint = paintFromCycle({
+      schema: CYCLE_SCHEMA,
+      state: "UNAVAILABLE",
+      productionPromotion: true,
+      authority: "PROPOSAL_ONLY",
+      lambda: "CONJECTURE_1",
+      lambdaNeverATheorem: true,
+    });
+    assert.equal(paint, "DENY");
   });
 
   it("ALLOW chrome requires a bound cycle receipt", () => {

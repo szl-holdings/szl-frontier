@@ -11,6 +11,7 @@ import {
   parseAppEnv,
   projectRoot,
   readAppEnv,
+  resolveInvocation,
 } from "./with-app-env.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -41,13 +42,13 @@ test("drops non-VITE keys, non-string values and malformed documents", () => {
   assert.deepEqual(parseAppEnv("null"), {});
 });
 
-test("a missing app-env.json is a clean no-op", () => {
-  assert.deepEqual(readAppEnv(makeWorkspace()), {});
+test("a missing app-env.json uses the versioned auth-off default", () => {
+  assert.deepEqual(readAppEnv(makeWorkspace()), { VITE_AUTH_ENABLED: "false" });
 });
 
 test("reads the app env from a workspace", () => {
-  const root = makeWorkspace('{"VITE_AUTH_ENABLED":"false"}');
-  assert.deepEqual(readAppEnv(root), { VITE_AUTH_ENABLED: "false" });
+  const root = makeWorkspace('{"VITE_AUTH_ENABLED":"true"}');
+  assert.deepEqual(readAppEnv(root), { VITE_AUTH_ENABLED: "true" });
 });
 
 test("an explicit process-env override wins over the file", () => {
@@ -71,6 +72,33 @@ test("vite loadEnv resolves the wrapped value", () => {
   const root = makeWorkspace('{"VITE_AUTH_ENABLED":"false"}');
   const merged = mergeAppEnv(readAppEnv(root), { PATH: "/usr/bin" });
   assert.equal(merged.VITE_AUTH_ENABLED, "false");
+});
+
+
+test("resolves Windows npm bins through Node without enabling a shell", () => {
+  const root = makeWorkspace();
+  const packageRoot = join(root, "node_modules", "vite");
+  const binDir = join(packageRoot, "bin");
+  mkdirSync(binDir, { recursive: true });
+  writeFileSync(join(packageRoot, "package.json"), '{"bin":{"vite":"bin/vite.js"}}');
+  const vite = join(binDir, "vite.js");
+  writeFileSync(vite, "process.exit(0);\n");
+  assert.deepEqual(resolveInvocation("vite", ["build"], root, "win32"), {
+    command: process.execPath,
+    args: [vite, "build"],
+  });
+  assert.deepEqual(resolveInvocation("missing", ["x"], root, "win32"), {
+    command: "missing",
+    args: ["x"],
+  });
+  assert.deepEqual(resolveInvocation("/usr/bin/node", ["x"], root, "win32"), {
+    command: "/usr/bin/node",
+    args: ["x"],
+  });
+  assert.deepEqual(resolveInvocation("vite", ["build"], root, "linux"), {
+    command: "vite",
+    args: ["build"],
+  });
 });
 
 test("the wrapped command runs with the app env applied", async () => {

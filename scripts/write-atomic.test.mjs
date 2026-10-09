@@ -164,16 +164,12 @@ test("cli: relative paths follow the script's root, not the caller's cwd", () =>
   assert.equal(existsSync(join(root, "public/og.jpg")), false);
 });
 
-test("every hand-over the og skill prints is one this script accepts", () => {
-  // The card and banner recipes live in the skill's references/, not SKILL.md.
-  const skillDir = join(TEMPLATE_ROOT, ".grok/skills/og");
-  const docs = [
-    join(skillDir, "SKILL.md"),
-    ...readdirSync(join(skillDir, "references")).map((f) => join(skillDir, "references", f)),
-  ];
-  const invocations = docs.flatMap(
-    (path) => readFileSync(path, "utf8").match(/node scripts\/write-atomic\.mjs[^\n`]*/g) ?? [],
-  );
+test("every versioned hand-over example is one this script accepts", () => {
+  // Clean clones do not contain a machine-local .grok skill directory. Keep the
+  // executable examples beside the implementation so CI verifies versioned docs.
+  const invocations = (
+    readFileSync(SCRIPT, "utf8").match(/node scripts\/write-atomic\.mjs[^\n`]*/g) ?? []
+  ).filter((line) => !line.includes("<staged-file>"));
   assert.ok(invocations.length >= 3, "og.jpg, x-banner.jpg and site.json each hand over");
   for (const line of invocations) {
     const argv = line.replace("node scripts/write-atomic.mjs", "").trim().split(/\s+/);

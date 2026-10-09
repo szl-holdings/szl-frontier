@@ -77,5 +77,6 @@ class NotificationLedger:
             try:
                 os.unlink(temporary)
             except OSError:
+                # Best-effort cleanup after a failed atomic replacement.
                 pass
             raise

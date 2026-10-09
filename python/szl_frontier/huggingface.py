@@ -39,7 +39,8 @@ class HttpResponse:
 
 
 class Transport(Protocol):
-    def get(self, url: str, *, accept: str) -> HttpResponse: ...
+    def get(self, url: str, *, accept: str) -> HttpResponse:
+        raise NotImplementedError
 
 
 def _require_hf_url(url: str) -> None:

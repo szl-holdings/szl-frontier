@@ -66,10 +66,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.clearInterval(id);
   }, [ready, brainAlive, brainReady, pulseBrain]);
 
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
   return (
     <div className="min-h-dvh bg-bg text-fg">
       <div className="flex min-h-dvh">
@@ -98,7 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </header>
           {open ? (
             <div className="border-b border-border bg-bg-elevated px-3 py-3 md:hidden">
-              <Nav pathname={pathname} />
+              <Nav pathname={pathname} onNavigate={() => setOpen(false)} />
             </div>
           ) : null}
           <main className="min-w-0 flex-1">{ready ? children : <Boot />}</main>
@@ -120,7 +116,7 @@ function Brand() {
   );
 }
 
-function Nav({ pathname }: { pathname: string }) {
+function Nav({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
     <nav className="flex flex-col gap-0.5 px-3">
       {NAV.map((item) => {
@@ -130,8 +126,9 @@ function Nav({ pathname }: { pathname: string }) {
           <Link
             key={item.to}
             to={item.to}
+            onClick={onNavigate}
             className={cn(
-              "flex h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",
+              "flex min-h-11 items-center gap-3 rounded-md px-3 text-sm transition-colors",
               active ? "bg-bg-subtle text-fg" : "text-muted hover:bg-bg-subtle hover:text-fg",
             )}
           >
