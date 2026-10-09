@@ -20,7 +20,7 @@ class DashboardTests(unittest.TestCase):
         match = re.search(
             r'<script id="frontier-data" type="application/json">(.*?)</script>',
             html,
-            re.DOTALL,
+            re.DOTALL | re.IGNORECASE,
         )
         self.assertIsNotNone(match)
         return match.group(1), json.loads(match.group(1))
