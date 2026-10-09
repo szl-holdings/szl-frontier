@@ -62,7 +62,7 @@ def resolve_credentials() -> tuple[str, str, dict]:
                 github = candidate
                 sources["github"] = "github-cli"
         except (OSError, subprocess.SubprocessError):
-            pass
+            pass  # GitHub CLI is optional; environment tokens remain authoritative.
     for key in ("HF_TOKEN", "HUGGING_FACE_HUB_TOKEN", "HUGGINGFACE_TOKEN"):
         if os.environ.get(key, "").strip():
             hf = os.environ[key].strip()
@@ -78,7 +78,7 @@ def resolve_credentials() -> tuple[str, str, dict]:
                     hf = candidate
                     sources["huggingface"] = "huggingface-sdk"
         except (ImportError, AttributeError, OSError, UnicodeError):
-            pass
+            pass  # Hugging Face SDK is optional; environment tokens remain authoritative.
     return github, hf, sources
 
 
