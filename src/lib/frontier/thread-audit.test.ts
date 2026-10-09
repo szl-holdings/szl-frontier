@@ -62,12 +62,15 @@ test("source identity labels modeled pin separately from deployment", () => {
     deploymentSourceRevision: "b3aee6443b484768d1de107449918a050fe8528d",
   });
   assert.equal(match.deploymentSourceRevisionClass, "REACHABLE");
-  assert.equal(match.headMatch, "MATCH");
+  assert.equal(match.deploymentSourceBound, true);
+  assert.equal(match.reconciledPinMatch, "MATCH");
+  assert.equal(match.headMatch, "UNAVAILABLE");
 
   const drift = sourcePayload({
     deploymentSourceRevision: "d47c988647641fbdd20711aac6148a34fcb97ef8",
   });
-  assert.equal(drift.headMatch, "DRIFT");
+  assert.equal(drift.reconciledPinMatch, "DRIFT");
+  assert.equal(drift.headMatch, "UNAVAILABLE");
   assert.equal(drift.runtimeVerified, false);
 
   const junk = sourcePayload({ deploymentSourceRevision: "not-a-sha" });

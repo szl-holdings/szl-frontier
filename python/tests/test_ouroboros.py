@@ -78,13 +78,13 @@ class FakeGitHub:
         body = json.dumps(self.payload).encode("utf-8")
 
         class _Resp:
-            def __enter__(self_inner):
-                return self_inner
+            def __enter__(self):
+                return self
 
-            def __exit__(self_inner, *args):
+            def __exit__(self, *args):
                 return False
 
-            def read(self_inner, _n: int) -> bytes:
+            def read(self, _n: int) -> bytes:
                 return body
 
         return _Resp()

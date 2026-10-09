@@ -20,19 +20,20 @@
  * `process.env`, which is why the merge has to happen before Vite starts.
  */
 import { spawn } from "node:child_process";
-import { readFileSync, realpathSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { constants as osConstants } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const APP_ENV_REL_PATH = ".grok/app-env.json";
 
 const VITE_PREFIX = "VITE_";
+export const DEFAULT_APP_ENV = Object.freeze({ VITE_AUTH_ENABLED: "false" });
 
 /**
  * Parse an app-env document, keeping only `VITE_`-prefixed string entries.
- * Anything unparseable is an empty environment — a workspace without the file
- * must behave exactly like today (auth on, no overrides).
+ * Anything unparseable contributes no workspace override. The versioned source
+ * default remains auth off; an explicit provider/process environment still wins.
  */
 export function parseAppEnv(text) {
   let parsed;
@@ -51,12 +52,15 @@ export function parseAppEnv(text) {
   return env;
 }
 
-/** The app env recorded under `root`, or `{}` when the file is absent. */
+/** Versioned defaults overlaid by optional workspace values under `root`. */
 export function readAppEnv(root) {
   try {
-    return parseAppEnv(readFileSync(join(root, APP_ENV_REL_PATH), "utf8"));
+    return {
+      ...DEFAULT_APP_ENV,
+      ...parseAppEnv(readFileSync(join(root, APP_ENV_REL_PATH), "utf8")),
+    };
   } catch {
-    return {};
+    return { ...DEFAULT_APP_ENV };
   }
 }
 
@@ -87,6 +91,36 @@ export function projectRoot() {
   return dirname(dirname(fileURLToPath(import.meta.url)));
 }
 
+/** Resolve a package bin to its JS entrypoint without enabling a shell. */
+export function resolveInvocation(
+  command,
+  args,
+  root = projectRoot(),
+  platform = process.platform,
+) {
+  const fallback = { command, args: [...args] };
+  if (platform !== "win32" || /[\\/]/u.test(command) || /\.(?:exe|cmd|bat)$/iu.test(command)) {
+    return fallback;
+  }
+  try {
+    const packageRoot = join(root, "node_modules", command);
+    const packageJson = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8"));
+    const bin = typeof packageJson.bin === "string"
+      ? packageJson.bin
+      : packageJson.bin?.[command];
+    if (typeof bin !== "string" || bin.length === 0) return fallback;
+    const entry = resolve(packageRoot, bin);
+    const scoped = relative(packageRoot, entry);
+    if (isAbsolute(scoped) || scoped === ".." || scoped.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`)) {
+      return fallback;
+    }
+    if (!existsSync(entry)) return fallback;
+    return { command: process.execPath, args: [entry, ...args] };
+  } catch {
+    return fallback;
+  }
+}
+
 /**
  * Whether `moduleUrl` is the script node was asked to run.
  *
@@ -110,8 +144,10 @@ function main(argv) {
     console.error("usage: node scripts/with-app-env.mjs <command> [args…]");
     process.exit(2);
   }
-  const env = mergeAppEnv(readAppEnv(projectRoot()), process.env);
-  const child = spawn(command, args, { stdio: "inherit", env });
+  const root = projectRoot();
+  const env = mergeAppEnv(readAppEnv(root), process.env);
+  const invocation = resolveInvocation(command, args, root);
+  const child = spawn(invocation.command, invocation.args, { stdio: "inherit", env });
   // The dev server is long-running and is stopped by signalling this wrapper.
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
     process.on(signal, () => child.kill(signal));

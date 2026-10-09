@@ -27,7 +27,7 @@ class PayloadOwnerTests(unittest.TestCase):
         self.assertEqual(result["mean_at_k"], 0.75)
         self.assertEqual(result["pass_power_k"], 0.5)
         self.assertEqual(result["pass_at_k_empirical"], 1.0)
-        self.assertFalse(result["complete"] is False)
+        self.assertIsNot(result["complete"], False)
 
     def test_second_reader_never_authorizes_production(self):
         self.assertIn("production_authorization", payload.FALSE_FIELDS)

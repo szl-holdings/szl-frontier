@@ -19,7 +19,6 @@ import type {
   MemoryRecord,
   ModelRoute,
   OutcomeNode,
-  Purpose,
   Receipt,
   SearchResult,
   Sensitivity,

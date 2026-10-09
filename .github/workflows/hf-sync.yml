@@ -13,9 +13,10 @@ name: Sync Hugging Face Space
 # and revision.
 #
 # This stays an in-repo writer for now: the Space payload carries deploy-time
-# generated files (public/deployment.json and the sealed
-# public/frontier/ouroboros-cycle.v1.json that a11oy, killinchu and szl-router
-# read) that reusable-hf-deploy.yml cannot produce, and reusable-hf-mirror.yml
+# generated source identity plus replacement of the checked-in fail-closed
+# public/frontier/ouroboros-cycle.v1.json seed with an exact-checkout cycle
+# receipt that a11oy, killinchu and szl-router read. reusable-hf-deploy.yml
+# cannot produce those source-derived artifacts, and reusable-hf-mirror.yml
 # does not exist yet.
 
 on:

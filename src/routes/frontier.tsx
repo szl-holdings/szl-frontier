@@ -83,9 +83,9 @@ function FrontierPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-8">
       <PageHeader
-        kicker="Frontier organ · EVALUATION / HOLD"
+        kicker="Frontier organ · OPERATIONAL SOFTWARE / PRODUCTION HOLD"
         title="Operational intake plane"
-        description="F01–F34 workstreams, bounded Ouroboros cycle, and public estate observation. This organ admits evaluation. It does not promote production, train models, or lift HOLD."
+        description="F01–F34 workstreams, bounded Ouroboros cycle, and public estate observation are operational. This organ admits evaluation; production effects, training, and automatic promotion remain held."
         action={
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" asChild>
@@ -107,7 +107,7 @@ function FrontierPage() {
             type="button"
             role="tab"
             aria-selected={tab === id}
-            className={`h-10 rounded-md px-3 text-sm capitalize ${
+            className={`min-h-11 min-w-11 rounded-md px-3 text-sm capitalize ${
               tab === id ? "bg-bg-subtle text-fg" : "text-muted hover:bg-bg-subtle hover:text-fg"
             }`}
             onClick={() => setTab(id)}
@@ -157,13 +157,14 @@ function OptionalEvalPanel() {
     persist(admitOptionalEvaluation(optedIn));
   }
 
-  let handoff = "HANDOFF_NOT_EXECUTABLE_HERE";
-  try {
-    refuseHandoffFromThisOrgan("HANDOFF");
-    handoff = "UNEXPECTED_ALLOW";
-  } catch (err) {
-    handoff = err instanceof Error ? err.message : "HANDOFF_NOT_EXECUTABLE_HERE";
-  }
+  const handoff = (() => {
+    try {
+      refuseHandoffFromThisOrgan("HANDOFF");
+      return "UNEXPECTED_ALLOW";
+    } catch (err) {
+      return err instanceof Error ? err.message : "HANDOFF_NOT_EXECUTABLE_HERE";
+    }
+  })();
 
   return (
     <div className="space-y-4">
@@ -177,12 +178,12 @@ function OptionalEvalPanel() {
         <Stat k="Promotion" v={state.promotionEffect} h="cannot promote" />
         <Stat k="Handoff" v="REFUSED" h={handoff} />
       </div>
-      <label className="flex h-10 items-center gap-3 text-sm">
+      <label className="flex min-h-11 items-center gap-3 text-sm">
         <input
           type="checkbox"
           checked={state.optedIn}
           onChange={(e) => toggle(e.target.checked)}
-          className="size-4 accent-accent"
+          className="size-5 cursor-pointer accent-accent"
         />
         Admit optional evaluation for this organ
       </label>
@@ -250,7 +251,7 @@ function WorkstreamsPanel({ q, family, status }: { q: string; family: string; st
         <label className="text-xs text-muted">
           Family
           <select
-            className="mt-1 flex h-10 w-full min-w-40 rounded-md border border-border bg-bg px-3 text-sm text-fg"
+            className="mt-1 flex h-11 w-full min-w-40 rounded-md border border-border bg-bg px-3 text-sm text-fg"
             value={family}
             onChange={(e) => {
               setPage(0);
@@ -268,7 +269,7 @@ function WorkstreamsPanel({ q, family, status }: { q: string; family: string; st
         <label className="text-xs text-muted">
           Status
           <select
-            className="mt-1 flex h-10 w-full min-w-48 rounded-md border border-border bg-bg px-3 text-sm text-fg"
+            className="mt-1 flex h-11 w-full min-w-48 rounded-md border border-border bg-bg px-3 text-sm text-fg"
             value={status}
             onChange={(e) => {
               setPage(0);
@@ -360,7 +361,7 @@ function WorkstreamRow({
       <tr className="border-b border-border/80">
         <td className="px-4 py-3 font-mono text-xs text-accent">{item.code}</td>
         <td className="px-4 py-3">
-          <button type="button" className="text-left text-sm hover:underline" onClick={onToggle}>
+          <button type="button" className="min-h-11 py-1 text-left text-sm hover:underline" onClick={onToggle}>
             {item.title}
           </button>
           <div className="text-xs text-muted">{item.family}</div>
@@ -448,12 +449,12 @@ function CyclePanel() {
             Two rounds, then halt. receipts.in ≡ receipts.out. Arithmetic mean is a shadow and cannot act.
             Energy is UNAVAILABLE. Live GitHub failure stays UNAVAILABLE, never a measured zero.
           </p>
-          <label className="flex h-10 items-center gap-3 text-sm">
+          <label className="flex min-h-11 items-center gap-3 text-sm">
             <input
               type="checkbox"
               checked={live}
               onChange={(e) => setLive(e.target.checked)}
-              className="size-4 accent-accent"
+              className="size-5 cursor-pointer accent-accent"
             />
             Attach live public GitHub counterparty
           </label>

@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
 from .catalog import Catalog
-from .domain import Assessment, ProductionDisposition, SourceSnapshot
+from .domain import Assessment, ProductionDisposition
 from .evaluation import EvaluationPlanner
 from .huggingface import HuggingFaceClient
 from .policy import MaterialityPolicy

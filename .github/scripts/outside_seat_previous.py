@@ -278,7 +278,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--status-output", type=Path, required=True)
     args = parser.parse_args(argv)
-    status = {"schema": "szl.outside-seat.previous-chain.v1", "status": "BLOCKED"}
+    status: dict[str, object]
     result = 3
     try:
         if args.output.exists():

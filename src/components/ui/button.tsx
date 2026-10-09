@@ -16,10 +16,10 @@ const buttonVariants = cva(
         deny: "bg-deny/15 text-deny border border-deny/30 hover:bg-deny/25",
       },
       size: {
-        default: "h-10 px-4 rounded-md",
-        sm: "h-8 px-3 rounded-sm text-xs",
+        default: "h-11 px-4 rounded-md",
+        sm: "h-11 px-3 rounded-sm text-xs",
         lg: "h-11 px-5 rounded-lg",
-        icon: "h-10 w-10 rounded-md",
+        icon: "h-11 w-11 rounded-md",
       },
     },
     defaultVariants: { variant: "default", size: "default" },

@@ -73,7 +73,7 @@ function CommandCenter() {
           <div>
             <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-subtle">Production disposition</div>
             <p className="mt-1 text-sm text-muted">
-              HOLD. Software plane is live. Automatic promotion is false. Λ remains Conjecture 1.
+              Software plane OPERATIONAL. Production effects remain HOLD. Automatic promotion is false. Λ remains Conjecture 1.
             </p>
           </div>
           <Button asChild variant="secondary">
@@ -204,7 +204,7 @@ function CommandCenter() {
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Recent receipts</CardTitle>
-            <Link to="/proof" className="text-xs text-muted hover:text-fg">
+            <Link to="/proof" className="-mx-2 inline-flex min-h-11 items-center px-2 text-xs text-muted hover:text-fg">
               Ledger
             </Link>
           </CardHeader>
@@ -224,7 +224,7 @@ function CommandCenter() {
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Outcome graph</CardTitle>
-            <Link to="/ingest" className="text-xs text-muted hover:text-fg">
+            <Link to="/ingest" className="-mx-2 inline-flex min-h-11 items-center px-2 text-xs text-muted hover:text-fg">
               Ingest
             </Link>
           </CardHeader>

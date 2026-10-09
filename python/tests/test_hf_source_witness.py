@@ -19,6 +19,7 @@ WORKFLOW = ROOT / ".github/workflows/hf-sync.yml"
 DOCKERFILE = ROOT / "Dockerfile"
 SPACE_CARD = ROOT / "README.md"
 DATASET_DIR = ROOT / "hf" / "dataset"
+CYCLE_SEED = ROOT / "public" / "frontier" / "ouroboros-cycle.v1.json"
 
 _spec = importlib.util.spec_from_file_location("publish_frontier", PUBLISHER)
 assert _spec is not None and _spec.loader is not None
@@ -323,6 +324,17 @@ class FrontierHfSourceWitnessTests(unittest.TestCase):
         self.assertEqual(len(uploads), 1)
         keywords = {kw.arg for kw in uploads[0].keywords}
         self.assertLessEqual({"ignore_patterns", "delete_patterns", "parent_commit"}, keywords)
+
+    def test_source_tree_ships_a_fail_closed_cycle_seed(self) -> None:
+        seed = json.loads(CYCLE_SEED.read_text(encoding="utf-8"))
+        self.assertEqual(seed["schema"], "szl.frontier.ouroboros-cycle.v1")
+        self.assertEqual(seed["state"], "UNAVAILABLE")
+        self.assertEqual(seed["authority"], "PROPOSAL_ONLY")
+        self.assertFalse(seed["productionPromotion"])
+        self.assertFalse(seed["trainingAdmission"])
+        self.assertFalse(seed["live"])
+        self.assertEqual(seed["reason"], "PUBLISHER_MEASUREMENT_UNAVAILABLE")
+        self.assertTrue(_space_publishes("public/frontier/ouroboros-cycle.v1.json"))
 
     def test_ouroboros_seal_never_writes_bytecode_into_the_upload(self) -> None:
         text = PUBLISHER.read_text(encoding="utf-8")

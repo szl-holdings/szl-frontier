@@ -158,7 +158,7 @@ jobs:
         if: steps.combine.outcome == 'success' && (github.event_name == 'schedule' || inputs.notify == true)
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/open-frontier-alerts.mjs combined-frontier-watch-output.json
+        run: node scripts/open-frontier-alerts.mjs < combined-frontier-watch-output.json
 
       - name: Enforce complete primary-source coverage
         if: always()

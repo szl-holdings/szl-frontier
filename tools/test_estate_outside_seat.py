@@ -16,8 +16,7 @@ import os
 import subprocess
 import sys
 import tempfile
-import unittest
-from unittest import mock
+from unittest import TestCase, mock
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -112,7 +111,7 @@ class FixtureTransport:
         return estate.HttpResponse(status, body, headers, url)
 
 
-class WitnessFixtureTests(unittest.TestCase):
+class WitnessFixtureTests(TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

@@ -27,7 +27,12 @@ export function paginate<T>(
 }
 
 export function isHttpsUrl(value: string): boolean {
-  return /^https:\/\/[A-Za-z0-9._~:/?#\[\]@!$&'()*+,;=%-]+$/.test(value);
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && !url.username && !url.password;
+  } catch {
+    return false;
+  }
 }
 
 export function observationAgeSeconds(finishedAt: string, now = new Date()): number | null {
