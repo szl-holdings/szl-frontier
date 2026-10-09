@@ -98,7 +98,7 @@ class DashboardTests(unittest.TestCase):
             self.skipTest("Node is unavailable; dashboard JS behavior was NOT RUN")
         html = dashboard.render_dashboard(manifest, plan or {}, [])
         encoded, _ = self.extract_data(html)
-        script = re.search(r"<script>(.*?)</script>", html, re.DOTALL).group(1)
+        script = re.search(r"<script>(.*?)</script>", html, re.DOTALL | re.IGNORECASE).group(1)
         ids = re.findall(r'\bid="([^"]+)"', html)
         adapter = r"""
 const assert=require('node:assert/strict'), vm=require('node:vm');
