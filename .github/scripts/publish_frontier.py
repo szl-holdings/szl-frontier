@@ -122,7 +122,7 @@ def write_source_identity(root: Path, source_sha: str) -> Path:
 
 
 def write_ouroboros_cycle(root: Path) -> Path:
-    """Seal a SOFTWARE organ cycle into the Space so the UI can bind ALLOW chrome."""
+    """Replace the source seed with the exact-checkout SOFTWARE cycle receipt."""
 
     python_root = root / "python"
     if str(python_root) not in sys.path:

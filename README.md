@@ -5,7 +5,7 @@ colorFrom: gray
 colorTo: yellow
 sdk: docker
 app_port: 7860
-pinned: false
+pinned: true
 license: apache-2.0
 short_description: "Memory Covenant v0.3 — deny-by-default governed memory plane"
 tags:
@@ -27,9 +27,9 @@ szl:
 
 Explore a governed memory plane with explicit source, policy and receipt boundaries.
 
-**Artifact:** Memory and frontier orchestration application · **Stage:** Production HOLD
+**Artifact:** Memory and frontier orchestration application · **Software:** OPERATIONAL · **Stage:** Production HOLD
 
-[Explore in Command Lab](https://huggingface.co/spaces/SZLHOLDINGS/szl-command-lab) · [Build](https://github.com/szl-holdings/szl-frontier) · [Evidence](https://github.com/szl-holdings/szl-frontier/blob/dc56c17ee45f9fab0de4603a3a9f21262db35a8f/README.md)
+[Open Frontier](https://huggingface.co/spaces/SZLHOLDINGS/szl-frontier) · [Build](https://github.com/szl-holdings/szl-frontier) · [Source identity](https://szlholdings-szl-frontier.hf.space/deployment.json) · [Proof registry](https://a11oy.net)
 
 ## Before you use it
 

@@ -1,5 +1,4 @@
 """Offline regression tests; fixtures are not model performance evidence."""
-import copy
 import json
 import subprocess
 import sys

@@ -187,7 +187,6 @@ def _add_cycle_binds(
     except Exception as exc:  # noqa: BLE001 - fail closed on any recompute error
         bind_ok = False
         bind_note = f"gate recompute failed: {exc}"
-        recomputed = None
     _add(results, "G1", "verdict_binds_recomputed_gate", bind_ok, bind_note)
 
     shadow = payload.get("shadow")

@@ -12,6 +12,7 @@ export type ActionClass = "READ_ONLY" | "REVERSIBLE_WRITE" | "IRREVERSIBLE_WRITE
 
 export type CyclePaintSource = {
   schema?: string;
+  state?: string;
   verdict?: string;
   invariantsOk?: boolean;
   productionPromotion?: boolean;
@@ -31,8 +32,9 @@ export function paintFromCycle(cycle: CyclePaintSource | null | undefined): Pain
   if (cycle.productionPromotion === true) return "DENY";
   if (cycle.lambda !== "CONJECTURE_1" || cycle.lambdaNeverATheorem !== true) return "DENY";
   if (cycle.authority !== "PROPOSAL_ONLY") return "DENY";
-  if (cycle.invariantsOk !== true) return "DENY";
   if (cycle.shadow && cycle.shadow.executable === true) return "DENY";
+  if (cycle.state === "UNAVAILABLE") return "UNAVAILABLE";
+  if (cycle.invariantsOk !== true) return "DENY";
   if (cycle.verdict === "ALLOW") return "ALLOW";
   if (
     cycle.verdict === "HARD_DENY" ||

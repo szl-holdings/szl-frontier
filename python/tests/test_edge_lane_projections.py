@@ -22,7 +22,7 @@ class EdgeProjectionTests(unittest.TestCase):
         self.assertIn("edge-frontier-watch-output.json > combined-frontier-watch-output.json", workflow)
         self.assertIn("EDGE_FRONTIER_SCAN_OUTCOME: ${{ steps.edge_scan.outcome }}", workflow)
         self.assertIn('if [[ "$EDGE_FRONTIER_SCAN_OUTCOME" != "success" ]]', workflow)
-        self.assertIn("scripts/open-frontier-alerts.mjs combined-frontier-watch-output.json", workflow)
+        self.assertIn("scripts/open-frontier-alerts.mjs < combined-frontier-watch-output.json", workflow)
         self.assertIn("and (.productionPromotion == false)", workflow)
 
     def test_plan_cannot_claim_promotion_or_measured_performance(self):

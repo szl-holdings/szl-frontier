@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { programSummary } from "@/lib/frontier/codex-program";
@@ -14,8 +13,9 @@ export function HoldStrip({ optedIn, onOptedIn }: { optedIn: boolean; onOptedIn:
   const summary = workstreamSummary();
   return (
     <section className="space-y-3" aria-label="Production disposition">
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat k="Disposition" v="HOLD" h="automatic promotion false" />
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        <Stat k="Software" v="OPERATIONAL" h="health + readiness contracts" />
+        <Stat k="Production effects" v="HOLD" h="automatic promotion false" />
         <Stat k="Inspected head" v={SOURCE.reconciledHead.slice(0, 8)} h={`${SOURCE.reconciledHeadClass} · ${SOURCE.reconciledAt}`} />
         <Stat k="Workstreams" v={`${summary.selectedForRelease}/${summary.total}`} h="selected for eval, not production" />
         <Stat k="Λ" v="Conjecture 1" h="never a theorem" />
@@ -64,8 +64,8 @@ export function TriadPanel({ optedIn }: { optedIn: boolean }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="max-w-2xl text-sm leading-relaxed text-muted">
-          health ≠ ready ≠ source. Health means the process is up. Ready means the operator plane can hydrate.
-          Neither authorizes production. Envelope authority stays NONE.
+          health ≠ ready ≠ source. Health means the process is up. Ready means the operational software plane can hydrate.
+          Production effects remain held and envelope authority stays NONE.
         </p>
         <Button disabled={busy || !optedIn} onClick={() => void load()}>
           {busy ? "Composing…" : !optedIn ? "Opt in to compose" : doc ? "Recompose triad" : "Compose triad"}
@@ -226,7 +226,7 @@ export function ThreadAuditPanel() {
         <Stat k="Disposition" v="HOLD" h="productionAuthorization=false" />
         <Stat k="Inspected head" v={source.reconciledHead.slice(0, 8)} h={source.reconciledHeadClass} />
         <Stat k="Deploy revision" v={source.deploymentSourceRevision?.slice(0, 8) ?? "UNAVAILABLE"} h={source.deploymentSourceRevisionClass} />
-        <Stat k="Head match" v={source.headMatch} h="MODELED pin vs REACHABLE deploy" />
+        <Stat k="Source bound" v={source.deploymentSourceBound ? "YES" : "NO"} h={`modeled-pin=${source.reconciledPinMatch}`} />
       </div>
       <Card>
         <CardHeader>

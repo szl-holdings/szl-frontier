@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import asdict, dataclass
-from typing import Iterable, List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 LOCKED_8 = ("F1", "F4", "F7", "F11", "F12", "F18", "F19", "F22")
 PRIM = 0x11D

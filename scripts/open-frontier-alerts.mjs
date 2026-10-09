@@ -1,5 +1,4 @@
 // Copyright 2026 SZL Holdings - SPDX-License-Identifier: Apache-2.0
-import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
 const REPORT_SCHEMAS = new Set([
@@ -12,12 +11,25 @@ const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
 const MAX_CANDIDATES = 25;
 const MAX_ISSUE_PAGES = 10;
 const MAX_RESPONSE_BYTES = 1024 * 1024;
+const MAX_INPUT_BYTES = 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 15_000;
 
+function stripUnsafeControls(value) {
+  let out = "";
+  for (const char of String(value ?? "")) {
+    const code = char.codePointAt(0);
+    if (code === undefined || code === 0x7f || (code <= 0x1f && ![0x09, 0x0a, 0x0d].includes(code))) {
+      out += " ";
+      continue;
+    }
+    out += char;
+  }
+  return out;
+}
+
 function safeText(value, maxLength) {
-  return String(value ?? "")
+  return stripUnsafeControls(value)
     .normalize("NFKC")
-    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/gu, " ")
     .replaceAll("<!--", "&lt;!--")
     .replaceAll("-->", "--&gt;")
     .replaceAll("@", "@\u200b")
@@ -261,10 +273,26 @@ export async function openFrontierAlerts(
   };
 }
 
+async function readBoundedStdin() {
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of process.stdin) {
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    size += buffer.byteLength;
+    if (size > MAX_INPUT_BYTES) {
+      throw new Error(`frontier report exceeds ${MAX_INPUT_BYTES} bytes`);
+    }
+    chunks.push(buffer);
+  }
+  if (size === 0) throw new Error("frontier report is required on stdin");
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 async function main() {
-  const input = process.argv[2];
-  if (!input) throw new Error("usage: node scripts/open-frontier-alerts.mjs <watch-output.json>");
-  const report = JSON.parse(await readFile(input, "utf8"));
+  if (process.argv.length > 2) {
+    throw new Error("usage: node scripts/open-frontier-alerts.mjs < watch-output.json");
+  }
+  const report = JSON.parse(await readBoundedStdin());
   console.log(JSON.stringify(await openFrontierAlerts(report)));
 }
 

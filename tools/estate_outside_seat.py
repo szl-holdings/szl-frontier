@@ -592,6 +592,7 @@ def check_spaces_freshness(org, stale_hours, client, expected=None, creators=Non
                 raw_age = (now - parse_date(meta.get("lastModified"), now)).total_seconds() / 3600
                 row["ageHours"] = round(raw_age, 3)
             except (ValueError, TypeError, OverflowError):
+                # Malformed provider timestamps remain unavailable; never invent an age.
                 pass
             card_data = meta.get("cardData")
             if card_data is not None and not isinstance(card_data, dict):

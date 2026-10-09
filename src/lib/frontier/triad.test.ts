@@ -17,10 +17,16 @@ test("health, ready, and source stay three schemas", () => {
   assert.notEqual(health.schema, ready.schema);
   assert.notEqual(health.schema, source.schema);
   assert.equal(health.ok, true);
+  assert.equal(health.operational, true);
+  assert.equal(health.softwareState, "OPERATIONAL");
+  assert.equal(health.productionDisposition, "HOLD");
   assert.equal(ready.ready, true);
+  assert.equal(ready.operationalReady, true);
+  assert.equal(ready.softwareState, "OPERATIONAL");
   assert.equal(ready.productionReady, false);
   assert.equal(ready.productionAuthorization, false);
   assert.ok(ready.blockers.includes("PRODUCTION_HOLD"));
+  assert.equal(source.headMatch, "UNAVAILABLE");
   assert.equal(source.sourceContentFilesRead, 0);
   assert.equal(source.semanticReviewComplete, false);
 });
