@@ -20,6 +20,7 @@ import {
 import { useEffect, useState } from "react";
 import { SzlMark } from "@/components/mark";
 import { Button } from "@/components/ui/button";
+import { brainStatusPresentation } from "@/lib/brain/status";
 import { cn } from "@/lib/utils";
 import { paintLabel, paintTone } from "@/lib/ouroboros/paint";
 import { useOrchestrator } from "@/stores/orchestrator";
@@ -147,17 +148,31 @@ function PlaneStatus() {
   const memories = useOrchestrator((s) => s.memories.length);
   const receipts = useOrchestrator((s) => s.receipts.length);
   const brainN = useOrchestrator((s) => s.brainCorpusN);
+  const ready = useOrchestrator((s) => s.brainReady);
   const alive = useOrchestrator((s) => s.brainAlive);
+  const error = useOrchestrator((s) => s.brainError);
   const organPaint = useOrchestrator((s) => s.organPaint);
   const organCycle = useOrchestrator((s) => s.organCycle);
+  const brainStatus = brainStatusPresentation({ ready, alive, error });
+  const brainChip =
+    brainStatus.tone === "allow"
+      ? "bg-allow"
+      : brainStatus.tone === "pending"
+        ? "bg-pending"
+        : "bg-subtle";
   const tone = paintTone(organPaint);
   const chip =
     tone === "allow" ? "bg-allow" : tone === "deny" ? "bg-deny" : "bg-pending";
   return (
     <div className="mt-auto border-t border-border px-5 py-5">
-      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-muted">
-        <span className={`size-1.5 rounded-full ${alive ? "bg-allow" : "bg-subtle"}`} />
-        {alive ? "Yachay live" : "Yachay paused"}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-muted"
+      >
+        <span className={`size-1.5 rounded-full ${brainChip}`} />
+        {brainStatus.label} · {brainStatus.evidence}
       </div>
       <div className="mt-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-muted">
         <span className={`size-1.5 rounded-full ${chip}`} />

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 from typing import Any, Sequence
@@ -81,11 +82,19 @@ def _constant(_):
     raise RegisterError("nonfinite JSON constant")
 
 
+def _finite_float(value: str) -> float:
+    result = float(value)
+    if not math.isfinite(result):
+        raise RegisterError("nonfinite JSON number")
+    return result
+
+
 def loads(raw: bytes) -> Any:
     if len(raw) > 512 * 1024:
         raise RegisterError("JSON byte budget")
     try:
-        value = json.loads(raw, object_pairs_hook=_pairs, parse_constant=_constant)
+        value = json.loads(raw, object_pairs_hook=_pairs, parse_constant=_constant,
+                           parse_float=_finite_float)
     except (ValueError, UnicodeError, RecursionError) as exc:
         raise RegisterError("invalid JSON evidence") from exc
     return value
