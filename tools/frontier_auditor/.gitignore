@@ -1,0 +1,11 @@
+# Keep local snapshots and credentials out of this source directory.
+artifacts/
+estate*/
+audit*/
+snapshot*/
+*.zip
+*.log
+.env
+.env.*
+__pycache__/
+*.pyc
