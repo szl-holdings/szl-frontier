@@ -35,7 +35,7 @@ class ResearchRegisterTests(unittest.TestCase):
         self.assertGreaterEqual(len(payload["entries"]), 8)
         self.assertTrue(REGISTER_PATH.is_file())
         wedges = {item["id"] for item in payload["entries"] if item["id"].startswith("vertical-")}
-        self.assertTrue(
+        self.assertLessEqual(
             {
                 "vertical-a11oy-langgraph",
                 "vertical-killinchu-dedrone",
@@ -54,8 +54,8 @@ class ResearchRegisterTests(unittest.TestCase):
                 "vertical-yarqa-openfoam",
                 "vertical-hatun-mcp",
                 "vertical-forge-unsloth",
-            }
-            <= wedges
+            },
+            wedges,
         )
         for item in payload["entries"]:
             if item["id"].startswith("vertical-"):
