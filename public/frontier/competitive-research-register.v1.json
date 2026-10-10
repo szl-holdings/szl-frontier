@@ -1,12 +1,12 @@
 {
   "schema": "szl.frontier.competitive-research-register.v1",
   "sourceOfTruth": "szl-holdings/szl-frontier",
-  "observedAt": "2026-10-02T16:45:00Z",
+  "observedAt": "2026-10-10T14:40:00Z",
   "authority": "evaluation-only",
   "productionPromotion": false,
   "lambdaUniqueness": "Conjecture 1",
   "lockedFormulaIds": ["F1", "F4", "F7", "F11", "F12", "F18", "F19", "F22"],
-  "note": "Study official docs and permitted public sources. Absorb jobs and contracts. Do not clone vendor source, UI, or branding. A paper benchmark is not an SZL benchmark.",
+  "note": "Study official docs and permitted public sources. Absorb jobs and contracts. Do not clone vendor source, UI, or branding. A paper benchmark is not an SZL benchmark. On 2026-10-10 the GitHub census was 142 repositories and the public SZLHOLDINGS space list was 37. File-level audit of every repository was not run. A vertical-* row names an incumbent and a refused claim. It is not a head-to-head result.",
   "entries": [
     {
       "id": "palantir-ontology",
@@ -275,6 +275,384 @@
       "rejectedAlternatives": ["force-merge community #8", "treat host participation as Anthropic product endorsement", "scrape login-gated discourse"],
       "validationExperiment": "SOURCE.json pin confirmed. HOST_QUALIFICATION_PENDING.",
       "status": "HOST_QUALIFICATION_PENDING"
+    },
+    {
+      "id": "vertical-a11oy-langgraph",
+      "sourceUrl": "https://github.com/langchain-ai/langgraph",
+      "authorMaintainer": "LangChain",
+      "pin": "readme-identity-2026-10-10",
+      "publicationType": "github-repository",
+      "publicationDate": "2026-10-10",
+      "license": "MIT-upstream-recheck-before-any-file-copy",
+      "inspectedSections": [
+        "README: low-level orchestration, durable execution, human interrupts",
+        "szl-holdings/a11oy description"
+      ],
+      "claim": "LangGraph's README describes a low-level framework for long-running stateful agents, including durable execution and human interrupts.",
+      "limitation": "The README is not a measurement of a11oy. No LangGraph package was installed. No head-to-head run was executed.",
+      "adaptation": "Keep a11oy as the governed command center: deny by default, signed receipts, trust ceiling 0.97, and Lambda uniqueness as Conjecture 1. A graph-library install does not replace that gate.",
+      "rejectedAlternatives": [
+        "install LangGraph as the a11oy runtime",
+        "treat a README feature list as an a11oy measurement"
+      ],
+      "validationExperiment": "README and a11oy description inspected. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-killinchu-dedrone",
+      "sourceUrl": "https://www.dedrone.com/",
+      "authorMaintainer": "Dedrone",
+      "pin": "public-url-identity-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "proprietary-documentation-no-code-reuse",
+      "inspectedSections": [
+        "public home URL named; article body not fetched this pass",
+        "szl-holdings/killinchu description"
+      ],
+      "claim": "Dedrone is the named public counter-UAS incumbent for Killinchu. Killinchu's description is public synthetic tracks with no public effector.",
+      "limitation": "The Dedrone article body was not fetched. A vendor sensor network was not connected. No interdiction was run.",
+      "adaptation": "Keep Killinchu on synthetic tracks, fusion, and ROE labels, and keep the public effector absent. A counter-UAS brand does not add an effector.",
+      "rejectedAlternatives": [
+        "publish an effector",
+        "present synthetic tracks as a field interdiction"
+      ],
+      "validationExperiment": "Killinchu description inspected. Vendor article body not fetched. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-immune-wiz",
+      "sourceUrl": "https://www.wiz.io/",
+      "authorMaintainer": "Wiz",
+      "pin": "homepage-identity-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "proprietary-documentation-no-code-reuse",
+      "inspectedSections": [
+        "homepage: code, cloud, and runtime security graph",
+        "szl-holdings/immune description"
+      ],
+      "claim": "The Wiz homepage describes cloud security that connects code, cloud, and runtime. Immune's description is a fail-closed kernel whose NEXUS Lorenz path is a measured software simulation.",
+      "limitation": "Immune is not a cloud-security posture product and not an endpoint agent. Wiz marketing rankings were not adopted. No Wiz tenant was connected.",
+      "adaptation": "Keep SENTRA admission and YAWAR hash seals inside immune. Keep NEXUS as the Lorenz organ inside immune, not a second product Space.",
+      "rejectedAlternatives": [
+        "mint a second nexus Space",
+        "describe the Lorenz simulation as cloud threat detection"
+      ],
+      "validationExperiment": "Wiz homepage and immune description inspected. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-ayllu-harvey",
+      "sourceUrl": "https://www.harvey.ai/",
+      "authorMaintainer": "Harvey",
+      "pin": "public-url-identity-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "proprietary-documentation-no-code-reuse",
+      "inspectedSections": [
+        "public home URL named; article body not fetched this pass",
+        "szl-holdings/ayllu description",
+        "szl-holdings/counsel archived description"
+      ],
+      "claim": "Harvey is the named public legal-workflow incumbent. Ayllu is the canonical counsel surface. The counsel repository is an archived duplicate.",
+      "limitation": "The Harvey article body was not fetched. Ayllu output is not legal advice. The archived counsel tree is not a second product.",
+      "adaptation": "Keep counsel inside ayllu, with fail-closed Lambda gating and unsigned-honest receipts. Do not revive the archived counsel repository.",
+      "rejectedAlternatives": [
+        "unarchive counsel as a second flagship",
+        "present council output as legal advice"
+      ],
+      "validationExperiment": "Ayllu and counsel descriptions inspected. Vendor article body not fetched. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-terra-costar",
+      "sourceUrl": "https://www.costar.com/",
+      "authorMaintainer": "CoStar",
+      "pin": "public-url-identity-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "proprietary-documentation-no-code-reuse",
+      "inspectedSections": [
+        "public home URL named; article body not fetched this pass",
+        "szl-holdings/vertical-services description",
+        "GitHub repos named terra and finance return 404"
+      ],
+      "claim": "CoStar is the named public commercial-real-estate incumbent. Terra has no repository of its own. It is the real-estate service inside vertical-services.",
+      "limitation": "No CoStar license is present. Terra is not a valuation. The CoStar article body was not fetched.",
+      "adaptation": "Keep terra inside vertical-services with honest labels and no fabricated comps. A missing terra repository stays missing.",
+      "rejectedAlternatives": [
+        "mint a terra flagship repository",
+        "emit a property valuation without a licensed feed"
+      ],
+      "validationExperiment": "vertical-services description inspected. Vendor article body not fetched. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-finance-bloomberg",
+      "sourceUrl": "https://www.bloomberg.com/professional/products/bloomberg-terminal/",
+      "authorMaintainer": "Bloomberg",
+      "pin": "public-url-identity-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "proprietary-documentation-no-code-reuse",
+      "inspectedSections": [
+        "public product URL named; article body not fetched this pass",
+        "szl-holdings/vertical-services description"
+      ],
+      "claim": "The Bloomberg Terminal is the named public market-data incumbent. Finance has no repository of its own. It is the portfolio-analytics service inside vertical-services.",
+      "limitation": "No Terminal license is present. Finance is not an order router. The product article body was not fetched.",
+      "adaptation": "Keep finance as portfolio analytics inside vertical-services. Do not add an order route from this row.",
+      "rejectedAlternatives": [
+        "mint a finance flagship repository",
+        "route orders from a portfolio view"
+      ],
+      "validationExperiment": "vertical-services description inspected. Vendor article body not fetched. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-lyte-honeycomb",
+      "sourceUrl": "https://www.honeycomb.io/",
+      "authorMaintainer": "Honeycomb",
+      "pin": "homepage-identity-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "proprietary-documentation-no-code-reuse",
+      "inspectedSections": [
+        "homepage: observability and distributed tracing",
+        "szl-holdings/vertical-services description",
+        "szl-holdings/lyte-services description"
+      ],
+      "claim": "The Honeycomb homepage describes an observability product built around distributed tracing. Lyte is the observability service inside vertical-services and a design-partner cell in lyte-services.",
+      "limitation": "Lyte is not a hosted tracing warehouse. Honeycomb latency and query claims were not measured here. No Honeycomb tenant was connected.",
+      "adaptation": "Keep lyte as the observability window inside the existing factory, bound as an a11oy package. Do not replace it with a second observability product.",
+      "rejectedAlternatives": [
+        "install a hosted tracing stack as the lyte runtime",
+        "treat a vendor homepage metric as an SZL measurement"
+      ],
+      "validationExperiment": "Honeycomb homepage, vertical-services, and lyte-services descriptions inspected. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-vessels-windward",
+      "sourceUrl": "https://windward.ai/",
+      "authorMaintainer": "Windward",
+      "pin": "public-url-identity-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "proprietary-documentation-no-code-reuse",
+      "inspectedSections": [
+        "public home URL named; article body not fetched this pass",
+        "szl-holdings/vertical-services description"
+      ],
+      "claim": "Windward is the named public maritime-risk incumbent. Vessels has no repository of its own. It is the maritime-risk service inside vertical-services.",
+      "limitation": "Vessels is not an AIS authority. The Windward article body was not fetched. No vessel feed was ingested in this pass.",
+      "adaptation": "Keep vessels as maritime risk inside vertical-services, with honest labels and no fabricated tracks.",
+      "rejectedAlternatives": [
+        "mint a vessels flagship repository",
+        "present the service as an AIS authority"
+      ],
+      "validationExperiment": "vertical-services description inspected. Vendor article body not fetched. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-sentra-opa",
+      "sourceUrl": "https://www.openpolicyagent.org/docs",
+      "authorMaintainer": "Open Policy Agent",
+      "pin": "docs-intro-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "Apache-2.0-upstream-recheck-before-any-file-copy",
+      "inspectedSections": [
+        "docs introduction: general-purpose policy engine and Rego",
+        "szl-holdings/vertical-services description"
+      ],
+      "claim": "OPA's docs describe an open-source policy engine that separates policy decision from enforcement and evaluates Rego over structured input.",
+      "limitation": "Sentra has no repository of its own. It is the policy-gate service inside vertical-services. OPA was not installed. No Rego bundle was executed.",
+      "adaptation": "Keep sentra policy gates inside vertical-services. A Rego tutorial does not become an SZL allow decision.",
+      "rejectedAlternatives": [
+        "install OPA as a second policy engine",
+        "copy the docs network example into sentra"
+      ],
+      "validationExperiment": "OPA docs introduction and vertical-services description inspected. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-khipu-sigstore",
+      "sourceUrl": "https://www.sigstore.dev/",
+      "authorMaintainer": "Sigstore",
+      "pin": "homepage-fetch-empty-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "upstream-license-recheck-before-import",
+      "inspectedSections": [
+        "sigstore.dev home fetch returned no article text",
+        "szl-holdings/szl-khipu description"
+      ],
+      "claim": "Sigstore is the named public signing project for this row. The home fetch returned no article text, so no Sigstore feature was copied. Khipu's description is live Python kernels that hash a proof and fail closed.",
+      "limitation": "A hash chain is not a live DSSE signer while the estate signer is absent. Cosign was not run.",
+      "adaptation": "Keep Khipu on hash-the-proof and fail-closed kernels. Do not stamp a DSSE live signer from a repository description.",
+      "rejectedAlternatives": [
+        "treat a hash chain as a transparency log",
+        "install a signing client as proof the signer is present"
+      ],
+      "validationExperiment": "Khipu description inspected. Sigstore article text unavailable this pass. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-second-brain-elasticsearch",
+      "sourceUrl": "https://www.elastic.co/elasticsearch",
+      "authorMaintainer": "Elastic",
+      "pin": "public-url-identity-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "proprietary-documentation-no-code-reuse",
+      "inspectedSections": [
+        "public product URL named; article body not fetched this pass",
+        "szl-holdings/szl-second-brain description"
+      ],
+      "claim": "Elasticsearch is the named public search incumbent. Second-brain's description is a handle navigator over 575 chunks.",
+      "limitation": "Dense retrieval and a reranker are not configured. The Elasticsearch article body was not fetched. No cluster was contacted.",
+      "adaptation": "Keep second-brain on handles and the existing lexical navigator. Do not enable a dense index from this row.",
+      "rejectedAlternatives": [
+        "present 575 chunks as a search-engine rank",
+        "turn handles into a live external bridge"
+      ],
+      "validationExperiment": "Second-brain description inspected. Vendor article body not fetched. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-retrieval-mteb",
+      "sourceUrl": "https://github.com/embeddings-benchmark/mteb",
+      "authorMaintainer": "embeddings-benchmark",
+      "pin": "readme-identity-2026-10-10",
+      "publicationType": "github-repository",
+      "publicationDate": "2026-10-10",
+      "license": "Apache-2.0-upstream-recheck-before-any-file-copy",
+      "inspectedSections": [
+        "README: multimodal embedding and retrieval evaluation toolbox and public leaderboard",
+        "szl-holdings/szl-retrieval-bench description"
+      ],
+      "claim": "MTEB's README describes a toolbox for evaluating embeddings and retrieval, with a public leaderboard. Retrieval-bench's description is BM25, RRF, nDCG, Recall, MRR, and MAP with hash-chained receipts.",
+      "limitation": "A local metric is not an MTEB rank. MTEB was not installed. No leaderboard submission was made.",
+      "adaptation": "Keep retrieval-bench fail-closed: BLOCKED rather than a fabricated score. Do not cite a local receipt as a leaderboard place.",
+      "rejectedAlternatives": [
+        "submit an unrun model to the public leaderboard",
+        "relabel a local nDCG as an MTEB result"
+      ],
+      "validationExperiment": "MTEB README and retrieval-bench description inspected. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-router-litellm",
+      "sourceUrl": "https://github.com/BerriAI/litellm",
+      "authorMaintainer": "BerriAI",
+      "pin": "readme-identity-2026-10-10",
+      "publicationType": "github-repository",
+      "publicationDate": "2026-10-10",
+      "license": "upstream-license-recheck-before-import",
+      "inspectedSections": [
+        "README: open-source gateway that calls many LLMs in OpenAI format",
+        "szl-holdings/szl-router description"
+      ],
+      "claim": "LiteLLM's README describes an open-source AI gateway that calls many LLMs through an OpenAI-format interface, with cost tracking and load balancing.",
+      "limitation": "A routing receipt is not a price win and not a quality win. LiteLLM was not installed. No provider price table was compared.",
+      "adaptation": "Keep szl-router as the OpenAI-compatible flagship and the source for SZLHOLDINGS/llm-router-live. Add providers only behind the existing receipt.",
+      "rejectedAlternatives": [
+        "replace szl-router with the upstream gateway",
+        "treat a receipt as a cost or quality result"
+      ],
+      "validationExperiment": "LiteLLM README and szl-router description inspected. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-lean-mathlib",
+      "sourceUrl": "https://github.com/leanprover-community/mathlib4",
+      "authorMaintainer": "Lean community",
+      "pin": "readme-identity-2026-10-10",
+      "publicationType": "github-repository",
+      "publicationDate": "2026-10-10",
+      "license": "Apache-2.0-upstream-recheck-before-any-file-copy",
+      "inspectedSections": [
+        "README: user-maintained library for the Lean theorem prover",
+        "szl-holdings/lutar-lean description",
+        "szl-holdings/szl-formulas description"
+      ],
+      "claim": "Mathlib's README describes the community mathematics library for Lean. lutar-lean's description is a Lean 4 and Mathlib development that keeps Lambda uniqueness as Conjecture 1. szl-formulas describes 21 canonical formulas with exactly 8 locked.",
+      "limitation": "The 749/14/163 figures are the repository description's older census, not a fresh kernel count. Locked-8 is not a proof of the other formulas. Mathlib was not rebuilt in this pass.",
+      "adaptation": "Keep Conjecture 1 unpromoted and keep the locked formula ids at F1, F4, F7, F11, F12, F18, F19, and F22. A Mathlib file is not evidence that production code implements it.",
+      "rejectedAlternatives": [
+        "call Conjecture 1 a theorem",
+        "treat all 21 formulas as locked"
+      ],
+      "validationExperiment": "Mathlib README, lutar-lean description, and szl-formulas description inspected. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-yarqa-openfoam",
+      "sourceUrl": "https://www.openfoam.com/",
+      "authorMaintainer": "OpenFOAM",
+      "pin": "public-url-identity-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "upstream-license-recheck-before-import",
+      "inspectedSections": [
+        "public home URL named; article body not fetched this pass",
+        "szl-holdings/yarqa description"
+      ],
+      "claim": "OpenFOAM is the named public CFD incumbent. Yarqa's description converts CFD velocity fields into compartment networks with signed provenance receipts.",
+      "limitation": "Yarqa is not a CFD solver. The OpenFOAM article body was not fetched. No mesh was solved in this pass.",
+      "adaptation": "Keep yarqa on compartment receipts. A receipt does not become a flow solution.",
+      "rejectedAlternatives": [
+        "present a compartment receipt as a solver result",
+        "vendor a CFD binary into the repository"
+      ],
+      "validationExperiment": "Yarqa description inspected. Vendor article body not fetched. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-hatun-mcp",
+      "sourceUrl": "https://modelcontextprotocol.io/",
+      "authorMaintainer": "Model Context Protocol",
+      "pin": "docs-intro-2026-10-10",
+      "publicationType": "official-docs",
+      "publicationDate": "2026-10-10",
+      "license": "upstream-license-recheck-before-import",
+      "inspectedSections": [
+        "introduction: open standard for connecting AI applications to external systems",
+        "szl-holdings/hatun-mcp description"
+      ],
+      "claim": "The MCP introduction describes an open standard for connecting AI applications to external tools and data. Hatun-mcp's description is a doctrine-aware server with 16 tools.",
+      "limitation": "A tool list is not a live bridge. The estate signer is absent, so a description that says DSSE-signed is not a live signature. No remote MCP client was attached in this pass.",
+      "adaptation": "Keep the 16 tools behind the existing governance gate. Recognize local handles without hydrating a bridge from this row.",
+      "rejectedAlternatives": [
+        "treat 16 tool names as a connected external system",
+        "stamp DSSE live from the repository description"
+      ],
+      "validationExperiment": "MCP introduction and hatun-mcp description inspected. Comparison NOT_RUN. No vendor code copied.",
+      "status": "HOLD"
+    },
+    {
+      "id": "vertical-forge-unsloth",
+      "sourceUrl": "https://github.com/unslothai/unsloth",
+      "authorMaintainer": "Unsloth",
+      "pin": "readme-identity-2026-10-10",
+      "publicationType": "github-repository",
+      "publicationDate": "2026-10-10",
+      "license": "Apache-2.0-upstream-recheck-before-any-file-copy",
+      "inspectedSections": [
+        "README: local application to run and train models, including QLoRA",
+        "szl-holdings/szl-forge description"
+      ],
+      "claim": "Unsloth's README describes a local application to run and train models, including QLoRA and an OpenAI-compatible API. szl-forge's description is a QLoRA kit: dataset, training script, Ollama Modelfile, and runbook.",
+      "limitation": "Training was not run. Upstream speed and accuracy sentences were not measured. The kit is not a trained model release.",
+      "adaptation": "Keep szl-forge as the kit. Do not start a training job from this register row.",
+      "rejectedAlternatives": [
+        "launch training because the kit names Unsloth",
+        "adopt an upstream speed sentence as an SZL result"
+      ],
+      "validationExperiment": "Unsloth README and szl-forge description inspected. Comparison NOT_RUN. No vendor code copied. Training NOT_RUN.",
+      "status": "HOLD"
     }
   ],
   "capabilities": [
@@ -323,6 +701,26 @@
       "failureModes": ["recovery/grade/selectivity as score", "invented percent", "low-margin prior painted as recovery"],
       "costLatency": "CPU unittest",
       "deploymentRequirements": "scientist approval before any bench action",
+      "promotionStatus": "HOLD",
+      "gpuQualified": false
+    },
+    {
+      "id": "estate-vertical-wedge",
+      "task": "name the incumbent and the refused claim for each product vertical",
+      "identity": "public/frontier/competitive-research-register.v1.json vertical-* entries",
+      "tokenizer": "n/a",
+      "license": "Apache-2.0",
+      "inputContract": "2026-10-10 GitHub census 142 repositories and public SZLHOLDINGS space list 37; file-level audit NOT_RUN",
+      "trainingLineage": "none",
+      "baseline": "named public incumbent page or repository; no vendor code copied",
+      "heldOut": "NOT_RUN",
+      "failureModes": [
+        "superiority language",
+        "head-to-head result without a comparison",
+        "new flagship or Space"
+      ],
+      "costLatency": "offline register check",
+      "deploymentRequirements": "comparison remains NOT_RUN; promotion stays HOLD",
       "promotionStatus": "HOLD",
       "gpuQualified": false
     }

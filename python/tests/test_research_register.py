@@ -34,6 +34,49 @@ class ResearchRegisterTests(unittest.TestCase):
         self.assertEqual(tuple(payload["lockedFormulaIds"]), LOCKED_8)
         self.assertGreaterEqual(len(payload["entries"]), 8)
         self.assertTrue(REGISTER_PATH.is_file())
+        wedges = {item["id"] for item in payload["entries"] if item["id"].startswith("vertical-")}
+        self.assertLessEqual(
+            {
+                "vertical-a11oy-langgraph",
+                "vertical-killinchu-dedrone",
+                "vertical-immune-wiz",
+                "vertical-ayllu-harvey",
+                "vertical-terra-costar",
+                "vertical-finance-bloomberg",
+                "vertical-lyte-honeycomb",
+                "vertical-vessels-windward",
+                "vertical-sentra-opa",
+                "vertical-khipu-sigstore",
+                "vertical-second-brain-elasticsearch",
+                "vertical-retrieval-mteb",
+                "vertical-router-litellm",
+                "vertical-lean-mathlib",
+                "vertical-yarqa-openfoam",
+                "vertical-hatun-mcp",
+                "vertical-forge-unsloth",
+            },
+            wedges,
+        )
+        for item in payload["entries"]:
+            if item["id"].startswith("vertical-"):
+                self.assertEqual(item["status"], "HOLD")
+                self.assertIn("NOT_RUN", item["validationExperiment"])
+        cap = next(item for item in payload["capabilities"] if item["id"] == "estate-vertical-wedge")
+        self.assertEqual(cap["promotionStatus"], "HOLD")
+        self.assertEqual(cap["heldOut"], "NOT_RUN")
+        self.assertFalse(cap["gpuQualified"])
+
+    def test_vertical_wedge_cannot_leave_hold_or_claim_superiority(self) -> None:
+        payload = copy.deepcopy(_payload())
+        target = next(item for item in payload["entries"] if item["id"] == "vertical-a11oy-langgraph")
+        target["status"] = "ADAPTED_PATTERN"
+        with self.assertRaises(RegisterError):
+            validate_register(payload)
+        payload = copy.deepcopy(_payload())
+        target = next(item for item in payload["entries"] if item["id"] == "vertical-a11oy-langgraph")
+        target["claim"] = "This row beats the incumbent"
+        with self.assertRaises(RegisterError):
+            validate_register(payload)
 
     def test_cli_check_exits_zero(self) -> None:
         self.assertEqual(main(["--check"]), 0)

@@ -177,6 +177,19 @@ def validate_register(payload: dict[str, Any]) -> None:
             raise RegisterError("MiniEmbed-Nano is a test fixture")
         if identity.startswith("hf-native-kernel-") and status != "HOLD":
             raise RegisterError("native kernel qualification remains HOLD")
+        if identity.startswith("vertical-"):
+            if status != "HOLD":
+                raise RegisterError("vertical wedge stays HOLD until a comparison is run")
+            if any(
+                phrase in blob
+                for phrase in (
+                    "state-of-the-art",
+                    "state of the art",
+                    "beats the incumbent",
+                    "unicorn",
+                )
+            ):
+                raise RegisterError("vertical wedge cannot claim superiority")
         if "theorem" in blob and "conjecture 1" not in blob and identity == "lambda-uniqueness":
             raise RegisterError("Lambda uniqueness cannot be a theorem")
     capabilities = payload.get("capabilities")
