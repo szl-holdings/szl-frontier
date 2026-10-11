@@ -358,10 +358,35 @@ export function catalogCandidate(release, sourceSnapshot, cursor = FRONTIER_CATA
 
 async function readBounded(response) {
   const length = Number(response.headers.get("content-length") ?? 0);
-  if (length > MAX_RESPONSE_BYTES) throw new Error(`response exceeds ${MAX_RESPONSE_BYTES} bytes`);
-  const text = await response.text();
-  if (Buffer.byteLength(text) > MAX_RESPONSE_BYTES) throw new Error(`response exceeds ${MAX_RESPONSE_BYTES} bytes`);
-  return text;
+  const reader = response.body?.getReader();
+  const chunks = [];
+  let bytes = 0;
+  let complete = false;
+  try {
+    if (length > MAX_RESPONSE_BYTES) throw new Error(`response exceeds ${MAX_RESPONSE_BYTES} bytes`);
+    if (!reader) {
+      complete = true;
+      return "";
+    }
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!(value instanceof Uint8Array)) throw new Error("response body is not bytes");
+      bytes += value.byteLength;
+      if (bytes > MAX_RESPONSE_BYTES) throw new Error(`response exceeds ${MAX_RESPONSE_BYTES} bytes`);
+      chunks.push(value);
+    }
+    const text = new TextDecoder().decode(Buffer.concat(chunks, bytes));
+    if (Buffer.byteLength(text) > MAX_RESPONSE_BYTES) throw new Error(`response exceeds ${MAX_RESPONSE_BYTES} bytes`);
+    complete = true;
+    return text;
+  } finally {
+    if (!complete && reader) {
+      // Stop an oversized or failed stream without waiting on a remote cancel hook.
+      try { void reader.cancel().catch(() => {}); } catch { /* preserve the original error */ }
+    }
+    reader?.releaseLock();
+  }
 }
 
 async function fetchBoundedResource(

@@ -6,6 +6,7 @@ import {
   classifiedWatchDelta,
   editorialMateriality,
   feedCandidate,
+  fetchBounded,
   hasCompleteSourceCoverage,
   parseHuggingFaceFeed,
   readClassifiedLedgerSync,
@@ -97,6 +98,87 @@ describe("frontier release watch", () => {
       "<!doctype html><html><head><title>Funes - Hugging Face</title><script>volatile()</script></head><body><main>portable memory</main></body></html>",
     );
     assert.equal(noisyShell.artifactFingerprint, snapshot.artifactFingerprint);
+  });
+
+  it("stops a no-length response as soon as its streamed body exceeds 8 MiB", async () => {
+    const chunk = new Uint8Array(1024 * 1024);
+    let pulls = 0;
+    let cancelled = false;
+    const body = new ReadableStream({
+      pull(controller) {
+        pulls += 1;
+        controller.enqueue(chunk);
+        if (pulls === 12) controller.close();
+      },
+      cancel() { cancelled = true; },
+    });
+    const response = new Response(body);
+    assert.equal(response.headers.get("content-length"), null);
+    await assert.rejects(
+      fetchBounded("https://huggingface.co/api/models/example", { fetchImpl: async () => response }),
+      /response exceeds 8388608 bytes/,
+    );
+    assert.equal(cancelled, true);
+    assert.ok(pulls < 12, `read ${pulls} chunks before enforcing the limit`);
+  });
+
+  it("rejects a declared oversized response and a falsely short declaration", async () => {
+    const oversized = new Response("small", { headers: { "content-length": String(8 * 1024 * 1024 + 1) } });
+    await assert.rejects(
+      fetchBounded("https://huggingface.co/api/models/example", { fetchImpl: async () => oversized }),
+      /response exceeds 8388608 bytes/,
+    );
+    const chunk = new Uint8Array(1024 * 1024);
+    const body = new ReadableStream({
+      start(controller) {
+        for (let index = 0; index < 9; index += 1) controller.enqueue(chunk);
+        controller.close();
+      },
+    });
+    const shortDeclaration = new Response(body, { headers: { "content-length": "1" } });
+    await assert.rejects(
+      fetchBounded("https://huggingface.co/api/models/example", { fetchImpl: async () => shortDeclaration }),
+      /response exceeds 8388608 bytes/,
+    );
+  });
+
+  it("accepts the exact byte boundary and a split UTF-8 character", async () => {
+    const prefix = new Uint8Array(8 * 1024 * 1024 - 3).fill(97);
+    const body = new ReadableStream({
+      start(controller) {
+        controller.enqueue(prefix);
+        controller.enqueue(Uint8Array.of(0xe2));
+        controller.enqueue(Uint8Array.of(0x82, 0xac));
+        controller.close();
+      },
+    });
+    const result = await fetchBounded("https://huggingface.co/api/models/example", {
+      fetchImpl: async () => new Response(body),
+    });
+    assert.equal(Buffer.byteLength(result), 8 * 1024 * 1024);
+    assert.equal(result.at(-1), "€");
+  });
+
+  it("rejects decoded text that expands past the limit from invalid UTF-8", async () => {
+    const invalidUtf8 = new Uint8Array(2_796_203).fill(0xff);
+    await assert.rejects(
+      fetchBounded("https://huggingface.co/api/models/example", {
+        fetchImpl: async () => new Response(invalidUtf8),
+      }),
+      /response exceeds 8388608 bytes/,
+    );
+  });
+
+  it("preserves a streamed source failure instead of accepting partial evidence", async () => {
+    const body = new ReadableStream({
+      pull(controller) { controller.error(new Error("source failed mid-body")); },
+    });
+    await assert.rejects(
+      fetchBounded("https://huggingface.co/api/models/example", {
+        fetchImpl: async () => new Response(body),
+      }),
+      /source failed mid-body/,
+    );
   });
 
   it("treats changed admitted blog content as a material candidate", () => {
