@@ -13,7 +13,7 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: APP_NAME },
-      { name: "theme-color", content: "#09090B" },
+      { name: "theme-color", content: "#080B12" },
       {
         name: "description",
         content:
@@ -21,7 +21,8 @@ export const Route = createRootRoute({
       },
     ],
     links: [
-      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg?v=6e2dc7c9794d" },
+      { rel: "stylesheet", href: "/szl/szl-tokens.css?v=81f7c9baeef0" },
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/__grok/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },
@@ -32,7 +33,7 @@ export const Route = createRootRoute({
 
 function Root() {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-surface="dark" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
@@ -47,9 +48,9 @@ function Root() {
             position="bottom-right"
             toastOptions={{
               style: {
-                background: "#121214",
-                border: "1px solid rgb(236 236 232 / 0.12)",
-                color: "#ecece8",
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
               },
             }}
           />

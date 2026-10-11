@@ -68,8 +68,10 @@ function BrainPage() {
           <CardTitle>Ask the navigator</CardTitle>
         </CardHeader>
         <CardBody className="space-y-3">
+          <label htmlFor="brain-query" className="block text-xs font-medium text-muted">Knowledge query</label>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Input
+              id="brain-query"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="query — empty or 9464-node will ABSTAIN"

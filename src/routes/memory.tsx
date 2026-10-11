@@ -100,12 +100,16 @@ function MemoryPage() {
                 </Select>
               </label>
             </div>
+            <label htmlFor="memory-content" className="block text-xs font-medium text-muted">Memory content</label>
             <Textarea
+              id="memory-content"
               placeholder="Durable fact, decision, or working note. Injection attempts are quarantined."
               value={content}
               onChange={(e) => setContent(e.target.value)}
             />
+            <label htmlFor="memory-source" className="block text-xs font-medium text-muted">Source references</label>
             <Input
+              id="memory-source"
               placeholder="source refs, comma separated"
               value={source}
               onChange={(e) => setSource(e.target.value)}
@@ -132,7 +136,8 @@ function MemoryPage() {
             <CardTitle>Governed recall</CardTitle>
           </CardHeader>
           <CardBody className="space-y-3">
-            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="hybrid search" />
+            <label htmlFor="memory-query" className="block text-xs font-medium text-muted">Recall query</label>
+            <Input id="memory-query" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="hybrid search" />
             <Button variant="secondary" onClick={onSearch} disabled={busy} className="w-full sm:w-auto">
               Search under this principal
             </Button>

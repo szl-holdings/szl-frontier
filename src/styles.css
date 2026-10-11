@@ -1,81 +1,166 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: "Segoe UI", system-ui, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --font-display: "Segoe UI", system-ui, sans-serif;
-
-  --color-bg: #09090b;
-  --color-bg-elevated: #121214;
-  --color-bg-subtle: #18181b;
-  --color-fg: #ecece8;
-  --color-muted: #8e8e88;
-  --color-subtle: #6b6b66;
-  --color-border: rgb(236 236 232 / 0.12);
-  --color-border-strong: rgb(236 236 232 / 0.22);
-  --color-primary: #ecece8;
-  --color-primary-foreground: #09090b;
-  --color-accent: #b8c4c0;
-  --color-accent-foreground: #09090b;
-  --color-allow: #7ea894;
-  --color-deny: #c46b5c;
-  --color-pending: #c4a574;
-  --color-ring: #b8c4c0;
-
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-
-  --shadow-panel: 0 12px 40px rgb(0 0 0 / 0.35);
+/* Component aliases consume the byte-exact KANCHAY tokens loaded by __root.
+   Palette primitives and the native Orbit exports remain owned by szl-brand. */
+@theme inline {
+  --font-sans: var(--font-body);
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--surface);
+  --color-bg-subtle: var(--surface-alt);
+  --color-bg-raised: var(--surface-raised);
+  --color-fg: var(--text);
+  --color-muted: var(--text-sub);
+  --color-subtle: var(--text-ghost);
+  --color-border: var(--border);
+  --color-border-strong: var(--control-edge);
+  --color-primary: var(--action-bg);
+  --color-primary-hover: var(--action-hover-bg);
+  --color-primary-press: var(--action-press-bg);
+  --color-primary-foreground: var(--action-ink);
+  --color-accent: var(--link);
+  --color-accent-foreground: var(--bg);
+  --color-allow: var(--chip-ok);
+  --color-deny: var(--chip-bad);
+  --color-pending: var(--chip-warn);
+  --color-ring: var(--focus);
+  --shadow-panel: var(--shadow-lg);
 }
 
 @layer base {
-  html,
-  body,
-  #app {
-    min-height: 100%;
-  }
-
-  html {
-    background: var(--color-bg);
-    color: var(--color-fg);
-  }
-
+  html, body, #app { min-height: 100%; }
+  html { background: var(--bg); color: var(--text); scroll-padding-top: 6.5rem; }
   body {
-    font-family: var(--font-sans);
-    background: var(--color-bg);
-    color: var(--color-fg);
+    margin: 0;
+    font-family: var(--font-body);
+    line-height: 1.6;
+    background: var(--bg);
+    color: var(--text);
+    overflow-wrap: anywhere;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
+  button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
+  button, input, textarea, select { font: inherit; }
+  a { text-underline-offset: .22em; }
+  ::selection { background: var(--color-yuyay-700); color: var(--color-white); }
+}
 
-  button:not(:disabled),
-  [role="button"]:not(:disabled) {
-    cursor: pointer;
-  }
+.frontier-shell :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+.frontier-shell :where(input:not([type="checkbox"]), textarea, select) { max-width: 100%; }
+.frontier-shell :where(input:not([type="checkbox"]), textarea, select):focus-visible { outline-offset: 2px; }
+.frontier-shell input[type="file"] { min-height: 44px; border: 1px solid var(--control-edge); border-radius: var(--radius-md); background: var(--bg); color: var(--text-sub); }
+.frontier-shell input[type="file"]::file-selector-button { min-height: 44px; margin-right: .75rem; padding: .5rem .75rem; border: 0; border-right: 1px solid var(--control-edge); background: var(--surface-raised); color: var(--text); font: inherit; cursor: pointer; }
+.frontier-shell input[type="checkbox"] { accent-color: var(--focus); }
+.frontier-shell :where(button, input, textarea, select):disabled {
+  opacity: 1;
+  color: var(--text-ghost);
+  background: var(--surface-alt);
+  border-color: var(--border);
+  cursor: not-allowed;
+}
+.frontier-shell button:disabled { box-shadow: inset 0 0 0 1px var(--border); }
 
-  ::selection {
-    background: rgb(184 196 192 / 0.28);
-    color: var(--color-fg);
-  }
+/* Retire the tiny legacy labels across all existing workspaces without changing
+   their state, values, or evidence. These are presentation-only Tailwind aliases. */
+.frontier-shell :is([class~="text-[10px]"], [class~="text-[11px]"]) {
+  font-size: .75rem;
+  line-height: 1.5;
+  letter-spacing: .04em;
+}
+.frontier-shell .font-mono { letter-spacing: 0; }
+.tabular { font-variant-numeric: tabular-nums; }
+.hairline { box-shadow: inset 0 0 0 1px var(--border); }
+.frontier-card { border: 1px solid var(--border); box-shadow: var(--shadow-card); }
+.frontier-badge { line-height: 1.4; }
+.frontier-button { line-height: 1.35; }
+
+.frontier-sidebar {
+  background: radial-gradient(ellipse at 0 0, var(--hero-atmosphere), transparent 45%), var(--surface);
+}
+.frontier-brand { color: var(--text); text-decoration: none; }
+.frontier-brand-parent { font-size: .6875rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--text-sub); }
+.frontier-brand-name { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; letter-spacing: -.025em; line-height: 1.3; }
+.frontier-nav-label { padding: 0 1.5rem; margin: .25rem 0 .75rem; font-size: .75rem; color: var(--text-ghost); }
+.frontier-nav a { position: relative; border: 1px solid transparent; }
+.frontier-nav a[aria-current="page"] { border-color: var(--border); font-weight: 600; }
+.frontier-nav a[aria-current="page"]::before { content: ""; position: absolute; inset: .75rem auto .75rem -1px; width: 3px; border-radius: 4px; background: var(--link); }
+.frontier-plane-status { background: var(--bg); }
+.frontier-plane-status .tabular { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem .5rem; }
+.frontier-mobile-header { background: var(--surface); }
+.frontier-mobile-nav[hidden] { display: none; }
+.frontier-mobile-nav .frontier-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.frontier-page-header {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: radial-gradient(ellipse at 95% 0, var(--hero-atmosphere), transparent 70%), var(--surface);
+}
+.frontier-page-header::before {
+  content: "";
+  position: absolute;
+  inset: -1px 1.5rem auto;
+  height: 1px;
+  background: var(--holo-edge);
+  pointer-events: none;
+}
+.frontier-page-intro { min-width: 0; max-width: 48rem; flex: 1 1 26rem; }
+.frontier-kicker { font-size: .75rem; font-weight: 600; line-height: 1.6; letter-spacing: .08em; text-transform: uppercase; color: var(--link); }
+.frontier-page-header h1, .frontier-static h1 { margin-top: .7rem; font-family: var(--font-display); font-size: clamp(1.8rem, 2.4vw, 2.6rem); font-weight: 550; line-height: 1.15; letter-spacing: -.035em; text-wrap: balance; }
+.frontier-page-header p { max-width: 68ch; margin-top: .9rem; font-size: .9375rem; line-height: 1.7; color: var(--text-sub); }
+.frontier-page-actions { display: flex; flex-wrap: wrap; min-width: 0; max-width: 100%; gap: .75rem; }
+.frontier-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 2rem; margin: auto 2rem 0; padding: 1.5rem 0; border-top: 1px solid var(--border); font-size: .75rem; color: var(--text-ghost); }
+.frontier-source-links { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; }
+.frontier-source-links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--link); }
+.frontier-source-links a:hover { color: var(--link-hover); text-decoration: underline; }
+.frontier-static { max-width: 50rem; margin: 3rem auto; padding: 1.5rem; }
+.frontier-static p { margin-top: 1rem; color: var(--text-sub); }
+.frontier-static .frontier-source-links { margin-top: 1.5rem; }
+.frontier-skip-link { position: fixed; top: .75rem; left: 1rem; z-index: 100; padding: .75rem 1rem; border-radius: var(--radius-md); color: var(--action-ink); background: var(--action-bg); transform: translateY(-180%); }
+.frontier-skip-link:focus { transform: translateY(0); }
+
+.frontier-tabs { padding: .5rem; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface); }
+.frontier-tabs [role="tab"] { border: 1px solid transparent; }
+.frontier-tabs [aria-selected="true"] { border-color: var(--control-edge); background: var(--surface-raised); color: var(--link); font-weight: 600; }
+.frontier-tab-panel { min-width: 0; }
+.frontier-scroll-region { max-width: 100%; overscroll-behavior-x: contain; scrollbar-color: var(--control-edge) var(--surface); scrollbar-width: thin; }
+.frontier-scroll-region table { line-height: 1.65; }
+.frontier-scroll-region th { color: var(--text-sub); }
+.frontier-scroll-region tbody tr:hover { background: var(--surface-alt); }
+
+@media (max-width: 767px) {
+  .frontier-footer { margin-inline: 1rem; }
+  .frontier-page-header { gap: 1.25rem; }
+  .frontier-page-actions { width: 100%; }
+  .frontier-page-actions > .frontier-button { width: 100%; }
+  .frontier-page-header h1 { font-size: clamp(1.65rem, 6.2vw, 2.2rem); }
+  .frontier-tabs { gap: .25rem; }
+  .frontier-tabs [role="tab"] { flex: 1 1 auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  /* Disable whole effects. A positive universal transition duration can animate
+     static layout from UA styles on the first frame, even without JavaScript. */
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
-.tabular {
-  font-variant-numeric: tabular-nums;
-}
-
-.hairline {
-  box-shadow: inset 0 0 0 1px var(--color-border);
+@media (forced-colors: active) {
+  .frontier-shell { background: Canvas; color: CanvasText; }
+  .frontier-sidebar, .frontier-mobile-header, .frontier-page-header,
+  .frontier-tabs, .frontier-card, .frontier-plane-status { background: Canvas; border-color: CanvasText; box-shadow: none; }
+  .frontier-page-header::before { display: none; }
+  .frontier-nav a[aria-current="page"], .frontier-tabs [aria-selected="true"] { border: 2px solid Highlight; }
+  .frontier-button, .frontier-shell :where(input:not([type="checkbox"]), select, textarea) { border: 1px solid ButtonText; }
+  .frontier-shell :where(a, button, input, textarea, select, [tabindex]):focus-visible { outline-color: Highlight; }
+  .frontier-shell :where(button, input, textarea, select):disabled { color: GrayText; border-color: GrayText; box-shadow: none; }
+  .frontier-badge { border-color: CanvasText; }
 }
