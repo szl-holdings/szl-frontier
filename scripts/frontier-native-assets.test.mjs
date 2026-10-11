@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { lstatSync, readFileSync } from "node:fs";
+import { closeSync, constants, fstatSync, openSync, readFileSync } from "node:fs";
 import { resolve, sep } from "node:path";
 import test from "node:test";
 
@@ -23,10 +23,17 @@ test("native assets are the exact admitted bytes, with an explicit subset projec
   for (const asset of projection.assets) {
     const path = resolve(root, asset.installed_path);
     assert.ok(path.startsWith(root + sep));
-    assert.ok(lstatSync(path).isFile());
-    const body = readFileSync(path);
-    assert.equal(body.length, asset.bytes);
-    assert.equal(createHash("sha256").update(body).digest("hex"), exactAssets[asset.installed_path]);
+    // Inspect and read the same opened file. O_NOFOLLOW rejects a replacement
+    // symlink atomically; a separate lstat/read pair would have a race window.
+    const descriptor = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+    try {
+      assert.ok(fstatSync(descriptor).isFile());
+      const body = readFileSync(descriptor);
+      assert.equal(body.length, asset.bytes);
+      assert.equal(createHash("sha256").update(body).digest("hex"), exactAssets[asset.installed_path]);
+    } finally {
+      closeSync(descriptor);
+    }
     assert.equal(asset.sha256, exactAssets[asset.installed_path]);
     assert.match(asset.source_revision, /^[a-f0-9]{40}$/);
   }

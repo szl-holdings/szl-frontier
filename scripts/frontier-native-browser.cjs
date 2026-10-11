@@ -28,7 +28,8 @@ async function inspect(page, forced = false) {
     const canvas = document.createElement('canvas'); canvas.width = canvas.height = 1;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     function rgba(value) {
-      ctx.clearRect(0, 0, 1, 1); ctx.fillStyle = '#000'; ctx.fillStyle = value; ctx.fillRect(0, 0, 1, 1);
+      if (!CSS.supports('color', value)) throw new Error('Unsupported computed color: ' + value);
+      ctx.clearRect(0, 0, 1, 1); ctx.fillStyle = value; ctx.fillRect(0, 0, 1, 1);
       const c = [...ctx.getImageData(0, 0, 1, 1).data]; c[3] /= 255; return c;
     }
     function over(a, b) { const alpha = a[3] + b[3] * (1 - a[3]); return alpha ? [0, 1, 2].map(i => (a[i] * a[3] + b[i] * b[3] * (1 - a[3])) / alpha).concat(alpha) : [0, 0, 0, 0]; }
@@ -187,9 +188,20 @@ async function contextPage(browser, options = {}, failCorpus = false) {
     await failure.context.close();
 
     const projection = JSON.parse(readFileSync(resolve(root, 'public/szl/PROJECTION.json'), 'utf8'));
-    for (const asset of projection.assets) {
-      const response = await fetch(origin + '/' + asset.installed_path.replace(/^public\//, ''));
-      check(`built preview serves exact ${asset.installed_path}`, response.ok && digest(Buffer.from(await response.arrayBuffer())) === asset.sha256);
+    // A manifest supplies expected hashes, never network destinations. Requests
+    // use this fixed source-owned URL list and cannot follow an external redirect.
+    const servedAssets = [
+      ['public/szl/szl-tokens.css', '/szl/szl-tokens.css'],
+      ['public/szl/SOURCE.json', '/szl/SOURCE.json'],
+      ['public/szl/szl-icon-32.svg', '/szl/szl-icon-32.svg'],
+      ['public/__grok/icon-180.png', '/__grok/icon-180.png'],
+      ['public/favicon.svg', '/favicon.svg'],
+    ];
+    assert.deepEqual(projection.assets.map(asset => asset.installed_path).sort(), servedAssets.map(([installedPath]) => installedPath).sort());
+    for (const [installedPath, urlPath] of servedAssets) {
+      const asset = projection.assets.find(candidate => candidate.installed_path === installedPath);
+      const response = await fetch(origin + urlPath, { redirect: 'error', signal: AbortSignal.timeout(10000) });
+      check(`built preview serves exact ${installedPath}`, response.ok && digest(Buffer.from(await response.arrayBuffer())) === asset.sha256);
     }
   } finally {
     if (browser) await browser.close(); server.kill(); log.end();
