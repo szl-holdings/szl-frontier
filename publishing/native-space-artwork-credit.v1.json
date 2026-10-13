@@ -1,0 +1,22 @@
+{
+  "schema": "szl.native-space-artwork-credit/v1",
+  "source_repository": "szl-holdings/szl-frontier",
+  "source_revision_before_change": "eee013a9e6ac7d2369963a7742ed19692a954387",
+  "source_path": "README.md",
+  "source_blob_before": "acd86d11a6fab130aa941beeaa05aa105f249585",
+  "source_sha256_before": "8bc02b0a9347281f2c85c48fbf60d5b8711c8f7f3907ece7c1c2849c9492a9c1",
+  "source_sha256_after": "c5feb7a59721a30a6da2b87945ae043144c78f72fb9db1839198e6b980973ae8",
+  "preserved_source_without_credit_sha256": "8bc02b0a9347281f2c85c48fbf60d5b8711c8f7f3907ece7c1c2849c9492a9c1",
+  "scope": "Add visible credit for the existing exact Orbit artwork only. Metadata, icon, full technical text, source interpolation and publisher control flow are preserved.",
+  "artwork_source_revision": "4309f6fce89179331b0b3ed8c99494e76c5be256",
+  "artwork_sha256": "6e2b7d72a3af3d9602b79de41df0194ede6496a9661f057108ec224c0efc92e6",
+  "prior_immutable_hub_revision": "ebdea2a9f18e967163223bb28c2df973a358a68f",
+  "prior_immutable_hub_card_sha256": "8bc02b0a9347281f2c85c48fbf60d5b8711c8f7f3907ece7c1c2849c9492a9c1",
+  "validation": {
+    "source_inverse_reconstruction_exact": true,
+    "full_metadata_and_technical_body_exact": true,
+    "native_icon_unchanged": true,
+    "runtime_calls_performed": false
+  },
+  "publication_state": "SOURCE_CHANGE_ONLY; established writer not invoked by preparation"
+}
