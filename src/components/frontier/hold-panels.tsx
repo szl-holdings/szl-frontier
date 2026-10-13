@@ -26,12 +26,12 @@ function Table({
 }) {
   if (!rows.length) return <p className="text-sm text-muted">{empty}</p>;
   return (
-    <div className="overflow-x-auto">
+    <div role="region" aria-label={`${heads.join(" / ")} table`} tabIndex={0} className="frontier-scroll-region overflow-x-auto">
       <table className="w-full text-left text-sm">
         <thead>
           <tr>
             {heads.map((h) => (
-              <th key={h} className="pb-2 text-[10px] uppercase tracking-[0.14em] text-subtle">
+              <th key={h} scope="col" className="pb-2 pr-4 text-[10px] uppercase tracking-[0.14em] text-subtle">
                 {h}
               </th>
             ))}
@@ -41,7 +41,7 @@ function Table({
           {rows.map((row, i) => (
             <tr key={i} className="border-t border-border">
               {row.map((cell, j) => (
-                <td key={j} className="py-2 font-mono text-xs">
+                <td key={j} className="py-2 pr-4 font-mono text-xs">
                   {cell}
                 </td>
               ))}

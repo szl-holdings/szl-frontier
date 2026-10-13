@@ -4,22 +4,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-[opacity,transform,background-color,color,border-color] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
+  "frontier-button inline-flex min-w-11 items-center justify-center gap-2 text-center text-sm font-semibold transition-[transform,background-color,color,border-color] duration-150 ease-out disabled:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:translate-y-px",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:opacity-90",
-        secondary: "bg-bg-subtle text-fg border border-border hover:border-border-strong",
-        outline: "border border-border bg-transparent text-fg hover:bg-bg-subtle",
+        default: "bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-press",
+        secondary: "bg-bg-subtle text-fg border border-border-strong hover:bg-bg-raised",
+        outline: "border border-border-strong bg-transparent text-fg hover:bg-bg-subtle",
         ghost: "text-muted hover:text-fg hover:bg-bg-subtle",
-        allow: "bg-allow text-bg hover:opacity-90",
+        allow: "bg-allow text-bg",
         deny: "bg-deny/15 text-deny border border-deny/30 hover:bg-deny/25",
       },
       size: {
-        default: "h-11 px-4 rounded-md",
-        sm: "h-11 px-3 rounded-sm text-xs",
-        lg: "h-11 px-5 rounded-lg",
-        icon: "h-11 w-11 rounded-md",
+        default: "min-h-11 px-4 py-2.5 rounded-md",
+        sm: "min-h-11 px-3 py-2 rounded-sm text-xs",
+        lg: "min-h-12 px-5 py-3 rounded-lg",
+        icon: "h-11 w-11 shrink-0 rounded-md",
       },
     },
     defaultVariants: { variant: "default", size: "default" },

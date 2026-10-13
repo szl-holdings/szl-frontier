@@ -46,9 +46,13 @@ function IngestPage() {
             <CardTitle>Admit a source</CardTitle>
           </CardHeader>
           <CardBody className="space-y-3">
-            <Input placeholder="title" value={title} onChange={(e) => setTitle(e.target.value)} />
-            <Input placeholder="source uri" value={uri} onChange={(e) => setUri(e.target.value)} />
+            <label htmlFor="ingest-title" className="block text-xs font-medium text-muted">Evidence title</label>
+            <Input id="ingest-title" placeholder="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <label htmlFor="ingest-uri" className="block text-xs font-medium text-muted">Source URI</label>
+            <Input id="ingest-uri" placeholder="source uri" value={uri} onChange={(e) => setUri(e.target.value)} />
+            <label htmlFor="ingest-excerpt" className="block text-xs font-medium text-muted">Durable excerpt</label>
             <Textarea
+              id="ingest-excerpt"
               placeholder="excerpt — the durable fact to hash"
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}

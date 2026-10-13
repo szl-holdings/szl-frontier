@@ -12,13 +12,13 @@ export function PageHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div className="max-w-2xl">
-        <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-subtle">{kicker}</div>
-        <h1 className="mt-2 text-2xl font-medium tracking-tight sm:text-3xl">{title}</h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted">{description}</p>
+    <header className="frontier-page-header">
+      <div className="frontier-page-intro">
+        <div className="frontier-kicker">{kicker}</div>
+        <h1>{title}</h1>
+        <p>{description}</p>
       </div>
-      {action}
-    </div>
+      {action ? <div className="frontier-page-actions">{action}</div> : null}
+    </header>
   );
 }

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -58,6 +58,7 @@ function FrontierPage() {
   const family = search.family ?? "all";
   const status = search.status ?? "all";
   const navigate = Route.useNavigate();
+  const tabButtons = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
   const [optedIn, setOptedIn] = useState(() => {
     try {
       return parseStoredOptionalEval(localStorage.getItem("szl-frontier-optional-eval"));
@@ -80,6 +81,20 @@ function FrontierPage() {
     void navigate({ search: (prev) => ({ ...prev, tab: next }) });
   }
 
+  function navigateTabs(event: KeyboardEvent<HTMLButtonElement>, current: Tab) {
+    const index = TABS.indexOf(current);
+    const nextIndex = event.key === "Home" ? 0
+      : event.key === "End" ? TABS.length - 1
+      : event.key === "ArrowRight" ? (index + 1) % TABS.length
+      : event.key === "ArrowLeft" ? (index - 1 + TABS.length) % TABS.length
+      : null;
+    if (nextIndex === null) return;
+    event.preventDefault();
+    const next = TABS[nextIndex];
+    setTab(next);
+    tabButtons.current[next]?.focus();
+  }
+
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-8">
       <PageHeader
@@ -100,23 +115,29 @@ function FrontierPage() {
 
       <EvalHoldStrip optedIn={optedIn} onOptedIn={setOptionalEval} />
 
-      <div role="tablist" aria-label="Frontier surfaces" className="flex flex-wrap gap-1">
+      <div role="tablist" aria-label="Frontier surfaces" aria-orientation="horizontal" className="frontier-tabs flex flex-wrap gap-1">
         {TABS.map((id) => (
           <button
             key={id}
+            id={`frontier-tab-${id}`}
+            ref={(node) => { tabButtons.current[id] = node; }}
             type="button"
             role="tab"
             aria-selected={tab === id}
+            aria-controls="frontier-panel"
+            tabIndex={tab === id ? 0 : -1}
             className={`min-h-11 min-w-11 rounded-md px-3 text-sm capitalize ${
               tab === id ? "bg-bg-subtle text-fg" : "text-muted hover:bg-bg-subtle hover:text-fg"
             }`}
             onClick={() => setTab(id)}
+            onKeyDown={(event) => navigateTabs(event, id)}
           >
             {id}
           </button>
         ))}
       </div>
 
+      <section id="frontier-panel" role="tabpanel" aria-labelledby={`frontier-tab-${tab}`} tabIndex={0} className="frontier-tab-panel">
       {tab === "workstreams" ? <WorkstreamsPanel q={q} family={family} status={status} /> : null}
       {tab === "cycle" ? <CyclePanel /> : null}
       {tab === "flotation" ? <FlotationPanel /> : null}
@@ -130,6 +151,7 @@ function FrontierPage() {
       {tab === "audit" ? <ThreadAuditPanel /> : null}
       {tab === "journeys" ? <JourneysPanel /> : null}
       {tab === "lab" ? <LabPanel /> : null}
+      </section>
     </div>
   );
 }
@@ -293,7 +315,7 @@ function WorkstreamsPanel({ q, family, status }: { q: string; family: string; st
         {rows.length} matching · selected-for-release is evaluation scope, not authorization.
       </p>
 
-      <div className="overflow-x-auto rounded-xl bg-bg-elevated shadow-[inset_0_0_0_1px_var(--color-border)]">
+      <div role="region" aria-label="Workstreams table" tabIndex={0} className="frontier-scroll-region overflow-x-auto rounded-xl bg-bg-elevated shadow-[inset_0_0_0_1px_var(--color-border)]">
         <table className="w-full min-w-[640px] border-collapse text-left text-sm">
           <caption className="sr-only">Frontier workstreams F01 through F34</caption>
           <thead>
@@ -971,7 +993,7 @@ function EstateTable({
 }) {
   if (!rows.length) return <p className="text-sm text-muted">{empty}</p>;
   return (
-    <div className="overflow-x-auto">
+    <div role="region" aria-label={`${heads.join(" / ")} table`} tabIndex={0} className="frontier-scroll-region overflow-x-auto">
       <table className="w-full min-w-[480px] text-left text-sm">
         <thead>
           <tr className="text-[10px] uppercase tracking-[0.14em] text-subtle">
