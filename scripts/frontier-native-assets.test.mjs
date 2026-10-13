@@ -39,9 +39,9 @@ test("native assets are the exact admitted bytes, with an explicit subset projec
   }
 });
 
-test("the shell loads native tokens before components and retains the checked auth/PWA contracts", () => {
+test("the shell loads native tokens after Tailwind defaults and retains the checked auth/PWA contracts", () => {
   const rootSource = readFileSync(resolve(root, "src/routes/__root.tsx"), "utf8");
-  assert.ok(rootSource.indexOf('/szl/szl-tokens.css?v=81f7c9baeef0') < rootSource.indexOf('href: appCss'));
+  assert.ok(rootSource.indexOf('/szl/szl-tokens.css?v=81f7c9baeef0') > rootSource.indexOf('href: appCss'));
   assert.match(rootSource, /<AuthProvider>/);
   assert.match(rootSource, /<PreviewHostBridge \/>/);
   assert.match(rootSource, /href: "\/__grok\/manifest.webmanifest"/);

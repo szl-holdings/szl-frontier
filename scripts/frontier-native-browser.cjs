@@ -8,7 +8,6 @@ const { spawn } = require('node:child_process');
 const { createHash } = require('node:crypto');
 const { createWriteStream, mkdirSync, readFileSync, writeFileSync } = require('node:fs');
 const { resolve } = require('node:path');
-const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 
 const root = resolve(__dirname, '..');
 const out = resolve(process.env.FRONTIER_QA_OUT || resolve(root, 'artifacts/native-frontend'));
@@ -91,19 +90,22 @@ async function contextPage(browser, options = {}, failCorpus = false) {
 (async () => {
   mkdirSync(out, { recursive: true });
   const log = createWriteStream(resolve(out, 'preview.log'));
-  const server = spawn(process.execPath, ['scripts/with-app-env.mjs', 'vite', 'preview', '--host', '127.0.0.1', '--port', String(port), '--strictPort'], {
-    cwd: root, env: { ...process.env, PATH: root + '/node_modules/.bin:' + process.env.PATH, DATABASE_URL: '' }, stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  server.stdout.pipe(log); server.stderr.pipe(log);
-  let browser;
+  let browser, server, previewError, complete = false;
   try {
+    server = spawn(process.execPath, ['scripts/with-app-env.mjs', 'vite', 'preview', '--host', '127.0.0.1', '--port', String(port), '--strictPort'], {
+      cwd: root, env: { ...process.env, PATH: root + '/node_modules/.bin:' + process.env.PATH, DATABASE_URL: '' }, stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    server.stdout.pipe(log); server.stderr.pipe(log);
+    server.on('error', error => { previewError = error; });
     let ready = false;
     for (let i = 0; i < 240; i++) {
+      if (previewError) throw previewError;
       if (server.exitCode !== null) throw new Error('Local preview exited');
       try { if ((await fetch(origin)).ok) { ready = true; break; } } catch {}
       await new Promise(resolve => setTimeout(resolve, 250));
     }
     assert.ok(ready, 'Source-owned preview must become ready');
+    const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
     browser = await chromium.launch({ headless: true, ...(process.env.FRONTIER_BROWSER ? { executablePath: process.env.FRONTIER_BROWSER } : {}), args: ['--no-sandbox', '--disable-dev-shm-usage'] });
     for (const mode of [
       { name: 'desktop', viewport: { width: 1440, height: 1000 } },
@@ -116,6 +118,26 @@ async function contextPage(browser, options = {}, failCorpus = false) {
       for (const path of workspaces) {
         await active.page.goto(origin + path, { waitUntil: 'domcontentloaded', timeout: 45000 });
         await active.page.locator('main .frontier-page-header h1').waitFor({ timeout: 30000 });
+        if (name === 'desktop' && path === '/') {
+          const tokenCss = readFileSync(resolve(root, 'public/szl/szl-tokens.css'), 'utf8');
+          const tokens = await active.page.evaluate(css => {
+            // Compare computed tokens against an isolated document containing
+            // only the exact native stylesheet, independent of Tailwind defaults.
+            const frame = document.createElement('iframe'); frame.hidden = true;
+            document.body.append(frame);
+            try {
+              const doc = frame.contentDocument;
+              doc.documentElement.dataset.surface = 'dark';
+              const style = doc.createElement('style'); style.textContent = css; doc.head.append(style);
+              const expected = frame.contentWindow.getComputedStyle(doc.documentElement);
+              const actual = getComputedStyle(document.documentElement);
+              const names = [...css.matchAll(/(--(?:radius-[a-z0-9]+|shadow-(?:sm|md|lg|xl)|font-mono|text-(?:xs|sm|base|lg|xl|[2-6]xl)))\s*:/g)].map(match => match[1]);
+              const mismatches = [...new Set(names)].filter(name => actual.getPropertyValue(name).trim() !== expected.getPropertyValue(name).trim());
+              return { count: new Set(names).size, mismatches, headerRadius: getComputedStyle(document.querySelector('.frontier-page-header')).borderTopLeftRadius };
+            } finally { frame.remove(); }
+          }, tokenCss);
+          check('computed native typography, radius and shadow tokens survive the application cascade', tokens.count === 21 && !tokens.mismatches.length && tokens.headerRadius === '16px', tokens);
+        }
         const result = await inspect(active.page, name === 'forced');
         rows.push({ mode: name, path, ...result });
         check(`${name} ${path}: layout, targets, labels and computed text pairs`, result.documentWidth <= result.viewport + 1 && result.h1Count === 1 && !result.textFailures.length && !result.overflow.length && !result.targets.length && !result.unlabeled.length && !result.uncertain.length && !result.animations, result);
@@ -203,11 +225,16 @@ async function contextPage(browser, options = {}, failCorpus = false) {
       const response = await fetch(origin + urlPath, { redirect: 'error', signal: AbortSignal.timeout(10000) });
       check(`built preview serves exact ${installedPath}`, response.ok && digest(Buffer.from(await response.arrayBuffer())) === asset.sha256);
     }
+    complete = true;
+  } catch (error) {
+    check('qualification completes', false, String(error.stack || error));
   } finally {
-    if (browser) await browser.close(); server.kill(); log.end();
+    try { if (browser) await browser.close(); }
+    catch (error) { complete = false; check('browser cleanup completes', false, String(error.stack || error)); }
+    if (server) server.kill(); log.end();
     const failures = checks.filter(c => !c.pass);
-    writeFileSync(resolve(out, 'results.json'), JSON.stringify({ schema: 'szl.local-presentation-observation.v1', unsigned: true, scope: 'Local built-source presentation only; not a runtime or production receipt', createdAt: new Date().toISOString(), checks, rows }, null, 2) + '\n');
+    writeFileSync(resolve(out, 'results.json'), JSON.stringify({ schema: 'szl.local-presentation-observation.v1', unsigned: true, scope: 'Local built-source presentation only; not a runtime or production receipt', createdAt: new Date().toISOString(), complete, verdict: complete && !failures.length ? 'PASS' : 'FAIL', checks, rows }, null, 2) + '\n');
     console.log(JSON.stringify({ checks: checks.length, passed: checks.length - failures.length, failures: failures.map(c => ({ name: c.name, detail: c.detail })) }, null, 2));
-    if (failures.length) process.exitCode = 1;
+    if (!complete || failures.length) process.exitCode = 1;
   }
 })().catch(error => { console.error(error); process.exitCode = 1; });
