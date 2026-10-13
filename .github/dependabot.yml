@@ -44,6 +44,18 @@ updates:
       npm:
         patterns:
           - "*"
+    ignore:
+      # better-auth is held on 1.6.x. In 1.7 the genericOAuth plugin no longer
+      # has its own endpoints: genericOAuthClient and auth.api.signInWithOAuth2
+      # are gone, and providers sign in through /sign-in/social and call back on
+      # /api/auth/callback/<id> instead of /api/auth/oauth2/callback/<id>. The
+      # auth broker's preview client accepts only the oauth2 callback path (see
+      # src/lib/auth/preview.ts), so 1.7 fails typecheck and would change the
+      # auth flow (see PR #251). The @better-auth/* packages are pinned exactly by
+      # better-auth, so they stay on 1.6.x with it. Remove this entry once the
+      # auth code is migrated to the 1.7 social-provider flow.
+      - dependency-name: "better-auth"
+        versions: [">=1.7"]
 
   - package-ecosystem: "docker"
     directory: "/"
