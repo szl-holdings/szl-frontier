@@ -62,7 +62,7 @@ export function IdentityBar() {
         </Select>
       </Field>
       <Field label="Domain">
-        <div className="flex h-10 items-center rounded-md border border-border bg-bg px-3 font-mono text-xs text-muted">
+        <div className="flex min-h-11 items-center rounded-md border border-border bg-bg px-3 font-mono text-xs text-muted">
           {session.securityDomain}
         </div>
       </Field>
@@ -73,7 +73,7 @@ export function IdentityBar() {
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <div className="mb-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-subtle">{label}</div>
+      <div className="mb-1.5 text-xs font-medium uppercase tracking-[0.08em] text-subtle">{label}</div>
       {children}
     </label>
   );

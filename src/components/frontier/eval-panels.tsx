@@ -29,7 +29,7 @@ export function HoldStrip({ optedIn, onOptedIn }: { optedIn: boolean; onOptedIn:
               : "Off. Triad compose and membership pin stay contract-only."}
           </span>
         </span>
-        <span className="flex h-10 items-center gap-2 text-sm">
+        <span className="flex min-h-11 items-center gap-2 text-sm">
           <input
             type="checkbox"
             className="size-4 accent-accent"
@@ -278,12 +278,12 @@ function EstateTable({
 }) {
   if (!rows.length) return <p className="text-sm text-muted">{empty}</p>;
   return (
-    <div className="overflow-x-auto">
+    <div role="region" aria-label={`${heads.join(" / ")} table`} tabIndex={0} className="frontier-scroll-region overflow-x-auto">
       <table className="w-full min-w-[480px] text-left text-sm">
         <thead>
           <tr className="text-[10px] uppercase tracking-[0.14em] text-subtle">
             {heads.map((h) => (
-              <th key={h} className="py-2 pr-4 font-medium">
+              <th key={h} scope="col" className="py-2 pr-4 font-medium">
                 {h}
               </th>
             ))}
