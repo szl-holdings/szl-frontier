@@ -42,7 +42,7 @@ jobs:
         run: python -m szl_frontier.family_intake observe --source-revision "$(git rev-parse HEAD)" --output artifacts/family-source-witness.json
       - name: Preserve complete or incomplete evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: family-source-witness-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/family-source-witness.json
