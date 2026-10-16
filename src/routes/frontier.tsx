@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { expandFrontierIdea } from "@/lib/ai/expand-idea";
 import { runSoftwareCycle, promotionBlockedReason, type CycleReport } from "@/lib/frontier/cycle";
 import { observeEstate } from "@/lib/frontier/estate-observe";
+import { loadVerticalWedges } from "@/lib/frontier/vertical-wedges.server";
+import type { VerticalWedge } from "@/lib/frontier/vertical-wedges";
 import { SOURCE } from "@/lib/frontier/source";
 import {
   FAMILIES,
@@ -625,8 +627,53 @@ function EstatePanel() {
 }
 
 function JourneysPanel() {
+  const [wedges, setWedges] = useState<VerticalWedge[] | null>(null);
+  const [wedgeError, setWedgeError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadVerticalWedges()
+      .then((rows) => {
+        if (!cancelled) setWedges(rows);
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) setWedgeError(err instanceof Error ? err.message : "UNAVAILABLE");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div className="space-y-6">
+      <div>
+        <h2 className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-subtle">Register wedges</h2>
+        <p className="mb-3 max-w-3xl text-sm leading-relaxed text-muted">
+          Each row names the public incumbent recorded in the competitive research register. Status stays HOLD.
+          Comparison is NOT_RUN.
+        </p>
+        {wedgeError ? <p className="text-sm text-deny">{wedgeError}</p> : null}
+        {wedges ? (
+          <div className="space-y-2">
+            {wedges.map((wedge) => (
+              <div
+                key={wedge.id}
+                className="flex flex-col gap-2 rounded-xl bg-bg-elevated px-4 py-3 sm:flex-row sm:items-start sm:justify-between"
+              >
+                <div>
+                  <div className="text-sm">
+                    <span className="font-mono text-xs text-accent">{wedge.id}</span> {wedge.incumbent}
+                  </div>
+                  <p className="mt-1 text-xs leading-relaxed text-muted">{wedge.refused}</p>
+                </div>
+                <Badge tone="deny">{wedge.status}</Badge>
+              </div>
+            ))}
+          </div>
+        ) : wedgeError ? null : (
+          <p className="text-sm text-muted">Reading the register.</p>
+        )}
+      </div>
       <div>
         <h2 className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-subtle">Vertical journeys</h2>
         <div className="grid gap-3 lg:grid-cols-2">
