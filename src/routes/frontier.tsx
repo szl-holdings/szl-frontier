@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { expandFrontierIdea } from "@/lib/ai/expand-idea";
 import { runSoftwareCycle, promotionBlockedReason, type CycleReport } from "@/lib/frontier/cycle";
 import { observeEstate } from "@/lib/frontier/estate-observe";
-import { loadVerticalWedges } from "@/lib/frontier/vertical-wedges.server";
+import { loadVerticalWedges } from "@/lib/frontier/vertical-wedges-load";
 import type { VerticalWedge } from "@/lib/frontier/vertical-wedges";
 import { SOURCE } from "@/lib/frontier/source";
 import {
