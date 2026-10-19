@@ -1,7 +1,7 @@
 # Copyright 2026 SZL Holdings — SPDX-License-Identifier: Apache-2.0
 # Digest-pinned multi-arch index for node:26-alpine (resolved 2026-09-29).
 # Dependabot's docker ecosystem keeps the tag and digest moving together.
-FROM node:26-alpine@sha256:143494b1da2945f061539253adc65e4f1569ddf07da2d384c022c791a9d90a4a
+FROM node:26-alpine@sha256:6f08a523443ddedf52941874c203475b0ad503e859ad70cb26ab8be9a517dbd5
 
 WORKDIR /app
 
