@@ -36,7 +36,12 @@ env:
 jobs:
   publish:
     name: Publish ${{ matrix.target }} and verify the Hub
-    runs-on: ubuntu-latest
+    # Temporary pin: ubuntu-latest is now Ubuntu 26.04, and actions/python-versions
+    # has no Python 3.12.10 build for it, so setup-python fails before any Hub
+    # write. The publisher checks the exact interpreter, so keep 3.12.10 on 24.04,
+    # as szl-holdings/.github reusable-hf-deploy.yml does. Remove this pin once the
+    # shared publisher closure is revalidated on Ubuntu 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 35
     strategy:
       fail-fast: false
