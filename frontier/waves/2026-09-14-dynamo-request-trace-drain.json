@@ -1,0 +1,78 @@
+{
+  "schema": "szl.frontier.integration-wave.v1",
+  "wave": "2026-09-14-dynamo-request-trace-drain",
+  "priority": "P0",
+  "sourceOfTruth": "szl-holdings/szl-frontier",
+  "sourceRevisionObserved": "ae0109a44890a268bd72c2e60f3ab09fbdae34d5",
+  "authorityChain": ["GitHub", "Hugging Face", "a-11-oy.com", "a11oy.net"],
+  "canonicalIssue": "szl-holdings/szl-frontier#37",
+  "candidate": {
+    "publisher": "NVIDIA Dynamo",
+    "category": "deployment-infrastructure-request-trace-integrity",
+    "upstreamRepository": "ai-dynamo/dynamo",
+    "upstreamRevision": "c0b88ba4837c694993cfa1357488df70fdc4b40a",
+    "observedAt": "2026-09-14T21:24:40Z",
+    "change": "Request-trace sink lifecycle now retains worker handles, reference-counts active inputs, performs a bounded drain on the last input release, reports unfinished sinks and broader drop accounting, and reopens the start gate after shutdown.",
+    "releaseState": "UNRELEASED_MAIN_SUCCESSOR_WATCH",
+    "productionDisposition": "HOLD"
+  },
+  "deduplication": {
+    "runtimeRetrievalCanonicalOwner": "szl-holdings/szl-frontier#37",
+    "priorDynamoCandidate": "dynamo-deepseek-v4-pro-0813-dev1-2026-09-04",
+    "priorDynamoReleaseRevision": "28f9c307dcff4130412ac04e4ea07c96b0cde6f5",
+    "exactSourcePreviouslyAdmitted": false,
+    "inheritsPriorDynamoQualification": false,
+    "traceIntegrityEvidenceInherited": false
+  },
+  "runtimeContract": {
+    "activeInputReferenceCounted": true,
+    "drainOwner": "last active input release",
+    "failingInputStillDrains": true,
+    "boundedShutdownSecondsUpstream": 10,
+    "shutdownReportNamesTimedOutSinks": true,
+    "dropAccountingIncludes": [
+      "channel backpressure",
+      "serialization failure",
+      "gzip finalization failure",
+      "object upload failure"
+    ],
+    "startGateReopensAfterDrain": true,
+    "cancelOrPanicDropCanAwaitDrain": false,
+    "abruptExitGuaranteesCompleteFlush": false
+  },
+  "evidenceSemantics": {
+    "requestTraceIsReceiptAuthority": false,
+    "requestTraceCanBeSupportingEvidenceOnlyAfterQualification": true,
+    "acceptedOntoTraceBusDoesNotMeanDurablyPersistedUntilDrainCompletes": true,
+    "timeoutOrDropMustRemainVisible": true,
+    "exactlyOnceClaimAuthorized": false
+  },
+  "evaluationOwners": {
+    "canonicalAdmission": "szl-holdings/szl-frontier#37",
+    "servingAndLifecycleEvaluation": "szl-holdings/szl-serve",
+    "runtimeAndContainerClosure": "szl-holdings/szl-gpu-bridge",
+    "workloadEvaluation": "szl-holdings/szl-forge",
+    "productProjection": "szl-holdings/a11oy",
+    "proofProjection": "szl-holdings/a11oy-net"
+  },
+  "requiredEvidence": [
+    "Bind exact Dynamo source c0b88ba4837c694993cfa1357488df70fdc4b40a and exact evaluated container/dependency closure; later revisions inherit no qualification.",
+    "Prove accepted trace records are drained before clean frontend exit and before a failing input returns, while preserving the original input result.",
+    "Prove nested and concurrent ActiveInput registrations drain once only after the last input releases and do not leave remaining publishers without workers.",
+    "Exercise bounded shutdown success and timeout; timeout evidence must identify unfinished sinks and visible dropped-record counts rather than report a false clean shutdown.",
+    "Exercise S3 sink serialization, compression/finalization and upload failures and verify all dropped-record paths are accounted for.",
+    "Prove the start gate reopens after drain so a later input gets a live worker set rather than publishing to an abandoned bus.",
+    "Exercise cancellation and panic/drop paths separately: upstream cannot await in Drop, so do not claim durable flush or exactly-once evidence for abrupt process death.",
+    "Run termination tests under the exact deployment grace-period policy and prove the drain bound fits the configured environment before relying on rollout semantics.",
+    "Do not upgrade Dynamo request traces into SZL proof receipts merely because loss handling improved; cryptographic/source-binding proof semantics remain independently governed."
+  ],
+  "projection": {
+    "huggingFace": "UNCHANGED_UNLESS_A_QUALIFIED_RUNTIME_PROJECTION_REQUIRES_THIS_EXACT_DYNAMO_SOURCE",
+    "a-11-oy.com": "UNCHANGED",
+    "a11oy.net": "NO_TRACE_COMPLETENESS_OR_RECEIPT_SUCCESS_CLAIM_UNTIL_QUALIFIED"
+  },
+  "productionDisposition": "HOLD",
+  "automaticProductionPromotion": false,
+  "weightsRehosted": false,
+  "policyOrProtectionWeakened": false
+}
