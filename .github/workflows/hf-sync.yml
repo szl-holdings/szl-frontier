@@ -31,17 +31,15 @@ env:
   SHARED_PUBLISHER_REPOSITORY: szl-holdings/.github
   SHARED_PUBLISHER_SHA: cdc158abf7f6aaef265698bcf27b1ddea693eb13
   SHARED_LOCK_BLOB: 9cc19359ddd5e77556740b66201096b812ef48d9
-  PUBLISHER_PYTHON_VERSION: "3.12.10"
+  # setup-python installs exactly this version, so actions/python-versions must
+  # publish it for the runner image. 3.12.14 has Ubuntu 22.04, 24.04 and 26.04
+  # builds; 3.12.10 has none for 26.04.
+  PUBLISHER_PYTHON_VERSION: "3.12.14"
 
 jobs:
   publish:
     name: Publish ${{ matrix.target }} and verify the Hub
-    # Temporary pin: ubuntu-latest is now Ubuntu 26.04, and actions/python-versions
-    # has no Python 3.12.10 build for it, so setup-python fails before any Hub
-    # write. The publisher checks the exact interpreter, so keep 3.12.10 on 24.04,
-    # as szl-holdings/.github reusable-hf-deploy.yml does. Remove this pin once the
-    # shared publisher closure is revalidated on Ubuntu 26.04.
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 35
     strategy:
       fail-fast: false
