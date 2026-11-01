@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatClock, shortId } from "@/lib/utils";
 import { paintLabel, paintTone } from "@/lib/ouroboros/paint";
 import { useOrchestrator } from "@/stores/orchestrator";
-import type { ReceiptKind } from "@/lib/covenant/types";
+import { verifyReceiptChain } from "@/lib/covenant/verify-chain";
+import type { ChainVerification } from "@/lib/covenant/verify-chain";
+import type { Receipt, ReceiptKind } from "@/lib/covenant/types";
 
 export const Route = createFileRoute("/proof")({ component: ProofPage });
 
@@ -32,18 +34,19 @@ function ProofPage() {
   const organPaint = useOrchestrator((s) => s.organPaint);
   const organCycle = useOrchestrator((s) => s.organCycle);
   const [kind, setKind] = useState<(typeof KINDS)[number]>("all");
-  const [broken, setBroken] = useState<number | null | undefined>(undefined);
+  const [verification, setVerification] = useState<{ receipts: Receipt[]; genesis: string; result: ChainVerification | null } | null>(null);
+  const currentVerification = verification?.receipts === receipts && verification.genesis === genesis ? verification : null;
 
   const shown = receipts.filter((r) => (kind === "all" ? true : r.kind === kind));
 
-  const chainOk = useMemo(() => {
-    let prev = genesis;
-    for (let i = 0; i < receipts.length; i++) {
-      if (receipts[i].prevHash !== prev) return i;
-      prev = receipts[i].hash;
-    }
-    return null;
-  }, [receipts, genesis]);
+  async function verify() {
+    const selected = { receipts, genesis, result: null };
+    setVerification(selected);
+    const result = await verifyReceiptChain(receipts, genesis).catch(() => ({
+      ok: false, brokenAt: null, reason: "VERIFICATION_UNAVAILABLE",
+    }));
+    setVerification((current) => current === selected ? { ...selected, result } : current);
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-8">
@@ -54,9 +57,10 @@ function ProofPage() {
         action={
           <Button
             variant="secondary"
-            onClick={() => setBroken(chainOk)}
+            onClick={() => void verify()}
+            disabled={currentVerification !== null && currentVerification.result === null}
           >
-            Verify linkage
+            Verify bodies and linkage
           </Button>
         }
       />
@@ -73,13 +77,15 @@ function ProofPage() {
       <div className="rounded-xl bg-bg-elevated p-5 shadow-[inset_0_0_0_1px_var(--color-border)]">
         <div className="text-[10px] uppercase tracking-[0.16em] text-subtle">Genesis</div>
         <div className="mt-1 break-all font-mono text-xs text-muted">{genesis}</div>
-        {broken !== undefined ? (
-          <p className="mt-3 text-sm">
-            {broken === null ? (
-              <span className="text-allow">Chain intact · {receipts.length} receipts</span>
-            ) : (
-              <span className="text-deny">Broken at index {broken}</span>
-            )}
+        {currentVerification ? (
+          <p className="mt-3 text-sm" role="status">
+            {currentVerification.result === null ? "Checking receipt bodies and linkage…" :
+              currentVerification.result.ok ? (
+                <span className="text-allow">Body hashes and linkage verified · {receipts.length} receipts</span>
+              ) : (
+                <span className="text-deny">Verification failed: {currentVerification.result.reason}
+                  {currentVerification.result.brokenAt === null ? "" : ` at index ${currentVerification.result.brokenAt}`}</span>
+              )}
           </p>
         ) : null}
       </div>
