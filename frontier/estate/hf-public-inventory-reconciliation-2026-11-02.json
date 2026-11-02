@@ -1,0 +1,38 @@
+{
+  "baseSnapshot": {
+    "authorListCounts": {
+      "datasets": 38,
+      "models": 41,
+      "spaces": 39
+    },
+    "capturedAt": "2026-11-02T02:02:38Z",
+    "path": "frontier/estate/hf-public-inventory-2026-11-02.json"
+  },
+  "directlyResolvableSpecialAssets": {
+    "spaces": [
+      {
+        "apiUrl": "https://huggingface.co/api/spaces/SZLHOLDINGS/README",
+        "id": "SZLHOLDINGS/README",
+        "listedByAuthorEndpoint": false,
+        "pageUrl": "https://huggingface.co/spaces/SZLHOLDINGS/README",
+        "public": true,
+        "revision": "e96cb22c0fc3d9aef0384906cd4a9408535b3954"
+      }
+    ]
+  },
+  "effect": {
+    "authorListCountsChanged": false,
+    "authorListIdsChanged": false,
+    "statement": "The reserved public profile Space is recorded separately and excluded from author-list totals and ids; the base snapshot remains an exact endpoint observation."
+  },
+  "observedAt": "2026-11-02T02:55:07Z",
+  "organization": "SZLHOLDINGS",
+  "schema": "szl.frontier.public-hf-inventory-reconciliation.v1",
+  "scope": "append-only reconciliation of the dated anonymous author-list snapshot with a separate direct-resolution finding; private assets remain out of scope",
+  "sources": {
+    "specialSpaces": [
+      "https://huggingface.co/api/spaces/SZLHOLDINGS/README",
+      "https://huggingface.co/spaces/SZLHOLDINGS/README"
+    ]
+  }
+}
