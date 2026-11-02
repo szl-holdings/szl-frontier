@@ -20,6 +20,23 @@ from szl_frontier.lambda_gate import (
 FROZEN = datetime(2026, 9, 20, tzinfo=timezone.utc)
 
 
+class StandaloneArithmeticCompatibility(unittest.TestCase):
+    def test_mixed_magnitudes_retain_representable_products(self) -> None:
+        for values, weights, expected in [
+            ([1e-308, 1e308], [1e308, 1e-308], 2e-308),
+            ([1e308, 1e-308], [1e-308, 1e308], 2e-308),
+            ([-1e-308, -1e308], [1e308, 1e-308], -2e-308),
+        ]:
+            with self.subTest(values=values):
+                self.assertEqual(weighted_arithmetic_mean(values, weights), expected)
+
+    def test_ordinary_rounding_is_unchanged(self) -> None:
+        self.assertEqual(
+            weighted_arithmetic_mean([0.1, 0.2, 0.3], [1.0, 2.0, 3.0]),
+            0.2333333333333333,
+        )
+
+
 class WeightScaleRegression(unittest.TestCase):
     def test_shared_finite_weight_vectors_and_receipt_roundtrip(self) -> None:
         from szl_frontier.receipts import EvidenceReceipt, ReceiptFactory, canonical_json

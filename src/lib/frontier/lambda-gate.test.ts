@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { sealReceipt, sha256Hex, stableCanonical } from "./receipt-envelope.ts";
-import { evaluateLambdaGate as evaluateOuroborosGate } from "../ouroboros/lambda-gate.ts";
+import {
+  evaluateLambdaGate as evaluateOuroborosGate,
+  weightedArithmeticMean as ouroborosArithmeticMean,
+} from "../ouroboros/lambda-gate.ts";
 import {
   evaluateLambdaGate,
   sealCompleteness,
@@ -100,3 +103,19 @@ for (const row of scalingCases) {
 test("ordinary receipt bytes retain the existing envelope serializer", () => {
   assert.equal(stableCanonical({ score: 0.9, weights: [1, 1] }), '{"score":0.9,"weights":[1,1]}');
 });
+
+for (const [name, mean] of [
+  ["frontier", weightedArithmeticMean],
+  ["ouroboros", ouroborosArithmeticMean],
+] as const) {
+  for (const { id, values, weights, expected } of [
+    { id: "mixed magnitudes", values: [1e-308, 1e308], weights: [1e308, 1e-308], expected: 2e-308 },
+    { id: "reversed magnitudes", values: [1e308, 1e-308], weights: [1e-308, 1e308], expected: 2e-308 },
+    { id: "negative values", values: [-1e-308, -1e308], weights: [1e308, 1e-308], expected: -2e-308 },
+    { id: "ordinary rounding", values: [0.1, 0.2, 0.3], weights: [1, 2, 3], expected: 0.2333333333333333 },
+  ]) {
+    test(`${name} standalone arithmetic retains its existing result: ${id}`, () => {
+      assert.equal(mean(values, weights), expected);
+    });
+  }
+}

@@ -212,10 +212,8 @@ def weighted_arithmetic_mean(
         not math.isfinite(w) or w <= 0 for w in weights
     ):
         raise GateError("arithmetic mean requires finite values and positive weights")
-    scale = max(weights)
-    scaled_weights = [w / scale for w in weights]
-    total = sum(scaled_weights)
-    return sum(v * w for v, w in zip(values, scaled_weights)) / total
+    total = sum(weights)
+    return sum(v * w for v, w in zip(values, weights)) / total
 
 
 def _classify_gap(axis: AxisEvidence, now: datetime | None) -> str:
@@ -285,7 +283,12 @@ def evaluate_lambda_gate(
     typed_values = [float(value) for value in values]
     weights = [axis.weight for axis in required]
     lam = weighted_geometric_mean(typed_values, weights)
-    ari = weighted_arithmetic_mean(typed_values, weights)
+    # Gate values are validated in [0,1]. Keep weight scaling here: in the
+    # standalone arithmetic helper, an unbounded value can offset a tiny weight.
+    weight_scale = max(weights)
+    scaled_weights = [weight / weight_scale for weight in weights]
+    total_weight = sum(scaled_weights)
+    ari = sum(value * weight for value, weight in zip(typed_values, scaled_weights)) / total_weight
     arithmetic_would_allow = ari >= threshold
     if lam == 0.0:
         verdict = "LAMBDA_VETO"

@@ -55,10 +55,8 @@ export function weightedArithmeticMean(values: number[], weights: number[]): num
   if (!values.length || values.length !== weights.length) {
     throw new Error("arithmetic mean requires matching non-empty values and weights");
   }
-  const scale = weights.reduce((largest, weight) => Math.max(largest, weight), 0);
-  const scaledWeights = weights.map((weight) => weight / scale);
-  const total = scaledWeights.reduce((a, b) => a + b, 0);
-  return values.reduce((acc, v, i) => acc + v * scaledWeights[i], 0) / total;
+  const total = weights.reduce((a, b) => a + b, 0);
+  return values.reduce((acc, v, i) => acc + v * weights[i], 0) / total;
 }
 
 function axisValid(axis: AxisEvidence, now: Date): boolean {
@@ -122,7 +120,12 @@ export function evaluateLambdaGate(
   const values = required.map((a) => a.value as number);
   const weights = required.map((a) => a.weight);
   const lam = weightedGeometricMean(values, weights);
-  const ari = weightedArithmeticMean(values, weights);
+  // Gate values are validated in [0,1]. Keep weight scaling here: in the
+  // standalone arithmetic helper, an unbounded value can offset a tiny weight.
+  const weightScale = weights.reduce((largest, weight) => Math.max(largest, weight), 0);
+  const scaledWeights = weights.map((weight) => weight / weightScale);
+  const totalWeight = scaledWeights.reduce((a, b) => a + b, 0);
+  const ari = values.reduce((acc, value, i) => acc + value * scaledWeights[i], 0) / totalWeight;
   const arithmeticWouldAllow = ari >= threshold;
   let verdict: Verdict;
   if (lam === 0) verdict = "LAMBDA_VETO";
