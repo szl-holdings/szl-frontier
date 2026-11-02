@@ -5,7 +5,7 @@ Security properties:
 * Bounded response bodies.
 * Explicit timeouts and user-agent.
 * No authentication headers, shell execution, or arbitrary URLs.
-* Redirect targets are revalidated before data is admitted.
+* Redirect targets are revalidated before the next request is sent.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ import re
 from dataclasses import dataclass
 from typing import Protocol
 from urllib.parse import quote, urlencode, urlparse
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from .domain import FrontierError, FrontierRelease, HF_ORIGIN, SourceSnapshot
 from .watch_materiality import WatchError, hub_snapshot
@@ -49,6 +49,14 @@ def _require_hf_url(url: str) -> None:
         raise TransportError(f"URL left Hugging Face allow-list: {url}")
 
 
+class _HuggingFaceRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # urllib resolves relative Location values before this hook. Check every
+        # destination before the default handler constructs and sends that hop.
+        _require_hf_url(newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
 class StdlibTransport:
     """Small, dependency-free HTTP transport with response-size enforcement."""
 
@@ -73,7 +81,8 @@ class StdlibTransport:
             method="GET",
         )
         try:
-            with urlopen(request, timeout=self.timeout_seconds) as response:  # noqa: S310 - allow-listed URL
+            opener = build_opener(_HuggingFaceRedirectHandler())
+            with opener.open(request, timeout=self.timeout_seconds) as response:  # noqa: S310 - allow-listed URL
                 final_url = response.geturl()
                 _require_hf_url(final_url)
                 length = response.headers.get("Content-Length")
