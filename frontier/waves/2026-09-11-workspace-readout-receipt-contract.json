@@ -2,7 +2,7 @@
   "schema": "szl.frontier.integration-wave.v1",
   "id": "2026-09-11-workspace-readout-receipt-contract",
   "sourceOfTruth": "szl-holdings/szl-frontier",
-  "sourceRevisionObserved": "62bfc47327d859b5c18bec9bf1c8797db6e7dd4e",
+  "sourceRevisionObserved": "81fe12fdab7c15a393f51fcb11a13a5108da3532",
   "class": "preparation",
   "lane": "governed-inference",
   "policy": {

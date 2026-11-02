@@ -53,7 +53,7 @@
     },
     "readoutContractReference": {
       "path": "frontier/waves/2026-09-11-workspace-readout-receipt-contract.json",
-      "pinnedBlob": "dafa297895fc882ac526ddb2de10d8f662b4552b",
+      "pinnedBlob": "28a84dbd4409b99d2ab6e87f120132aacfcdfb62",
       "note": "Observed canonical joinKey captureReceipt and method/coverage/disposition requirements. Contract unchanged."
     },
     "wireProfile": {
