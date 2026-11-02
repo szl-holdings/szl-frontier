@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import random
+import json
+import math
 import unittest
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
 from szl_frontier.lambda_gate import (
@@ -15,6 +18,49 @@ from szl_frontier.lambda_gate import (
 
 
 FROZEN = datetime(2026, 9, 20, tzinfo=timezone.utc)
+
+
+class StandaloneArithmeticCompatibility(unittest.TestCase):
+    def test_mixed_magnitudes_retain_representable_products(self) -> None:
+        for values, weights, expected in [
+            ([1e-308, 1e308], [1e308, 1e-308], 2e-308),
+            ([1e308, 1e-308], [1e-308, 1e308], 2e-308),
+            ([-1e-308, -1e308], [1e308, 1e-308], -2e-308),
+        ]:
+            with self.subTest(values=values):
+                self.assertEqual(weighted_arithmetic_mean(values, weights), expected)
+
+    def test_ordinary_rounding_is_unchanged(self) -> None:
+        self.assertEqual(
+            weighted_arithmetic_mean([0.1, 0.2, 0.3], [1.0, 2.0, 3.0]),
+            0.2333333333333333,
+        )
+
+
+class WeightScaleRegression(unittest.TestCase):
+    def test_shared_finite_weight_vectors_and_receipt_roundtrip(self) -> None:
+        from szl_frontier.receipts import EvidenceReceipt, ReceiptFactory, canonical_json
+
+        fixtures = Path(__file__).resolve().parents[2] / "tests/fixtures/lambda-weight-scaling.json"
+        for row in json.loads(fixtures.read_text()):
+            with self.subTest(case=row["id"]):
+                axes = [AxisEvidence(name=f"axis-{i}", value=float(value), status="MEASURED", weight=weight)
+                        for i, (value, weight) in enumerate(zip(row["values"], row["weights"]))]
+                result = evaluate_lambda_gate(axes, threshold=row["threshold"], now=FROZEN)
+                self.assertEqual(result.verdict, row["verdict"])
+                for actual, expected in [(result.lambda_score, row["geometric"]),
+                                         (result.arithmetic_score, row["arithmetic"])]:
+                    self.assertTrue(math.isfinite(actual))
+                    self.assertAlmostEqual(actual, expected, delta=1e-14)
+                self.assertEqual(result.arithmetic_would_allow, row["arithmetic"] >= row["threshold"])
+                self.assertFalse(result.as_mapping()["shadowExecutable"])
+                payload = {"axes": [a.as_mapping() for a in axes], "result": result.as_mapping()}
+                receipt = ReceiptFactory().create(release_id="weight-scale-test", subject="lambda", payload=payload)
+                persisted = json.loads(canonical_json(receipt.as_mapping()))
+                loaded = EvidenceReceipt.from_mapping(persisted)
+                loaded.verify()
+                self.assertEqual(loaded.digest, receipt.digest)
+                self.assertEqual(loaded.payload, payload)
 
 
 def axis(name: str, value: float | None, status: str = "MEASURED", **kwargs) -> AxisEvidence:

@@ -1,0 +1,12 @@
+[
+  {"id":"ordinary","values":[0.9,0.9],"weights":[1,1],"threshold":0.95,"geometric":0.9,"arithmetic":0.9,"verdict":"ESCALATE"},
+  {"id":"overflow-total","values":[0.9,0.9],"weights":[1e308,1e308],"threshold":0.95,"geometric":0.9,"arithmetic":0.9,"verdict":"ESCALATE"},
+  {"id":"underflow-products","values":[0.9,0.9],"weights":[5e-324,5e-324],"threshold":0.95,"geometric":0.9,"arithmetic":0.9,"verdict":"ESCALATE"},
+  {"id":"unequal-subnormal","values":[0.25,1],"weights":[5e-324,1.5e-323],"threshold":0.75,"geometric":0.7071067811865476,"arithmetic":0.8125,"verdict":"ESCALATE"},
+  {"id":"unequal-large","values":[0.25,1],"weights":[1e307,3e307],"threshold":0.75,"geometric":0.7071067811865476,"arithmetic":0.8125,"verdict":"ESCALATE"},
+  {"id":"near-threshold-above","values":[0.7,0.7],"weights":[1e308,1e308],"threshold":0.700000000001,"geometric":0.7,"arithmetic":0.7,"verdict":"ESCALATE"},
+  {"id":"near-threshold-below","values":[0.7,0.7],"weights":[5e-324,5e-324],"threshold":0.699999999999,"geometric":0.7,"arithmetic":0.7,"verdict":"ALLOW"},
+  {"id":"zero-veto-large","values":[0,0.9],"weights":[1e308,1e308],"threshold":0.4,"geometric":0,"arithmetic":0.45,"verdict":"LAMBDA_VETO"},
+  {"id":"zero-veto-tiny","values":[0,0.9],"weights":[5e-324,5e-324],"threshold":0.4,"geometric":0,"arithmetic":0.45,"verdict":"LAMBDA_VETO"},
+  {"id":"zero-veto-negligible-weight","values":[0,0.9],"weights":[5e-324,1e308],"threshold":0.7,"geometric":0,"arithmetic":0.9,"verdict":"LAMBDA_VETO"}
+]

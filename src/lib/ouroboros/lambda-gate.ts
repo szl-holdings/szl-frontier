@@ -42,8 +42,12 @@ export function weightedGeometricMean(values: number[], weights: number[]): numb
     throw new Error("geometric mean requires finite positive weights");
   }
   if (values.some((v) => v === 0)) return 0;
-  const total = weights.reduce((a, b) => a + b, 0);
-  const logSum = values.reduce((acc, v, i) => acc + weights[i] * Math.log(v), 0);
+  // A common positive scale cancels from the mean; normalize before weighted
+  // products so finite extreme weights cannot overflow or round a score to 1.
+  const scale = weights.reduce((largest, weight) => Math.max(largest, weight), 0);
+  const scaledWeights = weights.map((weight) => weight / scale);
+  const total = scaledWeights.reduce((a, b) => a + b, 0);
+  const logSum = values.reduce((acc, v, i) => acc + scaledWeights[i] * Math.log(v), 0);
   return Math.exp(logSum / total);
 }
 
@@ -116,7 +120,12 @@ export function evaluateLambdaGate(
   const values = required.map((a) => a.value as number);
   const weights = required.map((a) => a.weight);
   const lam = weightedGeometricMean(values, weights);
-  const ari = weightedArithmeticMean(values, weights);
+  // Gate values are validated in [0,1]. Keep weight scaling here: in the
+  // standalone arithmetic helper, an unbounded value can offset a tiny weight.
+  const weightScale = weights.reduce((largest, weight) => Math.max(largest, weight), 0);
+  const scaledWeights = weights.map((weight) => weight / weightScale);
+  const totalWeight = scaledWeights.reduce((a, b) => a + b, 0);
+  const ari = values.reduce((acc, value, i) => acc + value * scaledWeights[i], 0) / totalWeight;
   const arithmeticWouldAllow = ari >= threshold;
   let verdict: Verdict;
   if (lam === 0) verdict = "LAMBDA_VETO";
