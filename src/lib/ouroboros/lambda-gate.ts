@@ -42,8 +42,12 @@ export function weightedGeometricMean(values: number[], weights: number[]): numb
     throw new Error("geometric mean requires finite positive weights");
   }
   if (values.some((v) => v === 0)) return 0;
-  const total = weights.reduce((a, b) => a + b, 0);
-  const logSum = values.reduce((acc, v, i) => acc + weights[i] * Math.log(v), 0);
+  // A common positive scale cancels from the mean; normalize before weighted
+  // products so finite extreme weights cannot overflow or round a score to 1.
+  const scale = weights.reduce((largest, weight) => Math.max(largest, weight), 0);
+  const scaledWeights = weights.map((weight) => weight / scale);
+  const total = scaledWeights.reduce((a, b) => a + b, 0);
+  const logSum = values.reduce((acc, v, i) => acc + scaledWeights[i] * Math.log(v), 0);
   return Math.exp(logSum / total);
 }
 
@@ -51,8 +55,10 @@ export function weightedArithmeticMean(values: number[], weights: number[]): num
   if (!values.length || values.length !== weights.length) {
     throw new Error("arithmetic mean requires matching non-empty values and weights");
   }
-  const total = weights.reduce((a, b) => a + b, 0);
-  return values.reduce((acc, v, i) => acc + v * weights[i], 0) / total;
+  const scale = weights.reduce((largest, weight) => Math.max(largest, weight), 0);
+  const scaledWeights = weights.map((weight) => weight / scale);
+  const total = scaledWeights.reduce((a, b) => a + b, 0);
+  return values.reduce((acc, v, i) => acc + v * scaledWeights[i], 0) / total;
 }
 
 function axisValid(axis: AxisEvidence, now: Date): boolean {

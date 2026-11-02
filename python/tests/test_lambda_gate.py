@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import random
+import json
+import math
 import unittest
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
 from szl_frontier.lambda_gate import (
@@ -15,6 +18,32 @@ from szl_frontier.lambda_gate import (
 
 
 FROZEN = datetime(2026, 9, 20, tzinfo=timezone.utc)
+
+
+class WeightScaleRegression(unittest.TestCase):
+    def test_shared_finite_weight_vectors_and_receipt_roundtrip(self) -> None:
+        from szl_frontier.receipts import EvidenceReceipt, ReceiptFactory, canonical_json
+
+        fixtures = Path(__file__).resolve().parents[2] / "tests/fixtures/lambda-weight-scaling.json"
+        for row in json.loads(fixtures.read_text()):
+            with self.subTest(case=row["id"]):
+                axes = [AxisEvidence(name=f"axis-{i}", value=float(value), status="MEASURED", weight=weight)
+                        for i, (value, weight) in enumerate(zip(row["values"], row["weights"]))]
+                result = evaluate_lambda_gate(axes, threshold=row["threshold"], now=FROZEN)
+                self.assertEqual(result.verdict, row["verdict"])
+                for actual, expected in [(result.lambda_score, row["geometric"]),
+                                         (result.arithmetic_score, row["arithmetic"])]:
+                    self.assertTrue(math.isfinite(actual))
+                    self.assertAlmostEqual(actual, expected, delta=1e-14)
+                self.assertEqual(result.arithmetic_would_allow, row["arithmetic"] >= row["threshold"])
+                self.assertFalse(result.as_mapping()["shadowExecutable"])
+                payload = {"axes": [a.as_mapping() for a in axes], "result": result.as_mapping()}
+                receipt = ReceiptFactory().create(release_id="weight-scale-test", subject="lambda", payload=payload)
+                persisted = json.loads(canonical_json(receipt.as_mapping()))
+                loaded = EvidenceReceipt.from_mapping(persisted)
+                loaded.verify()
+                self.assertEqual(loaded.digest, receipt.digest)
+                self.assertEqual(loaded.payload, payload)
 
 
 def axis(name: str, value: float | None, status: str = "MEASURED", **kwargs) -> AxisEvidence:

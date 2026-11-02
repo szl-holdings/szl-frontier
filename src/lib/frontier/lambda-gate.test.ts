@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
+import { sealReceipt, sha256Hex, stableCanonical } from "./receipt-envelope.ts";
+import { evaluateLambdaGate as evaluateOuroborosGate } from "../ouroboros/lambda-gate.ts";
 import {
   evaluateLambdaGate,
   sealCompleteness,
@@ -59,4 +62,41 @@ test("completeness is a zero-veto axis", () => {
   ]);
   const complete = axes.find((a) => a.name === "evidence_completeness");
   assert.equal(complete?.value, 0);
+});
+
+const scalingCases = JSON.parse(readFileSync(
+  new URL("../../../tests/fixtures/lambda-weight-scaling.json", import.meta.url), "utf8",
+)) as Array<{ id: string; values: number[]; weights: number[]; threshold: number;
+  geometric: number; arithmetic: number; verdict: string }>;
+
+for (const row of scalingCases) {
+  test(`finite weight scaling preserves scores and receipt integrity: ${row.id}`, async () => {
+    const axes = row.values.map((value, i) => ({ ...axis(`axis-${i}`, value), weight: row.weights[i] }));
+    const result = evaluateLambdaGate(axes, { threshold: row.threshold });
+    assert.equal(result.verdict, row.verdict);
+    const ouroboros = evaluateOuroborosGate(axes, row.threshold);
+    assert.equal(ouroboros.verdict, row.verdict);
+    for (const [actual, expected] of [[ouroboros.lambdaScore, row.geometric], [ouroboros.arithmeticScore, row.arithmetic]]) {
+      assert.ok(Number.isFinite(actual));
+      assert.ok(Math.abs(actual! - expected!) <= 1e-14);
+    }
+    for (const [actual, expected] of [[result.lambdaScore, row.geometric], [result.arithmeticScore, row.arithmetic]]) {
+      assert.equal(typeof actual, "number");
+      assert.ok(Number.isFinite(actual));
+      assert.ok(Math.abs(actual! - expected!) <= 1e-14);
+    }
+    assert.equal(result.arithmeticWouldAllow, row.arithmetic >= row.threshold);
+    assert.equal(result.shadowExecutable, false);
+    const payload = { axes, result, productionAuthorization: false };
+    const envelope = await sealReceipt({ kind: "ready", payload, producedAt: "2026-11-02T00:00:00Z" });
+    const persisted = JSON.parse(JSON.stringify(envelope));
+    assert.deepEqual(persisted.payload, payload);
+    assert.equal(persisted.digestSha256, await sha256Hex(stableCanonical(persisted.payload)));
+    assert.equal(persisted.authority, "NONE");
+    assert.equal(persisted.productionAuthorization, false);
+  });
+}
+
+test("ordinary receipt bytes retain the existing envelope serializer", () => {
+  assert.equal(stableCanonical({ score: 0.9, weights: [1, 1] }), '{"score":0.9,"weights":[1,1]}');
 });

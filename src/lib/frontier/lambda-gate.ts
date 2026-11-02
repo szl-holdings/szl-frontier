@@ -74,8 +74,13 @@ export function weightedGeometricMean(values: number[], weights: number[]): numb
     throw new GateError("geometric mean requires finite positive weights");
   }
   if (values.some((v) => v === 0)) return 0;
-  const total = weights.reduce((a, b) => a + b, 0);
-  const logSum = values.reduce((acc, v, i) => acc + weights[i]! * Math.log(v), 0);
+  // Scaling every weight by the same positive factor preserves the mean.
+  // Do this before multiplication: finite weights can overflow their sum or
+  // underflow weighted logs, incorrectly turning an axis below threshold into 1.
+  const scale = weights.reduce((largest, weight) => Math.max(largest, weight), 0);
+  const scaledWeights = weights.map((weight) => weight / scale);
+  const total = scaledWeights.reduce((a, b) => a + b, 0);
+  const logSum = values.reduce((acc, v, i) => acc + scaledWeights[i]! * Math.log(v), 0);
   return Math.exp(logSum / total);
 }
 
@@ -86,8 +91,10 @@ export function weightedArithmeticMean(values: number[], weights: number[]): num
   if (values.some((v) => !Number.isFinite(v)) || weights.some((w) => !Number.isFinite(w) || w <= 0)) {
     throw new GateError("arithmetic mean requires finite values and positive weights");
   }
-  const total = weights.reduce((a, b) => a + b, 0);
-  return values.reduce((acc, v, i) => acc + v * weights[i]!, 0) / total;
+  const scale = weights.reduce((largest, weight) => Math.max(largest, weight), 0);
+  const scaledWeights = weights.map((weight) => weight / scale);
+  const total = scaledWeights.reduce((a, b) => a + b, 0);
+  return values.reduce((acc, v, i) => acc + v * scaledWeights[i]!, 0) / total;
 }
 
 function classifyGap(axis: AxisEvidence, now: Date): string {

@@ -194,8 +194,12 @@ def weighted_geometric_mean(
         raise GateError("geometric mean requires positive weights", "LAMBDA_WEIGHT_NONPOSITIVE")
     if any(v == 0 for v in values):
         return 0.0
-    total = math.fsum(weights)
-    log_sum = math.fsum(w * math.log(v) for v, w in zip(values, weights))
+    # A common positive weight scale cancels from the ratio. Normalize before
+    # products/sums to avoid both overflow and subnormal rounding to a false 1.
+    scale = max(weights)
+    scaled_weights = [w / scale for w in weights]
+    total = math.fsum(scaled_weights)
+    log_sum = math.fsum(w * math.log(v) for v, w in zip(values, scaled_weights))
     return math.exp(log_sum / total)
 
 
@@ -208,8 +212,10 @@ def weighted_arithmetic_mean(
         not math.isfinite(w) or w <= 0 for w in weights
     ):
         raise GateError("arithmetic mean requires finite values and positive weights")
-    total = sum(weights)
-    return sum(v * w for v, w in zip(values, weights)) / total
+    scale = max(weights)
+    scaled_weights = [w / scale for w in weights]
+    total = sum(scaled_weights)
+    return sum(v * w for v, w in zip(values, scaled_weights)) / total
 
 
 def _classify_gap(axis: AxisEvidence, now: datetime | None) -> str:
