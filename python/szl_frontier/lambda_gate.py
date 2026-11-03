@@ -9,6 +9,7 @@ Conjecture 1.
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Mapping, Sequence
@@ -44,8 +45,25 @@ class GateError(FrontierError):
         self.code = code
 
 
+_RFC3339 = re.compile(
+    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,6})?)?(?:Z|[+-]\d{2}:\d{2})"
+)
+
+
 def _parse_iso(value: str) -> datetime:
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    """Parse an expiry as a strict RFC 3339 timestamp with an explicit offset.
+
+    Date-only, offset-less or basic-format values are refused (ValueError), so
+    the gate classifies them INVALID_AXIS instead of comparing a naive datetime
+    against an aware clock (TypeError). The TypeScript mirror in
+    src/lib/frontier/lambda-gate.ts enforces the same shape.
+    """
+    if not isinstance(value, str) or not _RFC3339.fullmatch(value):
+        raise ValueError("expiry must be an RFC 3339 timestamp with an explicit offset")
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError("expiry must carry an explicit UTC offset")
+    return parsed
 
 
 @dataclass(frozen=True, slots=True)
