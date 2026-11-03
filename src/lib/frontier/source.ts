@@ -4,6 +4,53 @@ export type HeadClass = "MODELED" | "REACHABLE" | "UNAVAILABLE";
 export type HeadMatch = "MATCH" | "DRIFT" | "UNAVAILABLE";
 
 const SHA1 = /^[0-9a-f]{40}$/;
+const DEPLOYMENT_JSON_MAX_BYTES = 16 * 1024;
+const DEPLOYMENT_JSON_TIMEOUT_MS = 5_000;
+const DEPLOYMENT_SOURCE_SCHEMA = "szl.runtime-source/v1";
+const DEPLOYMENT_SOURCE_AUTHORITY = "protected-github-source";
+
+interface DeploymentResponse {
+  status: number;
+  redirected: boolean;
+  url: string;
+  headers: { get(name: string): string | null };
+  body: ReadableStream<Uint8Array> | null;
+}
+
+export type DeploymentTransport = (url: URL, init: RequestInit) => Promise<DeploymentResponse>;
+
+async function readBoundedDeploymentBody(
+  body: ReadableStream<Uint8Array> | null,
+): Promise<Uint8Array | null> {
+  if (!body) return null;
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let length = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      length += value.byteLength;
+      if (length > DEPLOYMENT_JSON_MAX_BYTES) {
+        await reader.cancel("DEPLOYMENT_JSON_TOO_LARGE");
+        return null;
+      }
+      chunks.push(value);
+    }
+  } catch {
+    return null;
+  } finally {
+    reader.releaseLock();
+  }
+  if (length < 1) return null;
+  const joined = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) {
+    joined.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return joined;
+}
 
 export const SOURCE = {
   product: "szl-frontier",
@@ -28,6 +75,76 @@ export const SOURCE = {
 
 export function classifySha(value: string | null | undefined): value is string {
   return typeof value === "string" && SHA1.test(value);
+}
+
+/**
+ * Read the deployment revision from this runtime's exact static endpoint.
+ *
+ * A revision string is identity evidence only after the transport stays on the
+ * requested URL and the bounded response is valid JSON. Redirects are refused
+ * before another request is sent; a successful HTTP response alone does not
+ * bind source identity.
+ */
+export async function fetchDeploymentSourceRevision(
+  requestUrl: string,
+  transport: DeploymentTransport = (url, init) => fetch(url, init),
+): Promise<string | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), DEPLOYMENT_JSON_TIMEOUT_MS);
+  try {
+    const request = new URL(requestUrl);
+    if (!/^https?:$/.test(request.protocol) || request.username || request.password) return null;
+    const target = new URL("/deployment.json", request);
+    const response = await transport(target, {
+      method: "GET",
+      headers: { accept: "application/json" },
+      cache: "no-store",
+      credentials: "omit",
+      redirect: "error",
+      signal: controller.signal,
+    });
+    if (response.status !== 200 || response.redirected || !response.url) return null;
+
+    const finalUrl = new URL(response.url);
+    if (finalUrl.href !== target.href) return null;
+    const mediaType = response.headers.get("content-type")?.split(";", 1)[0]?.trim().toLowerCase();
+    if (mediaType !== "application/json") return null;
+
+    const contentLength = response.headers.get("content-length");
+    if (contentLength !== null) {
+      if (!/^\d+$/.test(contentLength)) return null;
+      const declaredBytes = Number(contentLength);
+      if (
+        !Number.isSafeInteger(declaredBytes) ||
+        declaredBytes < 1 ||
+        declaredBytes > DEPLOYMENT_JSON_MAX_BYTES
+      ) {
+        return null;
+      }
+    }
+
+    const bytes = await readBoundedDeploymentBody(response.body);
+    if (!bytes) return null;
+    if (contentLength !== null && Number(contentLength) !== bytes.byteLength) return null;
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    const body: unknown = JSON.parse(text);
+    if (!body || typeof body !== "object" || Array.isArray(body)) return null;
+    const identity = body as Record<string, unknown>;
+    if (
+      identity.schema !== DEPLOYMENT_SOURCE_SCHEMA ||
+      identity.source_repository !== SOURCE.repository ||
+      identity.surface !== SOURCE.huggingfaceSpace ||
+      identity.authority !== DEPLOYMENT_SOURCE_AUTHORITY
+    ) {
+      return null;
+    }
+    const sha = identity.source_revision;
+    return typeof sha === "string" && classifySha(sha) ? sha : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export type HealthStatus = "ok" | "degraded";
@@ -102,7 +219,9 @@ export function readyPayload(opts: { catalogLoaded: boolean; engineHydratable: b
 export function sourcePayload(opts?: { deploymentSourceRevision?: string | null }) {
   const deployRaw = opts?.deploymentSourceRevision ?? null;
   const deploymentSourceRevision = classifySha(deployRaw) ? deployRaw : null;
-  const deploymentSourceRevisionClass: HeadClass = deploymentSourceRevision ? "REACHABLE" : "UNAVAILABLE";
+  const deploymentSourceRevisionClass: HeadClass = deploymentSourceRevision
+    ? "REACHABLE"
+    : "UNAVAILABLE";
   const reconciledPinMatch: HeadMatch = deploymentSourceRevision
     ? deploymentSourceRevision === SOURCE.reconciledHead
       ? "MATCH"
