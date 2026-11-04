@@ -1,3 +1,5 @@
+import { verifyReceiptChain } from "./verify-chain";
+import { stableCanonical } from "../frontier/receipt-envelope";
 import { embed, EMBED_DIM, EMBED_REVISION, hybridScore, tokenize } from "./index-engine";
 import {
   AUDITOR_AGENT,
@@ -82,7 +84,9 @@ export class CovenantEngine {
     const createdAt = nowIso();
     const id = rid("rcpt");
     const seq = this.receipts.length + 1;
-    const body = JSON.stringify({ ...partial, id, seq, prevHash, createdAt });
+    const unhashed = { ...partial, id, seq, prevHash, createdAt };
+    stableCanonical(unhashed);
+    const body = JSON.stringify(unhashed);
     const hash = await sha256Hex(body);
     const receipt: Receipt = { ...partial, id, seq, prevHash, hash, createdAt };
     this.receipts = [...this.receipts, receipt];
@@ -411,17 +415,7 @@ export class CovenantEngine {
   }
 
   async verifyChain(): Promise<{ ok: boolean; brokenAt: number | null }> {
-    let prev = this.genesisHash;
-    for (let i = 0; i < this.receipts.length; i++) {
-      const r = this.receipts[i];
-      if (r.prevHash !== prev) return { ok: false, brokenAt: i };
-      const { hash, ...rest } = r;
-      const body = JSON.stringify({ ...rest, hash: undefined });
-      void hash;
-      void body;
-      prev = r.hash;
-    }
-    return { ok: true, brokenAt: null };
+    return verifyReceiptChain(this.receipts, this.genesisHash);
   }
 
   materialize(mem: MemoryRecord): MemoryRecord {
