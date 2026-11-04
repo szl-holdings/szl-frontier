@@ -194,8 +194,12 @@ def weighted_geometric_mean(
         raise GateError("geometric mean requires positive weights", "LAMBDA_WEIGHT_NONPOSITIVE")
     if any(v == 0 for v in values):
         return 0.0
-    total = math.fsum(weights)
-    log_sum = math.fsum(w * math.log(v) for v, w in zip(values, weights))
+    # A common positive weight scale cancels from the ratio. Normalize before
+    # products/sums to avoid both overflow and subnormal rounding to a false 1.
+    scale = max(weights)
+    scaled_weights = [w / scale for w in weights]
+    total = math.fsum(scaled_weights)
+    log_sum = math.fsum(w * math.log(v) for v, w in zip(values, scaled_weights))
     return math.exp(log_sum / total)
 
 
@@ -279,7 +283,12 @@ def evaluate_lambda_gate(
     typed_values = [float(value) for value in values]
     weights = [axis.weight for axis in required]
     lam = weighted_geometric_mean(typed_values, weights)
-    ari = weighted_arithmetic_mean(typed_values, weights)
+    # Gate values are validated in [0,1]. Keep weight scaling here: in the
+    # standalone arithmetic helper, an unbounded value can offset a tiny weight.
+    weight_scale = max(weights)
+    scaled_weights = [weight / weight_scale for weight in weights]
+    total_weight = sum(scaled_weights)
+    ari = sum(value * weight for value, weight in zip(typed_values, scaled_weights)) / total_weight
     arithmetic_would_allow = ari >= threshold
     if lam == 0.0:
         verdict = "LAMBDA_VETO"
