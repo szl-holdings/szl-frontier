@@ -1,0 +1,1316 @@
+{
+  "schema": "szl.lambda.parity/v1",
+  "now": "2026-11-03T00:00:00Z",
+  "reference": "python/szl_frontier/lambda_gate.py",
+  "mirrors": [
+    "src/lib/frontier/lambda-gate.ts",
+    "src/lib/ouroboros/lambda-gate.ts"
+  ],
+  "score_abs_tol": 1e-12,
+  "known_differences": {
+    "state_label": "An evaluated gate reports state MEASURED in Python and EVALUATED in TypeScript; BLOCKED is shared. Pinned, not reconciled.",
+    "construction_refusal": "Python refuses an unknown status or a non-positive weight when the axis is built (GateError); TypeScript has no constructor and returns HARD_DENY. Both refuse."
+  },
+  "allowed_construction_refusals": [
+    "unknown_status",
+    "weight_negative_invalid_axis"
+  ],
+  "cases": [
+    {
+      "id": "allow_basic",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 0.8,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.848528137423857,
+        "arithmeticScore": 0.8500000000000001,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.848528137423857,
+        "arithmeticScore": 0.8500000000000001,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "escalate",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.6,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 0.7,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "ESCALATE",
+        "lambdaScore": 0.648074069840786,
+        "arithmeticScore": 0.6499999999999999,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ESCALATE",
+        "lambdaScore": 0.648074069840786,
+        "arithmeticScore": 0.6499999999999999,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "veto_zero",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.0,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 1.0,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "LAMBDA_VETO",
+        "lambdaScore": 0.0,
+        "arithmeticScore": 0.5,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "LAMBDA_VETO",
+        "lambdaScore": 0,
+        "arithmeticScore": 0.5,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "divergent_arith_allows",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.99,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 0.45,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "ESCALATE",
+        "lambdaScore": 0.6674578638386096,
+        "arithmeticScore": 0.72,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": true,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ESCALATE",
+        "lambdaScore": 0.6674578638386097,
+        "arithmeticScore": 0.72,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": true,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "threshold_equal",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.7,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.7,
+        "arithmeticScore": 0.7,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.7,
+        "arithmeticScore": 0.7,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "threshold_one",
+      "threshold": 1.0,
+      "axes": [
+        {
+          "name": "a",
+          "value": 1.0,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 1.0,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "ALLOW",
+        "lambdaScore": 1.0,
+        "arithmeticScore": 1.0,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ALLOW",
+        "lambdaScore": 1,
+        "arithmeticScore": 1,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "weighted",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.95,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 3.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 0.5,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.8091614892741038,
+        "arithmeticScore": 0.8374999999999999,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.8091614892741037,
+        "arithmeticScore": 0.8374999999999999,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "blocked_status",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "BLOCKED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "MISSING_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "MISSING_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "null_value",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": null,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "MISSING_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "MISSING_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "value_above_one",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 1.2,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "value_negative",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": -0.1,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "stale_expiry",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": "2026-01-01T00:00:00Z"
+        }
+      ],
+      "python": {
+        "verdict": "DENY_DEFAULT",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "STALE_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "DENY_DEFAULT",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "STALE_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "future_expiry",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": "2099-01-01T00:00:00Z"
+        }
+      ],
+      "python": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.9,
+        "arithmeticScore": 0.9,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.9,
+        "arithmeticScore": 0.9,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "unparseable_expiry",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": "not-a-date"
+        }
+      ],
+      "python": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "date_only_expiry",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": "2099-01-01"
+        }
+      ],
+      "python": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "offset_expiry",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": "2099-01-01T00:00:00+05:00"
+        }
+      ],
+      "python": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.9,
+        "arithmeticScore": 0.9,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.9,
+        "arithmeticScore": 0.9,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "month13_expiry",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": "2026-13-01T00:00:00Z"
+        }
+      ],
+      "python": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "stale_and_missing",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": "2026-01-01T00:00:00Z"
+        },
+        {
+          "name": "b",
+          "value": null,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "STALE_AXIS:a",
+          "MISSING_AXIS:b"
+        ],
+        "gaps": [
+          "a",
+          "b"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "STALE_AXIS:a",
+          "MISSING_AXIS:b"
+        ],
+        "gaps": [
+          "a",
+          "b"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "optional_invalid_ignored",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "opt",
+          "value": null,
+          "status": "MEASURED",
+          "required": false,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.9,
+        "arithmeticScore": 0.9,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.9,
+        "arithmeticScore": 0.9,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "no_required",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "opt",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": false,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "error": "GateError"
+      },
+      "typescript": {
+        "error": "GateError"
+      }
+    },
+    {
+      "id": "threshold_zero",
+      "threshold": 0.0,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "error": "GateError"
+      },
+      "typescript": {
+        "error": "GateError"
+      }
+    },
+    {
+      "id": "threshold_negative",
+      "threshold": -0.1,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "error": "GateError"
+      },
+      "typescript": {
+        "error": "GateError"
+      }
+    },
+    {
+      "id": "threshold_above_one",
+      "threshold": 1.5,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "error": "GateError"
+      },
+      "typescript": {
+        "error": "GateError"
+      }
+    },
+    {
+      "id": "weight_zero_valid_axis",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 0.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "error": "GateError"
+      },
+      "typescript": {
+        "error": "GateError"
+      }
+    },
+    {
+      "id": "weight_negative_invalid_axis",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": null,
+          "status": "MEASURED",
+          "required": true,
+          "weight": -1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "error": "GateError"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "MISSING_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "unknown_status",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "WEIRD",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "error": "GateError"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "MISSING_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "many_axes_fsum",
+      "threshold": 0.3,
+      "axes": [
+        {
+          "name": "x0",
+          "value": 0.1,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "x1",
+          "value": 0.2,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "x2",
+          "value": 0.3,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "x3",
+          "value": 0.7,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "x4",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "x5",
+          "value": 0.99,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "x6",
+          "value": 0.123456789,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "x7",
+          "value": 0.987654321,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "x8",
+          "value": 0.5,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "x9",
+          "value": 0.33333333333,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.38735535917289526,
+        "arithmeticScore": 0.513444444333,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ALLOW",
+        "lambdaScore": 0.3873553591728953,
+        "arithmeticScore": 0.5134444443330001,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": true,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "tiny_values",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 1e-300,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 1.0,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "ESCALATE",
+        "lambdaScore": 1.0000000000000118e-150,
+        "arithmeticScore": 0.5,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ESCALATE",
+        "lambdaScore": 1.0000000000000118e-150,
+        "arithmeticScore": 0.5,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "lambda_just_below",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.7,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        },
+        {
+          "name": "b",
+          "value": 0.6999999999999,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": null
+        }
+      ],
+      "python": {
+        "verdict": "ESCALATE",
+        "lambdaScore": 0.69999999999995,
+        "arithmeticScore": 0.69999999999995,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "MEASURED"
+      },
+      "typescript": {
+        "verdict": "ESCALATE",
+        "lambdaScore": 0.69999999999995,
+        "arithmeticScore": 0.69999999999995,
+        "reasonCodes": [],
+        "gaps": [],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "EVALUATED"
+      }
+    },
+    {
+      "id": "feb30_expiry",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": "2026-02-30T00:00:00Z"
+        }
+      ],
+      "python": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "naive_time_expiry",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": "2099-01-01T00:00:00"
+        }
+      ],
+      "python": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    },
+    {
+      "id": "basic_offset_expiry",
+      "threshold": 0.7,
+      "axes": [
+        {
+          "name": "a",
+          "value": 0.9,
+          "status": "MEASURED",
+          "required": true,
+          "weight": 1.0,
+          "expiryAt": "2099-01-01T00:00:00+0500"
+        }
+      ],
+      "python": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      },
+      "typescript": {
+        "verdict": "HARD_DENY",
+        "lambdaScore": null,
+        "arithmeticScore": null,
+        "reasonCodes": [
+          "INVALID_AXIS:a"
+        ],
+        "gaps": [
+          "a"
+        ],
+        "arithmeticWouldAllow": false,
+        "divergent": false,
+        "state": "BLOCKED"
+      }
+    }
+  ]
+}

@@ -1,15 +1,26 @@
 // SPDX-License-Identifier: Apache-2.0
-/** SOFTWARE Λ aggregator for the UI. Never a theorem. Mirrors python/szl_frontier/lambda_gate.py */
+/**
+ * SOFTWARE Λ aggregator for the UI. Never a theorem.
+ *
+ * Thin adapter over ../frontier/lambda-gate.ts, the single TypeScript mirror of
+ * python/szl_frontier/lambda_gate.py (the reference). This module keeps its
+ * historical call shape, evaluateLambdaGate(axes, threshold, now), and result
+ * shape, but owns no gate logic: threshold validation, expiry parsing and gap
+ * classification are the frontier implementation's. Parity is pinned by
+ * python/tests/fixtures/lambda_gate_parity_v1.json.
+ */
+import {
+  evaluateLambdaGate as evaluateFrontierLambdaGate,
+  LAMBDA_POSTURE,
+  VERDICTS,
+  weightedArithmeticMean,
+  weightedGeometricMean,
+  type EvidenceState,
+  type Verdict,
+} from "../frontier/lambda-gate.ts";
 
-export const LAMBDA_POSTURE = "CONJECTURE_1";
-export const VERDICTS = [
-  "HARD_DENY",
-  "DENY_DEFAULT",
-  "LAMBDA_VETO",
-  "ESCALATE",
-  "ALLOW",
-] as const;
-export type Verdict = (typeof VERDICTS)[number];
+export { LAMBDA_POSTURE, VERDICTS, weightedArithmeticMean, weightedGeometricMean };
+export type { Verdict };
 
 export type AxisEvidence = {
   name: string;
@@ -31,114 +42,24 @@ export type GateResult = {
   divergent: boolean;
 };
 
-export function weightedGeometricMean(values: number[], weights: number[]): number {
-  if (!values.length || values.length !== weights.length) {
-    throw new Error("geometric mean requires matching non-empty values and weights");
-  }
-  if (values.some((v) => !Number.isFinite(v) || v < 0)) {
-    throw new Error("geometric mean rejects non-finite or negative values");
-  }
-  if (weights.some((w) => !Number.isFinite(w) || w <= 0)) {
-    throw new Error("geometric mean requires finite positive weights");
-  }
-  if (values.some((v) => v === 0)) return 0;
-  // A common positive scale cancels from the mean; normalize before weighted
-  // products so finite extreme weights cannot overflow or round a score to 1.
-  const scale = weights.reduce((largest, weight) => Math.max(largest, weight), 0);
-  const scaledWeights = weights.map((weight) => weight / scale);
-  const total = scaledWeights.reduce((a, b) => a + b, 0);
-  const logSum = values.reduce((acc, v, i) => acc + scaledWeights[i] * Math.log(v), 0);
-  return Math.exp(logSum / total);
-}
-
-export function weightedArithmeticMean(values: number[], weights: number[]): number {
-  if (!values.length || values.length !== weights.length) {
-    throw new Error("arithmetic mean requires matching non-empty values and weights");
-  }
-  const total = weights.reduce((a, b) => a + b, 0);
-  return values.reduce((acc, v, i) => acc + v * weights[i], 0) / total;
-}
-
-function axisValid(axis: AxisEvidence, now: Date): boolean {
-  if (axis.status !== "MEASURED") return false;
-  if (axis.value === null || !Number.isFinite(axis.value)) return false;
-  if (axis.value < 0 || axis.value > 1) return false;
-  if (axis.expiryAt) {
-    const exp = Date.parse(axis.expiryAt);
-    if (!Number.isFinite(exp) || exp <= now.getTime()) return false;
-  }
-  return true;
-}
-
-function classifyGap(axis: AxisEvidence, now: Date): string {
-  if (
-    axis.value === null ||
-    (typeof axis.value === "number" &&
-      (!Number.isFinite(axis.value) || axis.value < 0 || axis.value > 1))
-  ) {
-    if (axis.status === "MEASURED" && axis.value !== null) return `INVALID_AXIS:${axis.name}`;
-    return `MISSING_AXIS:${axis.name}`;
-  }
-  if (axis.expiryAt) {
-    const exp = Date.parse(axis.expiryAt);
-    if (!Number.isFinite(exp) || exp <= now.getTime()) return `STALE_AXIS:${axis.name}`;
-  }
-  if (axis.status !== "MEASURED") return `MISSING_AXIS:${axis.name}`;
-  return `INVALID_AXIS:${axis.name}`;
-}
-
 export function evaluateLambdaGate(
   axes: AxisEvidence[],
   threshold = 0.7,
   now = new Date(),
 ): GateResult {
-  const required = axes.filter((a) => a.required);
-  if (!required.length) throw new Error("at least one required axis is required");
-  const reasonCodes: string[] = [];
-  const gaps: string[] = [];
-  for (const axis of required) {
-    if (!axisValid(axis, now)) {
-      reasonCodes.push(classifyGap(axis, now));
-      gaps.push(axis.name);
-    }
-  }
-  if (reasonCodes.length) {
-    const hard = reasonCodes.some(
-      (c) => c.startsWith("INVALID_AXIS:") || c.startsWith("MISSING_AXIS:"),
-    );
-    return {
-      verdict: hard ? "HARD_DENY" : "DENY_DEFAULT",
-      lambdaScore: null,
-      arithmeticScore: null,
-      threshold,
-      reasonCodes,
-      gaps,
-      arithmeticWouldAllow: false,
-      divergent: false,
-    };
-  }
-  const values = required.map((a) => a.value as number);
-  const weights = required.map((a) => a.weight);
-  const lam = weightedGeometricMean(values, weights);
-  // Gate values are validated in [0,1]. Keep weight scaling here: in the
-  // standalone arithmetic helper, an unbounded value can offset a tiny weight.
-  const weightScale = weights.reduce((largest, weight) => Math.max(largest, weight), 0);
-  const scaledWeights = weights.map((weight) => weight / weightScale);
-  const totalWeight = scaledWeights.reduce((a, b) => a + b, 0);
-  const ari = values.reduce((acc, value, i) => acc + value * scaledWeights[i], 0) / totalWeight;
-  const arithmeticWouldAllow = ari >= threshold;
-  let verdict: Verdict;
-  if (lam === 0) verdict = "LAMBDA_VETO";
-  else if (lam >= threshold) verdict = "ALLOW";
-  else verdict = "ESCALATE";
+  // An unknown status is not MEASURED, so the frontier gate treats it as a gap.
+  const r = evaluateFrontierLambdaGate(
+    axes.map((a) => ({ ...a, status: a.status as EvidenceState })),
+    { threshold, now },
+  );
   return {
-    verdict,
-    lambdaScore: lam,
-    arithmeticScore: ari,
-    threshold,
-    reasonCodes: [],
-    gaps: [],
-    arithmeticWouldAllow,
-    divergent: arithmeticWouldAllow !== (verdict === "ALLOW"),
+    verdict: r.verdict,
+    lambdaScore: r.lambdaScore,
+    arithmeticScore: r.arithmeticScore,
+    threshold: r.threshold,
+    reasonCodes: r.reasonCodes,
+    gaps: r.gaps,
+    arithmeticWouldAllow: r.arithmeticWouldAllow,
+    divergent: r.divergent,
   };
 }

@@ -48,8 +48,21 @@ export interface GateResult {
   shadowExecutable: false;
 }
 
-function parseIso(value: string): Date {
-  return new Date(value.replace("Z", "+00:00"));
+// Strict RFC 3339 subset; an explicit offset is required. Mirrors
+// python/szl_frontier/lambda_gate.py::_parse_iso, which refuses offset-less
+// timestamps. Calendar-invalid dates (e.g. 2026-02-30) are refused rather than
+// rolled over the way Date.parse would.
+const RFC3339 = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,6})?)?(Z|[+-]\d{2}:\d{2})$/;
+
+function parseIso(value: string): Date | null {
+  const m = RFC3339.exec(value);
+  if (!m) return null;
+  const [y, mo, d, h, mi, s] = [m[1], m[2], m[3], m[4], m[5], m[6] ?? "0"].map(Number) as number[];
+  const cal = new Date(Date.UTC(y!, mo! - 1, d!));
+  if (cal.getUTCFullYear() !== y || cal.getUTCMonth() !== mo! - 1 || cal.getUTCDate() !== d) return null;
+  if (h! > 23 || mi! > 59 || s! > 59) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 export function isValidAxis(axis: AxisEvidence, now = new Date()): boolean {
@@ -58,7 +71,7 @@ export function isValidAxis(axis: AxisEvidence, now = new Date()): boolean {
   if (axis.value < 0 || axis.value > 1) return false;
   if (axis.expiryAt) {
     const expiry = parseIso(axis.expiryAt);
-    if (Number.isNaN(expiry.getTime()) || expiry.getTime() <= now.getTime()) return false;
+    if (expiry === null || expiry.getTime() <= now.getTime()) return false;
   }
   return true;
 }
@@ -105,9 +118,8 @@ function classifyGap(axis: AxisEvidence, now: Date): string {
   }
   if (axis.expiryAt) {
     const expiry = parseIso(axis.expiryAt);
-    if (Number.isNaN(expiry.getTime()) || expiry.getTime() <= now.getTime()) {
-      return `STALE_AXIS:${axis.name}`;
-    }
+    if (expiry === null) return `INVALID_AXIS:${axis.name}`;
+    if (expiry.getTime() <= now.getTime()) return `STALE_AXIS:${axis.name}`;
   }
   if (axis.status !== "MEASURED") return `MISSING_AXIS:${axis.name}`;
   return `INVALID_AXIS:${axis.name}`;
