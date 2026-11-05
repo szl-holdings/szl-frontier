@@ -429,10 +429,32 @@ def license_posture_check(tags, posture):
     return False, f"unsupported licensePosture: {posture}"
 
 
-def metadata_fields(meta, repo, now, license_required=False):
+def namespace_note(http_status):
+    """Describe a metadata response that produced no object.
+
+    Hugging Face answers anonymous requests for both missing repositories and
+    repositories outside the public namespace with HTTP 401 and an
+    authentication error. Those two cases stay indistinguishable here. Callers
+    keep the observation incomplete; a credential is never added to collapse it.
+    """
+    if type(http_status) is not int:
+        return "metadata unreadable or malformed"
+    if http_status == 401:
+        return ("not in the anonymous public namespace (http 401); missing and "
+                "non-public repositories are indistinguishable without credentials")
+    if http_status == 404:
+        return "public metadata absent (http 404)"
+    if http_status == 0:
+        return "metadata unreadable (no HTTP response)"
+    if http_status != 200:
+        return f"metadata unreadable (http {http_status})"
+    return "metadata unreadable or malformed"
+
+
+def metadata_fields(meta, repo, now, license_required=False, http_status=None):
     notes, tags = [], []
     if not isinstance(meta, dict):
-        return ["metadata unreadable or malformed"], tags
+        return [namespace_note(http_status)], tags
     if meta.get("id", meta.get("modelId")) != repo:
         notes.append("metadata repository identity mismatch or absent")
     if not isinstance(meta.get("sha"), str) or not SHA.fullmatch(meta["sha"]):
@@ -480,9 +502,8 @@ def verify_wave(wave, client, now=None, pins=None):
             repo, expected = pin["repoId"], pin["revision"]
             url = f"{ORIGIN}/api/models/{repo}" + (f"/revision/{expected}" if expected else "")
             obs, meta = client.json(url)
-            notes, tags = metadata_fields(meta, repo, now, license_required=True)
-            if obs["status"] != 200:
-                notes.append(f"metadata unreadable (http {obs['status']})")
+            notes, tags = metadata_fields(meta, repo, now, license_required=True,
+                                          http_status=obs.get("status"))
             if expected and isinstance(meta, dict) and meta.get("sha") != expected:
                 notes.append("observed revision does not match canonical immutable pin")
             ok, license_note = license_posture_check(tags, release["licensePosture"])
@@ -510,7 +531,7 @@ def check_card_truth(kind, repo, client):
         return result
     plural = "spaces" if kind == "space" else "models"
     obs, meta = client.json(f"{ORIGIN}/api/{plural}/{repo}")
-    issues, _ = metadata_fields(meta, repo, _now(client.clock))
+    issues, _ = metadata_fields(meta, repo, _now(client.clock), http_status=obs.get("status"))
     if issues:
         result["findings"].extend(issues)
         return result
@@ -579,9 +600,11 @@ def check_spaces_freshness(org, stale_hours, client, expected=None, creators=Non
     for sid in sorted(discovered | set(expected) | set(creators) | profiles):
         raw_age = None
         obs, meta = client.json(f"{ORIGIN}/api/spaces/{sid}")
-        notes, _ = metadata_fields(meta, sid, now)
+        http_status = obs.get("status") if isinstance(obs, dict) else None
+        notes, _ = metadata_fields(meta, sid, now, http_status=http_status)
         row = {"space": sid, "lastModified": None, "ageHours": None, "runtimeStage": None,
                "sourceRevision": None, "runtimeRevision": None, "providerRevisionParity": "UNAVAILABLE",
+               "httpStatus": http_status if type(http_status) is int else None,
                "inventory": "organization-profile" if sid in profiles else "creator" if sid in creators else "expected" if sid in expected else "discovered-extra",
                "listed": sid in discovered, "findings": notes, "status": "INCOMPLETE"}
         if isinstance(meta, dict):

@@ -161,7 +161,39 @@ class WitnessFixtureTests(TestCase):
         self.transport.add(f"/api/models/{MODEL}", {"error": "Not found"}, status=404)
         rows, findings = estate.verify_wave(wave_fixture(), self.client, now=NOW)
         self.assertEqual(rows[0]["status"], "INCOMPLETE")
+        self.assertIn("public metadata absent (http 404)", rows[0]["notes"])
+        self.assertNotIn("metadata unreadable or malformed", rows[0]["notes"])
+        self.assertEqual(sum("http 404" in note for note in rows[0]["notes"]), 1)
         self.assertEqual(self.run_fixture()["exitCode"], 2)
+
+    def test_anonymous_401_keeps_expected_and_profile_spaces_incomplete(self):
+        body = b'{"error":"Invalid username or password."}'
+        self.transport.add("/api/spaces", [])
+        self.transport.add(f"/api/spaces/{SPACE}", body, 401)
+        self.transport.add("/api/spaces/SZLHOLDINGS/README", body, 401)
+        receipt = self.run_fixture(profile_space="SZLHOLDINGS/README")
+        self.assertEqual(receipt["exitCode"], 2)
+        self.assertEqual(receipt["overallStatus"], "INCOMPLETE")
+        self.assertEqual(receipt["doctrine"]["productionDisposition"], "HOLD")
+        findings = receipt["spaces"]["findings"]
+        self.assertIn(f"expected Space missing from public org inventory: {SPACE}", findings)
+        for sid in (SPACE, "SZLHOLDINGS/README"):
+            self.assertIn(
+                f"{sid}: not in the anonymous public namespace (http 401); "
+                "missing and non-public repositories are indistinguishable without credentials",
+                findings,
+            )
+        rows = {row["space"]: row for row in receipt["spaces"]["rows"]}
+        for sid in (SPACE, "SZLHOLDINGS/README"):
+            self.assertEqual(rows[sid]["status"], "INCOMPLETE")
+            self.assertEqual(rows[sid]["httpStatus"], 401)
+            self.assertEqual(rows[sid]["providerRevisionParity"], "UNAVAILABLE")
+            self.assertIsNone(rows[sid]["sourceRevision"])
+        self.assertNotIn("metadata unreadable or malformed", "\n".join(findings))
+        self.assertIn("immune-lattice", estate.ORG_SPACES)
+        self.assertIn("sentra", estate.ORG_SPACES)
+        self.assertIn("szl-constellation", estate.ORG_SPACES)
+        self.assertEqual(estate.ORG_PROFILE_SPACE, "SZLHOLDINGS/README")
 
     def test_metadata_revision_is_required_for_every_reference(self):
         wave = wave_fixture()
