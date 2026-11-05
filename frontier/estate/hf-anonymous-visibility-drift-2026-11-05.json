@@ -1,0 +1,171 @@
+{
+  "schema": "szl.frontier.anonymous-visibility-drift.v1",
+  "organization": "SZLHOLDINGS",
+  "scope": "Successor observation for Spaces that were anonymously readable on the 2026-11-04 outside-seat receipt and were absent from the anonymous public author listing on 2026-11-05. This file does not rewrite the 2026-11-02 inventory snapshot, does not remove names from the verifier baseline, and does not authorize a credentialed read inside the verifier.",
+  "effect": {
+    "baselineRemoved": false,
+    "productionDisposition": "HOLD",
+    "promotionEffect": "NONE",
+    "verifierMayPass": false,
+    "statement": "Expected baseline Spaces and the organization profile Space that answer anonymous HTTP 401 stay incomplete. Exit 2 remains required until those identities are anonymously readable again. Restoring visibility is a Hub write and is outside this repository."
+  },
+  "anonymousAuthError": {
+    "body": "{\"error\":\"Invalid username or password.\"}",
+    "bodySha256": "65842e3d84e6b7f62a470c85204e80b953bb8f944e9b69813130a9d7f3eaa1d8",
+    "httpStatus": 401,
+    "meaning": "The Hub returns this body for an anonymous GET of a missing repository and of a repository that is not public. The body alone does not prove which one occurred."
+  },
+  "predecessor": {
+    "exitCode": 0,
+    "generatedAt": "2026-11-04T05:39:10.724962Z",
+    "headSha": "58b44504a4480b0dda9a97b8a4baeee456bf7b82",
+    "overallStatus": "VERIFIED",
+    "receiptDigest": "cabfacf96dafad5886d99a3221717c4a4a6db43fc5c2455e362b722af87c78b4",
+    "workflowRun": 41780533498,
+    "workflowUrl": "https://github.com/szl-holdings/szl-frontier/actions/runs/41780533498"
+  },
+  "failingObservation": {
+    "anonymousAuthorListingCount": 24,
+    "exitCode": 2,
+    "generatedAt": "2026-11-05T05:38:54.983228Z",
+    "headSha": "0bdf7fb8e232fac7895228b6afff228c41adb979",
+    "overallStatus": "INCOMPLETE",
+    "receiptDigest": "3f52c5be450d019d7d818a8d4ad13b97694c95021fef59a94096737803dce129",
+    "workflowRun": 41975311709,
+    "workflowUrl": "https://github.com/szl-holdings/szl-frontier/actions/runs/41975311709"
+  },
+  "requiredBaseline": [
+    {
+      "anonymousHttpStatusOnFailure": 401,
+      "githubSource": null,
+      "id": "SZLHOLDINGS/README",
+      "inventory": "organization-profile",
+      "lastAnonymousLastModified": "2026-11-01T23:40:22.000Z",
+      "lastAnonymousRuntimeStage": "RUNNING",
+      "lastAnonymousSdk": "static",
+      "lastAnonymousSourceRevision": "e96cb22c0fc3d9aef0384906cd4a9408535b3954",
+      "role": "Organization profile Space. The author listing omits it, so the verifier reads it directly."
+    },
+    {
+      "anonymousHttpStatusOnFailure": 401,
+      "githubSource": "https://github.com/szl-holdings/immune",
+      "id": "SZLHOLDINGS/immune-lattice",
+      "inventory": "expected",
+      "lastAnonymousLastModified": "2026-10-13T17:56:57.000Z",
+      "lastAnonymousRuntimeRevision": "e5eb779a1e9a9469f12adf50864276a7fecb9b6c",
+      "lastAnonymousRuntimeStage": "RUNNING",
+      "lastAnonymousSdk": "docker",
+      "lastAnonymousSourceRevision": "e5eb779a1e9a9469f12adf50864276a7fecb9b6c",
+      "role": "Named by the immune repository as Channel B. That README says not to delete either immune Space."
+    },
+    {
+      "anonymousHttpStatusOnFailure": 401,
+      "githubSource": "https://github.com/szl-holdings/immune",
+      "id": "SZLHOLDINGS/sentra",
+      "inventory": "expected",
+      "lastAnonymousLastModified": "2026-10-21T08:30:28.000Z",
+      "lastAnonymousRuntimeRevision": "bae2995dcf309f3377e0bc1b801c86c2747d01f8",
+      "lastAnonymousRuntimeStage": "RUNNING",
+      "lastAnonymousSdk": "docker",
+      "lastAnonymousSourceRevision": "bae2995dcf309f3377e0bc1b801c86c2747d01f8",
+      "role": "Named by the immune repository as a Space that stays with immune-lattice."
+    },
+    {
+      "anonymousHttpStatusOnFailure": 401,
+      "githubSource": "https://github.com/szl-holdings/szl-constellation",
+      "id": "SZLHOLDINGS/szl-constellation",
+      "inventory": "expected",
+      "lastAnonymousLastModified": "2026-11-03T20:04:18.000Z",
+      "lastAnonymousRuntimeRevision": "5c609ca45bb85b648d86ca8c93f6136bb0cb8311",
+      "lastAnonymousRuntimeStage": "RUNNING",
+      "lastAnonymousSdk": "gradio",
+      "lastAnonymousSourceRevision": "5c609ca45bb85b648d86ca8c93f6136bb0cb8311",
+      "role": "Public source mirror declared by szl-constellation. Its README links this Space as the runtime."
+    }
+  ],
+  "leftAnonymousAuthorListing": [
+    {
+      "id": "SZLHOLDINGS/foundation-confirmation-v2",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "0033e0220aa77f158cb392936fd25a5da8758285"
+    },
+    {
+      "id": "SZLHOLDINGS/governed-agent-bench",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "192268d97a4157ae20d175724ee652c4f339d596"
+    },
+    {
+      "id": "SZLHOLDINGS/governed-receipt-verifier",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "87e2ea07fb980faf2375337ac3347dae8328b6c9"
+    },
+    {
+      "id": "SZLHOLDINGS/oac-system-health-lab",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "3b40690dbc599e3783b8eeb2502f58ac8ee6b716"
+    },
+    {
+      "id": "SZLHOLDINGS/prove-it",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "0b98e7c195b892afce8462313f10b5e3ec43847f"
+    },
+    {
+      "id": "SZLHOLDINGS/szl-atelier",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "767a97f27700c5cefcfe29733274e9f61967ffdc"
+    },
+    {
+      "id": "SZLHOLDINGS/szl-bench-suite",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "f03a499527ad8894349870076d959daf913f65ed"
+    },
+    {
+      "id": "SZLHOLDINGS/szl-brand-campaign",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "afad24b3f07253f57d89881ea0aa9a6ed147c8e0"
+    },
+    {
+      "id": "SZLHOLDINGS/szl-forge-lab",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "92f06925477efe5a6e212fd3cba2c7968e00e1ba"
+    },
+    {
+      "id": "SZLHOLDINGS/szl-marketing-1.1",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "8e348219402fad5b7565ab7344655ef649bd5a66"
+    },
+    {
+      "id": "SZLHOLDINGS/szl-seismic-review",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "04ef19e6210c7ff256b1d5ba62e2032e57aabcc8"
+    },
+    {
+      "id": "SZLHOLDINGS/szl-typesafe-triage",
+      "inventory": "discovered-extra",
+      "lastAnonymousSourceRevision": "42612b84849c0a55f6ae84b2c2f328f581082499"
+    }
+  ],
+  "readOnlyOrgLookup": {
+    "date": "2026-11-05",
+    "method": "Org-admin read of Hub Space metadata. Not an anonymous observation and not an input to estate_outside_seat.py.",
+    "private": [
+      "SZLHOLDINGS/README",
+      "SZLHOLDINGS/foundation-confirmation-v2",
+      "SZLHOLDINGS/governed-agent-bench",
+      "SZLHOLDINGS/governed-receipt-verifier",
+      "SZLHOLDINGS/immune-lattice",
+      "SZLHOLDINGS/oac-system-health-lab",
+      "SZLHOLDINGS/prove-it",
+      "SZLHOLDINGS/sentra",
+      "SZLHOLDINGS/szl-atelier",
+      "SZLHOLDINGS/szl-bench-suite",
+      "SZLHOLDINGS/szl-brand-campaign",
+      "SZLHOLDINGS/szl-constellation",
+      "SZLHOLDINGS/szl-forge-lab",
+      "SZLHOLDINGS/szl-marketing-1.1",
+      "SZLHOLDINGS/szl-seismic-review",
+      "SZLHOLDINGS/szl-typesafe-triage"
+    ],
+    "statement": "The same identities still exist and are marked private. Anonymous HTTP 401 is therefore the public face of a visibility change, not evidence that the repositories were deleted. This lookup does not make them public and does not satisfy the anonymous verifier."
+  }
+}

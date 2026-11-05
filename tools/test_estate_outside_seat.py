@@ -161,7 +161,109 @@ class WitnessFixtureTests(TestCase):
         self.transport.add(f"/api/models/{MODEL}", {"error": "Not found"}, status=404)
         rows, findings = estate.verify_wave(wave_fixture(), self.client, now=NOW)
         self.assertEqual(rows[0]["status"], "INCOMPLETE")
+        self.assertIn("public metadata absent (http 404)", rows[0]["notes"])
+        self.assertNotIn("metadata unreadable or malformed", rows[0]["notes"])
+        self.assertEqual(sum("http 404" in note for note in rows[0]["notes"]), 1)
         self.assertEqual(self.run_fixture()["exitCode"], 2)
+
+    def test_non_200_json_object_is_unparsed_and_verify_wave_keeps_http_status(self):
+        """client.json refuses non-200 objects; verify_wave still records the status."""
+        auth = b'{"error":"Invalid username or password."}'
+        unavailable = b'{"error":"temporarily unavailable"}'
+        disguised = json.dumps(model_metadata()).encode()
+        auth_note = (
+            "not in the anonymous public namespace (http 401); missing and "
+            "non-public repositories are indistinguishable without credentials"
+        )
+        revision_url = f"https://huggingface.co/api/models/{MODEL}/revision/{SHA}"
+        for body in (auth, unavailable, disguised):
+            self.assertIsInstance(estate.strict_json(body), dict)
+
+        def wave_rows():
+            client = estate.EvidenceClient(
+                self.base / f"wave-{len(self.transport.calls)}",
+                transport=self.transport, clock=lambda: NOW,
+            )
+            observed, parsed = client.json(revision_url)
+            rows, _findings = estate.verify_wave(
+                wave_fixture(), client, now=NOW, pins=pins_fixture(),
+            )
+            return observed, parsed, rows[0]
+
+        self.transport.add(f"/api/models/{MODEL}", auth, 401)
+        observed, parsed, row = wave_rows()
+        self.assertEqual(observed["status"], 401)
+        self.assertIsNone(parsed)
+        self.assertNotIn("error", observed)
+        self.assertEqual(row["status"], "INCOMPLETE")
+        self.assertFalse(row["exists"])
+        self.assertIsNone(row["revision"])
+        self.assertEqual(sum(item == auth_note for item in row["notes"]), 1)
+
+        self.transport.add(f"/api/models/{MODEL}", disguised, 401)
+        observed, parsed, row = wave_rows()
+        self.assertEqual(observed["status"], 401)
+        self.assertIsNone(parsed)
+        self.assertEqual(row["status"], "INCOMPLETE")
+        self.assertFalse(row["exists"])
+        self.assertIsNone(row["revision"])
+        self.assertIn(auth_note, row["notes"])
+        receipt = self.run_fixture()
+        self.assertEqual(receipt["exitCode"], 2)
+        self.assertEqual(receipt["overallStatus"], "INCOMPLETE")
+        self.assertEqual(receipt["doctrine"]["productionDisposition"], "HOLD")
+        self.assertEqual(receipt["wave"]["evidences"][0]["status"], "INCOMPLETE")
+        self.assertIn(auth_note, receipt["wave"]["evidences"][0]["notes"])
+
+        self.transport.add(f"/api/models/{MODEL}", unavailable, 503)
+        observed, parsed, row = wave_rows()
+        self.assertEqual(observed["status"], 503)
+        self.assertIsNone(parsed)
+        self.assertEqual(row["status"], "INCOMPLETE")
+        self.assertEqual(sum(item == "metadata unreadable (http 503)" for item in row["notes"]), 1)
+        self.assertNotIn(auth_note, row["notes"])
+
+        self.transport.add(f"/api/models/{MODEL}", {"error": "Invalid username or password."}, 200)
+        observed, parsed, row = wave_rows()
+        self.assertEqual(observed["status"], 200)
+        self.assertIsInstance(parsed, dict)
+        self.assertEqual(parsed.get("error"), "Invalid username or password.")
+        self.assertEqual(row["status"], "INCOMPLETE")
+        self.assertFalse(any("http 401" in item or "http 503" in item for item in row["notes"]))
+        self.assertTrue(any("revision" in item or "identity" in item for item in row["notes"]))
+
+    def test_anonymous_401_keeps_expected_and_profile_spaces_incomplete(self):
+        body = b'{"error":"Invalid username or password."}'
+        self.assertIsInstance(estate.strict_json(body), dict)
+        self.transport.add("/api/spaces", [])
+        self.transport.add(f"/api/spaces/{SPACE}", body, 401)
+        self.transport.add("/api/spaces/SZLHOLDINGS/README", body, 401)
+        observed, parsed = self.client.json(f"https://huggingface.co/api/spaces/{SPACE}")
+        self.assertEqual(observed["status"], 401)
+        self.assertIsNone(parsed)
+        receipt = self.run_fixture(profile_space="SZLHOLDINGS/README")
+        self.assertEqual(receipt["exitCode"], 2)
+        self.assertEqual(receipt["overallStatus"], "INCOMPLETE")
+        self.assertEqual(receipt["doctrine"]["productionDisposition"], "HOLD")
+        findings = receipt["spaces"]["findings"]
+        self.assertIn(f"expected Space missing from public org inventory: {SPACE}", findings)
+        for sid in (SPACE, "SZLHOLDINGS/README"):
+            self.assertIn(
+                f"{sid}: not in the anonymous public namespace (http 401); "
+                "missing and non-public repositories are indistinguishable without credentials",
+                findings,
+            )
+        rows = {row["space"]: row for row in receipt["spaces"]["rows"]}
+        for sid in (SPACE, "SZLHOLDINGS/README"):
+            self.assertEqual(rows[sid]["status"], "INCOMPLETE")
+            self.assertEqual(rows[sid]["httpStatus"], 401)
+            self.assertEqual(rows[sid]["providerRevisionParity"], "UNAVAILABLE")
+            self.assertIsNone(rows[sid]["sourceRevision"])
+        self.assertNotIn("metadata unreadable or malformed", "\n".join(findings))
+        self.assertIn("immune-lattice", estate.ORG_SPACES)
+        self.assertIn("sentra", estate.ORG_SPACES)
+        self.assertIn("szl-constellation", estate.ORG_SPACES)
+        self.assertEqual(estate.ORG_PROFILE_SPACE, "SZLHOLDINGS/README")
 
     def test_metadata_revision_is_required_for_every_reference(self):
         wave = wave_fixture()

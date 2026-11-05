@@ -56,6 +56,20 @@ ordinary baseline entry is a finding; new public entries are observed. This
 detects changes instead of silently rewriting the expected inventory to match
 each response. Private resources are outside this public observation scope.
 
+An anonymous response that does not yield a metadata object is classified from
+its HTTP status. The client does not parse a non-200 body, even when that body
+is a JSON object such as `{"error":"..."}`. Wave and Space checks therefore
+receive no metadata object and still record the HTTP status. A 200 response
+whose JSON is only an error payload is parsed and fails the metadata checks; it
+is not relabeled as HTTP 401. Status 401 is recorded on the Space row as
+`httpStatus` and as "not in the anonymous public namespace": the Hub uses that
+status both when a repository is missing and when it is not public, and this
+collector does not send a credential to tell those cases apart. Status 404 is
+recorded as absent public metadata. Either result stays incomplete. An expected
+baseline Space or the organization profile Space in that state remains a
+finding and keeps the run at exit 2. Removing the name from the baseline, or
+treating the 401 as success, is not a repair.
+
 Provider runtime stage is recorded separately from source age. A provider stage
 such as `RUNNING` still does not prove the application's readiness or business
 contract. Every Space observation also records `sourceRevision` from `sha`,
@@ -67,6 +81,7 @@ contract. Every Space observation also records `sourceRevision` from `sha`,
   `RUNNING_BUILDING`, when the previous build may still be serving.
 - `UNAVAILABLE`: the expected identity or either revision cannot be established.
   Missing or malformed runtime revision evidence keeps the observation incomplete.
+  A non-200 `httpStatus` also leaves parity unavailable.
 
 Revision equality is a provider metadata observation. It does not bind the
 deployment to a GitHub commit or prove which code served an application request.
