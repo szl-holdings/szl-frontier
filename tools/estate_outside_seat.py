@@ -283,6 +283,8 @@ class EvidenceClient:
 
     def json(self, url, pagination_scope=None):
         obs, body = self.get(url, pagination_scope=pagination_scope)
+        # Non-200 bodies stay unparsed evidence. A JSON object such as
+        # {"error": "..."} is not metadata for verify_wave or the Space checks.
         if obs["status"] != 200 or obs.get("error"):
             return obs, None
         try:
