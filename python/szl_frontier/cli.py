@@ -13,7 +13,6 @@ from typing import Any, Sequence
 from .catalog import CatalogLoader, DEFAULT_MANIFEST
 from .domain import FrontierError
 from .engine import FrontierEngine
-from .flotation import main as flotation_main
 from .research_register import main as research_register_main
 from .research import evaluate_research
 from .ouroboros import (
@@ -263,6 +262,10 @@ def _release_summary(engine: FrontierEngine, release_id: str) -> dict[str, Any]:
 def run(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "flotation":
+        # Imported on demand: loading it executes the skill runner under docs/,
+        # which a wheel install does not ship, and no other command needs it.
+        from .flotation import main as flotation_main
+
         forwarded: list[str] = ["--tau", str(args.tau)]
         if args.table is not None:
             forwarded.extend(["--table", str(args.table)])
