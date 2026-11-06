@@ -215,7 +215,13 @@ def validate_register(payload: dict[str, Any]) -> None:
 
 def load_register(path: Path | None = None) -> dict[str, Any]:
     target = path or REGISTER_PATH
-    payload = loads(target.read_bytes())
+    try:
+        raw = target.read_bytes()
+    except OSError as exc:
+        # A missing register (for example a wheel install without public/)
+        # is a refusal like any other, not a traceback.
+        raise RegisterError(f"register unreadable: {target}") from exc
+    payload = loads(raw)
     if not isinstance(payload, dict):
         raise RegisterError("register must be an object")
     validate_register(payload)

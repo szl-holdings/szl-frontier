@@ -82,6 +82,18 @@ class ResearchRegisterTests(unittest.TestCase):
         self.assertEqual(main(["--check"]), 0)
         self.assertEqual(run(["research-register", "--check"]), 0)
 
+    def test_missing_register_is_refused_without_a_traceback(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            missing = Path(directory) / "absent.json"
+            with self.assertRaisesRegex(RegisterError, "register unreadable"):
+                load_register(missing)
+            with patch("builtins.print") as printed:
+                self.assertEqual(main(["--check", "--path", str(missing)]), 2)
+        report = json.loads(printed.call_args.args[0])
+        self.assertFalse(report["ok"])
+        self.assertFalse(report["productionPromotion"])
+        self.assertIn("register unreadable", report["error"])
+
     def test_miniembed_nano_cannot_be_a_general_embedder(self) -> None:
         payload = _payload()
         row = next(item for item in payload["entries"] if item["id"] == "miniembed-nano")

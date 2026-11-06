@@ -14,8 +14,6 @@ on:
 
 permissions:
   contents: read
-  issues: write
-  actions: read
 
 concurrency:
   group: hugging-face-frontier-watch
@@ -26,8 +24,19 @@ jobs:
     if: github.repository == 'szl-holdings/szl-frontier'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Write scope lives on the job that uses it, not at the top level:
+    # actions: read lists and downloads the prior watch's ledger artifact,
+    # issues: write opens the deduplicated alert issues.
+    permissions:
+      contents: read
+      issues: write
+      actions: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          # The job token (issues: write) reaches only the two steps that are
+          # given GITHUB_TOKEN; no step needs it in .git/config.
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: "22"

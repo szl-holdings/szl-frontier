@@ -79,11 +79,23 @@ jobs:
           python3 -m compileall -q python/szl_frontier
           python3 -m unittest discover -s python/tests -v
 
-      - name: Verify all frontier controls, wave pins, and actual JS/Python parity
-        run: node --test scripts/frontier-*.test.mjs
+      # The payload second-reader and Wave-5 binding suites live beside their
+      # modules, outside python/tests, so the discovery above never reached them.
+      - name: Verify payload second-reader and Wave-5 binding controls
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s python/payload -p 'test_*.py' -v
+          python3 -m unittest discover -s python/wave5 -p 'test_*.py' -v
 
-      - name: Verify browser baseline and isolated PWA head contracts
-        run: node --test scripts/browser-smoke-verdict.test.mjs scripts/grok-pwa-plugin.test.mjs
+      # Same glob as `npm test`, so a script test cannot exist without running in
+      # CI. Besides the frontier-*.test.mjs controls this covers the browser
+      # baseline, PWA head, auth invariant, Better Auth contract, migrations,
+      # preview, sign-out, entrypoint, provider host, atomic writes and brand
+      # checks, which previously ran only through a local `npm test`.
+      - name: Verify all frontier controls, wave pins, JS/Python parity and every script contract
+        run: node --test 'scripts/**/*.test.mjs'
 
       - name: Verify outside-seat evidence and nightly chain controls
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v

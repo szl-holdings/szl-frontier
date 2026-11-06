@@ -101,7 +101,7 @@ async function contextPage(browser, options = {}, failCorpus = false) {
     for (let i = 0; i < 240; i++) {
       if (previewError) throw previewError;
       if (server.exitCode !== null) throw new Error('Local preview exited');
-      try { if ((await fetch(origin)).ok) { ready = true; break; } } catch {}
+      try { if ((await fetch(origin)).ok) { ready = true; break; } } catch { /* not listening yet; readiness is asserted after the loop */ }
       await new Promise(resolve => setTimeout(resolve, 250));
     }
     assert.ok(ready, 'Source-owned preview must become ready');

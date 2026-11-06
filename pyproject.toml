@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=75"]
+requires = ["setuptools>=77"] # PEP 639 license expression and license-files
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,9 +8,22 @@ version = "0.5.0"
 description = "Evidence-first Hugging Face frontier release intelligence for SZL Holdings"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "SZL Holdings" }]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
 dependencies = []
+
+[project.optional-dependencies]
+# The Python suites use only the standard library (unittest). The extra exists
+# so the documented `pip install -e '.[test]'` resolves instead of warning.
+test = []
 
 [project.scripts]
 szl-frontier = "szl_frontier.cli:main"

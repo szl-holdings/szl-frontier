@@ -22,6 +22,14 @@ _RANK = (
 
 
 def _load():
+    # spec_from_file_location() does not check that the file exists, so a
+    # wheel install (no docs/ tree) would otherwise fail later with a bare
+    # FileNotFoundError from exec_module().
+    if not _RANK.is_file():
+        raise FrontierError(
+            f"flotation skill runner is missing: {_RANK} "
+            "(the flotation command runs from a source checkout)"
+        )
     spec = importlib.util.spec_from_file_location("szl_flotation_rank", _RANK)
     if spec is None or spec.loader is None:
         raise FrontierError("flotation skill runner is missing")
