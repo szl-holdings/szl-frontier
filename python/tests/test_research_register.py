@@ -80,6 +80,7 @@ class ResearchRegisterTests(unittest.TestCase):
 
     def test_cli_check_exits_zero(self) -> None:
         self.assertEqual(main(["--check"]), 0)
+        self.assertEqual(run(["research-register", "--check"]), 0)
 
     def test_missing_register_is_refused_without_a_traceback(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -92,7 +93,6 @@ class ResearchRegisterTests(unittest.TestCase):
         self.assertFalse(report["ok"])
         self.assertFalse(report["productionPromotion"])
         self.assertIn("register unreadable", report["error"])
-        self.assertEqual(run(["research-register", "--check"]), 0)
 
     def test_miniembed_nano_cannot_be_a_general_embedder(self) -> None:
         payload = _payload()
