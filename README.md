@@ -51,6 +51,32 @@ Explore a governed memory plane with explicit source, policy and receipt boundar
 
 - The demo uses software gates and simulated read-only intel; those are not Lean proofs or operational intelligence.
 - Retrieval indexes are not model weights, and approval cannot lift a hard deny.
+- The source defines 24 software release gates in `src/lib/covenant/gates.ts`: g1–g10 in round 1, g11–g15 in round 2, g16–g20 in round 3 and g21–g24 in round 4. In the retained table below, "20/20" is the total for rounds 1–3, not round 1 alone.
+
+## Verify from source
+
+Node 22 and Python 3.11 or newer; CI uses Python 3.12. From a clone:
+
+```bash
+npm ci
+npm run typecheck
+npm test
+node scripts/generate-frontier-release-manifest.mjs --check
+PYTHONPATH=python python3 -m unittest discover -s python/tests
+python3 -m unittest discover -s tools -p 'test_*.py'
+npm run build
+```
+
+`npm test` runs every `scripts/**/*.test.mjs` file, then the TypeScript unit tests. Three brand-check tests pin platform prompt files that are not part of this repository, so they report a skip that names them. The CI `verify` job also runs the suites in `python/payload` and `python/wave5`.
+
+The Python control plane is the package `szl-frontier-control-plane` with the CLI `szl-frontier`. It reads the committed manifest, register and skill files, so install it from the clone and run it from the repository root:
+
+```bash
+python3 -m pip install -e '.[test]'
+szl-frontier list --min-score 70
+```
+
+Outside a checkout the CLI starts, but commands that need committed files exit 2 with a refusal. Point them at the files instead, for example `szl-frontier --manifest PATH list`.
 
 <details>
 <summary>Technical details and original evidence</summary>
