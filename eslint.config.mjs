@@ -42,6 +42,12 @@ export default tseslint.config(
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+  {
+    // CommonJS scripts (scripts/frontier-native-browser.cjs) load modules with
+    // require(); that is their module system, not a style violation.
+    files: ["**/*.cjs"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
   // Disable rules that conflict with Prettier formatting.
   prettier,
 );
