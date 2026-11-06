@@ -78,6 +78,30 @@ jobs:
               print('Receipt status:', receipt.get('overallStatus', 'UNAVAILABLE'))
               print('Verifier exit code:', receipt.get('exitCode', 'UNAVAILABLE'))
               print('Receipt digest:', receipt.get('receiptDigest', 'UNAVAILABLE'))
+              # Name what kept the run red, so a reader does not need the artifact.
+              reasons = []
+              wave = receipt.get('wave') or {}
+              for row in wave.get('evidences') or []:
+                  if row.get('status') != 'VERIFIED':
+                      reasons.append(f"wave {row.get('repo')}: {row.get('status')}: {'; '.join(row.get('notes') or [])}")
+              reasons += [f'wave: {item}' for item in wave.get('findings') or []]
+              for card in receipt.get('cardTruth') or []:
+                  if card.get('status') != 'VERIFIED':
+                      reasons.append(f"card {card.get('repo')}: {card.get('status')}: {'; '.join(card.get('findings') or [])}")
+              reasons += list((receipt.get('spaces') or {}).get('findings') or [])
+              reasons += [f'transport: {item}' for item in receipt.get('transportErrors') or []]
+              reasons += [f'configuration: {item}' for item in receipt.get('configurationErrors') or []]
+              if reasons:
+                  print()
+                  print(f'Findings and incomplete observations ({len(reasons)}):')
+                  print()
+                  print('```text')
+                  for reason in reasons[:60]:
+                      print('-', str(reason).replace('`', "'"))
+                  if len(reasons) > 60:
+                      print(f'- ... {len(reasons) - 60} more in the receipt artifact')
+                  print('```')
+                  print()
           else:
               print('Receipt unavailable: preconditions did not permit verification.')
               print('An existing predecessor without a receipt blocks the next run; it never resets genesis.')
