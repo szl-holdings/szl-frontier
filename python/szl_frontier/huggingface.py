@@ -6,6 +6,8 @@ Security properties:
 * Explicit timeouts and user-agent.
 * No authentication headers, shell execution, or arbitrary URLs.
 * Redirect targets are revalidated before the next request is sent.
+* Public model inventories follow cursor pages within the original query,
+  bounded to 20 pages and 8 MiB in aggregate; incomplete traversals raise.
 """
 
 from __future__ import annotations
@@ -15,7 +17,7 @@ import json
 import re
 from dataclasses import dataclass
 from typing import Protocol
-from urllib.parse import quote, urlencode, urlparse
+from urllib.parse import parse_qsl, quote, urlencode, urljoin, urlparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from .domain import FrontierError, FrontierRelease, HF_ORIGIN, SourceSnapshot
@@ -23,6 +25,9 @@ from .watch_materiality import WatchError, hub_snapshot
 
 DEFAULT_TIMEOUT_SECONDS = 20.0
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
+MAX_INVENTORY_BYTES = MAX_RESPONSE_BYTES
+MAX_INVENTORY_PAGES = 20
+MAX_LINK_HEADER_BYTES = 64 * 1024
 USER_AGENT = "SZL-Frontier-Python/1.0 (+https://github.com/szl-holdings/szl-frontier)"
 
 
@@ -95,7 +100,12 @@ class StdlibTransport:
                     raise TransportError(
                         f"response exceeds {self.max_response_bytes} bytes"
                     )
-                headers = {key.lower(): value for key, value in response.headers.items()}
+                headers: dict[str, str] = {}
+                for key, value in response.headers.items():
+                    key = key.lower()
+                    # Link can appear more than once. Keeping only the final
+                    # field can erase rel=next and falsely finish an inventory.
+                    headers[key] = f"{headers[key]}, {value}" if key == "link" and key in headers else value
                 return HttpResponse(
                     url=final_url,
                     status=int(response.status),
@@ -110,6 +120,92 @@ class StdlibTransport:
 
 def _sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def _split_link_parts(value: str, separator: str) -> list[str]:
+    """Split Link grammar without treating quoted/URI commas as separators."""
+    parts: list[str] = []
+    start = 0
+    quoted = bracketed = escaped = False
+    for index, char in enumerate(value):
+        if escaped:
+            escaped = False
+        elif quoted:
+            if char == "\\":
+                escaped = True
+            elif char == '"':
+                quoted = False
+        elif bracketed:
+            if char == ">":
+                bracketed = False
+            elif char == "<":
+                raise TransportError("malformed inventory Link header")
+        elif char == '"':
+            quoted = True
+        elif char == "<":
+            bracketed = True
+        elif char == ">":
+            raise TransportError("malformed inventory Link header")
+        elif char == separator:
+            parts.append(value[start:index].strip())
+            start = index + 1
+    parts.append(value[start:].strip())
+    if quoted or bracketed or escaped or any(not part for part in parts):
+        raise TransportError("malformed inventory Link header")
+    return parts
+
+
+def _inventory_next_link(headers: dict[str, str], response_url: str) -> str | None:
+    values = [value for name, value in headers.items() if name.lower() == "link"]
+    if not values:
+        return None
+    value = ", ".join(values)
+    if len(value.encode("utf-8")) > MAX_LINK_HEADER_BYTES or any(ord(c) < 32 and c != "\t" for c in value):
+        raise TransportError("invalid or oversized inventory Link header")
+    next_url = None
+    token = r"[!#$%&'*+.^_`|~0-9A-Za-z-]+"
+    for link in _split_link_parts(value, ","):
+        target, *parameters = _split_link_parts(link, ";")
+        if not re.fullmatch(r"<[^<>\s]+>", target):
+            raise TransportError("malformed inventory Link target")
+        attributes: dict[str, str] = {}
+        for parameter in parameters:
+            matched = re.fullmatch(rf'({token})\s*=\s*({token}|"(?:[^"\\]|\\.)*")', parameter)
+            if not matched:
+                raise TransportError("malformed inventory Link parameter")
+            name, content = matched.groups()
+            name = name.lower()
+            if name in attributes:
+                raise TransportError("duplicate inventory Link parameter")
+            if content.startswith('"'):
+                content = re.sub(r"\\(.)", r"\1", content[1:-1])
+            attributes[name] = content
+        if not attributes.get("rel"):
+            raise TransportError("inventory Link is missing rel")
+        if "next" in attributes["rel"].lower().split():
+            if next_url is not None or "anchor" in attributes:
+                raise TransportError("ambiguous inventory next Link")
+            next_url = urljoin(response_url, target[1:-1])
+    return next_url
+
+
+def _inventory_url_key(url: str, author: str) -> tuple[tuple[str, str], ...]:
+    """Keep cursor traversal within the exact original inventory query."""
+    _require_hf_url(url)
+    parsed = urlparse(url)
+    if parsed.path != "/api/models" or parsed.params or parsed.fragment or any(ord(c) <= 32 or ord(c) == 127 for c in url):
+        raise TransportError("model inventory pagination left its endpoint")
+    try:
+        pairs = parse_qsl(parsed.query, keep_blank_values=True, strict_parsing=True)
+    except ValueError as exc:
+        raise TransportError("invalid inventory pagination query") from exc
+    query = dict(pairs)
+    expected = {"author": author, "limit": "1000", "full": "false", "config": "false"}
+    if len(pairs) != len(query) or set(query) - (set(expected) | {"cursor"}):
+        raise TransportError("ambiguous inventory pagination query")
+    if any(query.get(key) != value for key, value in expected.items()) or ("cursor" in query and not query["cursor"]):
+        raise TransportError("model inventory pagination changed its query scope")
+    return tuple(sorted(pairs))
 
 
 def _artifact_rows(payload: dict) -> list[dict[str, object]]:
@@ -244,6 +340,8 @@ class HuggingFaceClient:
         )
 
     def _snapshot_model_inventory(self, author: str) -> SourceSnapshot:
+        # This is a bounded anonymous traversal, not an atomic Hub snapshot.
+        # Any incomplete or ambiguous traversal raises before emitting a hash.
         query = urlencode(
             {
                 "author": author,
@@ -253,28 +351,47 @@ class HuggingFaceClient:
             }
         )
         url = f"{HF_ORIGIN}/api/models?{query}"
-        response = self.transport.get(url, accept="application/json")
-        _require_hf_url(response.url)
-        if response.status != 200:
-            raise TransportError(f"unexpected status {response.status} for {url}")
-        try:
-            payload = json.loads(response.body.decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-            raise TransportError(f"invalid JSON from {url}") from exc
-        if not isinstance(payload, list):
-            raise TransportError("model inventory response is not a list")
-        rows = sorted(
-            (
-                {
-                    "id": item.get("id", item.get("modelId")),
-                    "sha": item.get("sha"),
-                    "lastModified": item.get("lastModified"),
-                }
-                for item in payload
-                if isinstance(item, dict) and (item.get("id") or item.get("modelId"))
-            ),
-            key=lambda row: str(row["id"]),
-        )
+        source = url
+        rows: list[dict[str, object]] = []
+        seen_ids: set[str] = set()
+        seen_pages: set[tuple[tuple[str, str], ...]] = set()
+        content_bytes = 0
+        pages = 0
+        while url is not None:
+            page_key = _inventory_url_key(url, author)
+            if page_key in seen_pages or pages >= MAX_INVENTORY_PAGES:
+                raise TransportError("inventory pagination cycle or page limit")
+            seen_pages.add(page_key)
+            response = self.transport.get(url, accept="application/json")
+            final_key = _inventory_url_key(response.url, author)
+            if final_key != page_key:
+                raise TransportError("inventory pagination redirected to a different page")
+            pages += 1
+            if response.status != 200:
+                raise TransportError(f"unexpected status {response.status} for {url}")
+            content_bytes += len(response.body)
+            if content_bytes > MAX_INVENTORY_BYTES:
+                raise TransportError("model inventory exceeds aggregate byte limit")
+            try:
+                payload = json.loads(response.body.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                raise TransportError(f"invalid JSON from {url}") from exc
+            if not isinstance(payload, list):
+                raise TransportError("model inventory response is not a list")
+            for item in payload:
+                if not isinstance(item, dict):
+                    raise TransportError("model inventory contains a malformed row")
+                repo_id = item.get("id", item.get("modelId"))
+                if not isinstance(repo_id, str) or len(repo_id.split("/")) != 2 or not repo_id.split("/")[1] or repo_id.split("/")[0].casefold() != author.casefold():
+                    raise TransportError("model inventory contains an invalid or out-of-scope ID")
+                if "id" in item and "modelId" in item and item["id"] != item["modelId"]:
+                    raise TransportError("model inventory contains ambiguous IDs")
+                if repo_id in seen_ids:
+                    raise TransportError("model inventory contains duplicate IDs")
+                seen_ids.add(repo_id)
+                rows.append({"id": repo_id, "sha": item.get("sha"), "lastModified": item.get("lastModified")})
+            url = _inventory_next_link(response.headers, response.url)
+        rows.sort(key=lambda row: str(row["id"]))
         last_modified = max(
             (str(row["lastModified"]) for row in rows if row.get("lastModified")),
             default=None,
@@ -282,7 +399,7 @@ class HuggingFaceClient:
         fingerprint = _stable_sha256(rows)
         return SourceSnapshot(
             kind="model-inventory",
-            source=response.url,
+            source=source,
             revision=fingerprint,
             last_modified=last_modified,
             private=False,
@@ -290,5 +407,5 @@ class HuggingFaceClient:
             disabled=False,
             artifact_fingerprint=fingerprint,
             inventory_count=len(rows),
-            content_bytes=len(response.body),
+            content_bytes=content_bytes,
         )
