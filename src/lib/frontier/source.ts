@@ -9,6 +9,34 @@ const DEPLOYMENT_JSON_TIMEOUT_MS = 5_000;
 const DEPLOYMENT_SOURCE_SCHEMA = "szl.runtime-source/v1";
 const DEPLOYMENT_SOURCE_AUTHORITY = "protected-github-source";
 
+/**
+ * Canonical provider origin for source readback. Hugging Face may pass an
+ * internal proxy URL to a server handler; deriving the readback URL from that
+ * request makes a live deployment report an unbound source even when its
+ * public `/deployment.json` is healthy.
+ */
+export const DEPLOYMENT_SOURCE_ORIGIN = "https://szlholdings-szl-frontier.hf.space";
+const DEPLOYMENT_SOURCE_HOST = new URL(DEPLOYMENT_SOURCE_ORIGIN).host.toLowerCase();
+
+function normalizeHost(value: string): string {
+  return value.trim().toLowerCase().replace(/:443$/, "");
+}
+
+/**
+ * Select the source readback origin for the current runtime. The provider's
+ * forwarded host confirms the canonical Space deployment; local, preview, and
+ * other deployments retain their own request URL.
+ */
+export function deploymentSourceRequestUrl(
+  request: Pick<Request, "url" | "headers">,
+): string {
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",", 1)[0];
+  const requestHost = forwardedHost ?? request.headers.get("host");
+  return requestHost && normalizeHost(requestHost) === DEPLOYMENT_SOURCE_HOST
+    ? `${DEPLOYMENT_SOURCE_ORIGIN}/api/source`
+    : request.url;
+}
+
 interface DeploymentResponse {
   status: number;
   redirected: boolean;

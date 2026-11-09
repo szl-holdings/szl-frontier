@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { fetchDeploymentSourceRevision, sourcePayload } from "@/lib/frontier/source";
+import {
+  deploymentSourceRequestUrl,
+  fetchDeploymentSourceRevision,
+  sourcePayload,
+} from "@/lib/frontier/source";
 
 export const Route = createFileRoute("/api/source")({
   server: {
@@ -8,7 +12,9 @@ export const Route = createFileRoute("/api/source")({
         new Response(
           JSON.stringify(
             sourcePayload({
-              deploymentSourceRevision: await fetchDeploymentSourceRevision(request.url),
+              deploymentSourceRevision: await fetchDeploymentSourceRevision(
+                deploymentSourceRequestUrl(request),
+              ),
             }),
           ),
           {
