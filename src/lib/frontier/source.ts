@@ -9,6 +9,14 @@ const DEPLOYMENT_JSON_TIMEOUT_MS = 5_000;
 const DEPLOYMENT_SOURCE_SCHEMA = "szl.runtime-source/v1";
 const DEPLOYMENT_SOURCE_AUTHORITY = "protected-github-source";
 
+/**
+ * Canonical provider origin for source readback. Hugging Face may pass an
+ * internal proxy URL to a server handler; deriving the readback URL from that
+ * request makes a live deployment report an unbound source even when its
+ * public `/deployment.json` is healthy.
+ */
+export const DEPLOYMENT_SOURCE_ORIGIN = "https://szlholdings-szl-frontier.hf.space";
+
 interface DeploymentResponse {
   status: number;
   redirected: boolean;
