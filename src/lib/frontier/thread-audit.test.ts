@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import test from "node:test";
-import { fetchDeploymentSourceRevision, sourcePayload } from "./source.ts";
+import {
+  deploymentSourceRequestUrl,
+  fetchDeploymentSourceRevision,
+  sourcePayload,
+} from "./source.ts";
 import {
   MODELED_CENSUS,
   MODELED_TABS,
@@ -76,6 +80,29 @@ test("source identity labels modeled pin separately from deployment", () => {
 
   const junk = sourcePayload({ deploymentSourceRevision: "not-a-sha" });
   assert.equal(junk.deploymentSourceRevisionClass, "UNAVAILABLE");
+});
+
+test("source readback uses the canonical Space only for that provider host", () => {
+  const local = new Request("http://127.0.0.1:8080/api/source", {
+    headers: { host: "127.0.0.1:8080" },
+  });
+  assert.equal(deploymentSourceRequestUrl(local), local.url);
+
+  const provider = new Request("http://internal:7860/api/source", {
+    headers: {
+      host: "internal:7860",
+      "x-forwarded-host": "szlholdings-szl-frontier.hf.space",
+    },
+  });
+  assert.equal(
+    deploymentSourceRequestUrl(provider),
+    "https://szlholdings-szl-frontier.hf.space/api/source",
+  );
+
+  const otherDeployment = new Request("https://preview.example/api/source", {
+    headers: { host: "preview.example" },
+  });
+  assert.equal(deploymentSourceRequestUrl(otherDeployment), otherDeployment.url);
 });
 
 function deploymentResponse(opts?: {
