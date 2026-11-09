@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from dataclasses import dataclass
 from typing import Protocol
@@ -185,7 +186,10 @@ def _inventory_next_link(headers: dict[str, str], response_url: str) -> str | No
         if "next" in attributes["rel"].lower().split():
             if next_url is not None or "anchor" in attributes:
                 raise TransportError("ambiguous inventory next Link")
-            next_url = urljoin(response_url, target[1:-1])
+            try:
+                next_url = urljoin(response_url, target[1:-1])
+            except ValueError as exc:
+                raise TransportError("invalid inventory Link URL") from exc
     return next_url
 
 
@@ -206,6 +210,39 @@ def _inventory_url_key(url: str, author: str) -> tuple[tuple[str, str], ...]:
     if any(query.get(key) != value for key, value in expected.items()) or ("cursor" in query and not query["cursor"]):
         raise TransportError("model inventory pagination changed its query scope")
     return tuple(sorted(pairs))
+
+
+def _unique_inventory_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate inventory JSON key")
+        result[key] = value
+    return result
+
+
+def _reject_inventory_constant(value: str) -> None:
+    raise ValueError("non-finite inventory JSON number")
+
+
+def _finite_inventory_float(value: str) -> float:
+    result = float(value)
+    if not math.isfinite(result):
+        raise ValueError("non-finite inventory JSON number")
+    return result
+
+
+def _inventory_metadata_text(item: dict, key: str) -> str | None:
+    value = item.get(key)
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value.strip():
+        raise TransportError(f"model inventory {key} must be nonempty text or null")
+    try:
+        value.encode("utf-8")
+    except UnicodeError as exc:
+        raise TransportError(f"model inventory {key} is not valid UTF-8 text") from exc
+    return value
 
 
 def _artifact_rows(payload: dict) -> list[dict[str, object]]:
@@ -373,8 +410,13 @@ class HuggingFaceClient:
             if content_bytes > MAX_INVENTORY_BYTES:
                 raise TransportError("model inventory exceeds aggregate byte limit")
             try:
-                payload = json.loads(response.body.decode("utf-8"))
-            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                payload = json.loads(
+                    response.body.decode("utf-8"),
+                    object_pairs_hook=_unique_inventory_object,
+                    parse_constant=_reject_inventory_constant,
+                    parse_float=_finite_inventory_float,
+                )
+            except (UnicodeError, ValueError, RecursionError) as exc:
                 raise TransportError(f"invalid JSON from {url}") from exc
             if not isinstance(payload, list):
                 raise TransportError("model inventory response is not a list")
@@ -382,14 +424,20 @@ class HuggingFaceClient:
                 if not isinstance(item, dict):
                     raise TransportError("model inventory contains a malformed row")
                 repo_id = item.get("id", item.get("modelId"))
-                if not isinstance(repo_id, str) or len(repo_id.split("/")) != 2 or not repo_id.split("/")[1] or repo_id.split("/")[0].casefold() != author.casefold():
+                if (not isinstance(repo_id, str)
+                        or not re.fullmatch(r"[\w.-]+/[\w.-]+", repo_id)
+                        or repo_id.split("/")[0].casefold() != author.casefold()):
                     raise TransportError("model inventory contains an invalid or out-of-scope ID")
                 if "id" in item and "modelId" in item and item["id"] != item["modelId"]:
                     raise TransportError("model inventory contains ambiguous IDs")
-                if repo_id in seen_ids:
+                if repo_id.casefold() in seen_ids:
                     raise TransportError("model inventory contains duplicate IDs")
-                seen_ids.add(repo_id)
-                rows.append({"id": repo_id, "sha": item.get("sha"), "lastModified": item.get("lastModified")})
+                seen_ids.add(repo_id.casefold())
+                rows.append({
+                    "id": repo_id,
+                    "sha": _inventory_metadata_text(item, "sha"),
+                    "lastModified": _inventory_metadata_text(item, "lastModified"),
+                })
             url = _inventory_next_link(response.headers, response.url)
         rows.sort(key=lambda row: str(row["id"]))
         last_modified = max(
