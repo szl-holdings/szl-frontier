@@ -265,6 +265,14 @@ class WitnessFixtureTests(TestCase):
         self.assertIn("szl-constellation", estate.ORG_SPACES)
         self.assertEqual(estate.ORG_PROFILE_SPACE, "SZLHOLDINGS/README")
 
+    def test_transferred_anatomy_space_is_pinned_at_its_org_identity(self):
+        # betterwithage/anatomy now redirects to SZLHOLDINGS/anatomy, and the
+        # client refuses redirects, so the old identity can never verify.
+        self.assertIn("anatomy", estate.ORG_SPACES)
+        self.assertNotIn("betterwithage/anatomy", estate.CREATOR_SPACES)
+        self.assertIn(("space", "SZLHOLDINGS/anatomy"), estate.CARD_TRUTH_WATCH)
+        self.assertNotIn(("space", "betterwithage/anatomy"), estate.CARD_TRUTH_WATCH)
+
     def test_metadata_revision_is_required_for_every_reference(self):
         wave = wave_fixture()
         reference = "zai-org/GLM-5.3"
