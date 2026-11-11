@@ -11,6 +11,9 @@ Honesty notes:
   to the returned handles. Verify the mapping in your deployment.
 - This mapping is demo-grade and unversioned against the mem0ai SDK;
   pin your SDK version and extend the tests here before production use.
+- remove() exists so the gateway can roll back a plane mutation when
+  receipt sealing fails (staged commit). Confirm your SDK's delete
+  semantics before relying on it.
 """
 from __future__ import annotations
 
@@ -38,3 +41,8 @@ class Mem0Plane:
     def search(self, tenant: str, query: str) -> List[str]:
         results = self.client.search(query=query, user_id=tenant) or []
         return [str(r.get("id")) for r in results if isinstance(r, dict) and r.get("id")]
+
+    def remove(self, tenant: str, handle: str) -> None:
+        """Rollback hook for staged commits. Demo-grade: verify delete semantics
+        against your pinned mem0ai SDK version before production use."""
+        self.client.delete(handle)

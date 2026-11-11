@@ -2,8 +2,10 @@
 
 The plane is capability only; the Covenant is the gateway in front of it.
 Implements the put/get/search protocol the gateway expects from any
-adapter. Stdlib only; contents are never returned unaudited by the
-gateway (only handles and digests leave it).
+adapter, including remove() so the gateway can roll back a plane mutation
+when receipt sealing fails (staged commit). Stdlib only; contents are
+never returned unaudited by the gateway (only handles and digests leave
+it).
 """
 from __future__ import annotations
 
@@ -31,6 +33,12 @@ class InMemoryPlane:
         q = query.lower()
         bucket = self._by_tenant.get(tenant, {})
         return [h for h, c in bucket.items() if q in c.lower()]
+
+    def remove(self, tenant: str, handle: str) -> None:
+        """Rollback hook: drop a stored item. Required for staged commits."""
+        bucket = self._by_tenant.get(tenant)
+        if bucket is not None:
+            bucket.pop(handle, None)
 
     def count(self, tenant: str = "") -> int:
         if tenant:
