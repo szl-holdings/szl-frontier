@@ -30,16 +30,16 @@ DEFAULT_WAVE = ROOT / "frontier/waves/2026-09-07.json"
 DEFAULT_PINS = ROOT / "frontier/evidence/2026-09-07-upstream-model-pins.json"
 ORG = "SZLHOLDINGS"
 ORG_SPACES = [
-    "a11oy", "ayllu", "counsel", "david-leads", "finance", "immune",
+    "a11oy", "anatomy", "ayllu", "counsel", "david-leads", "finance", "immune",
     "immune-lattice", "killinchu", "lyte", "sentra", "szl-command-lab",
     "szl-constellation", "szl-frontier", "szl-model-inference-lab", "terra",
     "vertical-services", "yarqa",
 ]
 ORG_PROFILE_SPACE = "SZLHOLDINGS/README"
-CREATOR_SPACES = ["betterwithage/anatomy"]
+CREATOR_SPACES: list[str] = []
 CARD_TRUTH_WATCH = [("space", "SZLHOLDINGS/szl-frontier"),
                     ("space", "SZLHOLDINGS/a11oy"),
-                    ("space", "betterwithage/anatomy"),
+                    ("space", "SZLHOLDINGS/anatomy"),
                     ("model", "SZLHOLDINGS/chaski")]
 ORIGIN = "https://huggingface.co"
 SCHEMA = "szl.outside-seat.receipt.v2"
