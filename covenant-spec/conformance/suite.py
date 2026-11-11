@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Memory Covenant conformance suite (T1-T12), v0.4-draft.
+"""Memory Covenant conformance suite (T1-T13), v0.4-draft.
 
 Stdlib only. Runs on a clean machine with no SZL services. Exit 0 iff
 every test passes. T7 verifies the full chain offline, exactly as a
@@ -226,6 +226,22 @@ def t12_acceptance_atomic_under_lake_failure(tmp: str) -> str:
     return "lake seal failure on LEARNING -> candidate stays unreviewed, never serves"
 
 
+def t13_failed_rewrite_keeps_admitted_memory(tmp: str) -> str:
+    gw = build(tmp)
+    content = "measured fact one"
+    first = gw.write(actor="agent-1", content=content, provenance=provenance(content), purpose="support.customer_qa")
+    assert first.ok, "the first write must be admitted"
+    real_append = gw.lake.append
+    broken_lake(gw)
+    again = gw.write(actor="agent-1", content=content, provenance=provenance(content), purpose="support.customer_qa")
+    assert not again.ok, "a re-write must fail closed when the receipt cannot be sealed"
+    gw.lake.append = real_append  # type: ignore[method-assign]
+    assert gw.memory.get("default", first.handle) == content, "rollback must not delete bytes that back an already-receipted memory"
+    recall = gw.recall(actor="agent-1", query="measured", purpose="support.customer_qa")
+    assert recall.ok, "the originally admitted memory must still serve"
+    return "seal failure on a duplicate WRITE -> admitted memory and its bytes survive"
+
+
 TESTS = [
     ("T1", t1_hard_deny_fails_closed),
     ("T2", t2_chain_tamper_detected),
@@ -239,11 +255,12 @@ TESTS = [
     ("T10", t10_altered_or_missing_backing_content),
     ("T11", t11_receipt_failure_leaves_no_memory),
     ("T12", t12_acceptance_atomic_under_lake_failure),
+    ("T13", t13_failed_rewrite_keeps_admitted_memory),
 ]
 
 
 def main() -> int:
-    print("Memory Covenant conformance suite (v0.4-draft) — T1..T12")
+    print("Memory Covenant conformance suite (v0.4-draft) — T1..T13")
     failures = 0
     for label, fn in TESTS:
         with tempfile.TemporaryDirectory() as tmp:
