@@ -93,8 +93,10 @@ sequenceDiagram
     A->>G: WRITE(content, provenance, purpose)
     G->>P: evaluate(versioned policy)
     P-->>G: ADMIT / REVIEW_REQUIRED / HARD_DENY
+    G->>L: pre-flight lake health (tail check)
     G->>M: store(hash, partition, tier)
     G->>L: append DSSE receipt (hash-chained)
+    Note over G,M: if the receipt cannot be sealed, the plane mutation is rolled back
     A->>G: RECALL(query, purpose)
     G->>P: evaluate(tenant, purpose, freshness)
     P-->>G: allow
@@ -102,13 +104,15 @@ sequenceDiagram
     G-->>A: handles + digests (never unaudited text)
 ```
 
+**Receipt-first staged commit.** The gateway never reports a memory as admitted before its receipt is sealed. The lake is pre-flighted (tail healthcheck) before the plane is touched; if receipt sealing then fails, the plane mutation is rolled back (adapters expose `remove()` for this) and the operation returns an honest failure. Adapters that cannot roll back must say so; the gateway reports `ROLLBACK_UNAVAILABLE` rather than pretending the write never happened. **Acceptance is fail-closed**: it re-verifies the backing content against the digest recorded at write time, re-evaluates the CURRENT policy against the CURRENT content (a stale verdict from write time is never trusted), and seals the Learning Receipt before the candidate enters the admitted set.
+
 ## 8. The Learning Receipt (review-gated continuous memory)
 
 The Covenant's answer to self-improving agents:
 
 1. An agent may **discover** candidate knowledge (continuous acquisition is encouraged).
 2. Every candidate lands in DISCOVERED_REVIEW_REQUIRED at an exact source revision — **never directly in the serving corpus, never silently**.
-3. A human-governed acceptance produces a signed **Learning Receipt**: who reviewed, what evidence, at which revision.
+3. A human-governed acceptance produces a signed **Learning Receipt**: who reviewed, what evidence, at which revision. Acceptance re-checks the current policy and the backing content at acceptance time.
 4. Rejected or expired candidates expire with receipts; nothing is deleted without a trace.
 5. **Continuous evidence acquisition, not silent model self-modification.** An agent that can rewrite its own memory without receipts is unauditable by construction; the Covenant makes self-improvement *reviewable* rather than forbidding it.
 
@@ -118,7 +122,7 @@ See the repository README. Adopters climb levels; each is independently testable
 
 ## 10. Conformance test matrix
 
-T1–T8 are implemented by `conformance/suite.py` (stdlib only, runs on a clean machine):
+T1–T12 are implemented by `conformance/suite.py` (stdlib only, runs on a clean machine):
 
 | # | Test | Expected |
 | --- | --- | --- |
@@ -130,6 +134,10 @@ T1–T8 are implemented by `conformance/suite.py` (stdlib only, runs on a clean 
 | T6 | Cross-tenant ROUTE/RECALL without matching policy | Denied; tenant isolation holds |
 | T7 | Offline verify of a full chain on a clean machine, no SZL software | Chain verifies end-to-end |
 | T8 | Recall without a receipt | Fails closed; recalls are receipted |
+| T9 | Policy hardened to hard-deny between write and acceptance | Acceptance refused; candidate demoted to BLOCKED; never served |
+| T10 | Backing content altered or missing in the plane at acceptance | Acceptance refused; integrity break recorded |
+| T11 | Receipt lake fails to seal on WRITE | Plane mutation rolled back; no memory without a receipt |
+| T12 | Receipt lake fails to seal on LEARNING acceptance | Acceptance fails; candidate stays DISCOVERED_REVIEW_REQUIRED and never serves |
 
 ## 11. Adapter interface (reference sketch)
 

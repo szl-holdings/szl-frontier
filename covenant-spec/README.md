@@ -29,13 +29,14 @@
 - This folder is **spec text + conformance suite + platform adapters**. It does not change the existing covenant engine in `src/lib/covenant`.
 - Receipts produced here are **UNSIGNED_HONEST**: canonical JSON, SHA3-256 hash-chained, no signature fabricated. Signed DSSE/ECDSA-P256 envelopes come from [szl-receipt](https://github.com/szl-holdings/szl-receipt) per governed-receipt-spec.
 - The Mem0 and Zep adapters are **demo-grade mappings**; the InMemoryPlane is the reference plane for tests and demos.
+- Writes and acceptances use a **receipt-first staged commit**: the lake is pre-flighted, the plane is mutated, the receipt is sealed, and the plane mutation is rolled back if sealing fails. Acceptance re-verifies backing content and re-evaluates the CURRENT policy — a stale verdict from write time is never trusted.
 - Λ = Conjecture 1 — never a theorem. Software status: SPEC DRAFT. No production ATO claimed.
 
 ## Quickstart (clean machine, stdlib only)
 
 ```bash
 cd covenant-spec
-python conformance/suite.py   # T1–T8; exit 0 iff every test passes
+python conformance/suite.py   # T1–T12; exit 0 iff every test passes
 ```
 
 ## Conformance levels
@@ -62,10 +63,14 @@ python conformance/suite.py   # T1–T8; exit 0 iff every test passes
 | T6 | Cross-tenant RECALL | Denied; no leak across tenants |
 | T7 | Offline verify of a full chain, no SZL software | Chain verifies end-to-end |
 | T8 | Recall without a receipt | Impossible; recalls are always receipted |
+| T9 | Policy hardened to hard-deny after the write, then acceptance | Acceptance refused; candidate demoted to BLOCKED; never served |
+| T10 | Backing content altered or missing in the plane at acceptance | Acceptance refused; integrity break recorded |
+| T11 | Receipt lake fails to seal on WRITE | Plane mutation rolled back; no memory without a receipt |
+| T12 | Receipt lake fails to seal on LEARNING acceptance | Acceptance fails; candidate stays DISCOVERED_REVIEW_REQUIRED and never serves |
 
 ## Adapters
 
-`adapters/mem0_adapter.py` and `adapters/zep_adapter.py` wrap the platforms' clients behind the gateway. Benchmarks stay with the platforms — **auditability becomes the Covenant's**. The adapter wraps any memory engine; the Covenant is the gateway, not the store.
+`adapters/mem0_adapter.py` and `adapters/zep_adapter.py` wrap the platforms' clients behind the gateway. Benchmarks stay with the platforms — **auditability becomes the Covenant's**. The adapter wraps any memory engine; the Covenant is the gateway, not the store. Each adapter implements `remove()` so the gateway can roll back a plane mutation when receipt sealing fails; adapters that cannot (the Zep demo mapping) say so honestly and the gateway reports `ROLLBACK_UNAVAILABLE`.
 
 ## Relationship to emerging standards
 
