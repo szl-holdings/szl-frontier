@@ -93,7 +93,10 @@ export async function sealReceipt<T>(opts: {
   payload: T;
   producedAt?: string;
 }): Promise<ReceiptEnvelope<T>> {
-  const payload = opts.payload;
+  // Own the JSON value before WebCrypto yields, and return exactly the value
+  // whose bytes were hashed. Later caller edits must not rewrite this receipt.
+  const canonicalPayload = stableCanonical(opts.payload);
+  const payload = JSON.parse(canonicalPayload) as T;
   if (
     payload &&
     typeof payload === "object" &&
@@ -103,7 +106,7 @@ export async function sealReceipt<T>(opts: {
     throw new EnvelopeError("PRODUCTION_AUTHORIZATION_FORBIDDEN");
   }
   const producedAt = opts.producedAt ?? new Date().toISOString();
-  const digestSha256 = await sha256Hex(stableCanonical(payload));
+  const digestSha256 = await sha256Hex(canonicalPayload);
   return {
     schema: RECEIPT_ENVELOPE_SCHEMA,
     kind: opts.kind,
