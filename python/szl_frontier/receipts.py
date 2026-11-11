@@ -48,6 +48,26 @@ def sha256_hex(value: bytes | str | object) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def _snapshot_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Own the JSON value whose canonical bytes the receipt binds."""
+
+    source = dict(payload)
+    # Validate with the existing encoder before walking: cyclic containers,
+    # unsupported objects and non-finite numbers must still fail closed.
+    canonical_json(source)
+
+    def copy_value(value: Any) -> Any:
+        if isinstance(value, dict):
+            # Preserve accepted Python key types and their canonical ordering.
+            # A JSON round-trip would stringify numeric keys and change hashes.
+            return {key: copy_value(item) for key, item in value.items()}
+        if isinstance(value, (list, tuple)):
+            return [copy_value(item) for item in value]
+        return value
+
+    return copy_value(source)
+
+
 @dataclass(frozen=True, slots=True)
 class ReceiptSignature:
     algorithm: str
@@ -97,6 +117,10 @@ class EvidenceReceipt:
     signature: ReceiptSignature | None = None
     schema: str = RECEIPT_SCHEMA
 
+    def __post_init__(self) -> None:
+        # Frozen fields alone do not isolate mutable nested caller values.
+        object.__setattr__(self, "payload", _snapshot_payload(self.payload))
+
     def unsigned_mapping(self) -> dict[str, Any]:
         """Canonical fields covered by the optional signature."""
 
@@ -107,7 +131,7 @@ class EvidenceReceipt:
             "createdAt": self.created_at,
             "subject": self.subject,
             "payloadDigest": self.payload_digest,
-            "payload": dict(self.payload),
+            "payload": _snapshot_payload(self.payload),
             "previousReceiptDigest": self.previous_receipt_digest,
         }
 
@@ -233,7 +257,7 @@ class ReceiptFactory:
             raise ReceiptError("release_id and subject are required")
         timestamp = (created_at or datetime.now(timezone.utc)).astimezone(timezone.utc)
         timestamp_text = timestamp.isoformat().replace("+00:00", "Z")
-        normalized_payload = dict(payload)
+        normalized_payload = _snapshot_payload(payload)
         payload_digest = sha256_hex(normalized_payload)
 
         # Every identity and chain field participates in the content address.
