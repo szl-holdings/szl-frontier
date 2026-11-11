@@ -36,14 +36,14 @@ class ReceiptLake:
         os.makedirs(directory, exist_ok=True)
         self._tail: Optional[Tuple[int, str]] = None
         if os.path.exists(path):
-            for _ in open(path, "r", encoding="utf-8"):
-                pass
             entries = self._read_all()
             if entries:
                 last = entries[-1]
                 self._tail = (int(last["seq"]), last["digest"])
 
     def _read_all(self) -> List[Dict[str, Any]]:
+        if not os.path.exists(self.path):
+            return []
         entries: List[Dict[str, Any]] = []
         with open(self.path, "r", encoding="utf-8") as f:
             for line in f:
@@ -66,6 +66,29 @@ class ReceiptLake:
 
     def count(self) -> int:
         return len(self._read_all())
+
+    def healthcheck(self) -> Tuple[bool, str]:
+        """Cheap tail integrity check, used before staged commits.
+
+        Re-reads the file so post-init tampering is detected: the last
+        record must still carry its recomputed digest and link to the
+        prior record. A missing or empty file is healthy (fresh lake).
+        Full verification stays in verify_file(); healthcheck is the
+        pre-flight, not a substitute.
+        """
+        if not os.path.exists(self.path):
+            return True, "lake empty (healthy)"
+        entries = self._read_all()
+        if not entries:
+            return True, "lake empty (healthy)"
+        last = entries[-1]
+        body = {k: v for k, v in last.items() if k != "digest"}
+        if sha3_256_hex(canonical(body)) != last.get("digest"):
+            return False, "tail digest mismatch (last receipt tampered or corrupt)"
+        prev_expected = entries[-2].get("digest") if len(entries) > 1 else None
+        if last.get("prev") != prev_expected:
+            return False, "tail chain break (prev does not match prior digest)"
+        return True, "tail intact (%d receipts)" % len(entries)
 
     @staticmethod
     def verify_file(path: str) -> Tuple[bool, str]:
