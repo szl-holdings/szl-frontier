@@ -4,12 +4,17 @@ Requires: pip install zep-cloud
 
 The adapter wraps a Zep client behind the put/get/search protocol; the
 Covenant Gateway in front of it enforces policy, lifecycle and receipts.
+Benchmarks stay with the platform - auditability becomes the Covenant's.
 
 Honesty notes:
 - zep-cloud memory.add() does not return a stable id in all SDK versions;
   this adapter keeps a digest-handle map per session and treats that map
   as part of the adapter state. Pin your SDK version and extend the tests
   here before production use.
+- remove() raises NotImplementedError: this demo mapping cannot delete
+  session memory, so the gateway reports ROLLBACK_UNAVAILABLE honestly
+  if a receipt seal ever fails after a put. Extend this adapter with a
+  real deletion path before production use.
 """
 from __future__ import annotations
 
@@ -42,3 +47,9 @@ class ZepPlane:
             if text:
                 handles.extend(self._handles.search(tenant, text))
         return handles
+
+    def remove(self, tenant: str, handle: str) -> None:
+        """Rollback hook for staged commits. This demo mapping cannot delete
+        session memory; the gateway records ROLLBACK_UNAVAILABLE honestly.
+        Implement a real deletion path before production use."""
+        raise NotImplementedError("zep-cloud demo adapter cannot remove session memory; pin the SDK and extend this adapter before production use")
