@@ -159,10 +159,18 @@ class CovenantGateway:
                     reason="receipt lake unhealthy; refusing to admit memory without a sealable receipt: %s" % health_reason,
                 )
             handle = self.memory.put(tenant, content)
+            # Planes may be content-addressed: a re-write of content that is
+            # already tracked returns the SAME handle. Those bytes back an
+            # existing sealed receipt, so a failed seal here must not remove
+            # them - only a mutation this write introduced is rolled back.
+            already_tracked = handle in self._admitted or handle in self._candidates
             try:
                 receipt = self._receipt("WRITE", result=state, handle=handle, **common)
             except Exception as exc:  # noqa: BLE001 - report seal failure honestly, roll the plane back
-                rollback = self._plane_remove(tenant, handle)
+                if already_tracked:
+                    rollback = "left intact (handle already backs a receipted memory; nothing new to roll back)"
+                else:
+                    rollback = self._plane_remove(tenant, handle)
                 return OperationResult(
                     False,
                     Lifecycle.BLOCKED,

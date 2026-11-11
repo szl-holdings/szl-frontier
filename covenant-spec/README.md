@@ -36,7 +36,7 @@
 
 ```bash
 cd covenant-spec
-python conformance/suite.py   # T1–T12; exit 0 iff every test passes
+python conformance/suite.py   # T1–T13; exit 0 iff every test passes
 ```
 
 ## Conformance levels
@@ -67,6 +67,7 @@ python conformance/suite.py   # T1–T12; exit 0 iff every test passes
 | T10 | Backing content altered or missing in the plane at acceptance | Acceptance refused; integrity break recorded |
 | T11 | Receipt lake fails to seal on WRITE | Plane mutation rolled back; no memory without a receipt |
 | T12 | Receipt lake fails to seal on LEARNING acceptance | Acceptance fails; candidate stays DISCOVERED_REVIEW_REQUIRED and never serves |
+| T13 | Receipt lake fails to seal on a re-WRITE of already-admitted content | Admitted memory and its bytes are left intact; only a new mutation is rolled back |
 
 ## Adapters
 
