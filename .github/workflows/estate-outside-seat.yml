@@ -37,6 +37,8 @@ jobs:
           python .github/scripts/outside_seat_previous.py
           --output work/outside-seat-previous/receipt.json
           --status-output work/outside-seat/chain-status.json
+      - name: Wake sleeping public Spaces before runtime checks
+        run: python tools/wake_spaces.py
       - name: Observe public estate and enforce complete verification
         id: verify
         shell: bash
