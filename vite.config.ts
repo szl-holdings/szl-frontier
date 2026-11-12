@@ -157,8 +157,9 @@ export default defineConfig(({ command, isPreview }) => ({
     strictPort: true,
     // Permit only Hugging Face's provider-owned Space host suffix. Do not use
     // `true`: Vite documents that an unrestricted host list weakens its DNS-
-    // rebinding protection.
-    allowedHosts: [".hf.space"],
+    // rebinding protection. frontier.a-11-oy.com is the Space's attached
+    // custom domain (HF custom-domain record, Cloudflare CNAME to the Space).
+    allowedHosts: [".hf.space", "frontier.a-11-oy.com"],
   },
   resolve: { tsconfigPaths: true },
   plugins: [
