@@ -216,6 +216,52 @@ class WakeSpaceTests(TestCase):
         self.assertEqual(calls[1], WAKE_URL)
         self.assertTrue(all(url == WAKE_URL or url.startswith("https://huggingface.co/api/spaces/") for url in calls))
 
+    def test_many_sleeping_spaces_stay_inside_the_hub_budget(self):
+        self.assertEqual(wake.polls_until_timeout(25, 10), 4)
+        self.assertEqual(wake.paced_poll_interval(1, 300, 10), 10)
+        for count in (20, 51, 60):
+            interval = wake.paced_poll_interval(count, 300, 10)
+            calls = count * (1 + wake.polls_until_timeout(300, interval))
+            self.assertGreaterEqual(interval, 10)
+            self.assertLessEqual(interval, 300)
+            self.assertLessEqual(calls, wake.HUB_DETAIL_BUDGET, (count, interval, calls))
+        # A single fast interval across the whole estate would not fit.
+        unpaced = 51 * (1 + wake.polls_until_timeout(300, 10))
+        self.assertGreater(unpaced, wake.HUB_DETAIL_BUDGET)
+
+    def test_rate_limit_stops_further_hub_polls(self):
+        calls = []
+        ticker = Ticker()
+        stop = threading.Event()
+
+        def get(url):
+            calls.append(url)
+            parts = urllib.parse.urlsplit(url)
+            if parts.hostname != "huggingface.co":
+                return response(200, b"", url)
+            return response(429, b'{"error":"rate limited"}', url)
+
+        first = wake.wake_one(
+            "SZLHOLDINGS/a11oy", get=get, sleep=ticker.sleep, monotonic=ticker.monotonic,
+            timeout_seconds=300, poll_interval_seconds=10, stop=stop,
+        )
+        self.assertEqual(first.http_status, 429)
+        self.assertEqual(first.error, "hub rate limit")
+        self.assertEqual(ticker.slept, [])
+        self.assertTrue(stop.is_set())
+        hub_before = [url for url in calls if "huggingface.co" in url]
+        self.assertEqual(len(hub_before), 1)
+        second = wake.wake_one(
+            SPACE, get=get, sleep=ticker.sleep, monotonic=ticker.monotonic,
+            timeout_seconds=300, poll_interval_seconds=10, stop=stop,
+        )
+        self.assertEqual(second.error, "hub rate limit")
+        self.assertEqual(second.polls, 0)
+        hub_after = [url for url in calls if "huggingface.co" in url]
+        self.assertEqual(hub_after, hub_before)
+        self.assertIn(WAKE_URL, calls)
+        self.assertEqual(ticker.slept, [])
+
     def test_anonymous_401_does_not_consume_the_running_timeout(self):
         calls = []
         ticker = Ticker()

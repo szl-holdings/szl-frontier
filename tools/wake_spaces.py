@@ -7,8 +7,10 @@ hf.space host, one anonymous GET wakes it, then
 https://huggingface.co/api/spaces/<id> is polled until runtime.stage is
 RUNNING. No token, proxy credential, cookie jar, or Hub write is sent.
 A Space that is still not RUNNING after about five minutes, or that answers
-401 or 404, is left for the verifier. The verifier keeps its own verdict
-and the production HOLD.
+401 or 404, is left for the verifier. Hub metadata polls are paced so a
+fully sleeping estate stays inside a fraction of the anonymous request
+window, and an HTTP 429 stops further Hub polls. The verifier keeps its
+own verdict and the production HOLD.
 
 The Space list is the verifier's configured organization Spaces, creator
 Spaces and profile Space, plus public Spaces from the same organization
@@ -25,6 +27,7 @@ import math
 import re
 import sys
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -47,6 +50,11 @@ WAKE_HOST = re.compile(
     r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.static)?\.hf\.space\Z"
 )
 TERMINAL_HTTP = frozenset({401, 404})
+# Unauthenticated Hub requests are limited to a few hundred per five minutes
+# per address. This caps the wake step's detail reads so the verifier that
+# runs next still has room in that window. Org listing pages are separate
+# and are already bounded by the verifier's page limit.
+HUB_DETAIL_BUDGET = 180
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -243,21 +251,86 @@ def validate_timing(timeout_seconds, poll_interval_seconds) -> None:
             raise ValueError(f"{name} must be finite and greater than zero")
 
 
-def wake_one(space_id, *, get, sleep, monotonic, timeout_seconds, poll_interval_seconds) -> WakeResult:
+def polls_until_timeout(timeout_seconds, poll_interval_seconds) -> int:
+    """How many stage polls one sleeping Space performs before its deadline."""
+    now = 0.0
+    polls = 0
+    while polls < MAX_POLLS:
+        polls += 1
+        if now >= timeout_seconds:
+            return polls
+        now += min(poll_interval_seconds, timeout_seconds - now)
+    return polls
+
+
+def paced_poll_interval(space_count, timeout_seconds, poll_interval_seconds, budget=HUB_DETAIL_BUDGET):
+    """Slow the poll when many Spaces would otherwise exhaust the Hub window.
+
+    One sleeping Space keeps the requested interval. A full estate is stretched
+    toward the per-Space timeout so lookup plus stage polls stay within budget.
+    """
+    if space_count <= 1:
+        return poll_interval_seconds
+
+    def calls(interval):
+        return space_count * (1 + polls_until_timeout(timeout_seconds, interval))
+
+    if calls(poll_interval_seconds) <= budget:
+        return poll_interval_seconds
+    if calls(timeout_seconds) > budget:
+        return timeout_seconds
+    lo, hi = poll_interval_seconds, timeout_seconds
+    for _ in range(40):
+        mid = (lo + hi) / 2
+        if calls(mid) <= budget:
+            hi = mid
+        else:
+            lo = mid
+    if calls(hi) > budget:
+        return timeout_seconds
+    return hi
+
+
+def _mark_rate_limit(stop) -> None:
+    if stop is not None:
+        stop.set()
+
+
+def _record_wake(result, get, space_id, metadata) -> None:
+    result.wake_url = select_wake_url(space_id, metadata)
+    woken = get(result.wake_url)
+    result.wake_status = woken.status if type(getattr(woken, "status", None)) is int else 0
+
+
+def wake_one(space_id, *, get, sleep, monotonic, timeout_seconds, poll_interval_seconds, stop=None) -> WakeResult:
     result = WakeResult(space=space_id)
     try:
-        _status, metadata = read_space(get, space_id)
-        result.wake_url = select_wake_url(space_id, metadata)
-        woken = get(result.wake_url)
-        result.wake_status = woken.status if type(getattr(woken, "status", None)) is int else 0
+        if stop is not None and stop.is_set():
+            _record_wake(result, get, space_id, None)
+            result.error = "hub rate limit"
+            return result
+        status, metadata = read_space(get, space_id)
+        _record_wake(result, get, space_id, metadata)
+        if status == 429:
+            _mark_rate_limit(stop)
+            result.http_status = 429
+            result.error = "hub rate limit"
+            return result
         deadline = monotonic() + timeout_seconds
         while result.polls < MAX_POLLS:
+            if stop is not None and stop.is_set():
+                result.error = "hub rate limit"
+                return result
             status, metadata = read_space(get, space_id)
             result.polls += 1
             result.http_status = status
             result.stage = runtime_stage(metadata)
             if result.stage == "RUNNING":
                 result.reached_running = True
+                return result
+            if status == 429:
+                _mark_rate_limit(stop)
+                result.error = "hub rate limit"
                 return result
             # Private or absent metadata will not grow a runtime stage from a wake.
             if status in TERMINAL_HTTP:
@@ -343,6 +416,9 @@ def wake_all(space_ids, *, get, sleep, monotonic, timeout_seconds, poll_interval
             continue
         pending.append(space_id)
 
+    interval = paced_poll_interval(len(pending), timeout_seconds, poll_interval_seconds)
+    stop = threading.Event()
+
     def start(space_id):
         return wake_one(
             space_id,
@@ -350,7 +426,8 @@ def wake_all(space_ids, *, get, sleep, monotonic, timeout_seconds, poll_interval
             sleep=sleep,
             monotonic=monotonic,
             timeout_seconds=timeout_seconds,
-            poll_interval_seconds=poll_interval_seconds,
+            poll_interval_seconds=interval,
+            stop=stop,
         )
 
     if max_workers <= 1 or len(pending) <= 1:
