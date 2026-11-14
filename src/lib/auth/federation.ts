@@ -41,13 +41,16 @@ export type FederationConfig =
 
 export type FederationMode = FederationConfig["mode"];
 
+import { PREVIEW_CLIENT_ID } from "./preview";
+
 const CLIENT_ID_KEY = "GROK_AUTH_CLIENT_ID";
 const CLIENT_SECRET_KEY = "GROK_AUTH_CLIENT_SECRET";
 
 /**
  * Decide the broker client from the environment. `previewClient` is the shared
  * live-preview registration (`./preview`). It is no longer used as a
- * baked-in secret fallback. Preview mode requires the env pair.
+ * baked-in secret fallback. Preview mode uses the fixed preview client id
+ * with an environment-provided secret, or an explicitly injected pair.
  */
 export function resolveFederation(env: EnvReader, _previewClient?: BrokerClient): FederationConfig {
   const read = (key: string): string | undefined => {
@@ -65,6 +68,18 @@ export function resolveFederation(env: EnvReader, _previewClient?: BrokerClient)
     return deployed
       ? { mode: "deployed", client: "per-app", clientId, clientSecret }
       : { mode: "preview", client: "per-app", clientId, clientSecret };
+  }
+
+  // The dynamic sandbox preview has one fixed public client id. Its secret
+  // must still come from the environment; deployed apps always require the
+  // complete per-app pair above.
+  if (!deployed && !clientId && clientSecret) {
+    return {
+      mode: "preview",
+      client: "shared-preview",
+      clientId: PREVIEW_CLIENT_ID,
+      clientSecret,
+    };
   }
 
   const missing = [clientId ? null : CLIENT_ID_KEY, clientSecret ? null : CLIENT_SECRET_KEY].filter(
