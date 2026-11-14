@@ -23,10 +23,10 @@ the candidate into the admitted set.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
-from .lake import ReceiptLake, canonical, sha3_256_hex
+from .lake import ReceiptLake, sha3_256_hex
 from .policy import ALLOW, DENY, HARD_DENY, REVIEW_REQUIRED, Policy
 
 
