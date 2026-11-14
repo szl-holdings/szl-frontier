@@ -1,3 +1,5 @@
+import { PREVIEW_CLIENT_ID } from "./preview";
+
 /**
  * Which broker OAuth client this server may federate with, and how a request
  * is authenticated as a result (server-only; dependency-free so both decisions
@@ -40,8 +42,6 @@ export type FederationConfig =
   | { readonly mode: "refused"; readonly reason: string };
 
 export type FederationMode = FederationConfig["mode"];
-
-import { PREVIEW_CLIENT_ID } from "./preview";
 
 const CLIENT_ID_KEY = "GROK_AUTH_CLIENT_ID";
 const CLIENT_SECRET_KEY = "GROK_AUTH_CLIENT_SECRET";
