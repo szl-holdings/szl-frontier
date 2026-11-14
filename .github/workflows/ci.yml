@@ -12,6 +12,8 @@ permissions:
 jobs:
   native-browser:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:9beb546099e11f52d62e505537914870e01a67e0e6b00ae41da4775324e73dbe
     timeout-minutes: 12
     env:
       # Presentation qualification must never migrate a configured external DB.
@@ -26,7 +28,8 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npx playwright install --with-deps chromium
+      - name: Verify the pinned Playwright CLI
+        run: npx playwright --version
       - name: Build the source-owned presentation package
         run: npm run build
       - name: Inspect all workspaces, keyboard paths, failure states and native bytes
