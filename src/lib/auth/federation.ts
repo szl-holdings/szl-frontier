@@ -1,3 +1,5 @@
+import { PREVIEW_CLIENT_ID } from "./preview";
+
 /**
  * Which broker OAuth client this server may federate with, and how a request
  * is authenticated as a result (server-only; dependency-free so both decisions
@@ -46,10 +48,11 @@ const CLIENT_SECRET_KEY = "GROK_AUTH_CLIENT_SECRET";
 
 /**
  * Decide the broker client from the environment. `previewClient` is the shared
- * live-preview registration (`./preview`); it is returned only in `preview`
- * mode with no per-app pair present.
+ * live-preview registration (`./preview`). It is no longer used as a
+ * baked-in secret fallback. Preview mode uses the fixed preview client id
+ * with an environment-provided secret, or an explicitly injected pair.
  */
-export function resolveFederation(env: EnvReader, previewClient: BrokerClient): FederationConfig {
+export function resolveFederation(env: EnvReader, _previewClient?: BrokerClient): FederationConfig {
   const read = (key: string): string | undefined => {
     const value = env(key)?.trim();
     return value ? value : undefined;
@@ -65,6 +68,18 @@ export function resolveFederation(env: EnvReader, previewClient: BrokerClient): 
     return deployed
       ? { mode: "deployed", client: "per-app", clientId, clientSecret }
       : { mode: "preview", client: "per-app", clientId, clientSecret };
+  }
+
+  // The dynamic sandbox preview has one fixed public client id. Its secret
+  // must still come from the environment; deployed apps always require the
+  // complete per-app pair above.
+  if (!deployed && !clientId && clientSecret) {
+    return {
+      mode: "preview",
+      client: "shared-preview",
+      clientId: PREVIEW_CLIENT_ID,
+      clientSecret,
+    };
   }
 
   const missing = [clientId ? null : CLIENT_ID_KEY, clientSecret ? null : CLIENT_SECRET_KEY].filter(
@@ -90,7 +105,13 @@ export function resolveFederation(env: EnvReader, previewClient: BrokerClient): 
         `client: set both ${CLIENT_ID_KEY} and ${CLIENT_SECRET_KEY}, or neither.`,
     };
   }
-  return { mode: "preview", client: "shared-preview", ...previewClient };
+  return {
+    mode: "refused",
+    reason:
+      `GROK_AUTH_CLIENT_SECRET is not set, so federated sign-in is unavailable. ` +
+      "The shared preview client secret is no longer baked into the source; set " +
+      `both GROK_AUTH_CLIENT_ID and GROK_AUTH_CLIENT_SECRET in the environment.`,
+  };
 }
 
 /**
