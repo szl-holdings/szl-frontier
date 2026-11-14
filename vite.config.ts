@@ -158,7 +158,7 @@ export default defineConfig(({ command, isPreview }) => ({
     // Permit only Hugging Face's provider-owned Space host suffix. Do not use
     // `true`: Vite documents that an unrestricted host list weakens its DNS-
     // rebinding protection.
-    allowedHosts: [".hf.space"],
+    allowedHosts: [".hf.space", "frontier.a-11-oy.com"],
   },
   resolve: { tsconfigPaths: true },
   plugins: [

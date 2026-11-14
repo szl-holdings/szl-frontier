@@ -118,9 +118,20 @@ requests and main pushes. This makes the collector's correctness checks part of
 the repository's existing protected merge gate.
 
 `Estate outside-seat verifier` runs nightly at **05:37 UTC** and supports manual dispatch
-on `main`. It runs the offline controls before observation. Live findings fail
-the workflow; the receipt and raw evidence are uploaded even when the observation
-fails. Workflow artifacts use run ID and attempt in their names. If prior-chain
+on `main`. It runs the offline controls before observation. Before the live
+observation, `tools/wake_spaces.py` sends one anonymous GET to each Space the
+verifier checks and polls public `runtime.stage` until `RUNNING`, or for about
+five minutes per Space. The list is the verifier's configured organization
+Spaces, creator Spaces and profile Space, plus public Spaces from the same
+organization listing. The helper sends no token. It does not change verdict
+rules: a Space that stays asleep or unreadable is left for the verifier, which
+still reports incomplete or finding results and keeps production at HOLD.
+An anonymous 401 or 404 is not polled for the full five minutes, because that
+response will not grow a runtime stage. When many Spaces are asleep, stage
+polls slow down so the wake step's Hub reads stay within a fraction of the
+anonymous request window and the verifier still has room to run. An HTTP 429
+stops further Hub polls. Live findings fail the workflow; the
+receipt and raw evidence are uploaded even when the observation fails. Workflow artifacts use run ID and attempt in their names. If prior-chain
 retrieval fails, the artifact preserves a chain failure diagnostic and the
 observer does not manufacture a replacement genesis receipt.
 

@@ -99,6 +99,14 @@ test("source readback uses the canonical Space only for that provider host", () 
     "https://szlholdings-szl-frontier.hf.space/api/source",
   );
 
+  const product = new Request("https://frontier.a-11-oy.com/api/source", {
+    headers: { host: "frontier.a-11-oy.com" },
+  });
+  assert.equal(
+    deploymentSourceRequestUrl(product),
+    "https://szlholdings-szl-frontier.hf.space/api/source",
+  );
+
   const otherDeployment = new Request("https://preview.example/api/source", {
     headers: { host: "preview.example" },
   });
