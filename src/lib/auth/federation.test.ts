@@ -150,11 +150,8 @@ describe("dynamic sandbox preview (no BETTER_AUTH_URL)", () => {
     assert.deepEqual(config, { mode: "preview", client: "per-app", ...PER_APP });
   });
 
-  it("refuses to pair one per-app value with the preview client", () => {
-    for (const values of [
-      { GROK_AUTH_CLIENT_ID: PER_APP.clientId },
-      { GROK_AUTH_CLIENT_SECRET: PER_APP.clientSecret },
-    ]) {
+  it("refuses to pair only a per-app client id with the preview client", () => {
+    for (const values of [{ GROK_AUTH_CLIENT_ID: PER_APP.clientId }]) {
       const config = resolve(values);
       assert.equal(config.mode, "refused");
       assert.ok(!carriesPreviewClient(config), "refusal must not carry the preview client");
@@ -163,6 +160,16 @@ describe("dynamic sandbox preview (no BETTER_AUTH_URL)", () => {
         "refusal must not echo env values",
       );
     }
+  });
+
+  it("uses the fixed preview id with an injected preview secret", () => {
+    const config = resolve({ GROK_AUTH_CLIENT_SECRET: PREVIEW.clientSecret });
+    assert.deepEqual(config, {
+      mode: "preview",
+      client: "shared-preview",
+      clientId: "grok_preview",
+      clientSecret: PREVIEW.clientSecret,
+    });
   });
 
   it("authenticates requests by session", () => {
