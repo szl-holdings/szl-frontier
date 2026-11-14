@@ -17,6 +17,7 @@ const DEPLOYMENT_SOURCE_AUTHORITY = "protected-github-source";
  */
 export const DEPLOYMENT_SOURCE_ORIGIN = "https://szlholdings-szl-frontier.hf.space";
 const DEPLOYMENT_SOURCE_HOST = new URL(DEPLOYMENT_SOURCE_ORIGIN).host.toLowerCase();
+const FRONTIER_PRODUCT_HOST = "frontier.a-11-oy.com";
 
 function normalizeHost(value: string): string {
   return value.trim().toLowerCase().replace(/:443$/, "");
@@ -32,7 +33,10 @@ export function deploymentSourceRequestUrl(
 ): string {
   const forwardedHost = request.headers.get("x-forwarded-host")?.split(",", 1)[0];
   const requestHost = forwardedHost ?? request.headers.get("host");
-  return requestHost && normalizeHost(requestHost) === DEPLOYMENT_SOURCE_HOST
+  const normalizedHost = requestHost
+    ? normalizeHost(requestHost)
+    : new URL(request.url).host.toLowerCase();
+  return normalizedHost === DEPLOYMENT_SOURCE_HOST || normalizedHost === FRONTIER_PRODUCT_HOST
     ? `${DEPLOYMENT_SOURCE_ORIGIN}/api/source`
     : request.url;
 }
