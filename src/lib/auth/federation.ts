@@ -108,9 +108,9 @@ export function resolveFederation(env: EnvReader, _previewClient?: BrokerClient)
   return {
     mode: "refused",
     reason:
-      `GROK_AUTH_CLIENT_SECRET is not set, so federated sign-in is unavailable. ` +
+      `${CLIENT_SECRET_KEY} is not set, so federated sign-in is unavailable. ` +
       "The shared preview client secret is no longer baked into the source; set " +
-      `both GROK_AUTH_CLIENT_ID and GROK_AUTH_CLIENT_SECRET in the environment.`,
+      `both ${CLIENT_ID_KEY} and ${CLIENT_SECRET_KEY} in the environment.`,
   };
 }
 
