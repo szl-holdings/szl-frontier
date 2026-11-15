@@ -257,12 +257,7 @@ def _pool(spec: ZebraSpec, solution: Position) -> list[Clue]:
                 )
     for index, left in enumerate(names):
         for right in names[index + 1 :]:
-            pair = (left, right)
             a, b = solution[left], solution[right]
-            if a < b:
-                low, high = left, right
-            else:
-                low, high = right, left
             same = a == b
             relations = [
                 (same, f"The {left} and the {right} are the same person.",
