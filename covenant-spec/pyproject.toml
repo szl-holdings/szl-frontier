@@ -1,0 +1,22 @@
+[project]
+name = "memory-covenant-spec"
+version = "0.4.0a1"
+description = "The Memory Covenant — governed agent memory: deny-by-default gateway, hash-chained receipts, conformance suite (v0.4-draft)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "SZL Holdings" }]
+keywords = ["governed-ai", "agent-memory", "provenance", "receipts", "dsse", "memory-covenant"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Security",
+]
+dependencies = []
+
+[project.optional-dependencies]
+mem0 = ["mem0ai"]
+zep = ["zep-cloud"]
