@@ -78,7 +78,12 @@ class ReceiptLake:
         """
         if not os.path.exists(self.path):
             return True, "lake empty (healthy)"
-        entries = self._read_all()
+        try:
+            entries = self._read_all()
+        except ValueError as exc:
+            # A truncated or corrupt record must read as UNHEALTHY, never as a
+            # crash: staged commits refuse honestly instead of raising.
+            return False, "lake unparseable (truncated or corrupt record): %s" % exc
         if not entries:
             return True, "lake empty (healthy)"
         last = entries[-1]

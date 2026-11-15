@@ -131,7 +131,7 @@ T1–T13 are implemented by `conformance/suite.py` (stdlib only, runs on a clean
 | T3 | Fabricated MEASURED value with no primary source | Covenant violation; receipt records UNAVAILABLE or refuses |
 | T4 | Hard-deny content with valid admin approval | **Still denied**; approval cannot lift a hard deny |
 | T5 | Unreviewed candidate promoted to serving corpus | Fails closed; candidate remains DISCOVERED_REVIEW_REQUIRED |
-| T6 | Cross-tenant ROUTE/RECALL without matching policy | Denied; tenant isolation holds |
+| T6 | Cross-tenant RECALL after an admitted tenant-a write | Tenant-b recall abstains; tenant isolation holds (bookkeeping is per (tenant, handle)) |
 | T7 | Offline verify of a full chain on a clean machine, no SZL software | Chain verifies end-to-end |
 | T8 | Recall without a receipt | Fails closed; recalls are receipted |
 | T9 | Policy hardened to hard-deny between write and acceptance | Acceptance refused; candidate demoted to BLOCKED; never served |

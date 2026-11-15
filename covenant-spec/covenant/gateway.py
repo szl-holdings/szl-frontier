@@ -24,7 +24,7 @@ the candidate into the admitted set.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from .lake import ReceiptLake, sha3_256_hex
 from .policy import ALLOW, DENY, HARD_DENY, REVIEW_REQUIRED, Policy
@@ -87,8 +87,11 @@ class CovenantGateway:
         self.lake = lake
         self.level = level
         self._clock = clock or (lambda: "1970-01-01T00:00:00Z")
-        self._admitted: Dict[str, Dict[str, Any]] = {}
-        self._candidates: Dict[str, Dict[str, Any]] = {}
+        # Bookkeeping is tenant-scoped: content-addressed planes can hand the
+        # same handle to different tenants, so (tenant, handle) - not the bare
+        # handle - identifies an admission or candidate.
+        self._admitted: Dict[Tuple[str, str], Dict[str, Any]] = {}
+        self._candidates: Dict[Tuple[str, str], Dict[str, Any]] = {}
 
     # -- internals ---------------------------------------------------------
 
@@ -163,7 +166,9 @@ class CovenantGateway:
             # already tracked returns the SAME handle. Those bytes back an
             # existing sealed receipt, so a failed seal here must not remove
             # them - only a mutation this write introduced is rolled back.
-            already_tracked = handle in self._admitted or handle in self._candidates
+            # Tracked-ness is per tenant: another tenant writing identical content
+            # is a separate admission with its own bytes to roll back.
+            already_tracked = (tenant, handle) in self._admitted or (tenant, handle) in self._candidates
             try:
                 receipt = self._receipt("WRITE", result=state, handle=handle, **common)
             except Exception as exc:  # noqa: BLE001 - report seal failure honestly, roll the plane back
@@ -178,9 +183,9 @@ class CovenantGateway:
                 )
             entry: Dict[str, Any] = {"tenant": tenant, "content_digest": content_digest}
             if verdict.verdict == ALLOW:
-                self._admitted[handle] = entry
+                self._admitted[(tenant, handle)] = entry
                 return OperationResult(True, Lifecycle.ADMITTED, handle=handle, receipt=receipt)
-            self._candidates[handle] = {**entry, "provenance": prov, "purpose": purpose, "actor": actor}
+            self._candidates[(tenant, handle)] = {**entry, "provenance": prov, "purpose": purpose, "actor": actor}
             return OperationResult(False, Lifecycle.DISCOVERED_REVIEW_REQUIRED, handle=handle, receipt=receipt, reason=verdict.reason)
         try:
             receipt = self._receipt("WRITE", result=Lifecycle.BLOCKED, **common)
@@ -196,8 +201,8 @@ class CovenantGateway:
         returned: List[Dict[str, Any]] = []
         if verdict.verdict == ALLOW:
             for handle in self.memory.search(tenant, query):
-                meta = self._admitted.get(handle)
-                if meta is None or meta["tenant"] != tenant:
+                meta = self._admitted.get((tenant, handle))
+                if meta is None:
                     continue  # candidates and foreign-tenant items are never recalled
                 returned.append({"handle": handle, "digest": meta["content_digest"]})
         try:
@@ -218,11 +223,13 @@ class CovenantGateway:
         reason = "" if ok else ("denied: " + verdict.reason if verdict.verdict != ALLOW else "no admissible memories matched")
         return OperationResult(ok, "RETURNED" if ok else "ABSTAINED", receipt=receipt, reason=reason)
 
-    def accept(self, *, handle: str, reviewer: str, evidence: str, actor: str = "review-gate") -> OperationResult:
+    def accept(self, *, handle: str, reviewer: str, evidence: str, actor: str = "review-gate", tenant: str = "default") -> OperationResult:
         """Human-governed acceptance: DISCOVERED_REVIEW_REQUIRED -> ADMITTED.
 
         Fail-closed acceptance contract (v0.4-draft):
-        1. The handle must reference an existing review-required candidate.
+        1. The handle must reference an existing review-required candidate
+           scoped to *tenant*; content-addressed planes can hand the same
+           handle to different tenants, so acceptance is per-tenant.
         2. The backing content must still exist in the plane and match the
            digest recorded at write time; altered or missing content refuses
            the acceptance and demotes the candidate to BLOCKED.
@@ -235,27 +242,27 @@ class CovenantGateway:
            the admitted set; if sealing fails the candidate remains
            DISCOVERED_REVIEW_REQUIRED. No admission without a receipt.
         """
-        entry = self._candidates.get(handle)
+        entry = self._candidates.get((tenant, handle))
         if entry is None:
             try:
                 receipt = self._receipt("LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=DENY, rule_id=None)
             except Exception as exc:  # noqa: BLE001
                 return OperationResult(False, Lifecycle.BLOCKED, reason="receipt seal failed (%s); acceptance refused" % exc)
-            return OperationResult(False, Lifecycle.BLOCKED, receipt=receipt, reason="no review-required candidate under this handle")
+            return OperationResult(False, Lifecycle.BLOCKED, receipt=receipt, reason="no review-required candidate under this handle for tenant %s" % tenant)
 
         tenant = entry["tenant"]
 
         # (2) backing content must exist and match the write-time digest.
         content = self.memory.get(tenant, handle)
         if not content:
-            del self._candidates[handle]  # integrity broken: demote, never admit
+            del self._candidates[(tenant, handle)]  # integrity broken: demote, never admit
             try:
                 receipt = self._receipt("LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=DENY, rule_id=None, refusal="backing content missing from plane")
             except Exception:  # noqa: BLE001 - the refusal stands even if it cannot be receipted
                 receipt = None
             return OperationResult(False, Lifecycle.BLOCKED, receipt=receipt, reason="backing content missing from plane; acceptance refused and candidate demoted")
         if sha3_256_hex(content) != entry["content_digest"]:
-            del self._candidates[handle]  # integrity broken: demote, never admit
+            del self._candidates[(tenant, handle)]  # integrity broken: demote, never admit
             try:
                 receipt = self._receipt("LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=DENY, rule_id=None, refusal="backing content altered since write; digest mismatch")
             except Exception:  # noqa: BLE001
@@ -265,18 +272,21 @@ class CovenantGateway:
         # (3) re-evaluate the CURRENT policy against the CURRENT content.
         verdict = self.policy.evaluate(op="WRITE", purpose=entry.get("purpose", ""), tenant=tenant, content=content)
         if verdict.verdict == HARD_DENY:
-            del self._candidates[handle]  # demoted: a hard deny is absolute
+            del self._candidates[(tenant, handle)]  # demoted: a hard deny is absolute
             try:
                 receipt = self._receipt("LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=HARD_DENY, rule_id=verdict.rule_id, policy_recheck=True)
             except Exception:  # noqa: BLE001
                 receipt = None
             return OperationResult(False, Lifecycle.BLOCKED, receipt=receipt, reason="current policy hard-denies this content; acceptance refused and candidate demoted")
         if verdict.verdict == DENY:
+            # The candidate stays DISCOVERED_REVIEW_REQUIRED. Reporting BLOCKED here
+            # would record a BLOCKED->ADMITTED transition in the lake if a later
+            # acceptance succeeds, which the lifecycle forbids.
             try:
-                receipt = self._receipt("LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=DENY, rule_id=None, policy_recheck=True)
+                receipt = self._receipt("LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.DISCOVERED_REVIEW_REQUIRED, verdict=DENY, rule_id=None, policy_recheck=True)
             except Exception:  # noqa: BLE001
                 receipt = None
-            return OperationResult(False, Lifecycle.BLOCKED, receipt=receipt, reason="current policy no longer admits this content; acceptance refused, candidate kept for review")
+            return OperationResult(False, Lifecycle.DISCOVERED_REVIEW_REQUIRED, handle=handle, receipt=receipt, reason="current policy no longer admits this content; acceptance refused, candidate kept for review")
 
         # (4) seal the Learning Receipt first; move bookkeeping only after.
         try:
@@ -291,24 +301,26 @@ class CovenantGateway:
                 policy_recheck=True,
             )
         except Exception as exc:  # noqa: BLE001
+            # The candidate remains review-required; reporting BLOCKED would make a
+            # later successful acceptance read as a BLOCKED->ADMITTED transition.
             return OperationResult(
                 False,
-                Lifecycle.BLOCKED,
+                Lifecycle.DISCOVERED_REVIEW_REQUIRED,
                 reason="receipt seal failed (%s); candidate remains DISCOVERED_REVIEW_REQUIRED" % exc,
             )
-        self._admitted[handle] = {"tenant": tenant, "content_digest": entry["content_digest"]}
-        del self._candidates[handle]
+        self._admitted[(tenant, handle)] = {"tenant": tenant, "content_digest": entry["content_digest"]}
+        del self._candidates[(tenant, handle)]
         return OperationResult(True, Lifecycle.ADMITTED, handle=handle, receipt=receipt, reason="learning receipt sealed")
 
-    def expire(self, *, handle: str, cause: str, actor: str = "lifecycle") -> OperationResult:
-        meta = self._admitted.get(handle) or self._candidates.get(handle)
+    def expire(self, *, handle: str, cause: str, actor: str = "lifecycle", tenant: str = "default") -> OperationResult:
+        meta = self._admitted.get((tenant, handle)) or self._candidates.get((tenant, handle))
         if meta is None:
-            return OperationResult(False, Lifecycle.BLOCKED, reason="no such handle")
+            return OperationResult(False, Lifecycle.BLOCKED, reason="no such handle for tenant %s" % tenant)
         # Receipt-first: seal the EXPIRE receipt before mutating bookkeeping.
         try:
             receipt = self._receipt("EXPIRE", handle=handle, cause=cause, actor=actor, content_digest=meta["content_digest"], result=Lifecycle.EXPIRED)
         except Exception as exc:  # noqa: BLE001
             return OperationResult(False, Lifecycle.BLOCKED, reason="receipt seal failed (%s); memory not expired" % exc)
-        self._admitted.pop(handle, None)
-        self._candidates.pop(handle, None)
+        self._admitted.pop((tenant, handle), None)
+        self._candidates.pop((tenant, handle), None)
         return OperationResult(True, Lifecycle.EXPIRED, handle=handle, receipt=receipt, reason=cause)

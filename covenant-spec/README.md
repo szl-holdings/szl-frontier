@@ -60,7 +60,7 @@ python conformance/suite.py   # T1–T13; exit 0 iff every test passes
 | T3 | Fabricated MEASURED value with no primary source | Tier recorded as UNAVAILABLE; never fabricated |
 | T4 | Hard-deny content with admin approval | **Still denied**; approval cannot lift a hard deny |
 | T5 | Unreviewed candidate recalled | Fails closed; candidate stays DISCOVERED_REVIEW_REQUIRED |
-| T6 | Cross-tenant RECALL | Denied; no leak across tenants |
+| T6 | Cross-tenant RECALL after a tenant-a write that is admitted and serves its own tenant | Tenant-b recall abstains; zero handles cross tenants |
 | T7 | Offline verify of a full chain, no SZL software | Chain verifies end-to-end |
 | T8 | Recall without a receipt | Impossible; recalls are always receipted |
 | T9 | Policy hardened to hard-deny after the write, then acceptance | Acceptance refused; candidate demoted to BLOCKED; never served |

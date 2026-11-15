@@ -35,7 +35,7 @@ POLICY = {
         {"id": "deny-recon", "effect": "hard_deny", "ops": ["*"], "purposes": ["*"], "tenants": ["*"], "content_contains": ["recon sweep"]},
         {"id": "deny-weaponize", "effect": "hard_deny", "ops": ["*"], "purposes": ["*"], "tenants": ["*"], "content_contains": ["weaponize"]},
         {"id": "review-discovered", "effect": "review", "ops": ["WRITE"], "purposes": ["*"], "tenants": ["*"], "content_contains": ["unreviewed claim"]},
-        {"id": "allow-qa", "effect": "allow", "ops": ["*"], "purposes": ["support.customer_qa"], "tenants": ["default"]},
+        {"id": "allow-qa", "effect": "allow", "ops": ["*"], "purposes": ["support.customer_qa"], "tenants": ["default", "tenant-a", "tenant-b"]},
     ],
 }
 
@@ -128,11 +128,14 @@ def t5_unreviewed_candidate_never_serves(tmp: str) -> str:
 
 def t6_cross_tenant_isolation(tmp: str) -> str:
     gw = build(tmp)
-    gw.write(actor="agent-1", content="tenant a secret pricing", provenance=provenance("pricing"), purpose="support.customer_qa", tenant="tenant-a")
+    w = gw.write(actor="agent-1", content="tenant a secret pricing", provenance=provenance("pricing"), purpose="support.customer_qa", tenant="tenant-a")
+    assert w.ok, "tenant-a write must be admitted for isolation to be meaningful"
+    own = gw.recall(actor="agent-1", query="pricing", purpose="support.customer_qa", tenant="tenant-a")
+    assert own.ok, "tenant-a must recall its own admitted memory"
     leak = gw.recall(actor="agent-2", query="pricing", purpose="support.customer_qa", tenant="tenant-b")
-    assert not leak.ok, "cross-tenant recall must be denied by policy"
-    assert (leak.receipt or {}).get("verdict") != ALLOW
-    return "cross-tenant recall -> denied, no leak"
+    assert not leak.ok, "cross-tenant recall must never surface tenant-a memory"
+    assert (leak.receipt or {}).get("returned", []) == [], "no handles may cross tenants"
+    return "tenant-a memory serves tenant-a; tenant-b recall abstains, zero leaks"
 
 
 def t7_offline_verify_clean_machine(tmp: str) -> str:
@@ -176,7 +179,7 @@ def t9_acceptance_rechecks_current_policy(tmp: str) -> str:
     accept = gw.accept(handle=handle, reviewer="stephen", evidence="verified at source revision r1")
     assert not accept.ok, "acceptance must re-evaluate the CURRENT policy"
     assert accept.state == "BLOCKED"
-    assert handle not in gw._admitted, "a hard-denied candidate must never be admitted"
+    assert ("default", handle) not in gw._admitted, "a hard-denied candidate must never be admitted"
     recall = gw.recall(actor="agent-1", query="revenue", purpose="support.customer_qa")
     assert not recall.ok, "a demoted candidate must never serve"
     return "policy hardened after write -> acceptance refused, candidate demoted, never served"
@@ -220,7 +223,7 @@ def t12_acceptance_atomic_under_lake_failure(tmp: str) -> str:
     accept = gw.accept(handle=handle, reviewer="stephen", evidence="verified at source revision r1")
     assert not accept.ok, "acceptance must fail if the Learning Receipt cannot be sealed"
     assert "receipt seal failed" in accept.reason, "the failure must be honest: " + accept.reason
-    assert handle not in gw._admitted, "no admission without a sealed receipt"
+    assert ("default", handle) not in gw._admitted, "no admission without a sealed receipt"
     recall = gw.recall(actor="agent-1", query="revenue", purpose="support.customer_qa")
     assert not recall.ok, "an unreceipted candidate must never serve"
     return "lake seal failure on LEARNING -> candidate stays unreviewed, never serves"
