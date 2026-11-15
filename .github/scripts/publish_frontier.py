@@ -220,6 +220,9 @@ def _space_jwt(token: str) -> str:
                     _JWT_CACHE[SPACE_ID] = jwt
                     return jwt
     except (OSError, ValueError):
+        # Best-effort space_auth fetch: a temporarily unreachable or malformed
+        # auth issuer leaves this probe unauthenticated (empty token -> no header),
+        # and the caller surfaces the concrete HTTP failure instead.
         pass
     return ""
 
