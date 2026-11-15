@@ -196,16 +196,78 @@ def read_back_tree(
     return {"files": len(hub), "published": len(expected), "hub_managed": sorted(hub & HUB_MANAGED)}
 
 
-def _get(url: str, timeout: float = 20.0) -> tuple[int, bytes]:
+_JWT_CACHE: dict[str, str] = {}
+
+
+def _space_jwt(token: str) -> str:
+    """Fetch and cache the short-lived read JWT for the Space runtime origin.
+
+    The JWT is a read credential for the Space runtime only; it grants no Hub
+    writes, and fetching it never creates repos or changes visibility.
+    """
+    cached = _JWT_CACHE.get(SPACE_ID)
+    if cached:
+        return cached
     request = urllib.request.Request(
-        url,
-        headers={"Cache-Control": "no-cache", "User-Agent": "SZL-Frontier-source-proof/2"},
+        f"{HF_API}/spaces/{SPACE_ID}/jwt",
+        headers={"Authorization": f"Bearer {token}", "User-Agent": "SZL-Frontier-source-proof/2"},
     )
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            return int(response.status), response.read()
-    except urllib.error.HTTPError as exc:
-        return int(exc.code), exc.read() if exc.fp else b""
+        with urllib.request.urlopen(request, timeout=20.0) as response:
+            if int(response.status) == 200:
+                jwt = str(json.loads(response.read().decode("utf-8")).get("token") or "")
+                if jwt:
+                    _JWT_CACHE[SPACE_ID] = jwt
+                    return jwt
+    except (OSError, ValueError):
+        # Best-effort space_auth fetch: a temporarily unreachable or malformed
+        # auth issuer leaves this probe unauthenticated (empty token -> no header),
+        # and the caller surfaces the concrete HTTP failure instead.
+        pass
+    return ""
+
+
+def _auth_headers(url: str) -> dict[str, str]:
+    """Authorized readback headers when the environment supplies a token.
+
+    A private Space rejects anonymous probes (HTTP 401), so the readback
+    authenticates with the ambient HF_TOKEN when present. Without a token
+    the check stays exactly the public, unauthenticated GET it always was.
+    """
+    token = os.environ.get("HF_TOKEN")
+    if not token:
+        return {}
+    if url.startswith(HF_API):
+        return {"Authorization": f"Bearer {token}"}
+    if url.startswith(SPACE_ORIGIN):
+        jwt = _space_jwt(token)
+        if jwt:
+            return {"Authorization": f"Bearer {jwt}"}
+    return {}
+
+
+def _get(url: str, timeout: float = 20.0) -> tuple[int, bytes]:
+    """One GET per attempt; retries once if a cached Space JWT went stale."""
+    for attempt in (0, 1):
+        headers = {"Cache-Control": "no-cache", "User-Agent": "SZL-Frontier-source-proof/2"}
+        headers.update(_auth_headers(url))
+        try:
+            with urllib.request.urlopen(
+                urllib.request.Request(url, headers=headers), timeout=timeout
+            ) as response:
+                return int(response.status), response.read()
+        except urllib.error.HTTPError as exc:
+            status, body = int(exc.code), exc.read() if exc.fp else b""
+            stale_jwt = (
+                attempt == 0
+                and status == 401
+                and url.startswith(SPACE_ORIGIN)
+                and bool(_JWT_CACHE.pop(SPACE_ID, None))
+            )
+            if stale_jwt:
+                continue
+            return status, body
+    raise PublishError(f"unreachable readback retry for {url}")
 
 
 def attest_space_runtime(
@@ -220,7 +282,10 @@ def attest_space_runtime(
 ) -> dict[str, Any]:
     """Wait for RUNNING on the exact created commit, then prove the live app.
 
-    Uses only public, unauthenticated GETs, so anyone can repeat the check.
+    Uses plain public GETs on a public Space (anyone can repeat the check);
+    when the Space is private, anonymous probes fail closed, so the check
+    authenticates read-only with the ambient HF_TOKEN instead. Visibility
+    is an owner decision and is never changed here.
     """
 
     deadline = monotonic() + timeout_s
