@@ -37,6 +37,34 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+// Validate without changing insertion order: historical Covenant receipts hash
+// JSON.stringify bodies, so canonical key sorting would invalidate old links.
+function ownJson<T>(value: T): T {
+  stableCanonical(value);
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+type WriteInput = {
+  identity: Identity;
+  tenantId: string;
+  securityDomain: string;
+  memoryClass: MemoryClass;
+  sensitivity: Sensitivity;
+  content: string;
+  sourceRefs: string[];
+  retentionPolicy?: string;
+  expiresAt?: string | null;
+  requestId?: string;
+};
+
+type SearchInput = {
+  identity: Identity;
+  query: string;
+  memoryClasses?: MemoryClass[];
+  topK?: number;
+  minProvenance?: "none" | "hashed";
+};
+
 export class CovenantEngine {
   memories: MemoryRecord[] = [];
   receipts: Receipt[] = [];
@@ -46,16 +74,19 @@ export class CovenantEngine {
   policyBundleSha256 = "";
   embeddingRevision = EMBED_REVISION;
   agents: AgentProfile[] = [];
+  private operationTail: Promise<void> = Promise.resolve();
+  private pendingOperations = 0;
+  private updatedAgentIds = new Set<string>();
 
   constructor(opts?: { agents: AgentProfile[]; policySha: string }) {
     if (opts) {
-      this.agents = opts.agents;
+      this.agents = ownJson(opts.agents);
       this.policyBundleSha256 = opts.policySha;
     }
   }
 
   snapshot(): EngineSnapshot {
-    return {
+    return ownJson({
       memories: this.memories,
       receipts: this.receipts,
       mesh: this.mesh,
@@ -64,15 +95,63 @@ export class CovenantEngine {
       policyBundleId: this.policyBundleId,
       policyBundleSha256: this.policyBundleSha256,
       embeddingRevision: this.embeddingRevision,
-    };
+    });
   }
 
   load(s: Pick<EngineSnapshot, "memories" | "receipts" | "mesh" | "genesisHash" | "policyBundleSha256">) {
-    this.memories = s.memories;
-    this.receipts = s.receipts;
-    this.mesh = s.mesh;
-    this.genesisHash = s.genesisHash;
-    this.policyBundleSha256 = s.policyBundleSha256;
+    if (this.pendingOperations) throw new Error("Cannot load state while Covenant operations are pending");
+    const owned = ownJson(s);
+    this.memories = owned.memories;
+    this.receipts = owned.receipts;
+    this.mesh = owned.mesh;
+    this.genesisHash = owned.genesisHash;
+    this.policyBundleSha256 = owned.policyBundleSha256;
+  }
+
+  private enqueue<T>(operation: () => Promise<T>): Promise<T> {
+    this.pendingOperations++;
+    const result = this.operationTail.then(operation);
+    // A rejected operation rolls back independently; later work must still run.
+    this.operationTail = result.then(
+      () => { this.pendingOperations--; },
+      () => { this.pendingOperations--; },
+    );
+    return result;
+  }
+
+  private transact<T>(operation: (draft: CovenantEngine) => Promise<T>): Promise<T> {
+    return this.enqueue(async () => {
+      // Hashing yields to other callers. Work on owned state so snapshots and
+      // later operations cannot observe an effect whose receipt has not sealed.
+      const state = this.snapshot();
+      const draft = new CovenantEngine({ agents: this.agents, policySha: this.policyBundleSha256 });
+      draft.memories = state.memories;
+      draft.receipts = state.receipts;
+      draft.mesh = state.mesh;
+      draft.genesisHash = state.genesisHash;
+      draft.policyBundleId = state.policyBundleId;
+      draft.embeddingRevision = state.embeddingRevision;
+      const result = ownJson(await operation(draft));
+      // Dispatch may update presentation status while hashing. Apply only this
+      // operation's agent changes and retain current profiles/other statuses.
+      const agents = this.agents.map((agent) => {
+        const staged = draft.updatedAgentIds.has(agent.id)
+          ? draft.agents.find((candidate) => candidate.id === agent.id)
+          : undefined;
+        if (staged) {
+          return { ...agent, status: staged.status, lastAction: staged.lastAction };
+        }
+        return agent;
+      });
+
+      // No await from here through publication: state and its receipt become
+      // visible together, and a failure above publishes neither.
+      this.memories = draft.memories;
+      this.receipts = draft.receipts;
+      this.mesh = draft.mesh;
+      this.agents = agents;
+      return result;
+    });
   }
 
   private lastHash() {
@@ -84,11 +163,12 @@ export class CovenantEngine {
     const createdAt = nowIso();
     const id = rid("rcpt");
     const seq = this.receipts.length + 1;
-    const unhashed = { ...partial, id, seq, prevHash, createdAt };
+    const owned = ownJson(partial);
+    const unhashed = { ...owned, id, seq, prevHash, createdAt };
     stableCanonical(unhashed);
     const body = JSON.stringify(unhashed);
     const hash = await sha256Hex(body);
-    const receipt: Receipt = { ...partial, id, seq, prevHash, hash, createdAt };
+    const receipt: Receipt = { ...owned, id, seq, prevHash, hash, createdAt };
     this.receipts = [...this.receipts, receipt];
     return receipt;
   }
@@ -119,18 +199,19 @@ export class CovenantEngine {
     return this.agents.find((a) => a.id === agentId)?.clearance ?? "internal";
   }
 
-  async write(input: {
-    identity: Identity;
-    tenantId: string;
-    securityDomain: string;
-    memoryClass: MemoryClass;
-    sensitivity: Sensitivity;
-    content: string;
-    sourceRefs: string[];
-    retentionPolicy?: string;
-    expiresAt?: string | null;
-    requestId?: string;
-  }): Promise<WriteResult> {
+  async write(input: WriteInput): Promise<WriteResult> {
+    // Capture at submission, before waiting for an earlier operation. Normalize
+    // optional undefined fields using the existing API defaults.
+    const owned = ownJson({
+      ...input,
+      retentionPolicy: input.retentionPolicy ?? "policy-default",
+      expiresAt: input.expiresAt ?? null,
+      requestId: input.requestId ?? rid("req"),
+    });
+    return this.transact((draft) => draft.writeTransaction(owned));
+  }
+
+  private async writeTransaction(input: WriteInput): Promise<WriteResult> {
     const trace: WriteState[] = ["RECEIVED"];
     const requestId = input.requestId ?? rid("req");
 
@@ -275,13 +356,17 @@ export class CovenantEngine {
     return { allowed: true, memory, receipt, trace, reason: classified.note };
   }
 
-  async search(input: {
-    identity: Identity;
-    query: string;
-    memoryClasses?: MemoryClass[];
-    topK?: number;
-    minProvenance?: "none" | "hashed";
-  }): Promise<SearchResult> {
+  async search(input: SearchInput): Promise<SearchResult> {
+    const owned = ownJson({
+      ...input,
+      memoryClasses: input.memoryClasses ?? [],
+      topK: input.topK ?? 6,
+      minProvenance: input.minProvenance ?? "hashed",
+    });
+    return this.transact((draft) => draft.searchTransaction(owned));
+  }
+
+  private async searchTransaction(input: SearchInput): Promise<SearchResult> {
     const qTokens = tokenize(input.query);
     const qVec = embed(qTokens);
     const topK = input.topK ?? 6;
@@ -325,6 +410,16 @@ export class CovenantEngine {
   }
 
   async mutateLifecycle(
+    identity: Identity,
+    memoryId: string,
+    lifecycle: MemoryRecord["lifecycle"],
+    operation: string,
+  ) {
+    const owned = ownJson(identity);
+    return this.transact((draft) => draft.mutateLifecycleTransaction(owned, memoryId, lifecycle, operation));
+  }
+
+  private async mutateLifecycleTransaction(
     identity: Identity,
     memoryId: string,
     lifecycle: MemoryRecord["lifecycle"],
@@ -389,6 +484,11 @@ export class CovenantEngine {
   }
 
   async reindex(identity: Identity) {
+    const owned = ownJson(identity);
+    return this.transact((draft) => draft.reindexTransaction(owned));
+  }
+
+  private async reindexTransaction(identity: Identity) {
     let n = 0;
     for (const m of this.memories) {
       if (m.lifecycle === "active") {
@@ -415,10 +515,10 @@ export class CovenantEngine {
   }
 
   async verifyChain(): Promise<{ ok: boolean; brokenAt: number | null }> {
-    return verifyReceiptChain(this.receipts, this.genesisHash);
+    return this.enqueue(() => verifyReceiptChain(this.receipts, this.genesisHash));
   }
 
-  materialize(mem: MemoryRecord): MemoryRecord {
+  private materialize(mem: MemoryRecord): MemoryRecord {
     if (mem.envelope.expiresAt && new Date(mem.envelope.expiresAt).getTime() <= Date.now()) {
       if (mem.lifecycle === "active") {
         mem.lifecycle = "expired";
@@ -440,6 +540,7 @@ export class CovenantEngine {
     this.mesh = [ev, ...this.mesh].slice(0, 80);
     const agent = this.agents.find((a) => a.id === agentId);
     if (agent) {
+      this.updatedAgentIds.add(agentId);
       agent.lastAction = summary;
       agent.status = allowed ? "idle" : "denied";
     }
