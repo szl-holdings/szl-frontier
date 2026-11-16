@@ -1,5 +1,10 @@
 # Memory Covenant v0.4 — Witness-Countersigned Receipt Chain (SPEC PROPOSAL, 2026-11-15)
 
+> **Dated proposal preserved.** The implementation statements below describe
+> November 15's proposal, not the present source state. See the
+> [November 16 implementation readback](COVENANT_IMPLEMENTATION_STATUS_2026-11-16.md)
+> for component evidence and remaining integration/deployment gates.
+
 **Status: SPEC ONLY.** Nothing in this document is implemented. This proposal
 does not authorize a release, change the production HOLD, or claim any
 capability beyond what the repository already asserts. Λ remains Conjecture 1.
