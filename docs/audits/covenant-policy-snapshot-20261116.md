@@ -51,3 +51,35 @@ This establishes object ownership in the Python reference. It does not bind
 that implementation to the Lean model, add witness countersigning to the
 Frontier recall path, or qualify a hosted service. Historical receipts and the
 dated v0.4 proposal are preserved.
+
+## Follow-up: operation binding and matcher validation
+
+Review at `114ab263f7c6aaa38fa9541624d0a13016ee5e7a` found two additional
+preexisting gaps. First, a policy replacement between evaluation and receipt
+construction made the receipt identify a different policy. A deterministic
+clock callback reproduced an admitted ALLOW write whose receipt identified
+a HARD_DENY policy. The same identity split affected recall, acceptance and
+expiration. Second, malformed matcher values used Python membership behavior:
+`purposes: "admin"` matched purpose `"min"`, a mapping could act as an operation
+set, and null raised during evaluation.
+
+Each gateway operation now captures its Policy once at entry and passes that
+same instance to evaluation and receipt construction. An explicit replacement
+takes effect for following operations; callbacks cannot relabel an in-flight
+operation's receipt. This binds identity without claiming thread safety for
+the memory plane or receipt lake.
+
+The four matcher fields (`ops`, `purposes`, `tenants`, `content_contains`)
+accept JSON arrays of strings when present. Omitted operation, purpose and
+tenant matchers retain wildcard defaults; empty arrays match nothing. Omitted
+or empty content matchers impose no content condition. Validation does not
+rewrite valid rules or change canonical JSON/SHA3-256 identity.
+
+Before production edits, the expanded 12-method suite exited 1 with 40 failing
+subcases: four operation callback cases and 36 malformed matcher cases. After
+repair, all 12 methods passed, including those cases and positive controls for
+omitted matchers, empty arrays and normal string matchers. T1–T13 also passed,
+including replacement before acceptance and receipt-failure rollback. Ruff
+E9/F checks passed. CI wiring is unchanged; its existing discovery includes
+the new regressions. These remain local Python reference observations, not
+runtime-to-Lean refinement or deployed-service qualification.

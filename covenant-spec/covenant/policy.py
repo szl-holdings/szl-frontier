@@ -60,6 +60,12 @@ class Policy:
           ]
         }
 
+    Matchers, when present, must be JSON arrays of strings. Omitted ops,
+    purposes and tenants default to ["*"]; an empty array matches nothing.
+    Omitted or empty content_contains imposes no content condition. Each
+    content string is a literal, case-insensitive substring that must occur.
+    Malformed matcher containers or elements are rejected at construction.
+
     Evaluation order is fixed: hard_deny, then review, then allow, then the
     default DENY. That order is the fail-closed posture of the Covenant.
     """
@@ -79,6 +85,13 @@ class Policy:
         rules = snapshot["rules"]
         if not isinstance(rules, list) or any(not isinstance(rule, dict) for rule in rules):
             raise ValueError("policy rules must be a JSON array of rule mappings")
+        for index, rule in enumerate(rules):
+            for field in ("ops", "purposes", "tenants", "content_contains"):
+                if field not in rule:
+                    continue
+                values = rule[field]
+                if not isinstance(values, list) or any(not isinstance(item, str) for item in values):
+                    raise ValueError("policy rule %d %s must be a JSON array of strings" % (index, field))
         object.__setattr__(self, "policy_id", str(snapshot.get("policy_id", "policy-unnamed")))
         object.__setattr__(self, "revision", str(snapshot.get("revision", "UNAVAILABLE")))
         object.__setattr__(self, "rules", _freeze_json(rules))

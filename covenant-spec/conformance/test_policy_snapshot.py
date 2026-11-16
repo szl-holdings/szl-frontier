@@ -123,6 +123,83 @@ class PolicySnapshotTests(unittest.TestCase):
         self.assertEqual(policy.digest, expected)
         self.assertEqual(verdict(policy, "benign fact"), ALLOW)
 
+    def test_operation_receipt_keeps_evaluated_policy_during_callback_transition(self):
+        for operation in ("write", "recall", "accept", "expire"):
+            with self.subTest(operation=operation), tempfile.TemporaryDirectory() as tmp:
+                source = document()
+                if operation == "accept":
+                    source["rules"][1]["effect"] = "review"
+                original = Policy(source)
+                replacement = Policy({
+                    "policy_id": "replacement-denier", "revision": "r2",
+                    "rules": [{"id": "deny-all", "effect": "hard_deny"}],
+                })
+                gateway = CovenantGateway(
+                    InMemoryPlane(), original, ReceiptLake(str(Path(tmp) / "receipts.ndjson"))
+                )
+                write_args = dict(
+                    actor="fixture", content="benign fact", purpose="qa",
+                    provenance=Provenance(tier=Tier.UNAVAILABLE),
+                )
+                seeded = gateway.write(**write_args) if operation != "write" else None
+
+                # The supported clock callback runs after evaluation, before the
+                # receipt is assembled. This deterministically exercises the same
+                # identity split as a policy replacement by another thread.
+                def replace_policy():
+                    gateway.policy = replacement
+                    return "2026-11-16T00:00:00Z"
+
+                gateway._clock = replace_policy
+                if operation == "write":
+                    result = gateway.write(**write_args)
+                elif operation == "recall":
+                    result = gateway.recall(actor="fixture", query="benign", purpose="qa")
+                elif operation == "accept":
+                    result = gateway.accept(
+                        handle=seeded.handle, reviewer="fixture", evidence="reviewed"
+                    )
+                else:
+                    result = gateway.expire(handle=seeded.handle, cause="fixture")
+                self.assertTrue(result.ok)
+                self.assertIs(gateway.policy, replacement)
+                self.assertEqual(result.receipt["policy_digest"], original.digest)
+                self.assertEqual(result.receipt["policy_id"], original.policy_id)
+                self.assertTrue(ReceiptLake.verify_file(gateway.lake.path)[0])
+                # Replacement is effective at the next operation boundary.
+                following = gateway.write(**write_args)
+                self.assertFalse(following.ok)
+                self.assertEqual(following.receipt["verdict"], HARD_DENY)
+                self.assertEqual(following.receipt["policy_digest"], replacement.digest)
+
+    def test_malformed_matchers_are_rejected_at_construction(self):
+        invalid = (None, "admin", {"WRITE": False}, 42, True, [None], [7], [{}], [["WRITE"]])
+        for field in ("ops", "purposes", "tenants", "content_contains"):
+            for value in invalid:
+                with self.subTest(field=field, value=value):
+                    source = document()
+                    source["rules"][1][field] = value
+                    with self.assertRaisesRegex(ValueError, field):
+                        Policy(source)
+
+    def test_valid_matcher_defaults_and_empty_arrays_keep_their_meaning(self):
+        cases = [
+            ({}, ALLOW),
+            ({"ops": []}, "DENY"),
+            ({"purposes": []}, "DENY"),
+            ({"tenants": []}, "DENY"),
+            ({"content_contains": []}, ALLOW),
+            ({"ops": ["WRITE"], "purposes": ["qa"], "tenants": ["default"],
+              "content_contains": ["benign"]}, ALLOW),
+        ]
+        for matchers, expected_verdict in cases:
+            with self.subTest(matchers=matchers):
+                source = {"rules": [{"id": "valid", "effect": "allow", **matchers}]}
+                policy = Policy(source)
+                expected_digest = hashlib.sha3_256(canonical(source).encode("utf-8")).hexdigest()
+                self.assertEqual(verdict(policy, "benign fact"), expected_verdict)
+                self.assertEqual(policy.digest, expected_digest)
+
     def test_invalid_rule_containers_are_rejected_at_construction(self):
         for rules in (None, "allow", {}, [None], ["allow"]):
             with self.subTest(rules=rules):
