@@ -1,0 +1,13 @@
+{
+ "kind": "szl.frontier-boot-watch/verdict",
+ "ts": "2026-11-15T23:50:00Z",
+ "hub_receipt": "SZLHOLDINGS/frontier-54-runs receipts/frontier-boot-watch-2026-11-15T2350Z.json @ 9974dcff660305f3671ee4c19ababa59a04ab9bc",
+ "verdicts": {
+  "szl-train-frontier-v5-r4": "BOOT_FAILED_V5_R2_CLASS_REPEATED (group reaped by parallel lane ~23:45Z; zero heartbeats, zero Hub artifacts)",
+  "szl-x402-frontier-v4": "ABSENT_NO_BOOT_RECEIPT (reaped ~23:45Z; x402-frontier-v3 RUNNING since 23:08:19Z is the live lane)",
+  "szl-heldout-frontier-v4-r1": "MID_FLIGHT_RECEIPTS_PENDING (running_count=1, start 22:27:05Z, update 23:15:01Z; no heldout receipt files yet)",
+  "szl-train-pnv1": "CLOSED_END_TO_END_CONFIRMED (LoRA repo + unsigned eval receipt on-chain ts 23:44:23Z, 0/6 & 0/6 honest failure; countersign pending-owner-lane, DSSE signer 9926bf69b799ea66)",
+  "szl-flagship54-v1": "HEARTBEAT_ALIVE (checkpoint-12500, adapter 83920528 bytes LFS)"
+ },
+ "doctrine": "fail-closed, measured receipts only, read-only watcher pass (no Salad mutations, patches, reaps, countersigns, secret disclosures)"
+}
