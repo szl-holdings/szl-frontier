@@ -25,6 +25,16 @@ CTO lane, szl-holdings estate. Companion to docs/CF_FULL_SURFACE_MONETIZATION_AU
 - No estate adapter currently has a llama / mistral / gemma base. The edge SKU therefore requires ONE new Salad LoRA train on @cf/google/gemma-2b-it (model_type gemma) using an estate SFT dataset. Measured dataset candidates (HF org, public): SZLHOLDINGS/szl-1-doctrine-sft, SZLHOLDINGS/szl-quant-sft-v1, SZLHOLDINGS/szl-frontier-sft-mix-v2, SZLHOLDINGS/a11oy-verifiable-corpus (4,189 downloads), SZLHOLDINGS/killinchu-osint-corpus (145,080 downloads).
 - The training launch is a GPU-lane decision (Salad, owner / parallel-lane). This lane does NOT fire it blind: it spends credits and the data-format choice (prompt/completion vs messages) materially affects the product.
 
+## 2.5 Dataset format validation (measured 2026-11-16 03:46Z, raw resolve fetches)
+
+All three primary candidates are OpenAI-style MESSAGES format (system / user / assistant), directly compatible with a gemma-2b-it chat-template SFT (unsloth / axolotl / TRL):
+
+- SZLHOLDINGS/szl-quant-sft-v1: quant_sft_v1.jsonl 5,789,117 B (largest; system role = SZL-Quant doctrine-governed advisory analyst with evidence labels, abstention law, conviction cap 0.97, fail-closed risk gates); repo also ships PROMOTION_READINESS_AUDIT.json (18,570 B), manifest + manifest.receipt.json, provenance.json, status.json. MOST product-shaped candidate.
+- SZLHOLDINGS/szl-frontier-sft-mix-v2: train.jsonl 332,612 B + val.jsonl 29,886 B (has a validation split); rows carry estate fields (credit, doctrine v11 LOCKED, kind: lake_receipt, lambda_status) plus messages. Recipe/build files (recipe.json, build_mix.py, manifest.json) are in-repo.
+- SZLHOLDINGS/szl-1-doctrine-sft: szl_dataset.jsonl 17,719 B, n<1K rows (README), identity/doctrine persona content ("SZL-1, the sovereign model").
+- Datasets-server /rows and /info endpoints returned 502 / empty features for all three (not converted server-side); the raw /resolve/main fetches above are the reliable read path.
+- Data-format input for the GPU lane is therefore SETTLED: messages-format JSONL, no conversion needed for a chat-template trainer. Recommended candidate order: szl-quant-sft-v1 (domain depth + existing readiness audit), then szl-frontier-sft-mix-v2 (has val split), then szl-1-doctrine-sft (identity layer).
+
 ## 3. Launch sequence (when a gemma / llama / mistral base adapter lands)
 
 1. Precheck the adapter: rank <= 32; total size < 300 MB; filenames exact; adapter_config.json carries model_type gemma (PEFT writes base_model_name_or_path; add model_type explicitly) and task_type CAUSAL_LM.
