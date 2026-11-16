@@ -1,0 +1,13 @@
+# Frontier boot-receipt watch — 2026-11-15 ~23:50Z (CTO-lane watcher pass)
+
+Read-only measured verification of the four frontier lanes in flight at 23:15Z, plus the flagship54 heartbeat. Fail-closed; no Salad mutations, patches, reaps, countersigns, or secret disclosures by the watcher.
+
+- **szl-train-frontier-v5-r4 — BOOT_FAILED (v5-r2 failure class repeated), then reaped by parallel lane.** Created 23:05:21Z, observed stuck `creating_count=1` with ZERO heartbeats for the window. Group ABSENT from the Salad fleet at watch time (parallel lane deleted ~23:45Z). Hub: zero `salad-frontier-v5*` model repos; zero v5-r4 heartbeat/receipt files. v5-r5 spec = owner call.
+- **szl-x402-frontier-v4 — ABSENT, NO boot receipt.** Group reaped by parallel lane ~23:45Z (the 23:25Z-armed 02:30Z backstop is moot). No x402 heartbeat/receipt files on the Hub (only legacy `mesh/x402-alignment-0044ade9a211.json`). Note: **szl-x402-frontier-v3 is RUNNING** (start 23:08:19Z, replicas=1) — the live monetized-inference lane.
+- **szl-heldout-frontier-v4-r1 — MID-FLIGHT, receipts pending.** Salad: running, running_count=1, replicas=1, created 22:20:59Z, start 22:27:05Z, update 23:15:01Z. Hub: no heldout-named receipt/heartbeat files yet. The `frontier-v4-r1-hb1..199+/hbfinal` lanelogs belong to the earlier `szl-bench-frontier-v4-r1` lane (created 09:49Z, stopped 21:53Z) — NOT misattributed. Follow-up: re-verify ~00:20Z (scheduled re-arm was not possible from the watcher session — no scheduling connector).
+- **szl-train-pnv1 — CLOSED END-TO-END (confirmed).** Group reaped (replicas=0, update 23:45:06Z); private repo `SZLHOLDINGS/szl-provenance-native-v1-lora` exists; eval receipt `receipts/provenance-native-v1-eval-unsigned.json` on-chain (ts 23:44:23Z): n_abstained 0/6, n_provenance 0/6, signature UNSIGNED. Honest verdict: hallucinated receipts on all 6 probes — NOT card-eligible. **Countersign (estate DSSE signer fingerprint 9926bf69b799ea66) = pending-owner-lane work**, not executed by the watcher.
+- **szl-flagship54-v1 — HEARTBEAT ALIVE.** `checkpoint-12500` present (adapter_model.safetensors 83,920,528 bytes LFS), consistent with the 23:44:29Z ckpt-12500 landing, 50th consecutive checkpoint.
+
+**Hub receipt (byte-identical copy of the on-chain verdict JSON):** `SZLHOLDINGS/frontier-54-runs` → `receipts/frontier-boot-watch-2026-11-15T2350Z.json`, dataset commit `9974dcff660305f3671ee4c19ababa59a04ab9bc`.
+
+Method: Salad fleet API via owner laptop (v5diag.ps1 → saladcontainers_fresh.json; API key read at runtime, never printed); Hub via authenticated hf_fs; flagship54 checkpoint listing. All timestamps are measured from API responses/receipts.
