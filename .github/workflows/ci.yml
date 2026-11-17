@@ -32,6 +32,8 @@ jobs:
         run: npx playwright --version
       - name: Build the source-owned presentation package
         run: npm run build
+      - name: Refuse anonymous action preview even when dev-user fallback exists
+        run: node scripts/action-preview-session-smoke.mjs
       - name: Inspect all workspaces, keyboard paths, failure states and native bytes
         run: node scripts/frontier-native-browser.cjs
       - name: Retain unsigned local presentation observations
