@@ -45,6 +45,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const hydrate = useOrchestrator((s) => s.hydrate);
   const ready = useOrchestrator((s) => s.ready);
+  const hydrationIntegrity = useOrchestrator((s) => s.hydrationIntegrity);
+  const hydrationError = useOrchestrator((s) => s.hydrationError);
   const brainAlive = useOrchestrator((s) => s.brainAlive);
   const brainReady = useOrchestrator((s) => s.brainReady);
   const pulseBrain = useOrchestrator((s) => s.pulseBrain);
@@ -117,7 +119,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Nav pathname={pathname} onNavigate={navigateFromMenu} />
           </div>
           <main id="frontier-main" ref={main} tabIndex={-1} className="min-w-0 flex-1">
-            {ready ? children : <Boot />}
+            {hydrationIntegrity === "BLOCKED"
+              ? <HydrationBlocked reason={hydrationError} />
+              : ready ? children : <Boot />}
             <noscript>
               <style>{".frontier-boot,.frontier-menu-toggle{display:none!important}"}</style>
               <section className="frontier-static">
@@ -220,6 +224,17 @@ function PlaneStatus() {
         <div>conjecture 1</div>
       </div>
     </div>
+  );
+}
+
+function HydrationBlocked({ reason }: { reason: string | null }) {
+  return (
+    <section role="alert" className="mx-auto max-w-xl space-y-4 px-6 py-12">
+      <h1 className="text-xl font-semibold text-deny">Memory integrity BLOCKED</h1>
+      <p>Browser-restored memory or receipts did not verify. The Covenant workspaces are unavailable; no memory was automatically reset or re-seeded.</p>
+      <p className="font-mono text-xs">Reason: {reason ?? "UNKNOWN"}</p>
+      <p className="text-sm">Preserve local browser data for investigation. The verifier checks local integrity only; it does not authenticate receipt origin or establish witness-backed production readiness.</p>
+    </section>
   );
 }
 
