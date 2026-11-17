@@ -36,8 +36,20 @@
 
 ```bash
 cd covenant-spec
-python conformance/suite.py   # T1–T13; exit 0 iff every test passes
+python -B conformance/suite.py   # T1–T13; exit 0 iff every test passes
+python -B -m unittest discover -s conformance -p 'test_*.py' -v
 ```
+
+## Policy identity and ownership
+
+`Policy(document)` snapshots the canonical JSON once and hashes exactly that
+snapshot. Its rule mappings, matcher lists, policy ID, revision and digest are
+immutable. Editing the caller's original document cannot change a decision
+under an already recorded digest. A policy transition requires constructing a
+new `Policy` and replacing the gateway's policy explicitly; T9 exercises that
+transition. The snapshot unit tests and T1–T13 run in the repository's `verify`
+CI job. These controls validate this reference implementation; they do not
+prove correspondence to a deployed runtime or qualify witness deployment.
 
 ## Conformance levels
 
