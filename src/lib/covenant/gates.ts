@@ -429,6 +429,7 @@ export async function runGates(): Promise<GateResult[]> {
       kind: "collect-observation",
       purpose: "action-execute",
       approval: "approved",
+      organPaint: "ALLOW", // Explicit synthetic software-only positive control.
     });
     let wrote = false;
     if (d.allowed) {

@@ -23,6 +23,7 @@ import { Route as MemoryRouteImport } from './routes/memory'
 import { Route as MeshRouteImport } from './routes/mesh'
 import { Route as ModelsRouteImport } from './routes/models'
 import { Route as ProofRouteImport } from './routes/proof'
+import { Route as ApiActionPreviewRouteImport } from './routes/api/action-preview'
 import { Route as ApiAgentStateRouteImport } from './routes/api/agent-state'
 import { Route as ApiCodexRouteImport } from './routes/api/codex'
 import { Route as ApiCycleRouteImport } from './routes/api/cycle'
@@ -106,6 +107,11 @@ const ModelsRoute = ModelsRouteImport.update({
 const ProofRoute = ProofRouteImport.update({
   id: '/proof',
   path: '/proof',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiActionPreviewRoute = ApiActionPreviewRouteImport.update({
+  id: '/api/action-preview',
+  path: '/api/action-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAgentStateRoute = ApiAgentStateRouteImport.update({
@@ -194,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/mesh': typeof MeshRoute
   '/models': typeof ModelsRoute
   '/proof': typeof ProofRoute
+  '/api/action-preview': typeof ApiActionPreviewRoute
   '/api/agent-state': typeof ApiAgentStateRoute
   '/api/codex': typeof ApiCodexRoute
   '/api/cycle': typeof ApiCycleRoute
@@ -224,6 +231,7 @@ export interface FileRoutesByTo {
   '/mesh': typeof MeshRoute
   '/models': typeof ModelsRoute
   '/proof': typeof ProofRoute
+  '/api/action-preview': typeof ApiActionPreviewRoute
   '/api/agent-state': typeof ApiAgentStateRoute
   '/api/codex': typeof ApiCodexRoute
   '/api/cycle': typeof ApiCycleRoute
@@ -255,6 +263,7 @@ export interface FileRoutesById {
   '/mesh': typeof MeshRoute
   '/models': typeof ModelsRoute
   '/proof': typeof ProofRoute
+  '/api/action-preview': typeof ApiActionPreviewRoute
   '/api/agent-state': typeof ApiAgentStateRoute
   '/api/codex': typeof ApiCodexRoute
   '/api/cycle': typeof ApiCycleRoute
@@ -287,6 +296,7 @@ export interface FileRouteTypes {
     | '/mesh'
     | '/models'
     | '/proof'
+    | '/api/action-preview'
     | '/api/agent-state'
     | '/api/codex'
     | '/api/cycle'
@@ -317,6 +327,7 @@ export interface FileRouteTypes {
     | '/mesh'
     | '/models'
     | '/proof'
+    | '/api/action-preview'
     | '/api/agent-state'
     | '/api/codex'
     | '/api/cycle'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/mesh'
     | '/models'
     | '/proof'
+    | '/api/action-preview'
     | '/api/agent-state'
     | '/api/codex'
     | '/api/cycle'
@@ -378,6 +390,7 @@ export interface RootRouteChildren {
   MeshRoute: typeof MeshRoute
   ModelsRoute: typeof ModelsRoute
   ProofRoute: typeof ProofRoute
+  ApiActionPreviewRoute: typeof ApiActionPreviewRoute
   ApiAgentStateRoute: typeof ApiAgentStateRoute
   ApiCodexRoute: typeof ApiCodexRoute
   ApiCycleRoute: typeof ApiCycleRoute
@@ -492,6 +505,13 @@ declare module '@tanstack/react-router' {
       path: '/proof'
       fullPath: '/proof'
       preLoaderRoute: typeof ProofRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/action-preview': {
+      id: '/api/action-preview'
+      path: '/api/action-preview'
+      fullPath: '/api/action-preview'
+      preLoaderRoute: typeof ApiActionPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/agent-state': {
@@ -610,6 +630,7 @@ const rootRouteChildren: RootRouteChildren = {
   MeshRoute: MeshRoute,
   ModelsRoute: ModelsRoute,
   ProofRoute: ProofRoute,
+  ApiActionPreviewRoute: ApiActionPreviewRoute,
   ApiAgentStateRoute: ApiAgentStateRoute,
   ApiCodexRoute: ApiCodexRoute,
   ApiCycleRoute: ApiCycleRoute,
