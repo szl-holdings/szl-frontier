@@ -74,5 +74,13 @@ export function evaluateAction(input: {
   if (def.requiresApproval && input.approval !== "approved") {
     return { allowed: false, reason: "human approval required", hard: false };
   }
-  return { allowed: true, reason: `bounded action ${def.id}`, hard: false };
+  // Unknown cycle evidence is not an ALLOW. Approval cannot manufacture it.
+  if (input.organPaint !== "ALLOW") {
+    return {
+      allowed: false,
+      reason: "organ cycle ALLOW evidence unavailable; no bounded execution",
+      hard: false,
+    };
+  }
+  return { allowed: true, reason: `bounded SOFTWARE action ${def.id}`, hard: false };
 }
