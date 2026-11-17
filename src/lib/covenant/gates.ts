@@ -275,7 +275,8 @@ export async function runGates(): Promise<GateResult[]> {
       sourceRefs: ["gate://idx"],
     });
     await engine.mutateLifecycle(auditorWrite, w.memory!.id, "tombstoned", "memory.delete");
-    w.memory!.indexed = true; // simulate stale vxdb
+    // Test instrumentation deliberately poisons backing state; API results are owned copies.
+    engine.memories.find((memory) => memory.id === w.memory!.id)!.indexed = true;
     const res = await engine.search({ identity: coreRead, query: "Derived-index poison candidate Covenant" });
     const leaked = res.hits.some((h) => h.memory.id === w.memory!.id);
     out.push({
