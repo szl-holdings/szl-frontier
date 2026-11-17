@@ -30,11 +30,17 @@ DEFAULT_WAVE = ROOT / "frontier/waves/2026-09-07.json"
 DEFAULT_PINS = ROOT / "frontier/evidence/2026-09-07-upstream-model-pins.json"
 ORG = "SZLHOLDINGS"
 ORG_SPACES = [
-    "a11oy", "anatomy", "ayllu", "counsel", "david-leads", "finance", "immune",
-    "immune-lattice", "killinchu", "lyte", "sentra", "szl-command-lab",
+    "a11oy", "anatomy", "ayllu", "counsel", "david-leads", "finance",
+    "killinchu", "lyte", "sentra", "szl-command-lab",
     "szl-constellation", "szl-frontier", "szl-model-inference-lab", "terra",
-    "vertical-services", "yarqa",
+    "vertical-services",
 ]
+# Owner fold decisions keep these Spaces private, so the public observation must not
+# expect them. Source: szl-holdings/a11oy static/shared/public-estate-contract.v1.json
+# foldExecution (2026-11-14, 2026-11-15-batch2) and docs/series-a/hf-space-keep-list.yaml
+# (immune MIGRATION_COMPLETE_SPACE_FOLDED_PRIVATE_20261115; immune-lattice
+# retire_into_killinchu), re-applied by the owner on 2026-11-17.
+FOLDED_PRIVATE_SPACES = ("immune", "immune-lattice", "yarqa")
 ORG_PROFILE_SPACE = "SZLHOLDINGS/README"
 CREATOR_SPACES: list[str] = []
 CARD_TRUTH_WATCH = [("space", "SZLHOLDINGS/szl-frontier"),

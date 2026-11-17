@@ -260,10 +260,16 @@ class WitnessFixtureTests(TestCase):
             self.assertEqual(rows[sid]["providerRevisionParity"], "UNAVAILABLE")
             self.assertIsNone(rows[sid]["sourceRevision"])
         self.assertNotIn("metadata unreadable or malformed", "\n".join(findings))
-        self.assertIn("immune-lattice", estate.ORG_SPACES)
         self.assertIn("sentra", estate.ORG_SPACES)
         self.assertIn("szl-constellation", estate.ORG_SPACES)
         self.assertEqual(estate.ORG_PROFILE_SPACE, "SZLHOLDINGS/README")
+
+    def test_folded_private_spaces_are_never_expected_public(self):
+        # The owner folded these Spaces private; expecting them in the anonymous
+        # inventory would push the estate back toward exposing them.
+        self.assertEqual(set(estate.FOLDED_PRIVATE_SPACES), {"immune", "immune-lattice", "yarqa"})
+        self.assertFalse(set(estate.FOLDED_PRIVATE_SPACES) & set(estate.ORG_SPACES))
+        self.assertEqual(len(estate.ORG_SPACES), len(set(estate.ORG_SPACES)))
 
     def test_transferred_anatomy_space_is_pinned_at_its_org_identity(self):
         # betterwithage/anatomy now redirects to SZLHOLDINGS/anatomy, and the
