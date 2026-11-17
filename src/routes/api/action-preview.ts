@@ -2,7 +2,8 @@
 /** Auth-gated, read-only decision analysis; never an execution endpoint. */
 import { createFileRoute } from "@tanstack/react-router";
 import { assertSameSiteRequest } from "@/lib/auth/isolation.server";
-import { requireUserId } from "@/lib/auth/verify.server";
+import { getSessionUser, requireUserId } from "@/lib/auth/verify.server";
+import { requireVerifiedPreviewIdentity } from "@/lib/actions/verified-preview-identity";
 import { boundedJson, PreviewHttpError } from "@/lib/actions/bounded-json";
 import {
   COUNTERFACTUAL_SCHEMA,
@@ -33,7 +34,10 @@ export const Route = createFileRoute("/api/action-preview")({
         try {
           assertSameSiteRequest();
           // A caller selects hypothetical inputs, never their principal or authority.
-          const userId = await requireUserId();
+          const userId = await requireVerifiedPreviewIdentity(
+            () => getSessionUser(),
+            () => requireUserId(),
+          );
           const input = parsePreviewInput(await boundedJson(request));
           if (!input) return response({
             schema: COUNTERFACTUAL_SCHEMA, state: "REJECTED",
