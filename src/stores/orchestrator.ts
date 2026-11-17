@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { CovenantEngine, newRunId, rid } from "@/lib/covenant/engine";
+import { verifyHydratedPlane } from "@/lib/covenant/hydrate-integrity";
 import { runGates } from "@/lib/covenant/gates";
 import { AGENTS, PROJECTS, SEED_MEMORIES, TENANTS } from "@/lib/covenant/seed";
 import { sha256Hex } from "@/lib/covenant/sha256";
@@ -41,6 +42,8 @@ export type Session = Omit<Identity, "runId">;
 
 interface OrchestratorState {
   ready: boolean;
+  hydrationIntegrity: "UNAVAILABLE" | "LOCAL_CHAIN_VERIFIED" | "BLOCKED";
+  hydrationError: string | null;
   session: Session;
   agents: AgentProfile[];
   memories: MemoryRecord[];
@@ -159,6 +162,8 @@ export const useOrchestrator = create<OrchestratorState>()(
   persist(
     (set, get) => ({
       ready: false,
+      hydrationIntegrity: "UNAVAILABLE",
+      hydrationError: null,
       session: {
         tenantId: "szl-core",
         securityDomain: "memory-plane",
@@ -194,15 +199,17 @@ export const useOrchestrator = create<OrchestratorState>()(
       organPaint: "UNAVAILABLE",
 
       hydrate: async () => {
+        // Persist middleware may still be restoring browser-local state.
+        if (!useOrchestrator.persist.hasHydrated()) return;
         const cycle = await loadPublishedCycle();
         set({ organCycle: cycle, organPaint: paintFromCycle(cycle) });
-        if (engine) {
-          set({ ready: true });
-          void get().bootBrain();
-          return;
-        }
         if (hydrating) {
           await hydrating;
+          return;
+        }
+        if (engine) {
+          if (get().hydrationIntegrity !== "BLOCKED") set({ ready: true });
+          void get().bootBrain();
           return;
         }
         hydrating = (async () => {
@@ -215,27 +222,44 @@ export const useOrchestrator = create<OrchestratorState>()(
         engine.genesisHash = genesis;
         engine.policyBundleSha256 = policySha;
         const { memories, receipts, ideas } = get();
-        if (memories.length > 0 && receipts.length > 0) {
+        if (memories.length > 0 || receipts.length > 0) {
+          // Validate and load one owned snapshot, not mutable live store arrays.
+          const memorySnapshot = structuredClone(memories);
+          const receiptSnapshot = structuredClone(receipts);
+          const storedGenesis = get().genesisHash;
+          const check = storedGenesis === genesis
+            ? await verifyHydratedPlane(memorySnapshot, receiptSnapshot, genesis)
+            : { ok: false as const, reason: "GENESIS_IDENTITY_MISMATCH" };
+          if (!check.ok) {
+            engine = null;
+            set({ ready: false, hydrationIntegrity: "BLOCKED", hydrationError: check.reason });
+            return;
+          }
           engine.load({
-            memories,
-            receipts,
-            mesh: get().mesh,
-            genesisHash: get().genesisHash || genesis,
+            memories: memorySnapshot,
+            receipts: receiptSnapshot,
+            mesh: structuredClone(get().mesh),
+            genesisHash: genesis,
             policyBundleSha256: policySha,
           });
-          set({ ready: true, policyBundleSha256: policySha });
+          set({ ready: true, hydrationIntegrity: "LOCAL_CHAIN_VERIFIED", hydrationError: null, policyBundleSha256: policySha });
           return;
         }
         const seededIdeas = await seedEngine(engine, get().session);
+        const seededCheck = await verifyHydratedPlane(engine.memories, engine.receipts, genesis);
+        if (!seededCheck.ok) throw new Error("Seeded Covenant chain did not verify");
         pull(set);
-        set({ ready: true, ideas: ideas.length ? ideas : seededIdeas, policyBundleSha256: policySha });
+        set({ ready: true, hydrationIntegrity: "LOCAL_CHAIN_VERIFIED", hydrationError: null, ideas: ideas.length ? ideas : seededIdeas, policyBundleSha256: policySha });
         })();
         try {
           await hydrating;
+        } catch {
+          engine = null;
+          set({ ready: false, hydrationIntegrity: "BLOCKED", hydrationError: "HYDRATION_FAILED" });
         } finally {
           hydrating = null;
         }
-        void get().bootBrain();
+        if (get().hydrationIntegrity !== "BLOCKED") void get().bootBrain();
       },
 
       setSession: (patch) => {
@@ -257,8 +281,9 @@ export const useOrchestrator = create<OrchestratorState>()(
       },
 
       writeMemory: async (input) => {
-        if (!engine) await get().hydrate();
-        const result = await engine!.write({
+        if (!get().ready) await get().hydrate();
+        if (!get().ready || !engine || get().hydrationIntegrity !== "LOCAL_CHAIN_VERIFIED") throw new Error("Covenant hydration integrity BLOCKED");
+        const result = await engine.write({
           identity: identity(get().session),
           tenantId: input.tenantId ?? get().session.tenantId,
           securityDomain: get().session.securityDomain,
@@ -273,8 +298,9 @@ export const useOrchestrator = create<OrchestratorState>()(
       },
 
       searchMemory: async (query, memoryClasses) => {
-        if (!engine) await get().hydrate();
-        const result = await engine!.search({
+        if (!get().ready) await get().hydrate();
+        if (!get().ready || !engine || get().hydrationIntegrity !== "LOCAL_CHAIN_VERIFIED") throw new Error("Covenant hydration integrity BLOCKED");
+        const result = await engine.search({
           identity: identity({ ...get().session, purpose: "governed-recall" }),
           query,
           memoryClasses,
