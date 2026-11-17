@@ -25,8 +25,8 @@ wake = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = wake
 SPEC.loader.exec_module(wake)
 
-SPACE = "SZLHOLDINGS/immune-lattice"
-WAKE_URL = "https://szlholdings-immune-lattice.hf.space/"
+SPACE = "SZLHOLDINGS/lyte"
+WAKE_URL = "https://szlholdings-lyte.hf.space/"
 
 
 class Ticker:
@@ -81,19 +81,19 @@ class WakeSpaceTests(TestCase):
             verifier.ORG_SPACES, verifier.CREATOR_SPACES, verifier.ORG_PROFILE_SPACE = original
 
         self.addCleanup(restore)
-        verifier.ORG_SPACES = ["immune-lattice", "added-space"]
+        verifier.ORG_SPACES = ["lyte", "added-space"]
         verifier.CREATOR_SPACES = ["SZLHOLDINGS/custom-creator", "not a space"]
         verifier.ORG_PROFILE_SPACE = "SZLHOLDINGS/README"
         self.assertEqual(wake.configured_space_ids(verifier), [
             "SZLHOLDINGS/README",
             "SZLHOLDINGS/added-space",
             "SZLHOLDINGS/custom-creator",
-            "SZLHOLDINGS/immune-lattice",
+            "SZLHOLDINGS/lyte",
         ])
-        self.assertIn("immune-lattice", verifier.ORG_SPACES)
+        self.assertIn("lyte", verifier.ORG_SPACES)
 
     def test_subdomain_and_wake_url_stay_on_this_space(self):
-        self.assertEqual(wake.expected_subdomain(SPACE), "szlholdings-immune-lattice")
+        self.assertEqual(wake.expected_subdomain(SPACE), "szlholdings-lyte")
         self.assertEqual(
             wake.expected_subdomain("SZLHOLDINGS/szl-marketing-1.1"),
             "szlholdings-szl-marketing-1-1",
@@ -116,14 +116,14 @@ class WakeSpaceTests(TestCase):
         self.assertEqual(wake.select_wake_url(SPACE, poisoned), WAKE_URL)
         swapped = {
             "id": "SZLHOLDINGS/other",
-            "subdomain": "szlholdings-immune-lattice",
-            "host": "https://szlholdings-immune-lattice.static.hf.space",
+            "subdomain": "szlholdings-lyte",
+            "host": "https://szlholdings-lyte.static.hf.space",
         }
         self.assertEqual(wake.select_wake_url(SPACE, swapped), WAKE_URL)
         queried = {
             "id": SPACE,
-            "subdomain": "szlholdings-immune-lattice",
-            "host": "https://user:secret@szlholdings-immune-lattice.hf.space/?token=secret",
+            "subdomain": "szlholdings-lyte",
+            "host": "https://user:secret@szlholdings-lyte.hf.space/?token=secret",
         }
         self.assertEqual(wake.select_wake_url(SPACE, queried), WAKE_URL)
         static_host = "https://szlholdings-readme.static.hf.space/"
@@ -163,10 +163,10 @@ class WakeSpaceTests(TestCase):
         self.assertTrue(any(isinstance(arg, wake._NoRedirect) for arg in build.call_args.args))
         for banned in (
             "https://example.com/",
-            "https://szlholdings-immune-lattice.hf.space/?token=secret",
-            "https://user:pass@huggingface.co/api/spaces/SZLHOLDINGS/immune-lattice",
-            "https://huggingface.co/api/models/SZLHOLDINGS/immune-lattice",
-            "https://szlholdings-immune-lattice.hf.space.evil.invalid/",
+            "https://szlholdings-lyte.hf.space/?token=secret",
+            "https://user:pass@huggingface.co/api/spaces/SZLHOLDINGS/lyte",
+            "https://huggingface.co/api/models/SZLHOLDINGS/lyte",
+            "https://szlholdings-lyte.hf.space.evil.invalid/",
         ):
             with self.subTest(url=banned):
                 with self.assertRaises(ValueError):
@@ -323,7 +323,7 @@ class WakeSpaceTests(TestCase):
         def get(url):
             with lock:
                 calls.append(url)
-            if "immune-lattice" in url:
+            if "lyte" in url:
                 raise RuntimeError("boom")
             sid = "SZLHOLDINGS/a11oy"
             body = json.dumps({
@@ -390,7 +390,7 @@ class WakeSpaceTests(TestCase):
         self.assertEqual(ticker.slept, [])
         hosts = {urllib.parse.urlsplit(url).hostname for url in calls}
         self.assertNotIn("other-org-space.hf.space", hosts)
-        self.assertIn("szlholdings-immune-lattice.hf.space", hosts)
+        self.assertIn("szlholdings-lyte.hf.space", hosts)
 
     def test_main_exits_zero_when_spaces_stay_unreadable(self):
         calls = []
