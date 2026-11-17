@@ -17,7 +17,7 @@ Staged-commit discipline (receipt-first):
    candidate sets) change.
 
 Acceptance (LEARNING) is fail-closed: it re-verifies the backing content
-against the digest recorded at write time, re-evaluates the CURRENT policy
+against the digest recorded at write time, evaluates its captured policy
 against the CURRENT content, and seals the Learning Receipt BEFORE moving
 the candidate into the admitted set.
 """
@@ -68,6 +68,10 @@ class OperationResult:
 class CovenantGateway:
     """Fail-closed gateway wrapping a memory plane (put/get/search protocol).
 
+    Each operation captures one Policy at entry. Replacing gateway.policy
+    affects following operations; an in-flight operation evaluates and seals
+    its receipt with the same captured policy, even across adapter callbacks.
+
     level: conformance level being enforced (C0..C2 enforced here; C3/C4
     require witnesses and Learning Receipts - see SPEC.md sections 8-9).
     clock: callable returning an ISO-8601 timestamp. The default is a
@@ -95,13 +99,13 @@ class CovenantGateway:
 
     # -- internals ---------------------------------------------------------
 
-    def _receipt(self, op: str, **fields: Any) -> Dict[str, Any]:
+    def _receipt(self, policy: Policy, op: str, **fields: Any) -> Dict[str, Any]:
         record: Dict[str, Any] = {
             "schema": "memory-covenant/v0.4-draft",
             "op": op,
             "ts": self._clock(),
-            "policy_id": self.policy.policy_id,
-            "policy_digest": self.policy.digest,
+            "policy_id": policy.policy_id,
+            "policy_digest": policy.digest,
             "signature": None,
             "signature_label": "UNSIGNED_HONEST",
         }
@@ -132,8 +136,9 @@ class CovenantGateway:
     # -- operations --------------------------------------------------------
 
     def write(self, *, actor: str, content: str, provenance: Provenance, purpose: str, tenant: str = "default") -> OperationResult:
+        policy = self.policy
         prov = self._honest_provenance(provenance)
-        verdict = self.policy.evaluate(op="WRITE", purpose=purpose, tenant=tenant, content=content)
+        verdict = policy.evaluate(op="WRITE", purpose=purpose, tenant=tenant, content=content)
         content_digest = sha3_256_hex(content)
         common = {
             "actor": actor,
@@ -146,7 +151,7 @@ class CovenantGateway:
         }
         if verdict.verdict == HARD_DENY:
             try:
-                receipt = self._receipt("WRITE", result=Lifecycle.BLOCKED, **common)
+                receipt = self._receipt(policy, "WRITE", result=Lifecycle.BLOCKED, **common)
             except Exception as exc:  # noqa: BLE001 - a denial must still be honest about seal failure
                 return OperationResult(False, Lifecycle.BLOCKED, reason="receipt seal failed (%s); denial stands, no receipt sealed" % exc)
             return OperationResult(False, Lifecycle.BLOCKED, receipt=receipt, reason="hard deny; approval cannot lift")
@@ -170,7 +175,7 @@ class CovenantGateway:
             # is a separate admission with its own bytes to roll back.
             already_tracked = (tenant, handle) in self._admitted or (tenant, handle) in self._candidates
             try:
-                receipt = self._receipt("WRITE", result=state, handle=handle, **common)
+                receipt = self._receipt(policy, "WRITE", result=state, handle=handle, **common)
             except Exception as exc:  # noqa: BLE001 - report seal failure honestly, roll the plane back
                 if already_tracked:
                     rollback = "left intact (handle already backs a receipted memory; nothing new to roll back)"
@@ -188,16 +193,17 @@ class CovenantGateway:
             self._candidates[(tenant, handle)] = {**entry, "provenance": prov, "purpose": purpose, "actor": actor}
             return OperationResult(False, Lifecycle.DISCOVERED_REVIEW_REQUIRED, handle=handle, receipt=receipt, reason=verdict.reason)
         try:
-            receipt = self._receipt("WRITE", result=Lifecycle.BLOCKED, **common)
+            receipt = self._receipt(policy, "WRITE", result=Lifecycle.BLOCKED, **common)
         except Exception as exc:  # noqa: BLE001
             return OperationResult(False, Lifecycle.BLOCKED, reason="receipt seal failed (%s); denial stands, no receipt sealed" % exc)
         return OperationResult(False, Lifecycle.BLOCKED, receipt=receipt, reason=verdict.reason)
 
     def recall(self, *, actor: str, query: str, purpose: str, tenant: str = "default") -> OperationResult:
+        policy = self.policy
         # T8: recalls are always receipted, including denials. If the lake
         # cannot seal, the recall fails closed - memories are never returned
         # unaudited.
-        verdict = self.policy.evaluate(op="RECALL", purpose=purpose, tenant=tenant, content=query)
+        verdict = policy.evaluate(op="RECALL", purpose=purpose, tenant=tenant, content=query)
         returned: List[Dict[str, Any]] = []
         if verdict.verdict == ALLOW:
             for handle in self.memory.search(tenant, query):
@@ -207,6 +213,7 @@ class CovenantGateway:
                 returned.append({"handle": handle, "digest": meta["content_digest"]})
         try:
             receipt = self._receipt(
+                policy,
                 "RECALL",
                 actor=actor,
                 purpose=purpose,
@@ -233,7 +240,7 @@ class CovenantGateway:
         2. The backing content must still exist in the plane and match the
            digest recorded at write time; altered or missing content refuses
            the acceptance and demotes the candidate to BLOCKED.
-        3. The CURRENT policy is re-evaluated against the CURRENT content
+        3. The policy captured at operation entry is evaluated against the content
            at acceptance time. A hard deny refuses the acceptance and
            demotes the candidate to BLOCKED; a plain deny refuses while the
            candidate stays review-required. A stale verdict from write
@@ -242,10 +249,11 @@ class CovenantGateway:
            the admitted set; if sealing fails the candidate remains
            DISCOVERED_REVIEW_REQUIRED. No admission without a receipt.
         """
+        policy = self.policy
         entry = self._candidates.get((tenant, handle))
         if entry is None:
             try:
-                receipt = self._receipt("LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=DENY, rule_id=None)
+                receipt = self._receipt(policy, "LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=DENY, rule_id=None)
             except Exception as exc:  # noqa: BLE001
                 return OperationResult(False, Lifecycle.BLOCKED, reason="receipt seal failed (%s); acceptance refused" % exc)
             return OperationResult(False, Lifecycle.BLOCKED, receipt=receipt, reason="no review-required candidate under this handle for tenant %s" % tenant)
@@ -257,24 +265,24 @@ class CovenantGateway:
         if not content:
             del self._candidates[(tenant, handle)]  # integrity broken: demote, never admit
             try:
-                receipt = self._receipt("LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=DENY, rule_id=None, refusal="backing content missing from plane")
+                receipt = self._receipt(policy, "LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=DENY, rule_id=None, refusal="backing content missing from plane")
             except Exception:  # noqa: BLE001 - the refusal stands even if it cannot be receipted
                 receipt = None
             return OperationResult(False, Lifecycle.BLOCKED, receipt=receipt, reason="backing content missing from plane; acceptance refused and candidate demoted")
         if sha3_256_hex(content) != entry["content_digest"]:
             del self._candidates[(tenant, handle)]  # integrity broken: demote, never admit
             try:
-                receipt = self._receipt("LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=DENY, rule_id=None, refusal="backing content altered since write; digest mismatch")
+                receipt = self._receipt(policy, "LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=DENY, rule_id=None, refusal="backing content altered since write; digest mismatch")
             except Exception:  # noqa: BLE001
                 receipt = None
             return OperationResult(False, Lifecycle.BLOCKED, receipt=receipt, reason="backing content altered since write; acceptance refused and candidate demoted")
 
-        # (3) re-evaluate the CURRENT policy against the CURRENT content.
-        verdict = self.policy.evaluate(op="WRITE", purpose=entry.get("purpose", ""), tenant=tenant, content=content)
+        # (3) Evaluate this operation's captured policy against current content.
+        verdict = policy.evaluate(op="WRITE", purpose=entry.get("purpose", ""), tenant=tenant, content=content)
         if verdict.verdict == HARD_DENY:
             del self._candidates[(tenant, handle)]  # demoted: a hard deny is absolute
             try:
-                receipt = self._receipt("LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=HARD_DENY, rule_id=verdict.rule_id, policy_recheck=True)
+                receipt = self._receipt(policy, "LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.BLOCKED, verdict=HARD_DENY, rule_id=verdict.rule_id, policy_recheck=True)
             except Exception:  # noqa: BLE001
                 receipt = None
             return OperationResult(False, Lifecycle.BLOCKED, receipt=receipt, reason="current policy hard-denies this content; acceptance refused and candidate demoted")
@@ -283,7 +291,7 @@ class CovenantGateway:
             # would record a BLOCKED->ADMITTED transition in the lake if a later
             # acceptance succeeds, which the lifecycle forbids.
             try:
-                receipt = self._receipt("LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.DISCOVERED_REVIEW_REQUIRED, verdict=DENY, rule_id=None, policy_recheck=True)
+                receipt = self._receipt(policy, "LEARNING", handle=handle, reviewer=reviewer, result=Lifecycle.DISCOVERED_REVIEW_REQUIRED, verdict=DENY, rule_id=None, policy_recheck=True)
             except Exception:  # noqa: BLE001
                 receipt = None
             return OperationResult(False, Lifecycle.DISCOVERED_REVIEW_REQUIRED, handle=handle, receipt=receipt, reason="current policy no longer admits this content; acceptance refused, candidate kept for review")
@@ -291,6 +299,7 @@ class CovenantGateway:
         # (4) seal the Learning Receipt first; move bookkeeping only after.
         try:
             receipt = self._receipt(
+                policy,
                 "LEARNING",
                 handle=handle,
                 reviewer=reviewer,
@@ -313,12 +322,13 @@ class CovenantGateway:
         return OperationResult(True, Lifecycle.ADMITTED, handle=handle, receipt=receipt, reason="learning receipt sealed")
 
     def expire(self, *, handle: str, cause: str, actor: str = "lifecycle", tenant: str = "default") -> OperationResult:
+        policy = self.policy
         meta = self._admitted.get((tenant, handle)) or self._candidates.get((tenant, handle))
         if meta is None:
             return OperationResult(False, Lifecycle.BLOCKED, reason="no such handle for tenant %s" % tenant)
         # Receipt-first: seal the EXPIRE receipt before mutating bookkeeping.
         try:
-            receipt = self._receipt("EXPIRE", handle=handle, cause=cause, actor=actor, content_digest=meta["content_digest"], result=Lifecycle.EXPIRED)
+            receipt = self._receipt(policy, "EXPIRE", handle=handle, cause=cause, actor=actor, content_digest=meta["content_digest"], result=Lifecycle.EXPIRED)
         except Exception as exc:  # noqa: BLE001
             return OperationResult(False, Lifecycle.BLOCKED, reason="receipt seal failed (%s); memory not expired" % exc)
         self._admitted.pop((tenant, handle), None)

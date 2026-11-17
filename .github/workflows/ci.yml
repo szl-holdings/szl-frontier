@@ -73,6 +73,13 @@ jobs:
       - name: Verify committed frontier manifest without rewriting it
         run: node scripts/generate-frontier-release-manifest.mjs --check
 
+      # The Covenant reference has its own stdlib-only suite outside python/tests.
+      - name: Verify Memory Covenant conformance and policy snapshots
+        run: |
+          set -euo pipefail
+          python3 -B covenant-spec/conformance/suite.py
+          python3 -B -m unittest discover -s covenant-spec/conformance -p 'test_*.py' -v
+
       - name: Verify Python frontier control plane against committed source
         env:
           PYTHONPATH: python
