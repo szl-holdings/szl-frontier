@@ -122,7 +122,7 @@ See the repository README. Adopters climb levels; each is independently testable
 
 ## 10. Conformance test matrix
 
-T1–T13 are implemented by `conformance/suite.py` (stdlib only, runs on a clean machine):
+T1–T14 are implemented by `conformance/suite.py` (stdlib only, runs on a clean machine):
 
 | # | Test | Expected |
 | --- | --- | --- |
@@ -139,6 +139,7 @@ T1–T13 are implemented by `conformance/suite.py` (stdlib only, runs on a clean
 | T11 | Receipt lake fails to seal on WRITE | Plane mutation rolled back; no memory without a receipt |
 | T12 | Receipt lake fails to seal on LEARNING acceptance | Acceptance fails; candidate stays DISCOVERED_REVIEW_REQUIRED and never serves |
 | T13 | Receipt lake fails to seal on a re-WRITE of already-admitted content | Admitted memory and its bytes are left intact; only a new mutation is rolled back |
+| T14 | Receipt lake ends in a truncated or non-object record | Offline verifier reports the broken line (ok=false) instead of raising; count is UNAVAILABLE |
 
 ## 11. Adapter interface (reference sketch)
 
