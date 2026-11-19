@@ -46,10 +46,15 @@ class ReceiptLake:
             return []
         entries: List[Dict[str, Any]] = []
         with open(self.path, "r", encoding="utf-8") as f:
-            for line in f:
+            for lineno, line in enumerate(f, 1):
                 line = line.strip()
                 if line:
-                    entries.append(json.loads(line))
+                    entry = json.loads(line)
+                    if not isinstance(entry, dict):
+                        # Valid JSON that is not a receipt object is as corrupt as a
+                        # truncated record: every reader must see it the same way.
+                        raise ValueError("line %d: record is not a JSON object" % lineno)
+                    entries.append(entry)
         return entries
 
     def append(self, record: Dict[str, Any]) -> Dict[str, Any]:

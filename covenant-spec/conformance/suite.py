@@ -260,15 +260,19 @@ def t14_truncated_lake_reported_not_raised(tmp: str) -> str:
     assert gw.lake.count() is None, "count must answer UNAVAILABLE (None), never a number or a raw decode error"
     healthy, _ = gw.lake.healthcheck()
     assert not healthy, "healthcheck must report the truncated lake as unhealthy"
-    with open(lake_path, "r", encoding="utf-8") as f:
-        first = f.readline()
-    odd = os.path.join(tmp, "non-object.ndjson")
-    with open(odd, "w", encoding="utf-8") as f:
-        f.write(first + "[1, 2]\n")
-    ok2, reason2 = ReceiptLake.verify_file(odd)
+    odd_dir = os.path.join(tmp, "non-object")
+    os.makedirs(odd_dir)
+    odd_gw = build(odd_dir)
+    odd_gw.write(actor="agent-1", content="measured fact one", provenance=provenance("measured fact one"), purpose="support.customer_qa")
+    with open(odd_gw.lake.path, "a", encoding="utf-8") as f:
+        f.write("[1, 2]\n")  # valid JSON, but not a receipt object
+    ok2, reason2 = ReceiptLake.verify_file(odd_gw.lake.path)
     assert not ok2, "a non-object record must fail offline verification"
     assert reason2.startswith("line 2: unparseable record"), "the verifier must name the broken line: " + reason2
-    return "truncated or non-object record -> verifier names the line; count is UNAVAILABLE"
+    assert odd_gw.lake.count() is None, "a non-object record must make count UNAVAILABLE (None), not a total"
+    healthy2, _ = odd_gw.lake.healthcheck()
+    assert not healthy2, "healthcheck must report a non-object record as unhealthy, not raise"
+    return "truncated or non-object record -> verifier names the line; count is UNAVAILABLE; healthcheck unhealthy"
 
 
 TESTS = [
