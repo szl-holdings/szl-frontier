@@ -36,7 +36,7 @@
 
 ```bash
 cd covenant-spec
-python -B conformance/suite.py   # T1–T13; exit 0 iff every test passes
+python -B conformance/suite.py   # T1–T14; exit 0 iff every test passes
 python -B -m unittest discover -s conformance -p 'test_*.py' -v
 ```
 
@@ -47,7 +47,7 @@ snapshot. Its rule mappings, matcher lists, policy ID, revision and digest are
 immutable. Editing the caller's original document cannot change a decision
 under an already recorded digest. A policy transition requires constructing a
 new `Policy` and replacing the gateway's policy explicitly; T9 exercises that
-transition. The snapshot unit tests and T1–T13 run in the repository's `verify`
+transition. The snapshot unit tests and T1–T14 run in the repository's `verify`
 CI job. These controls validate this reference implementation; they do not
 prove correspondence to a deployed runtime or qualify witness deployment.
 
@@ -80,6 +80,7 @@ prove correspondence to a deployed runtime or qualify witness deployment.
 | T11 | Receipt lake fails to seal on WRITE | Plane mutation rolled back; no memory without a receipt |
 | T12 | Receipt lake fails to seal on LEARNING acceptance | Acceptance fails; candidate stays DISCOVERED_REVIEW_REQUIRED and never serves |
 | T13 | Receipt lake fails to seal on a re-WRITE of already-admitted content | Admitted memory and its bytes are left intact; only a new mutation is rolled back |
+| T14 | Receipt lake ends in a truncated or non-object record | Offline verifier reports the broken line (ok=false) instead of raising; count is UNAVAILABLE |
 
 ## Adapters
 

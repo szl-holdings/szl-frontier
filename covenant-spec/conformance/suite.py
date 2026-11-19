@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Memory Covenant conformance suite (T1-T13), v0.4-draft.
+"""Memory Covenant conformance suite (T1-T14), v0.4-draft.
 
 Stdlib only. Runs on a clean machine with no SZL services. Exit 0 iff
 every test passes. T7 verifies the full chain offline, exactly as a
 third party would. T9-T12 pin the fail-closed acceptance and staged-
 commit contract: acceptance re-checks the current policy and the
 backing content, and nothing is ever admitted without a sealed
-receipt.
+receipt. T14 pins that a truncated or corrupt lake is reported, never
+raised: the offline verifier names the broken line and count() answers
+UNAVAILABLE (None).
 """
 from __future__ import annotations
 
@@ -245,6 +247,34 @@ def t13_failed_rewrite_keeps_admitted_memory(tmp: str) -> str:
     return "seal failure on a duplicate WRITE -> admitted memory and its bytes survive"
 
 
+def t14_truncated_lake_reported_not_raised(tmp: str) -> str:
+    gw = build(tmp)
+    gw.write(actor="agent-1", content="measured fact one", provenance=provenance("measured fact one"), purpose="support.customer_qa")
+    gw.write(actor="agent-1", content="measured fact two", provenance=provenance("measured fact two"), purpose="support.customer_qa")
+    lake_path = gw.lake.path
+    with open(lake_path, "a", encoding="utf-8") as f:
+        f.write('{"op": "WRITE", "seq": 2, "pre')  # a record cut off mid-write
+    ok, reason = ReceiptLake.verify_file(lake_path)
+    assert not ok, "a truncated record must fail offline verification"
+    assert reason.startswith("line 3: unparseable record"), "the verifier must name the broken line: " + reason
+    assert gw.lake.count() is None, "count must answer UNAVAILABLE (None), never a number or a raw decode error"
+    healthy, _ = gw.lake.healthcheck()
+    assert not healthy, "healthcheck must report the truncated lake as unhealthy"
+    odd_dir = os.path.join(tmp, "non-object")
+    os.makedirs(odd_dir)
+    odd_gw = build(odd_dir)
+    odd_gw.write(actor="agent-1", content="measured fact one", provenance=provenance("measured fact one"), purpose="support.customer_qa")
+    with open(odd_gw.lake.path, "a", encoding="utf-8") as f:
+        f.write("[1, 2]\n")  # valid JSON, but not a receipt object
+    ok2, reason2 = ReceiptLake.verify_file(odd_gw.lake.path)
+    assert not ok2, "a non-object record must fail offline verification"
+    assert reason2.startswith("line 2: unparseable record"), "the verifier must name the broken line: " + reason2
+    assert odd_gw.lake.count() is None, "a non-object record must make count UNAVAILABLE (None), not a total"
+    healthy2, _ = odd_gw.lake.healthcheck()
+    assert not healthy2, "healthcheck must report a non-object record as unhealthy, not raise"
+    return "truncated or non-object record -> verifier names the line; count is UNAVAILABLE; healthcheck unhealthy"
+
+
 TESTS = [
     ("T1", t1_hard_deny_fails_closed),
     ("T2", t2_chain_tamper_detected),
@@ -259,11 +289,12 @@ TESTS = [
     ("T11", t11_receipt_failure_leaves_no_memory),
     ("T12", t12_acceptance_atomic_under_lake_failure),
     ("T13", t13_failed_rewrite_keeps_admitted_memory),
+    ("T14", t14_truncated_lake_reported_not_raised),
 ]
 
 
 def main() -> int:
-    print("Memory Covenant conformance suite (v0.4-draft) — T1..T13")
+    print("Memory Covenant conformance suite (v0.4-draft) — T1..T14")
     failures = 0
     for label, fn in TESTS:
         with tempfile.TemporaryDirectory() as tmp:

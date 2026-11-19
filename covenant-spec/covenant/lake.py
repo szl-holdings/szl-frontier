@@ -46,10 +46,15 @@ class ReceiptLake:
             return []
         entries: List[Dict[str, Any]] = []
         with open(self.path, "r", encoding="utf-8") as f:
-            for line in f:
+            for lineno, line in enumerate(f, 1):
                 line = line.strip()
                 if line:
-                    entries.append(json.loads(line))
+                    entry = json.loads(line)
+                    if not isinstance(entry, dict):
+                        # Valid JSON that is not a receipt object is as corrupt as a
+                        # truncated record: every reader must see it the same way.
+                        raise ValueError("line %d: record is not a JSON object" % lineno)
+                    entries.append(entry)
         return entries
 
     def append(self, record: Dict[str, Any]) -> Dict[str, Any]:
@@ -64,8 +69,17 @@ class ReceiptLake:
         self._tail = (seq, entry["digest"])
         return entry
 
-    def count(self) -> int:
-        return len(self._read_all())
+    def count(self) -> Optional[int]:
+        """Number of receipts, or None when the lake cannot be parsed.
+
+        None is the honest UNAVAILABLE answer for a truncated or corrupt
+        lake: a count is never fabricated and the caller never gets a raw
+        decode error. healthcheck() and verify_file() name what is broken.
+        """
+        try:
+            return len(self._read_all())
+        except ValueError:
+            return None
 
     def healthcheck(self) -> Tuple[bool, str]:
         """Cheap tail integrity check, used before staged commits.
@@ -101,16 +115,24 @@ class ReceiptLake:
 
         Checks, for every record: the recomputed digest matches, and prev
         equals the previous record's digest. Names the exact broken link.
+        A truncated, corrupt or non-object record is reported as a broken
+        line (ok=False), never raised: a third-party verifier must always
+        get an answer.
         """
         prev: Optional[str] = None
         n = 0
         with open(path, "r", encoding="utf-8") as f:
-            for line in f:
+            for lineno, line in enumerate(f, 1):
                 stripped = line.strip()
                 if not stripped:
                     continue
                 n += 1
-                entry = json.loads(stripped)
+                try:
+                    entry = json.loads(stripped)
+                except ValueError as exc:
+                    return False, "line %d: unparseable record (truncated or corrupt): %s" % (lineno, exc)
+                if not isinstance(entry, dict):
+                    return False, "line %d: unparseable record (not a JSON object)" % lineno
                 body = {k: v for k, v in entry.items() if k != "digest"}
                 expected = sha3_256_hex(canonical(body))
                 if expected != entry.get("digest"):
