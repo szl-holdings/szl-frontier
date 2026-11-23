@@ -46,3 +46,19 @@ class CatalogTests(unittest.TestCase):
             path.write_text(json.dumps({"schema": "future.v99", "releases": []}), encoding="utf-8")
             with self.assertRaises(SchemaError):
                 CatalogLoader(path).load()
+
+    def test_manifest_refuses_ambiguous_json_evidence(self) -> None:
+        samples = {
+            "duplicate_root": '{"schema":"admitted","schema":"shadow","releases":[]}',
+            "duplicate_nested": '{"schema":"admitted","policy":{"materialityThreshold":70,"materialityThreshold":90},"releases":[]}',
+            "nan": '{"schema":"admitted","policy":{"materialityThreshold":NaN},"releases":[]}',
+            "infinity": '{"schema":"admitted","policy":{"materialityThreshold":Infinity},"releases":[]}',
+            "negative_infinity": '{"schema":"admitted","policy":{"materialityThreshold":-Infinity},"releases":[]}',
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "manifest.json"
+            for name, raw in samples.items():
+                with self.subTest(case=name):
+                    path.write_text(raw, encoding="utf-8")
+                    with self.assertRaisesRegex(SchemaError, "not valid JSON"):
+                        CatalogLoader._read_manifest(path)
