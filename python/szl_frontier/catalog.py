@@ -124,11 +124,26 @@ class CatalogLoader:
 
     @staticmethod
     def _read_manifest(path: Path) -> Mapping[str, Any]:
+        def unique_fields(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+            result: dict[str, Any] = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ValueError("duplicate JSON manifest field")
+                result[key] = value
+            return result
+
+        def reject_nonfinite(_value: str) -> None:
+            raise ValueError("non-finite JSON manifest constant")
+
         try:
-            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload = json.loads(
+                path.read_text(encoding="utf-8"),
+                object_pairs_hook=unique_fields,
+                parse_constant=reject_nonfinite,
+            )
         except FileNotFoundError as exc:
             raise SchemaError(f"frontier manifest not found: {path}") from exc
-        except json.JSONDecodeError as exc:
+        except (ValueError, RecursionError) as exc:
             raise SchemaError(f"frontier manifest is not valid JSON: {path}") from exc
         if not isinstance(payload, Mapping):
             raise SchemaError("frontier manifest root must be an object")
