@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "repo_name": "szl-frontier",
+    "last_audit_date": "2026-11-24",
+    "loop_level": 1
+  },
+  "estate_context": {
+    "purpose_domain": "Deny-by-default governed memory plane implementing Memory Covenant v0.3 for agentic AI, with standards tracking, proof and evaluation workflows, and Python/TypeScript deployment surfaces.",
+    "baseline_commit": "126c3cda6f7b351bcda80b61bcf00d0c52acf8a5",
+    "leader_profiles": [
+      {
+        "name": "mem0ai/mem0 (assigned szl-frontier domain leader)",
+        "url": "https://github.com/mem0ai/mem0",
+        "checked_date": "2026-11-24"
+      }
+    ]
+  },
+  "evidence_index": {
+    "publications": [
+      {
+        "id": "github:mem0ai/mem0",
+        "link": "https://github.com/mem0ai/mem0",
+        "applicability": "Assigned canonical agent-memory leader relevant to the governed memory plane domain."
+      }
+    ],
+    "gap_register": [
+      "No L1 publication inventory is present beyond the single assigned leader profile; leader coverage cannot be compared with other candidate references.",
+      "The inventory establishes repository structure and workflow presence but supplies no measured test results, coverage, dependency-audit results, or security-scan outcomes.",
+      "The assigned leader has not been mapped to specific szl-frontier paths, workflows, specifications, or evidence artifacts for behavioral comparison.",
+      "The README lifecycle is EVALUATION, but the supplied inventory contains no measured promotion criteria or readiness assessment."
+    ],
+    "prioritized_changes": [
+      "Map the assigned mem0ai/mem0 leader profile to concrete szl-frontier specification, implementation, test, and workflow paths without asserting unmeasured feature parity.",
+      "Collect and index reproducible test, coverage, dependency-audit, and security-scan evidence for baseline 126c3cda6f7b351bcda80b61bcf00d0c52acf8a5.",
+      "Define and evidence explicit promotion criteria for the README-declared EVALUATION lifecycle."
+    ]
+  },
+  "execution_trace": {}
+}
