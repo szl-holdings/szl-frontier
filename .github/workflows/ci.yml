@@ -18,6 +18,10 @@ jobs:
     env:
       # Presentation qualification must never migrate a configured external DB.
       DATABASE_URL: ""
+      # The native-browser preview boots NODE_ENV=production; this job is a
+      # deliberately throwaway presentation preview, so opt in to the in-memory
+      # DB on purpose (db-config.ts gap G1 override).
+      SZL_ALLOW_EPHEMERAL_DB: "1"
       FRONTIER_QA_OUT: artifacts/native-frontend
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
